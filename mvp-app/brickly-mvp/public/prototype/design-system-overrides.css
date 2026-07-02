@@ -1,0 +1,109 @@
+:root {
+  --font: var(--font-sans, "Space Grotesk", sans-serif);
+  --body: var(--font-sans, "Space Grotesk", sans-serif);
+  --display: var(--font-display, "Syne", sans-serif);
+  --mono: var(--font-mono, "IBM Plex Mono", monospace);
+
+  --bg: #f3efe4 !important;
+  --bg2: #fbf8ef !important;
+  --bg3: #f6f1e7 !important;
+  --surface: #fffdf6 !important;
+  --surface2: #f5efe3 !important;
+  --surface3: #eee6d7 !important;
+
+  --text: #1f1a11 !important;
+  --text2: #5c5245 !important;
+  --text3: #857765 !important;
+
+  --t: #1f1a11 !important;
+  --t2: #5c5245 !important;
+  --t3: #857765 !important;
+
+  --accent: #cb4d1a !important;
+  --accent-dark: #9f3c15 !important;
+  --accent-light: rgba(203, 77, 26, 0.12) !important;
+
+  --ac: #cb4d1a !important;
+  --ac2: #9f3c15 !important;
+  --acb: rgba(203, 77, 26, 0.34) !important;
+  --acg: rgba(203, 77, 26, 0.13) !important;
+
+  --border: #dbcfbb !important;
+  --border2: #cab79f !important;
+  --b: #dbcfbb !important;
+  --b2: #cab79f !important;
+  --b3: #b8a489 !important;
+
+  --green-bg: rgba(48, 122, 84, 0.12) !important;
+  --green-text: #2f7a53 !important;
+  --amber-bg: rgba(168, 118, 17, 0.14) !important;
+  --amber-text: #8d6715 !important;
+  --red-bg: rgba(185, 45, 45, 0.12) !important;
+  --red-text: #b92d2d !important;
+  --blue-bg: rgba(43, 108, 176, 0.12) !important;
+  --blue-text: #2b6cb0 !important;
+  --purple-bg: rgba(102, 51, 153, 0.12) !important;
+  --purple-text: #663399 !important;
+
+  --r: 10px !important;
+  --rl: 13px !important;
+  --radius: 10px !important;
+  --radius-lg: 14px !important;
+  --radius-xl: 18px !important;
+
+  --shadow: 0 8px 24px rgba(70, 51, 18, 0.08) !important;
+  --shadow-md: 0 12px 30px rgba(70, 51, 18, 0.13) !important;
+}
+
+body {
+  background-image:
+    radial-gradient(circle at 14% 8%, rgba(246, 171, 133, 0.2), transparent 31%),
+    radial-gradient(circle at 84% 4%, rgba(249, 214, 115, 0.16), transparent 28%),
+    radial-gradient(circle at 76% 90%, rgba(112, 193, 146, 0.14), transparent 30%);
+}
+
+.card,
+.sc,
+.mc,
+.dev-card,
+.det-section,
+.chart-card,
+.kpi-card,
+.modal,
+.published-modal {
+  backdrop-filter: blur(2px);
+}
+
+.btn,
+.btn-sm,
+.tb-search,
+.fi,
+.fi-area,
+.f-input,
+.f-ta,
+.fsearch,
+.tb-search,
+.unit-fi {
+  font-family: var(--font) !important;
+}
+
+.logo,
+.ws-title,
+.step-q,
+.ap-left h2,
+.an-logo,
+.nav-word,
+.display-font {
+  font-family: var(--display) !important;
+}
+
+button,
+input,
+textarea,
+select,
+body,
+[class*="title"],
+[class*="label"],
+[class*="meta"] {
+  letter-spacing: 0 !important;
+}
