@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bricly Studio — Brand Consultation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@500;600&family=Archivo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0b; --fg:#f2f0ea; --dim:#8a877e; --faint:#3a3934;
+  --accent:#c8c2ff; --accent-ink:#0a0a0b;
+  --card:#131315; --card2:#18181b; --line:#232326;
+  --r:14px; --ease:cubic-bezier(.22,.9,.3,1);
+  --trail-w:250px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--fg);font-family:'Space Grotesk',sans-serif;font-size:15px;line-height:1.5;overflow:hidden;transition:background 1.2s var(--ease)}
+::selection{background:var(--accent);color:var(--accent-ink)}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input[type=text]{font-family:inherit}
+
+/* ── TRAIL (persistent receipt rail, left) ─────── */
+#trail{position:fixed;left:0;top:0;bottom:0;width:var(--trail-w);z-index:80;padding:26px 18px 22px 24px;
+  border-right:1px solid var(--line);background:rgba(10,10,11,.55);backdrop-filter:blur(8px);
+  display:flex;flex-direction:column;overflow-y:auto;scrollbar-width:none}
+#trail::-webkit-scrollbar{display:none}
+#trail .tr-h{font-size:9.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--faint);margin-bottom:14px;flex:none}
+.tr-sec{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);margin:14px 0 6px}
+.tr-item{display:flex;gap:10px;padding:7px 8px;margin:0 -8px;border-radius:9px;cursor:pointer;transition:background .15s;align-items:baseline;animation:trIn .45s var(--ease) both}
+.tr-item:hover{background:rgba(255,255,255,.045)}
+.tr-item .tr-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none;position:relative;top:-1px}
+.tr-item .tr-body{min-width:0;flex:1}
+.tr-item .tr-lab{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.tr-item .tr-val{font-size:12px;color:var(--fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tr-item.live .tr-dot{animation:pulse 1.6s ease-in-out infinite}
+.tr-ins{font-size:10.5px;color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:3px 10px;margin:0 0 5px;
+  display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;animation:trIn .5s var(--ease) both}
+@keyframes trIn{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(200,194,255,.5)}50%{box-shadow:0 0 0 6px rgba(200,194,255,0)}}
+#tr-renders{margin-top:auto;padding-top:14px;border-top:1px solid var(--line);display:none;flex:none}
+#tr-renders .rl-t{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:4px}
+#tr-renders .rl-s{font-size:11.5px;display:flex;align-items:center;gap:7px}
+#tr-renders .rl-dot{width:7px;height:7px;border-radius:50%;background:#e8a13c;animation:pulse 1.4s infinite;flex:none}
+#tr-renders.ready .rl-dot{background:var(--accent);animation:none}
+
+/* ── SPINE (phases, right) ─────────────────────── */
+#spine{position:fixed;right:26px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:14px;z-index:80}
+.snode{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--faint);position:relative;transition:all .4s var(--ease)}
+.snode.done{background:var(--accent);border-color:var(--accent)}
+.snode.now{border-color:var(--accent);animation:pulse 1.6s ease-in-out infinite}
+.snode .stip{position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none}
+.snode:hover .stip{opacity:1}
+
+/* ── SCENES ────────────────────────────────────── */
+#scenehost{position:fixed;inset:0;left:var(--trail-w)}
+.scene{position:absolute;inset:0;display:flex;flex-direction:column;padding:54px 90px 44px 60px;overflow-y:auto;
+  opacity:0;transform:translateY(18px);transition:opacity .5s var(--ease),transform .5s var(--ease)}
+.scene.in{opacity:1;transform:none}
+.scene.out{opacity:0;transform:translateY(-18px);pointer-events:none}
+.sc-inner{width:100%;max-width:920px;margin:auto}
+.say{font-size:29px;font-weight:400;line-height:1.3;letter-spacing:-.01em;margin-bottom:10px;max-width:780px}
+.say .w{opacity:0;display:inline;animation:wIn .4s var(--ease) forwards}
+@keyframes wIn{from{opacity:0;filter:blur(4px)}to{opacity:1;filter:none}}
+.say-sub{color:var(--dim);font-size:15px;max-width:660px;margin-bottom:8px;opacity:0;transition:opacity .5s}
+.say-sub.in{opacity:1}
+.qblock{margin-top:24px;opacity:0;transform:translateY(14px);transition:all .45s var(--ease)}
+.qblock.in{opacity:1;transform:none}
+.q-label{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:12px}
+.q-answered{display:flex;gap:10px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;color:var(--dim);animation:trIn .4s var(--ease) both;max-width:780px}
+.q-answered b{color:var(--fg);font-weight:500}
+
+/* choice cards + chips */
+.ccards{display:grid;gap:12px}
+.ccards.c2{grid-template-columns:repeat(2,1fr)} .ccards.c3{grid-template-columns:repeat(3,1fr)} .ccards.c4{grid-template-columns:repeat(4,1fr)}
+.pickcard{border:1px solid var(--line);border-radius:var(--r);padding:20px;cursor:pointer;transition:all .18s var(--ease);
+  background:var(--card);position:relative;animation:cardIn .5s var(--ease) both}
+.pickcard:hover{border-color:var(--dim);transform:translateY(-2px)}
+.pickcard.sel{border-color:var(--accent);background:var(--card2)}
+.pickcard.sel::after{content:"✓";position:absolute;top:12px;right:14px;width:20px;height:20px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.pickcard h4{font-size:15px;font-weight:500;margin-bottom:3px}
+.pickcard .pc-sub{font-size:12px;color:var(--dim)}
+.pickcard .pc-ico{font-size:20px;margin-bottom:8px;display:block}
+@keyframes cardIn{from{opacity:0;transform:translateY(20px) scale(.985)}to{opacity:1;transform:none}}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);border-radius:999px;padding:10px 20px;font-size:13.5px;color:var(--fg);transition:all .18s var(--ease);animation:cardIn .4s var(--ease) both;background:var(--card)}
+.chip:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
+.chip.sel{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.chip.ghost{color:var(--dim);border-style:dashed;background:none}
+.btn-p{background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:13px 30px;font-size:14.5px;font-weight:600;transition:all .2s var(--ease)}
+.btn-p:hover{transform:translateY(-1px);filter:brightness(1.08)}
+.btn-p:disabled{opacity:.3;cursor:default;transform:none}
+.btn-g{border:1px solid var(--line);border-radius:999px;padding:11px 24px;font-size:13px;color:var(--dim);transition:all .18s}
+.btn-g:hover{color:var(--fg);border-color:var(--dim)}
+.actions{display:flex;gap:12px;align-items:center;margin-top:28px;flex-wrap:wrap}
+.free-row{display:flex;gap:8px;margin-top:14px;max-width:540px}
+.free-row input{flex:1;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:12px 15px;color:var(--fg);font-size:14px;outline:none}
+.free-row input:focus{border-color:var(--accent)}
+.note{font-size:12px;color:var(--dim);margin-top:12px}
+#toast{position:fixed;bottom:30px;left:calc(50% + var(--trail-w)/2);transform:translate(-50%,90px);background:var(--card2);border:1px solid var(--line);
+  border-radius:999px;padding:10px 22px;font-size:13px;z-index:300;transition:transform .35s var(--ease)}
+#toast.show{transform:translate(-50%,0)}
+
+/* upload zone */
+.dropzone{border:1.5px dashed var(--faint);border-radius:var(--r);padding:32px;text-align:center;color:var(--dim);cursor:pointer;transition:all .2s;font-size:14px}
+.dropzone:hover{border-color:var(--accent);color:var(--fg)}
+.filechips{margin-top:10px}
+.filechip{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);background:var(--card);border-radius:9px;padding:7px 13px;font-size:12px;margin:4px 6px 0 0;animation:cardIn .35s var(--ease) both}
+.filechip i{font-style:normal;color:var(--accent)}
+
+/* personas */
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.pcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;cursor:pointer;transition:all .18s var(--ease);position:relative;animation:cardIn .5s var(--ease) both}
+.pcard:hover{border-color:var(--dim);transform:translateY(-2px)}
+.pcard.sel{border-color:var(--accent);background:var(--card2)}
+.pcard.sel::after{content:"✓";position:absolute;top:11px;right:13px;width:20px;height:20px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.pcard .p-type{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:5px}
+.pcard h4{font-size:14.5px;font-weight:500;margin-bottom:2px;padding-right:18px}
+.pcard .p-mot{font-size:11.5px;color:var(--dim);margin-bottom:10px;min-height:34px}
+.pcard .p-band{display:flex;align-items:center;gap:9px;font-size:13px}
+.pcard .p-band button{width:24px;height:24px;border-radius:50%;border:1px solid var(--line);font-size:13px;color:var(--dim);line-height:1;flex:none}
+.pcard .p-band button:hover{border-color:var(--accent);color:var(--accent)}
+.pcard .p-pin{font-size:10.5px;color:var(--accent);border-top:1px solid var(--line);padding-top:8px;margin-top:10px}
+.pcard .p-pin.warn{color:#e8a13c}
+
+/* vibe cards */
+.vibe{height:150px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden}
+.vibe .v-art{position:absolute;inset:0;opacity:.8;transition:opacity .2s}
+.vibe:hover .v-art{opacity:1}
+.vibe h4,.vibe .pc-sub{position:relative;z-index:2;text-shadow:0 1px 8px rgba(0,0,0,.55);color:#fff}
+.vibe .pc-sub{color:rgba(255,255,255,.75)}
+
+/* confirm */
+.cf-group{margin-bottom:18px;opacity:0;animation:trIn .45s var(--ease) forwards}
+.cf-group .cf-h{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
+.cf-chips{display:flex;flex-wrap:wrap;gap:7px}
+.cf-chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 15px;font-size:12.5px;cursor:pointer;transition:all .15s}
+.cf-chip:hover{border-color:var(--accent)}
+
+/* overlays / boards */
+.overlay{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;animation:fadeIn .4s both}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.shimmer-text{font-size:26px;font-weight:300;letter-spacing:.02em;background:linear-gradient(100deg,var(--dim) 30%,var(--fg) 50%,var(--dim) 70%);
+  background-size:220% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 1.8s linear infinite}
+@keyframes shimmer{from{background-position:200% 0}to{background-position:-20% 0}}
+#colorwash{position:fixed;inset:0;z-index:140;pointer-events:none;opacity:0}
+#colorwash.go{animation:wash 1.5s var(--ease) both}
+@keyframes wash{0%{opacity:0;clip-path:circle(0% at 50% 55%)}35%{opacity:.95}100%{opacity:0;clip-path:circle(150% at 50% 55%)}}
+.board-viewport{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+.board{width:min(960px,80vw);height:min(620px,80vh);border-radius:20px;overflow:hidden;position:relative;display:grid;
+  grid-template-columns:1.35fr 1fr;border:1px solid var(--line);background:var(--card);animation:boardIn .5s var(--ease) both;color:#f2f0ea}
+@keyframes boardIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+.b-hero{position:relative;overflow:hidden}
+.b-side{padding:28px 28px 22px;display:flex;flex-direction:column;gap:13px;overflow:auto}
+.b-kicker{font-size:10px;letter-spacing:.24em;text-transform:uppercase;opacity:.75}
+.b-title{font-size:28px;font-weight:500;line-height:1.1}
+.b-kw{font-size:12px;opacity:.7}
+.b-pal{display:flex;gap:6px}
+.b-pal .swatch{flex:1;height:42px;border-radius:8px;position:relative}
+.b-pal .swatch span{position:absolute;bottom:4px;left:6px;font-size:8.5px;opacity:.85;font-family:monospace}
+.b-type-spec{border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:11px 13px}
+.b-type-spec .t-disp{font-size:19px;line-height:1.15}
+.b-type-spec .t-body{font-size:11px;opacity:.7;margin-top:4px}
+.b-mats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.b-mats .mat{height:42px;border-radius:8px}
+.b-pos{font-size:12.5px;opacity:.85;font-style:italic}
+.b-why{font-size:12.5px;line-height:1.5;border-left:2px solid currentColor;padding-left:12px;opacity:.95}
+.b-why b{font-weight:600}
+.b-pick{margin-top:auto}
+.board-nav{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;border:1px solid var(--line);
+  background:rgba(10,10,11,.7);color:var(--fg);font-size:18px;z-index:5;transition:all .2s;backdrop-filter:blur(4px)}
+.board-nav:hover{border-color:var(--accent);color:var(--accent)}
+#bnav-l{left:calc(50% - min(480px,40vw) - 64px)}
+#bnav-r{right:calc(50% - min(480px,40vw) - 64px)}
+.board-dots{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:8px}
+.bdot{width:7px;height:7px;border-radius:50%;background:var(--faint);transition:all .2s}
+.bdot.on{background:var(--fg);transform:scale(1.3)}
+.board-footer{position:absolute;top:20px;left:50%;transform:translateX(-50%);display:flex;gap:14px;align-items:center;z-index:5}
+.board-footer .bf-label{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+.bi-main{font-size:13px;letter-spacing:.04em;color:var(--fg);opacity:.92;text-align:center}
+.bi-sub{font-size:11.5px;color:var(--dim);margin-top:5px;letter-spacing:.02em;text-align:center;line-height:1.5}
+
+/* this-or-that */
+.tot{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.tot-side{border-radius:16px;overflow:hidden;border:1px solid var(--line);cursor:pointer;transition:all .25s var(--ease);position:relative;height:min(380px,44vh)}
+.tot-side:hover{transform:scale(1.02);border-color:var(--accent);z-index:2}
+.tot-side .tot-art{position:absolute;inset:0}
+.tot-side .tot-cap{position:absolute;bottom:0;left:0;right:0;padding:16px 18px;font-size:14px;font-weight:500;
+  background:linear-gradient(to top,rgba(0,0,0,.72),transparent);color:#fff}
+.tot-side .tot-cap small{display:block;font-weight:400;font-size:11.5px;opacity:.75;margin-top:2px}
+
+/* name lockups */
+.lockup-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.lockup{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px 16px 13px;cursor:pointer;transition:all .18s var(--ease);
+  text-align:center;position:relative;animation:cardIn .5s var(--ease) both}
+.lockup:hover{border-color:var(--dim);transform:translateY(-2px)}
+.lockup.sel{border-color:var(--accent);background:var(--card2)}
+.lockup .lk-name{font-size:20px;line-height:1.15;min-height:50px;display:flex;align-items:center;justify-content:center}
+.lockup .lk-by{font-size:8.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--dim);margin-top:6px}
+.lockup .lk-why{font-size:10.5px;color:var(--dim);margin-top:10px;border-top:1px solid var(--line);padding-top:8px;text-align:left}
+.lk-cat{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin:18px 0 10px}
+#lockup-preview{background:var(--card2);border:1px solid var(--line);border-radius:var(--r);padding:32px;text-align:center;margin-top:20px}
+#lp-name{font-size:44px;line-height:1.1}
+#lp-by{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--dim);margin-top:12px;transition:opacity .3s}
+.toggle-row{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--dim);margin-top:14px;justify-content:center}
+.tg{width:38px;height:21px;border-radius:999px;background:var(--faint);position:relative;cursor:pointer;transition:background .2s;flex:none}
+.tg::after{content:"";position:absolute;top:2.5px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--fg);transition:transform .2s var(--ease)}
+.tg.on{background:var(--accent)}
+.tg.on::after{transform:translateX(16px)}
+
+/* renders review */
+.rstage{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--line);height:min(400px,46vh)}
+.rstage svg{width:100%;height:100%;display:block}
+.r-reacts{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.r-cap{text-align:center;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-top:12px}
+
+/* art direction brief */
+.brief-line{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--line);opacity:0;align-items:baseline;cursor:pointer;transition:background .15s}
+.brief-line:hover{background:rgba(255,255,255,.02)}
+.brief-line.typed{animation:trIn .45s var(--ease) forwards}
+.brief-line .bl-k{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);width:120px;flex:none}
+.brief-line .bl-v{font-size:14.5px;flex:1}
+.brief-line .bl-v .cursor{display:inline-block;width:8px;height:15px;background:var(--accent);animation:blink .7s steps(1) infinite;vertical-align:text-bottom}
+@keyframes blink{50%{opacity:0}}
+.brief-line.avoid .bl-k{color:#e8a13c}
+.brief-line.struck .bl-v{text-decoration:line-through;opacity:.4}
+
+/* candidates */
+.cgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.ccard{background:var(--card2);border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:all .2s var(--ease);animation:cardIn .5s var(--ease) both;position:relative}
+.ccard:hover{border-color:var(--dim);transform:translateY(-2px)}
+.ccard.cmp{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.ccard .c-mock{height:132px;position:relative;overflow:hidden}
+.ccard .c-body{padding:14px 16px 16px}
+.ccard .c-dir{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:4px}
+.ccard .c-logo{height:44px;display:flex;align-items:center;margin:2px 0 6px}
+.ccard .c-pal{display:flex;gap:4px;margin-bottom:6px}
+.ccard .c-pal i{width:22px;height:12px;border-radius:3px;display:block}
+.ccard .c-type{font-size:11px;color:var(--dim);margin-bottom:10px}
+.ccard .c-acts{display:flex;gap:8px;align-items:center}
+.cmp-bar{display:flex;gap:10px;align-items:center;margin-top:14px;font-size:12px;color:var(--dim)}
+
+/* takeovers */
+#gen-ov .gen-blobs{position:absolute;inset:0;overflow:hidden;filter:blur(46px) saturate(1.2);opacity:.55}
+.gblob{position:absolute;width:340px;height:340px;border-radius:50%;animation:blob 5s ease-in-out infinite alternate}
+@keyframes blob{from{transform:translate(-40px,-30px) scale(.9)}to{transform:translate(50px,40px) scale(1.15)}}
+.gen-status{position:relative;z-index:2;text-align:center}
+.gen-status .gs-sub{color:var(--dim);font-size:13px;margin-top:14px;letter-spacing:.08em}
+#act-ov{z-index:150}
+.act-stage{width:min(760px,74vw);text-align:center}
+.act-mock{height:300px;border-radius:18px;overflow:hidden;border:1px solid var(--line);margin:22px auto;position:relative;transition:opacity .5s}
+.act-cap{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim)}
+
+/* handoff brief */
+#brief-flip{transition:transform .7s var(--ease);transform-style:preserve-3d;position:relative;border:1px solid var(--accent);border-radius:18px}
+#brief-flip.flipped{transform:rotateY(180deg)}
+.bf-face{backface-visibility:hidden;padding:26px}
+.bf-back{position:absolute;inset:0;transform:rotateY(180deg);background:var(--card2);overflow:auto;border-radius:18px;padding:20px}
+.bf-back pre{font-size:10px;line-height:1.5;color:var(--dim);font-family:ui-monospace,monospace;white-space:pre-wrap}
+.brief-row{display:flex;gap:14px;padding:8px 0;border-bottom:1px solid var(--line);opacity:0;animation:trIn .4s var(--ease) forwards;align-items:baseline}
+.brief-row .br-k{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);width:120px;flex:none}
+.brief-row .br-v{font-size:13.5px;flex:1}
+
+@media (max-width:1150px){:root{--trail-w:56px} #trail{padding:22px 10px} #trail .tr-body,#trail .tr-h,.tr-sec,.tr-ins,#tr-renders .rl-t,#rl-txt{display:none}}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.15s !important}
+  .say .w{animation:none;opacity:1}
+}
+</style>
+</head>
+<body>
+
+<div id="trail">
+  <div class="tr-h">Your brief</div>
+  <div id="tr-items"></div>
+  <div id="tr-ins-wrap"></div>
+  <div id="tr-renders"><div class="rl-t">Phase 0 renders</div><div class="rl-s"><span class="rl-dot"></span><span id="rl-txt">Generating in background…</span></div></div>
+</div>
+<div id="spine"></div>
+<div id="colorwash"></div>
+<div id="scenehost"></div>
+<div id="toast"></div>
+
+<script>
+"use strict";
+/* ═══════════════ HELPERS & STATE ═══════════════ */
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function el(html){var d=document.createElement("div");d.innerHTML=html.trim();return d.firstChild;}
+var REDUCED=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function wait(ms){return new Promise(function(r){setTimeout(r,REDUCED?Math.min(ms,120):ms);});}
+function toast(msg){var t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove("show");},2600);}
+
+var STATE={
+  project_id:"prj_0192",
+  entry:null, uploads:[], location_confirmed:null,
+  project:{type:null,tier:null,units:null,usps:[]},
+  setting:{where:null,character:[],story:null,rival:null},
+  buyers:[], vibe:null, blocks:null, voice_line:null,
+  name:null, byline:true, building_names:[],
+  direction:null, axes:{logo:null,photography:null,lifestyle:null,render:null},
+  render_reactions:[], style_pick:null, art_direction:null,
+  moodboard_refs:null, insights:[], house_brand:null, locked_at:null
+};
+
+/* ── scene engine ── */
+var SC=[
+  {id:"entry",  ph:0, build:function(a,b){scEntry(a,b);}},
+  {id:"intake", ph:0, build:function(a,b){scIntake(a,b);}},
+  {id:"about",  ph:1, build:function(a,b){scAbout(a,b);}},
+  {id:"loc",    ph:1, build:function(a,b){scLoc(a,b);}},
+  {id:"buyers", ph:1, build:function(a,b){scBuyers(a,b);}},
+  {id:"vibe",   ph:1, build:function(a,b){scVibe(a,b);}},
+  {id:"blocks", ph:1, build:function(a,b){scBlocks(a,b);}},
+  {id:"confirm",ph:1, build:function(a,b){scConfirm(a,b);}},
+  {id:"boards", ph:2, build:function(a,b){scBoards(a,b);}},
+  {id:"pairs",  ph:2, build:function(a,b){scPairs(a,b);}},
+  {id:"name",   ph:3, build:function(a,b){scName(a,b);}},
+  {id:"bnames", ph:3, build:function(a,b){scBNames(a,b);}, cond:function(){return STATE.blocks && STATE.blocks!=="Single building";}},
+  {id:"renders",ph:4, build:function(a,b){scRenders(a,b);}},
+  {id:"style",  ph:4, build:function(a,b){scStyle(a,b);}},
+  {id:"artdir", ph:4, build:function(a,b){scArtDir(a,b);}},
+  {id:"cands",  ph:5, build:function(a,b){scCands(a,b);}},
+  {id:"house",  ph:6, build:function(a,b){scHouse(a,b);}},
+  {id:"handoff",ph:6, build:function(a,b){scHandoff(a,b);}}
+];
+var PHASES=["Entry","Gather","Direction","Naming","Art direction","Brand kit","Wrap"];
+var curIdx=0, maxIdx=0, editReturn=null, curScene=null;
+
+function buildSpine(){
+  var sp=document.getElementById("spine");
+  PHASES.forEach(function(p){ sp.appendChild(el('<div class="snode"><span class="stip">'+esc(p)+'</span></div>')); });
+}
+function setPhase(ph){
+  document.querySelectorAll("#spine .snode").forEach(function(n,j){
+    n.classList.toggle("done",j<ph); n.classList.toggle("now",j===ph);
+  });
+}
+function idxOf(id){for(var i=0;i<SC.length;i++)if(SC[i].id===id)return i;return -1;}
+function gotoScene(i,edit){
+  var sc=SC[i]; if(!sc) return;
+  if(sc.cond && !sc.cond()){ if(!edit) gotoScene(i+1,false); return; }
+  if(edit) editReturn=Math.max(maxIdx,curIdx);
+  curIdx=i; if(!edit && i>maxIdx) maxIdx=i;
+  setPhase(sc.ph);
+  trailHighlight(sc.id);
+  var host=document.getElementById("scenehost");
+  var old=curScene;
+  var div=el('<div class="scene"><div class="sc-inner"></div></div>');
+  host.appendChild(div);
+  curScene=div;
+  if(old){ old.classList.add("out"); old.classList.remove("in"); setTimeout(function(){ old.remove(); },550); }
+  requestAnimationFrame(function(){ requestAnimationFrame(function(){ div.classList.add("in"); }); });
+  sc.build(div.querySelector(".sc-inner"),{
+    edit:!!edit,
+    done:function(){
+      if(editReturn!==null && editReturn>i){ var back=editReturn; editReturn=null; toast("Updated — back to where you were"); gotoScene(back,false); }
+      else { editReturn=null; gotoScene(i+1,false); }
+    }
+  });
+}
+function sceneSay(inner,text,sub){
+  return new Promise(function(res){
+    var line=el('<div class="say"></div>');
+    inner.appendChild(line);
+    var words=text.split(" ");
+    if(REDUCED){ line.textContent=text; }
+    else words.forEach(function(w,i){
+      var s=el('<span class="w">'+esc(w)+" </span>"); s.style.animationDelay=(i*42)+"ms"; line.appendChild(s);
+    });
+    if(sub){ var sb=el('<div class="say-sub">'+esc(sub)+'</div>'); inner.appendChild(sb);
+      setTimeout(function(){ sb.classList.add("in"); },REDUCED?0:words.length*42+150); }
+    setTimeout(res,REDUCED?40:Math.min(words.length*42+220,2000));
+  });
+}
+function qblock(inner,html){
+  var b=el('<div class="qblock">'+html+'</div>');
+  inner.appendChild(b);
+  requestAnimationFrame(function(){ requestAnimationFrame(function(){ b.classList.add("in"); }); });
+  b.scrollIntoView({behavior:REDUCED?"auto":"smooth",block:"nearest"});
+  return b;
+}
+function answered(inner,q,a){
+  inner.appendChild(el('<div class="q-answered">'+esc(q)+' — <b>'+esc(a)+'</b></div>'));
+}
+
+/* ── trail ── */
+var trailItems={};
+function trailSet(id,label,val){
+  var wrap=document.getElementById("tr-items");
+  var it=trailItems[id];
+  if(!it){
+    it=el('<div class="tr-item" data-t="'+id+'"><div class="tr-dot"></div><div class="tr-body"><div class="tr-lab">'+esc(label)+'</div><div class="tr-val"></div></div></div>');
+    it.onclick=function(){ var i=idxOf(id); if(i>=0 && i<=maxIdx && i!==curIdx) gotoScene(i,true); };
+    wrap.appendChild(it); trailItems[id]=it;
+  }
+  it.querySelector(".tr-val").innerHTML=val;
+}
+function trailHighlight(id){
+  Object.keys(trailItems).forEach(function(k){ trailItems[k].classList.toggle("live",k===id); });
+}
+function addInsight(text){
+  if(STATE.insights.indexOf(text)>=0) return;
+  STATE.insights.push(text);
+  var w=document.getElementById("tr-ins-wrap");
+  if(!w.dataset.h){ w.dataset.h="1"; w.insertAdjacentHTML("afterbegin",'<div class="tr-sec">Insights</div>'); }
+  w.appendChild(el('<div class="tr-ins" title="'+esc(text)+'">'+esc(text)+'</div>'));
+}
+
+/* ── phase 0 render lane (simulated parallel track) ── */
+var renderLane={started:false,ready:false};
+function startRenderLane(){
+  if(renderLane.started) return;
+  renderLane.started=true;
+  document.getElementById("tr-renders").style.display="block";
+  setTimeout(renderLaneReady,REDUCED?400:20000);
+}
+function renderLaneReady(){
+  if(renderLane.ready) return;
+  renderLane.ready=true;
+  document.getElementById("tr-renders").classList.add("ready");
+  document.getElementById("rl-txt").textContent="Ready · 3 hero shots";
+}
+
+/* ═══════════════ DATA ═══════════════ */
+var SEED={developer:"Falzon Group",location:"Tigné seafront, Sliema, Malta"};
+var DIRECTIONS={
+  heritage:{slug:"heritage",name:"Heritage / Timeless",kw:"permanence · legacy · refined",
+    pal:["#2B2620","#6B5D4F","#B08D57","#D9CDBA","#8C8478"],
+    type:{disp:"'Cormorant Garamond',serif",dispW:"600",label:"Serif display · humanist body"},
+    pos:"For buyers who want an address with a past — and a future.",
+    accent:"#B08D57",accentInk:"#1d1812",bg:"#0d0b09",vibe:"Timeless & refined"},
+  minimal:{slug:"minimal",name:"Modern Minimal",kw:"clean · architectural · quiet",
+    pal:["#F4F2EE","#1B1B1D","#3A3A3E","#C9C7C2","#77767A"],
+    type:{disp:"'Space Grotesk',sans-serif",dispW:"300",label:"Light grotesk · generous space"},
+    pos:"For people who read a floor plan like a manifesto.",
+    accent:"#DDDBD5",accentInk:"#141416",bg:"#0b0b0c",vibe:"Clean & architectural"},
+  organic:{slug:"organic",name:"Warm Organic",kw:"natural · calm · tactile",
+    pal:["#D9C7A7","#8A9B77","#C0704D","#7A6248","#EDE6D6"],
+    type:{disp:"'Space Grotesk',sans-serif",dispW:"500",label:"Humanist grotesk · soft rhythm"},
+    pos:"For families who want home to feel grown, not built.",
+    accent:"#C0704D",accentInk:"#17100b",bg:"#0d0c09",vibe:"Warm & natural"},
+  coastal:{slug:"coastal",name:"Coastal / Resort",kw:"light · airy · leisure",
+    pal:["#F5F1E8","#2E5266","#C9B99B","#9FB8C4","#DCD5C4"],
+    type:{disp:"'Cormorant Garamond',serif",dispW:"500",label:"Relaxed serif · airy grotesk"},
+    pos:"For buyers who measure value in metres from the water.",
+    accent:"#9FB8C4",accentInk:"#101a20",bg:"#0a0d0f",vibe:"Light & leisurely"},
+  urban:{slug:"urban",name:"Urban / Metropolitan",kw:"dense · sharp · investor",
+    pal:["#17181A","#2E3033","#C8CACD","#E8590C","#57595E"],
+    type:{disp:"'Archivo',sans-serif",dispW:"800",label:"Strong grotesk · tight tracking"},
+    pos:"For buyers who think in yield and skyline.",
+    accent:"#E8590C",accentInk:"#140800",bg:"#0b0b0c",vibe:"Sharp & investor-focused"},
+  bold:{slug:"bold",name:"Bold / Statement",kw:"expressive · branded · energetic",
+    pal:["#EFE9DC","#111114","#E33E5A","#F2B33D","#3548A6"],
+    type:{disp:"'Archivo',sans-serif",dispW:"800",label:"Display-weight · graphic shapes"},
+    pos:"For projects that intend to be talked about.",
+    accent:"#E33E5A",accentInk:"#1c0509",bg:"#0c0a0b",vibe:"Bold & expressive"}
+};
+/* filter 6→3: type/tier/location rule directions in/out FIRST; vibe is only a tiebreaker weight (never deterministic) */
+function filterDirections(){
+  var pool=["coastal","organic","minimal","heritage","urban","bold"];
+  var excluded=[];
+  if(STATE.setting.where==="Seafront / waterfront"||STATE.setting.where==="Coastal town") excluded.push("urban");
+  if(STATE.setting.where!=="Old town / historic core" && STATE.setting.character.indexOf("Historic & traditional")<0) excluded.push("heritage");
+  if(STATE.project.type==="Student housing" && excluded.indexOf("heritage")<0) excluded.push("heritage");
+  var cand=pool.filter(function(s){return excluded.indexOf(s)<0;});
+  var vibeSlug=Object.keys(DIRECTIONS).filter(function(k){return DIRECTIONS[k].vibe===STATE.vibe;})[0];
+  cand.sort(function(a,b){ return ((a===vibeSlug)?-2:0) - ((b===vibeSlug)?-2:0); });
+  return {present:cand.slice(0,3), wild:cand[3]||excluded[excluded.length-1]||"bold", rest:cand.slice(4).concat(excluded)};
+}
+var NAME_SETS={
+  place:[{n:"The Salt House",why:"Tigné's shoreline was Sliema's salt-panning frontage — quiet local history, reads premium."},
+    {n:"Creekside",why:"Direct nod to Sliema Creek; easy in every buyer language."},
+    {n:"Tigné Blue",why:"Anchors the address; the colour does the seafront work."}],
+  building:[{n:"The Ledge",why:"The stepped seafront elevation is the building's signature move."},
+    {n:"Horizon Terraces",why:"Every seaward unit owns a terrace line — name what buyers pay for."},
+    {n:"The Quarterdeck",why:"Maritime, elevated, matches the penthouse-led massing."}],
+  whole:[{n:"Meridian Residences",why:"International register for overseas buyers, precise for locals."},
+    {n:"The Sliema Line",why:"Place plus geometry — one clean line from the water."},
+    {n:"Aurelia Court",why:"Warm Latin root, golden-hour connotation, works with the byline."}]
+};
+var NAME_MORE={
+  place:[{n:"Saltline",why:"Shorter, sharper cut of the salt-pan story."},
+    {n:"The Strand House",why:"The Strand is the address everyone knows."},
+    {n:"Vela",why:"One word, maritime — 'sail' in Maltese and Italian."}],
+  building:[{n:"Blue Ledge",why:"The elevation signature plus the seafront."},
+    {n:"The Terraces",why:"Simplest cut of the amenity story."},
+    {n:"Seafront House",why:"Literal, confident, zero explanation needed."}],
+  whole:[{n:"North Quay",why:"Investor-clean, orientation-true."},
+    {n:"Casa Marisa",why:"Warm, local, names the building like a home."},
+    {n:"Azzurra",why:"International one-worder with the sea built in."}]
+};
+var BUYER_PRESETS=[
+  {label:"Overseas investor",type:"investor",mot:"Buy-to-let plus holiday use — decides on numbers and light.",lo:250,hi:400,pin:"matches your 1-beds + 2-beds",thin:false},
+  {label:"Local first-time buyer",type:"end_user",mot:"Getting on the ladder near the water.",lo:200,hi:350,pin:"thin match — only your smallest 1-beds sit in band",thin:true},
+  {label:"Local upgrader / 2nd home",type:"end_user",mot:"Selling a maisonette inland, buying the view.",lo:400,hi:600,pin:"matches your 3-beds",thin:false},
+  {label:"Downsizer / retiree",type:"end_user",mot:"Lock-up-and-leave, walkable seafront.",lo:300,hi:500,pin:"matches your 2-beds",thin:false},
+  {label:"Young professional",type:"investor",mot:"First yield play, rents it out day one.",lo:180,hi:300,pin:"matches your 1-beds",thin:false},
+  {label:"Holiday-home buyer",type:"end_user",mot:"Summers here, winters elsewhere.",lo:350,hi:600,pin:"matches your seaward 2-beds",thin:false},
+  {label:"HNW luxury end-user",type:"end_user",mot:"Wants the best terrace in Sliema, no compromises.",lo:600,hi:1400,pin:"matches only your penthouse",thin:false}
+];
+function voiceLine(){
+  var v=STATE.vibe||"Light & leisurely";
+  var intl=STATE.buyers.some(function(b){return /Overseas|Holiday|HNW/.test(b.label);});
+  var map={
+    "Timeless & refined":"Measured and assured — speaks in heritage and permanence.",
+    "Clean & architectural":"Precise and quiet — lets the building do the talking.",
+    "Warm & natural":"Warm, human, unhurried — home before product.",
+    "Light & leisurely":"Relaxed and confident — life at the water's edge, never shouty.",
+    "Sharp & investor-focused":"Direct and numerate — yield-first, no fluff.",
+    "Bold & expressive":"Loud on purpose — a launch that intends to be talked about."
+  };
+  return map[v]+(intl?" International register for overseas buyers.":" Local-first register.");
+}
+</script>
+<script id="sc-a">
+"use strict";
+/* ═══════════ SCENE 1 · ENTRY (n1–n2) ═══════════ */
+function scEntry(inner,ctx){
+  sceneSay(inner,"Let's build the brand for your Sliema project.","One consultation: your buyers, your name, your world, your identity. Mostly taps, almost no typing.").then(function(){
+    var b=qblock(inner,'<div class="q-label">How do you want to start?</div>'
+      +'<div class="ccards c3">'
+      +'<div class="pickcard" data-v="generate"><span class="pc-ico">✦</span><h4>Generate a new brand with Studio</h4><div class="pc-sub">The full consultation — from buyers to a live BrandKit</div></div>'
+      +'<div class="pickcard" data-v="import"><span class="pc-ico">↑</span><h4>Import my existing logo &amp; assets</h4><div class="pc-sub">Bring your own identity, skip the generative flow</div></div>'
+      +'<div class="pickcard" data-v="house"><span class="pc-ico">⌂</span><h4>Use my company house brand</h4><div class="pc-sub">Seed this project from the Falzon Group brand</div></div>'
+      +'</div>');
+    b.querySelectorAll(".pickcard").forEach(function(pc){
+      pc.onclick=function(){
+        var v=pc.getAttribute("data-v");
+        STATE.entry=v;
+        if(v==="generate"){
+          trailSet("entry","Route","Generate with Studio");
+          ctx.done();
+        } else {
+          b.querySelectorAll(".pickcard").forEach(function(x){x.classList.toggle("sel",x===pc);});
+          var stub=inner.querySelector("#entry-stub"); if(stub) stub.remove();
+          inner.appendChild(el('<div class="qblock in" id="entry-stub">'
+            +'<div class="note" style="max-width:560px">'+(v==="import"
+              ?"You'd drop your logo suite, palette, type and usage rules here — Studio seeds the BrandKit from them and jumps straight to applying it. <b style='color:var(--fg)'>Out of scope for this prototype.</b>"
+              :"Your workspace house brand would seed this project's BrandKit as an editable starting point — never overwriting a project's own approved brand. <b style='color:var(--fg)'>Out of scope for this prototype.</b>")
+            +'</div><div class="actions"><button class="btn-p" id="entry-gen">Continue with Generate instead →</button></div></div>'));
+          inner.querySelector("#entry-gen").onclick=function(){
+            STATE.entry="generate";
+            trailSet("entry","Route","Generate with Studio");
+            ctx.done();
+          };
+        }
+      };
+    });
+  });
+}
+
+/* ═══════════ SCENE 2 · INTAKE (n3 + parallel render lane) ═══════════ */
+var INTAKE_FILES=[["Site plans","PDF"],["Elevations","DWG"],["Location & address",""],["Site photos","JPG ×8"],["Brochure reference","PDF"]];
+function scIntake(inner,ctx){
+  sceneSay(inner,"First, give me whatever you already have.","Nothing here is mandatory. The more you drop in, the sharper your renders and constraint model. Location is the one thing I really need.").then(function(){
+    var b=qblock(inner,
+      '<div class="dropzone" id="dz">Drop plans, elevations, photos, brochures — or tap to simulate an upload</div>'
+      +'<div class="filechips" id="fchips"></div>'
+      +'<div class="qblock in" style="margin-top:22px"><div class="q-label">Confirm the location</div>'
+      +'<div class="chips"><button class="chip sel" id="loc-chip">📍 '+esc(SEED.location)+'</button><button class="chip ghost" id="loc-edit">Different address</button></div>'
+      +'<div class="free-row" id="loc-row" style="display:none"><input type="text" placeholder="Search address or describe the site…" maxlength="80"><button class="btn-g">Set</button></div></div>'
+      +'<div class="actions"><button class="btn-p" id="ik-go">Start building →</button></div>'
+      +'<div class="note" id="ik-note">The moment you continue, Studio starts your neutral hero renders in the background — watch the bottom-left.</div>');
+    var uploaded=0;
+    b.querySelector("#dz").onclick=function(){
+      if(uploaded>=INTAKE_FILES.length){ toast("That's everything from the demo set"); return; }
+      var f=INTAKE_FILES[uploaded++];
+      STATE.uploads.push(f[0]);
+      b.querySelector("#fchips").appendChild(el('<span class="filechip"><i>✓</i>'+esc(f[0])+(f[1]?' · '+f[1]:'')+'</span>'));
+      if(uploaded===2) toast("Constraint model extracting — massing, height, materials");
+    };
+    STATE.location_confirmed=SEED.location;
+    b.querySelector("#loc-edit").onclick=function(){ b.querySelector("#loc-row").style.display="flex"; b.querySelector("#loc-row input").focus(); };
+    b.querySelector("#loc-row .btn-g").onclick=function(){
+      var v=b.querySelector("#loc-row input").value.trim(); if(!v) return;
+      STATE.location_confirmed=v;
+      b.querySelector("#loc-chip").textContent="📍 "+v;
+      b.querySelector("#loc-row").style.display="none";
+    };
+    b.querySelector("#ik-go").onclick=function(){
+      trailSet("intake","Intake",(STATE.uploads.length?STATE.uploads.length+" files · ":"")+esc(STATE.location_confirmed));
+      startRenderLane();
+      toast("Phase 0 renders generating in the background");
+      ctx.done();
+    };
+  });
+}
+
+/* ═══════════ SCENE 3 · ABOUT THE PROJECT (n4) ═══════════ */
+function scAbout(inner,ctx){
+  sceneSay(inner,"Tell me about the project itself.","Four taps. If none fit, there's always your own words.").then(function(){
+    askSeq(inner,[
+      {key:"type",label:"What type of project is this?",opts:["Apartment block","Villa / detached","Townhouses","Mixed-use","Student housing","Commercial + residential"],
+        set:function(v){STATE.project.type=v;}},
+      {key:"tier",label:"What tier is it?",opts:["Mid-market","Premium","Ultra-prime"],
+        set:function(v){STATE.project.tier=v;}},
+      {key:"units",label:"Roughly how many units?",opts:["1–10","11–30","31–75","75+"],
+        set:function(v){STATE.project.units=v;}},
+      {key:"usps",label:"Anything that makes it special?",opts:["Sea views","Rooftop pool","Heritage building","Eco / sustainable","Smart homes","Concierge"],multi:true,free:true,
+        set:function(v){STATE.project.usps=v; v.forEach(function(u){addInsight(u);});}}
+    ],function(){
+      trailSet("about","Project",esc(STATE.project.type)+" · "+esc(STATE.project.tier)+" · "+esc(STATE.project.units)+" units");
+      ctx.done();
+    });
+  });
+}
+/* sequential tap-question runner: one q at a time, answered rows stack above */
+function askSeq(inner,qs,done,i){
+  i=i||0;
+  if(i>=qs.length){ done(); return; }
+  var q=qs[i];
+  var multi=!!q.multi, sel=[];
+  var chips=q.opts.map(function(o,j){return '<button class="chip" style="animation-delay:'+(j*55)+'ms" data-v="'+esc(o)+'">'+esc(o)+'</button>';}).join("");
+  if(q.free) chips+='<button class="chip ghost" data-free="1">Add your own</button>';
+  var html='<div class="q-label">'+esc(q.label)+(multi?' · pick any':'')+'</div><div class="chips">'+chips+'</div>';
+  if(multi) html+='<div class="actions" style="margin-top:18px"><button class="btn-p" data-next="1">Continue →</button><button class="btn-g" data-skip="1">Nothing special</button></div>';
+  var b=qblock(inner,html);
+  function finish(vals,display){
+    q.set(vals);
+    b.remove();
+    answered(inner,q.label,display);
+    askSeq(inner,qs,done,i+1);
+  }
+  b.querySelectorAll(".chip[data-v]").forEach(function(ch){
+    ch.onclick=function(){
+      var v=ch.getAttribute("data-v");
+      if(!multi){ finish(v,v); return; }
+      ch.classList.toggle("sel");
+      var idx=sel.indexOf(v);
+      if(ch.classList.contains("sel")&&idx<0) sel.push(v); else if(idx>=0) sel.splice(idx,1);
+    };
+  });
+  var fr=b.querySelector("[data-free]");
+  if(fr) fr.onclick=function(){
+    if(b.querySelector(".free-row")) return;
+    var row=el('<div class="free-row"><input type="text" placeholder="Your own…" maxlength="60"><button class="btn-g">Add</button></div>');
+    b.appendChild(row); row.querySelector("input").focus();
+    function add(){ var v=row.querySelector("input").value.trim(); if(!v) return;
+      if(!multi){ finish(v,v); return; }
+      sel.push(v); row.querySelector("input").value="";
+      b.querySelector(".chips").appendChild(el('<button class="chip sel">'+esc(v)+'</button>'));
+    }
+    row.querySelector(".btn-g").onclick=add;
+    row.querySelector("input").onkeydown=function(e){if(e.key==="Enter")add();};
+  };
+  var nx=b.querySelector("[data-next]");
+  if(nx) nx.onclick=function(){ finish(sel, sel.length?sel.join(", "):"—"); };
+  var sk=b.querySelector("[data-skip]");
+  if(sk) sk.onclick=function(){ finish([], "Nothing special"); };
+}
+
+/* ═══════════ SCENE 4 · LOCATION, SETTING & STORY (n5 + kept story/rival) ═══════════ */
+function scLoc(inner,ctx){
+  sceneSay(inner,"Now the setting — I've pre-read what I can from the address.","Confirm, correct, and give me the story only you know.").then(function(){
+    var story={q:"What's the story of this site — anything worth building on?",
+      chips:["Old fishing harbour frontage","Salt-pan history","New quarter, no baggage","Former industrial","Nothing notable"],
+      hyp:"Tigné's shoreline was Sliema's old salt-panning and fishing frontage — most of the Strand's character comes from that. Worth building on?",
+      hypIns:"former fishing harbour frontage"};
+    var rival={q:"Any nearby project you want this to beat?",
+      chips:["The Quad","Tigné Point resales","Fort Cambridge","No direct rival"],
+      hyp:"The obvious comparable is Tigné Point resale stock — newer finish and real outdoor space would beat it. Is that the fight?",
+      hypIns:"rival: Tigné Point resales — beat on finish + outdoor space"};
+    askSeq(inner,[
+      {key:"where",label:"Where is it? · pre-filled from your address",opts:["Seafront / waterfront","Old town / historic core","City centre","Suburban residential","Coastal town","Regeneration zone"],
+        set:function(v){STATE.setting.where=v;}},
+      {key:"char",label:"What's the surrounding character?",opts:["Historic & traditional","Busy & urban","Quiet & residential","Scenic & natural","Touristic / leisure"],multi:true,
+        set:function(v){STATE.setting.character=v;}}
+    ],function(){
+      askStoryQ(inner,story,function(v){ STATE.setting.story=v; addInsight(v);
+        askStoryQ(inner,rival,function(v2){ STATE.setting.rival=v2; addInsight(v2);
+          trailSet("loc","Location",esc(STATE.setting.where)+" · "+esc(STATE.setting.story));
+          ctx.done();
+        });
+      });
+    });
+  });
+}
+/* chip question with the "Not sure → hypothesis" fallback (kept from v1) */
+function askStoryQ(inner,item,done){
+  var chips=item.chips.map(function(c,j){return '<button class="chip" style="animation-delay:'+(j*55)+'ms" data-v="'+esc(c)+'">'+esc(c)+'</button>';}).join("")
+    +'<button class="chip ghost" data-ns="1">Not sure</button>';
+  var b=qblock(inner,'<div class="q-label">'+esc(item.q)+'</div><div class="chips">'+chips+'</div>'
+    +'<div class="free-row"><input type="text" placeholder="Or in your own words…" maxlength="120"><button class="btn-g">Send</button></div>');
+  function lock(v){ b.remove(); answered(inner,item.q,v); done(v); }
+  b.querySelectorAll(".chip[data-v]").forEach(function(ch){ ch.onclick=function(){ lock(ch.getAttribute("data-v")); }; });
+  b.querySelector(".free-row .btn-g").onclick=function(){ var v=b.querySelector("input").value.trim(); if(v) lock(v); };
+  b.querySelector("input").onkeydown=function(e){ if(e.key==="Enter") b.querySelector(".free-row .btn-g").click(); };
+  b.querySelector("[data-ns]").onclick=function(){
+    b.remove();
+    var h=qblock(inner,'<div class="q-label">My read — confirm or correct me</div>'
+      +'<div class="say" style="font-size:21px;max-width:680px">'+esc(item.hyp)+'</div>'
+      +'<div class="chips"><button class="chip" id="hy-y">Yes, that\u2019s right</button><button class="chip ghost" id="hy-n">Not quite — it\u2019s more…</button></div>'
+      +'<div class="free-row" style="display:none"><input type="text" placeholder="Tell me what it really is…" maxlength="120"><button class="btn-g">Send</button></div>');
+    h.querySelector("#hy-y").onclick=function(){ h.remove(); answered(inner,item.q,item.hypIns); done(item.hypIns); };
+    h.querySelector("#hy-n").onclick=function(){ h.querySelector(".free-row").style.display="flex"; h.querySelector("input").focus(); };
+    h.querySelector(".free-row .btn-g").onclick=function(){ var v=h.querySelector("input").value.trim(); if(!v) return; h.remove(); answered(inner,item.q,v); done(v); };
+    h.querySelector("input").onkeydown=function(e){ if(e.key==="Enter") h.querySelector(".free-row .btn-g").click(); };
+  };
+}
+
+/* ═══════════ SCENE 5 · TARGET BUYERS (n6, multi-select 2–4) ═══════════ */
+function scBuyers(inner,ctx){
+  sceneSay(inner,"Who's buying? Pick two to four.","Every card is pinned to your actual inventory — a buyer with nothing to buy is noise. Tap the +/− to shift a budget band.").then(function(){
+    var cards=BUYER_PRESETS.map(function(p,i){
+      return '<div class="pcard" data-i="'+i+'" style="animation-delay:'+(i*70)+'ms">'
+        +'<div class="p-type">'+(p.type==="investor"?"Investor":"End user")+'</div>'
+        +'<h4>'+esc(p.label)+'</h4>'
+        +'<div class="p-mot">'+esc(p.mot)+'</div>'
+        +'<div class="p-band"><button data-d="-1">−</button><span>€<span class="p-lo">'+p.lo+'</span>k – €<span class="p-hi">'+p.hi+'</span>k</span><button data-d="1">+</button></div>'
+        +'<div class="p-pin'+(p.thin?' warn':'')+'">→ '+esc(p.pin)+'</div>'
+        +'</div>';
+    }).join("");
+    var b=qblock(inner,'<div class="pgrid">'+cards+'</div>'
+      +'<div class="actions"><button class="btn-p" id="by-go" disabled>Lock these buyers →</button><span class="note" id="by-count" style="margin-top:0">0 selected · need 2–4</span></div>');
+    var picked={};
+    var live=BUYER_PRESETS.map(function(p){return {label:p.label,type:p.type,mot:p.mot,lo:p.lo,hi:p.hi,pin:p.pin,thin:p.thin};});
+    function refresh(){
+      var n=Object.keys(picked).length;
+      b.querySelector("#by-count").textContent=n+" selected · "+(n<2?"need 2–4":n>4?"too many":"good");
+      b.querySelector("#by-go").disabled=(n<2||n>4);
+    }
+    b.querySelectorAll(".pcard").forEach(function(pc){
+      var i=+pc.getAttribute("data-i");
+      pc.onclick=function(e){
+        if(e.target.closest(".p-band button")) return;
+        if(!pc.classList.contains("sel") && Object.keys(picked).length>=4){ toast("Four max — more personas dilute the targeting"); return; }
+        pc.classList.toggle("sel");
+        if(pc.classList.contains("sel")){ picked[i]=true;
+          if(live[i].thin) toast("Heads up — thin inventory match for this buyer");
+        } else delete picked[i];
+        refresh();
+      };
+      pc.querySelectorAll(".p-band button").forEach(function(btn){
+        btn.onclick=function(e){
+          e.stopPropagation();
+          var d=+btn.getAttribute("data-d")*25;
+          live[i].lo=Math.max(100,live[i].lo+d); live[i].hi=Math.max(live[i].lo+50,live[i].hi+d);
+          pc.querySelector(".p-lo").textContent=live[i].lo;
+          pc.querySelector(".p-hi").textContent=live[i].hi;
+          var pin=pc.querySelector(".p-pin");
+          if(live[i].hi<250){ pin.textContent="⚠ nothing in your inventory under €250k"; pin.classList.add("warn"); }
+          else if(!live[i].thin){ pin.textContent="→ "+live[i].pin; pin.classList.remove("warn"); }
+        };
+      });
+    });
+    b.querySelector("#by-go").onclick=function(){
+      STATE.buyers=Object.keys(picked).map(function(i){var p=live[+i];
+        return {label:p.label,budget_band_eur:[p.lo*1000,p.hi*1000],buyer_type:p.type,motivation:p.mot};});
+      trailSet("buyers","Buyers",STATE.buyers.map(function(p){return esc(p.label);}).join(" · "));
+      ctx.done();
+    };
+  });
+}
+
+/* ═══════════ SCENE 6 · VIBE (n7 — tiebreaker, not deterministic) ═══════════ */
+function scVibe(inner,ctx){
+  sceneSay(inner,"How should this brand feel?","One primary pick. This weighs into which worlds I build for you — your project type and location do the rest.").then(function(){
+    var vibes=Object.keys(DIRECTIONS).map(function(k){return DIRECTIONS[k];});
+    var cards=vibes.map(function(d,i){
+      var g='background:linear-gradient(135deg,'+d.pal[1]+' 0%,'+d.pal[2]+' 55%,'+d.pal[0]+' 130%)';
+      return '<div class="pickcard vibe" data-v="'+esc(d.vibe)+'" style="animation-delay:'+(i*70)+'ms"><div class="v-art" style="'+g+'"></div>'
+        +'<h4>'+esc(d.vibe)+'</h4><div class="pc-sub">'+esc(d.kw)+'</div></div>';
+    }).join("");
+    var b=qblock(inner,'<div class="ccards c3">'+cards+'</div>');
+    b.querySelectorAll(".pickcard").forEach(function(pc){
+      pc.onclick=function(){
+        STATE.vibe=pc.getAttribute("data-v");
+        STATE.voice_line=voiceLine();
+        trailSet("vibe","Feel",esc(STATE.vibe));
+        ctx.done();
+      };
+    });
+  });
+}
+
+/* ═══════════ SCENE 7 · BLOCK STRUCTURE (n8) ═══════════ */
+function scBlocks(inner,ctx){
+  sceneSay(inner,"Last one — one building or several?","If it's more than one, I'll name the blocks as a family later, in your locked style.").then(function(){
+    var b=qblock(inner,'<div class="chips">'+["Single building","2–3 blocks","4+ blocks","Phased development"].map(function(o,j){
+      return '<button class="chip" style="animation-delay:'+(j*60)+'ms" data-v="'+esc(o)+'">'+esc(o)+'</button>';}).join("")+'</div>');
+    b.querySelectorAll(".chip").forEach(function(ch){
+      ch.onclick=function(){
+        STATE.blocks=ch.getAttribute("data-v");
+        trailSet("blocks","Structure",esc(STATE.blocks));
+        ctx.done();
+      };
+    });
+  });
+}
+</script>
+<script id="sc-b">
+"use strict";
+/* ═══════════ SCENE 8 · CONFIRM THE BRIEF (n9, soft gate) ═══════════ */
+function scConfirm(inner,ctx){
+  sceneSay(inner,"Here's your brief. Anything to change before we design?","Tap any chip to fix it. The voice line is mine — from your feel and your buyers — reword it if it reads wrong.").then(function(){
+    STATE.voice_line=STATE.voice_line||voiceLine();
+    var groups=[
+      ["Project",[STATE.project.type,STATE.project.tier,STATE.project.units+" units"].concat(STATE.project.usps),"about"],
+      ["Location & story",[STATE.setting.where].concat(STATE.setting.character).concat([STATE.setting.story,STATE.setting.rival]),"loc"],
+      ["Buyers",STATE.buyers.map(function(p){return p.label+" · €"+(p.budget_band_eur[0]/1000)+"–"+(p.budget_band_eur[1]/1000)+"k";}),"buyers"],
+      ["Feel",[STATE.vibe],"vibe"],
+      ["Structure",[STATE.blocks],"blocks"]
+    ];
+    var html=groups.map(function(g,gi){
+      var chips=g[1].filter(Boolean).map(function(c){return '<span class="cf-chip" data-sc="'+g[2]+'">'+esc(c)+'</span>';}).join("");
+      return '<div class="cf-group" style="animation-delay:'+(gi*120)+'ms"><div class="cf-h">'+esc(g[0])+'</div><div class="cf-chips">'+chips+'</div></div>';
+    }).join("");
+    html+='<div class="cf-group" style="animation-delay:'+(groups.length*120)+'ms"><div class="cf-h">Voice · derived</div><div class="cf-chips"><span class="cf-chip" id="cf-voice">“'+esc(STATE.voice_line)+'”</span></div>'
+      +'<div class="free-row" id="voice-row" style="display:none"><input type="text" maxlength="120"><button class="btn-g">Set</button></div></div>';
+    html+='<div class="actions"><button class="btn-p" id="cf-go">Confirm & design →</button></div>';
+    var b=qblock(inner,html);
+    b.querySelectorAll(".cf-chip[data-sc]").forEach(function(ch){
+      ch.onclick=function(){ gotoScene(idxOf(ch.getAttribute("data-sc")),true); };
+    });
+    b.querySelector("#cf-voice").onclick=function(){
+      var row=b.querySelector("#voice-row"); row.style.display="flex";
+      row.querySelector("input").value=STATE.voice_line; row.querySelector("input").focus();
+    };
+    b.querySelector("#voice-row .btn-g").onclick=function(){
+      var v=b.querySelector("#voice-row input").value.trim(); if(!v) return;
+      STATE.voice_line=v;
+      b.querySelector("#cf-voice").textContent="“"+v+"”";
+      b.querySelector("#voice-row").style.display="none";
+    };
+    b.querySelector("#cf-go").onclick=function(){
+      trailSet("confirm","Brief","Soft-locked ✓");
+      ctx.done();
+    };
+  });
+}
+
+/* ═══════════ COMPOSED ART (placeholder library) ═══════════ */
+function heroSVG(d){
+  var p=d.pal;
+  return '<svg viewBox="0 0 520 640" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%">'
+    +'<defs><linearGradient id="sky-'+d.slug+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+p[0]+'"/><stop offset="1" stop-color="'+p[3]+'"/></linearGradient>'
+    +'<linearGradient id="sea-'+d.slug+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+p[1]+'"/><stop offset="1" stop-color="'+p[0]+'" stop-opacity=".4"/></linearGradient></defs>'
+    +'<rect width="520" height="640" fill="url(#sky-'+d.slug+')"/>'
+    +'<circle cx="390" cy="150" r="58" fill="'+p[2]+'" opacity=".85"/>'
+    +'<rect y="430" width="520" height="210" fill="url(#sea-'+d.slug+')"/>'
+    +'<g fill="'+p[1]+'"><rect x="60" y="250" width="130" height="190"/><rect x="190" y="200" width="120" height="240"/><rect x="310" y="290" width="110" height="150"/></g>'
+    +'<g fill="'+p[4]+'" opacity=".9"><rect x="60" y="244" width="130" height="6"/><rect x="190" y="194" width="120" height="6"/><rect x="310" y="284" width="110" height="6"/></g>'
+    +'<g fill="'+p[3]+'" opacity=".75">'
+    +[0,1,2,3].map(function(r){return [0,1,2].map(function(c){return '<rect x="'+(74+c*40)+'" y="'+(270+r*40)+'" width="24" height="26" rx="2"/>';}).join("");}).join("")
+    +[0,1,2,3,4].map(function(r){return [0,1].map(function(c){return '<rect x="'+(206+c*52)+'" y="'+(218+r*42)+'" width="34" height="28" rx="2"/>';}).join("");}).join("")
+    +'</g><rect x="0" y="430" width="520" height="3" fill="'+p[2]+'" opacity=".8"/></svg>';
+}
+function matStyle(hex,mode){
+  if(mode===1) return "background:repeating-linear-gradient(45deg,"+hex+","+hex+" 6px,rgba(0,0,0,.18) 6px,rgba(0,0,0,.18) 8px)";
+  if(mode===2) return "background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.28),transparent 60%),"+hex;
+  if(mode===3) return "background:repeating-linear-gradient(0deg,"+hex+","+hex+" 9px,rgba(255,255,255,.1) 9px,rgba(255,255,255,.1) 11px)";
+  return "background:linear-gradient(135deg,"+hex+",rgba(0,0,0,.25))";
+}
+function totArt(axis,pole,d){
+  var p=d.pal;
+  if(axis==="logo"){
+    return pole==="wordmark"
+      ? '<div style="position:absolute;inset:0;background:'+p[0]+';display:flex;align-items:center;justify-content:center"><div style="font-family:'+d.type.disp+';font-weight:'+d.type.dispW+';font-size:30px;color:'+p[1]+';letter-spacing:.06em">'+esc(STATE.name||"The Salt House")+'</div></div>'
+      : '<div style="position:absolute;inset:0;background:'+p[0]+';display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px"><svg width="72" height="72" viewBox="0 0 72 72"><circle cx="36" cy="36" r="30" fill="none" stroke="'+p[1]+'" stroke-width="4"/><path d="M14 42 Q26 30 36 42 T58 42" fill="none" stroke="'+p[2]+'" stroke-width="4" stroke-linecap="round"/></svg><div style="font-size:11px;letter-spacing:.3em;color:'+p[1]+'">'+esc((STATE.name||"SALT HOUSE").toUpperCase())+'</div></div>';
+  }
+  if(axis==="photography"){
+    return pole==="people"
+      ? '<div style="position:absolute;inset:0;background:linear-gradient(180deg,'+p[3]+','+p[0]+')"><svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%"><ellipse cx="110" cy="150" rx="26" ry="60" fill="'+p[1]+'" opacity=".9"/><circle cx="110" cy="78" r="17" fill="'+p[1]+'"/><ellipse cx="170" cy="158" rx="22" ry="52" fill="'+p[4]+'" opacity=".85"/><circle cx="170" cy="94" r="14" fill="'+p[4]+'"/><rect y="186" width="300" height="14" fill="'+p[2]+'" opacity=".7"/></svg></div>'
+      : '<div style="position:absolute;inset:0;background:'+p[3]+'"><svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%"><rect x="40" y="30" width="90" height="170" fill="'+p[1]+'"/><rect x="130" y="70" width="70" height="130" fill="'+p[4]+'"/><rect x="200" y="45" width="60" height="155" fill="'+p[1]+'" opacity=".8"/><line x1="0" y1="120" x2="300" y2="120" stroke="'+p[2]+'" stroke-width="3"/></svg></div>';
+  }
+  if(axis==="lifestyle"){
+    return pole==="quiet"
+      ? '<div style="position:absolute;inset:0;background:linear-gradient(180deg,'+p[0]+' 55%,'+p[3]+')"><svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%"><circle cx="240" cy="46" r="26" fill="'+p[2]+'" opacity=".9"/><rect x="30" y="130" width="150" height="8" rx="4" fill="'+p[1]+'"/><rect x="42" y="138" width="10" height="34" fill="'+p[1]+'"/><rect x="158" y="138" width="10" height="34" fill="'+p[1]+'"/><ellipse cx="105" cy="122" rx="14" ry="8" fill="'+p[4]+'"/></svg></div>'
+      : '<div style="position:absolute;inset:0;background:'+p[2]+'"><svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%">'+[0,1,2,3,4].map(function(i){return '<circle cx="'+(50+i*50)+'" cy="'+(120+(i%2)*26)+'" r="15" fill="'+p[(i%2)?1:4]+'"/><rect x="'+(41+i*50)+'" y="'+(134+(i%2)*26)+'" width="18" height="46" rx="8" fill="'+p[(i%2)?1:4]+'"/>';}).join("")+'<rect y="0" width="300" height="52" fill="'+p[0]+'" opacity=".55"/></svg></div>';
+  }
+  return pole==="warm"
+    ? '<div style="position:absolute;inset:0;background:linear-gradient(200deg,#f2b06b 0%,'+p[2]+' 40%,'+p[1]+' 100%)"><svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%"><rect x="70" y="60" width="160" height="140" fill="rgba(0,0,0,.32)"/><rect x="86" y="78" width="30" height="26" fill="#ffd9a0" opacity=".9"/><rect x="126" y="78" width="30" height="26" fill="#ffd9a0" opacity=".75"/><circle cx="252" cy="36" r="20" fill="#ffcf8a"/></svg></div>'
+    : '<div style="position:absolute;inset:0;background:linear-gradient(190deg,'+p[3]+' 0%,'+p[0]+' 60%)"><svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%"><rect x="70" y="50" width="160" height="150" fill="'+p[1]+'"/><rect x="86" y="66" width="30" height="26" fill="'+p[3]+'" opacity=".85"/><rect x="126" y="66" width="30" height="26" fill="'+p[3]+'" opacity=".7"/><line x1="0" y1="200" x2="300" y2="200" stroke="'+p[4]+'" stroke-width="6"/></svg></div>';
+}
+
+/* ═══════════ SCENE 9 · STAGE 1 BOARDS (n10–n11) ═══════════ */
+var boardList=[], boardIdx=0, wildShown=false, swapUsed=false;
+function whyLine(slug){
+  var story=STATE.setting.story||"the seafront site", buyer=(STATE.buyers[0]||{}).label||"your buyers";
+  var w={
+    coastal:"You told me <b>\u201c"+esc(story)+"\u201d</b> and your lead buyer is the <b>"+esc(buyer.toLowerCase())+"</b> — this world sells metres-from-the-water without shouting.",
+    organic:"Your buyers upgrading from inland want calm and texture — this makes the seafront feel like home, not a resort.",
+    minimal:"For buyers deciding off a screen, this reads international, disciplined, design-led — the building does the talking.",
+    bold:"The wildcard. If you want this to be the talked-about launch on the Strand, this is how it looks.",
+    heritage:"Your site's history gives you a legacy story — this direction makes the address feel like it was always here.",
+    urban:"Investor-sharp and skyline-first — a harder, yield-led read of the same building."
+  };
+  return w[slug]||"";
+}
+function boardHTML(slug){
+  var d=DIRECTIONS[slug];
+  var pal=d.pal.map(function(h){var light=parseInt(h.slice(1,3),16)>150;return '<div class="swatch" style="background:'+h+'"><span style="color:'+(light?"#00000090":"#ffffffcc")+'">'+h+'</span></div>';}).join("");
+  var mats=[matStyle(d.pal[2],0),matStyle(d.pal[1],1),matStyle(d.pal[3],2),matStyle(d.pal[4],3)].map(function(s){return '<div class="mat" style="'+s+'"></div>';}).join("");
+  return '<div class="board">'
+    +'<div class="b-hero">'+heroSVG(d)+'</div>'
+    +'<div class="b-side" style="background:linear-gradient(180deg,'+d.bg+', #0a0a0b)">'
+    +'<div><div class="b-kicker" style="color:'+d.accent+'">Direction</div><div class="b-title">'+esc(d.name)+'</div><div class="b-kw">'+esc(d.kw)+'</div></div>'
+    +'<div class="b-pal">'+pal+'</div>'
+    +'<div class="b-type-spec"><div class="t-disp" style="font-family:'+d.type.disp+';font-weight:'+d.type.dispW+'">Your project, set in this voice</div><div class="t-body">'+esc(d.type.label)+' — Twenty-four residences above Sliema Creek.</div></div>'
+    +'<div class="b-mats">'+mats+'</div>'
+    +'<div class="b-pos">\u201c'+esc(d.pos)+'\u201d</div>'
+    +'<div class="b-why" style="color:'+d.accent+'">'+whyLine(slug)+'</div>'
+    +'<div class="b-pick"><button class="btn-p" style="background:'+d.accent+';color:'+d.accentInk+'" onclick="pickDirection(\''+slug+'\')">This is the world \u2192</button></div>'
+    +'</div></div>';
+}
+function scBoards(inner,ctx){
+  scBoards._done=ctx.done;
+  sceneSay(inner,"We\u2019ve curated three brand worlds built specifically for your project.","Based on your location, project type, buyers, and the feel you chose \u2014 I\u2019ve filtered the full library down to three directions that genuinely fit. Each moodboard shows the complete picture: colour palette, typography, materials, photography treatment, and a specific reason why it applies to your project. Browse all three before you pick.").then(function(){
+    var b=qblock(inner,'<div class="actions"><button class="btn-p" id="bd-start">Show me the three worlds \u2192</button></div>');
+    b.querySelector("#bd-start").onclick=function(){
+      var ov=el('<div class="overlay"><div class="shimmer-text">Building your directions\u2026</div></div>');
+      document.body.appendChild(ov);
+      wait(2300).then(function(){
+        ov.remove();
+        if(!ctx.edit || !boardList.length){ var f=filterDirections(); boardList=f.present.slice(); scBoards._wild=f.wild; scBoards._rest=f.rest; }
+        openBoards();
+      });
+    };
+  });
+}
+function openBoards(){
+  boardIdx=0;
+  var ov=el('<div class="overlay" id="boards-ov">'
+    +'<div class="board-viewport" id="bviewport"></div>'
+    +'<button class="board-nav" id="bnav-l">\u2190</button><button class="board-nav" id="bnav-r">\u2192</button>'
+    +'<div class="board-footer" style="flex-direction:column;gap:7px;max-width:700px">'
+    +'<div class="bi-main">Use the arrows \u2190 \u2192 to go through all three \u2014 each one has been chosen for a specific reason that fits your project</div>'
+    +'<div class="bi-sub">When you\u2019re ready, tap \u201cThis is the world\u201d on the board you want to take forward. Your pick locks the overall feel \u2014 we\u2019ll refine the details in the next step.</div>'
+    +'<div style="display:flex;gap:10px;margin-top:4px">'
+    +(wildShown?'':'<button class="btn-g" id="wild-btn" style="font-size:11px">Show me something unexpected</button>')
+    +'<button class="btn-g" id="none-btn" style="font-size:11px">None of these fit</button></div></div>'
+    +'<div class="board-dots" id="bdots"></div></div>');
+  document.body.appendChild(ov);
+  function show(){
+    document.getElementById("bviewport").innerHTML=boardHTML(boardList[boardIdx]);
+    document.getElementById("bdots").innerHTML=boardList.map(function(_,i){return '<div class="bdot'+(i===boardIdx?" on":"")+'"></div>';}).join("");
+  }
+  document.getElementById("bnav-l").onclick=function(){ boardIdx=(boardIdx-1+boardList.length)%boardList.length; show(); };
+  document.getElementById("bnav-r").onclick=function(){ boardIdx=(boardIdx+1)%boardList.length; show(); };
+  document.onkeydown=function(e){ if(!document.getElementById("boards-ov"))return; if(e.key==="ArrowLeft")document.getElementById("bnav-l").click(); if(e.key==="ArrowRight")document.getElementById("bnav-r").click(); };
+  var wb=document.getElementById("wild-btn");
+  if(wb) wb.onclick=function(){ wildShown=true; boardList.push(scBoards._wild); boardIdx=boardList.length-1; wb.remove(); show(); };
+  document.getElementById("none-btn").onclick=noneFit;
+  show();
+}
+function noneFit(){
+  document.getElementById("boards-ov").remove();
+  if(swapUsed){
+    var inner=curScene.querySelector(".sc-inner");
+    sceneSay(inner,"Understood — no forcing a pick that doesn't land.","I've logged what's been off and flagged this for our curation team to build you a custom direction. You'll be notified when it's ready.");
+    return;
+  }
+  var inner=curScene.querySelector(".sc-inner");
+  sceneSay(inner,"Good to know now rather than after the logo. What's off about them?").then(function(){
+    var b=qblock(inner,'<div class="chips">'+["Too cold","Too busy","Too traditional","Too safe"].map(function(x){return '<button class="chip">'+x+'</button>';}).join("")+'</div>');
+    b.querySelectorAll(".chip").forEach(function(ch){
+      ch.onclick=function(){
+        var fb=ch.textContent; b.remove(); swapUsed=true;
+        var swap = fb==="Too safe"?"bold" : fb==="Too traditional"?"urban" : fb==="Too cold"?"organic" : "minimal";
+        if(boardList.indexOf(swap)>=0) swap=(scBoards._rest||[]).filter(function(s){return boardList.indexOf(s)<0;})[0]||"bold";
+        boardList.shift(); boardList.unshift(swap);
+        sceneSay(inner,"\u201c"+fb+"\u201d — noted. I've swapped in "+DIRECTIONS[swap].name+", the nearest neighbour that answers that.").then(openBoards);
+      };
+    });
+  });
+}
+function applySkin(d){
+  var r=document.documentElement.style;
+  r.setProperty("--accent",d.accent);
+  r.setProperty("--accent-ink",d.accentInk);
+  r.setProperty("--bg",d.bg);
+  document.body.style.background=d.bg;
+}
+window.pickDirection=function(slug){
+  var d=DIRECTIONS[slug];
+  STATE.direction=slug;
+  STATE.moodboard_refs={stage1_board:slug+"/stage1",stage2_picks:[]};
+  STATE.axes={logo:null,photography:null,lifestyle:null,render:null};
+  var ovb=document.getElementById("boards-ov"); if(ovb) ovb.remove();
+  var wash=document.getElementById("colorwash");
+  wash.style.background="linear-gradient(135deg,"+d.pal[1]+","+d.pal[2]+" 55%,"+d.pal[0]+")";
+  wash.classList.remove("go"); void wash.offsetWidth; wash.classList.add("go");
+  applySkin(d);
+  trailSet("boards","World","<b style='font-weight:600'>"+esc(d.name)+"</b>");
+  wait(1000).then(function(){ if(scBoards._done) scBoards._done(); });
+};
+
+/* ═══════════ SCENE 10 · STAGE 2 PAIRS (n12) ═══════════ */
+var AXES=[
+  {k:"logo",label:"Logo & mark",a:{v:"wordmark",cap:"Wordmark-led",sub:"The name carries it"},b:{v:"symbol",cap:"Symbol-led",sub:"A mark carries it"},escape:false},
+  {k:"photography",label:"Photography",a:{v:"people",cap:"People-led",sub:"Presence and life"},b:{v:"architecture",cap:"Architecture-led",sub:"Form and space"},escape:true},
+  {k:"lifestyle",label:"Lifestyle",a:{v:"quiet",cap:"Quiet & aspirational",sub:"Calm scenes"},b:{v:"social",cap:"Social & energetic",sub:"Busy scenes"},escape:true},
+  {k:"render",label:"Render",a:{v:"warm",cap:"Warm & lifestyle",sub:"Soft light, styled"},b:{v:"cool",cap:"Cool & editorial",sub:"Crisp, restrained"},escape:false}
+];
+var escCount={};
+function scPairs(inner,ctx){
+  sceneSay(inner,"We're inside "+DIRECTIONS[STATE.direction].name+" now. Four quick feels.","For each — which is closer? No wrong answers, and you're not picking your logo yet. Both options live in your world.").then(function(){
+    askAxis(inner,0,ctx);
+  });
+}
+function axisTrail(){
+  var done=AXES.filter(function(ax){return STATE.axes[ax.k];}).map(function(ax){return esc(STATE.axes[ax.k]);});
+  trailSet("pairs","Taste",done.length?done.join(" · "):"—");
+}
+function askAxis(inner,i,ctx,variant){
+  if(i>=AXES.length){
+    axisTrail();
+    sceneSay(inner,"That's your taste profile locked. Now let's prove it against your actual building.").then(function(){ setTimeout(ctx.done,600); });
+    return;
+  }
+  var ax=AXES[i], d=DIRECTIONS[STATE.direction];
+  var old=inner.querySelector(".qblock"); if(old) old.remove();
+  var oldSay=inner.querySelectorAll(".say, .say-sub"); if(i>0||variant) oldSay.forEach(function(s,si){ if(si>1) s.remove(); });
+  var html='<div class="q-label">'+(i+1)+' of 4 — '+esc(ax.label)+(variant?' · two more, same axis':'')+' · which feels closer?</div>'
+    +'<div class="tot">'
+    +'<div class="tot-side" data-p="a"><div class="tot-art">'+totArt(ax.k,ax.a.v,d)+'</div><div class="tot-cap">'+esc(ax.a.cap)+'<small>'+esc(ax.a.sub)+'</small></div></div>'
+    +'<div class="tot-side" data-p="b"><div class="tot-art">'+totArt(ax.k,ax.b.v,d)+'</div><div class="tot-cap">'+esc(ax.b.cap)+'<small>'+esc(ax.b.sub)+'</small></div></div>'
+    +'</div>'
+    +(ax.escape?'<div class="actions"><button class="btn-g" id="tot-esc">Neither — show me two more</button></div>':'');
+  var b=qblock(inner,html);
+  function lock(pole){
+    STATE.axes[ax.k]=pole;
+    STATE.moodboard_refs.stage2_picks.push(STATE.direction+"_stage2_"+ax.k+"_"+pole+"_01.jpg");
+    axisTrail();
+    askAxis(inner,i+1,ctx);
+  }
+  b.querySelector('[data-p="a"]').onclick=function(){ lock(ax.a.v); };
+  b.querySelector('[data-p="b"]').onclick=function(){ lock(ax.b.v); };
+  if(ax.escape) b.querySelector("#tot-esc").onclick=function(){
+    escCount[ax.k]=(escCount[ax.k]||0)+1;
+    if(escCount[ax.k]>=2){ b.remove(); inferAxis(inner,i,ctx); }
+    else { toast("Fair — a forced pick pollutes the brief. Two fresh takes:"); askAxis(inner,i,ctx,true); }
+  };
+}
+function inferAxis(inner,i,ctx){
+  var ax=AXES[i];
+  sceneSay(inner,"Let's come at it differently. Describe the photo you'd want on the brochure cover — what's in it?").then(function(){
+    var b=qblock(inner,'<div class="free-row"><input type="text" placeholder="e.g. a couple on the terrace at dusk…" maxlength="120"><button class="btn-p" style="padding:11px 22px">Send</button></div>');
+    function go(){
+      var v=b.querySelector("input").value.trim(); if(!v) return;
+      b.remove();
+      var lv=v.toLowerCase();
+      var pole,cap,inference;
+      if(ax.k==="photography"){
+        var isP=["couple","people","family","friends","dinner","someone","woman","man","kids","guests","crowd","person"].some(function(w){return lv.indexOf(w)>=0;});
+        pole=isP?"people":"architecture"; cap=isP?"People-led":"Architecture-led";
+        inference=isP?"That's people-led — presence and life in the frame.":"That's architecture-led — the form and the space carry it.";
+      } else {
+        var isS=["friends","party","dinner","busy","guests","crowd","music","together"].some(function(w){return lv.indexOf(w)>=0;});
+        pole=isS?"social":"quiet"; cap=isS?"Social & energetic":"Quiet & aspirational";
+        inference=isS?"That's social and energetic — scenes with life in motion.":"That's quiet and aspirational — calm, unhurried scenes.";
+      }
+      sceneSay(inner,inference+" Locking that in — overrule me with one tap if I've read it wrong.").then(function(){
+        var c=qblock(inner,'<div class="chips"><button class="chip" id="inf-ok">'+esc(cap)+' is right</button><button class="chip ghost" id="inf-no">No — the other one</button></div>');
+        function commit(p){
+          c.remove();
+          STATE.axes[ax.k]=p;
+          STATE.moodboard_refs.stage2_picks.push(STATE.direction+"_stage2_"+ax.k+"_"+p+"_01.jpg");
+          axisTrail();
+          askAxis(inner,i+1,ctx);
+        }
+        c.querySelector("#inf-ok").onclick=function(){ commit(pole); };
+        c.querySelector("#inf-no").onclick=function(){ commit(pole===ax.a.v?ax.b.v:ax.a.v); };
+      });
+    }
+    b.querySelector(".btn-p").onclick=go;
+    b.querySelector("input").onkeydown=function(e){ if(e.key==="Enter") go(); };
+  });
+}
+
+/* ═══════════ SCENE 11 · NAMING AS LOCKUPS (n13) ═══════════ */
+var nameRound=1;
+function scName(inner,ctx){
+  var d=DIRECTIONS[STATE.direction];
+  sceneSay(inner,"Now the name — shown the way it'd actually look.","Each one is set in your chosen type direction. Three ways in: from the place, from the building, from the whole picture.").then(function(){
+    renderLockups(inner,ctx,NAME_SETS,false);
+  });
+}
+function lockupHTML(o,d){
+  return '<div class="lockup" data-n="'+esc(o.n)+'">'
+    +'<div class="lk-name" style="font-family:'+d.type.disp+';font-weight:'+d.type.dispW+'">'+esc(o.n)+'</div>'
+    +'<div class="lk-by">BY FALZON GROUP</div>'
+    +'<div class="lk-why">'+esc(o.why)+'</div></div>';
+}
+function renderLockups(inner,ctx,sets,isRegen){
+  var d=DIRECTIONS[STATE.direction];
+  var old=inner.querySelector("#name-block"); if(old) old.remove();
+  var cats=[["From the place",sets.place],["From the building",sets.building],["From the whole picture",sets.whole]];
+  var html='<div id="name-block">'+cats.map(function(c){
+    return '<div class="lk-cat">'+esc(c[0])+'</div><div class="lockup-grid">'+c[1].map(function(o){return lockupHTML(o,d);}).join("")+'</div>';
+  }).join("")
+  +'<div id="lockup-preview" style="display:none"><div id="lp-name" style="font-family:'+d.type.disp+';font-weight:'+d.type.dispW+'"></div><div id="lp-by">BY FALZON GROUP</div>'
+  +'<div class="toggle-row"><div class="tg on" id="by-tg"></div><span>\u201cBy Falzon Group\u201d under the logo</span></div></div>'
+  +'<div class="free-row"><input type="text" id="own-name" placeholder="Or type your own name…" maxlength="40"><button class="btn-g" id="own-go">Use mine</button></div>'
+  +'<div class="actions"><button class="btn-p" id="n-lock" style="display:none">Lock the name \u2192</button>'
+  +'<button class="btn-g" id="n-more">Show me more</button>'
+  +(isRegen?'':'<button class="btn-g" id="n-none">None of these work</button>')+'</div></div>';
+  var b=qblock(inner,html);
+  var picked=null;
+  function pick(n){
+    picked=n;
+    b.querySelectorAll(".lockup").forEach(function(o){ o.classList.toggle("sel",o.getAttribute("data-n")===n); });
+    var pv=b.querySelector("#lockup-preview"); pv.style.display="block";
+    b.querySelector("#lp-name").textContent=n;
+    b.querySelector("#n-lock").style.display="inline-block";
+    pv.scrollIntoView({behavior:REDUCED?"auto":"smooth",block:"nearest"});
+  }
+  b.querySelectorAll(".lockup").forEach(function(o){ o.onclick=function(){ pick(o.getAttribute("data-n")); }; });
+  b.querySelector("#by-tg").onclick=function(){
+    this.classList.toggle("on"); STATE.byline=this.classList.contains("on");
+    b.querySelector("#lp-by").style.opacity=STATE.byline?"1":"0";
+    b.querySelectorAll(".lk-by").forEach(function(x){x.style.opacity=STATE.byline?"1":"0";});
+  };
+  b.querySelector("#own-go").onclick=function(){
+    var v=b.querySelector("#own-name").value.trim(); if(!v) return;
+    pick(v);
+    toast("\u201c"+v+"\u201d — yours beats mine. Validated: reads clean next to the byline.");
+  };
+  b.querySelector("#own-name").onkeydown=function(e){ if(e.key==="Enter") b.querySelector("#own-go").click(); };
+  b.querySelector("#n-more").onclick=function(){
+    nameRound++;
+    renderLockups(inner,ctx,nameRound%2===0?NAME_MORE:NAME_SETS,isRegen);
+  };
+  var nn=b.querySelector("#n-none");
+  if(nn) nn.onclick=function(){ b.remove(); nameConstraints(inner,ctx); };
+  b.querySelector("#n-lock").onclick=function(){
+    STATE.name=picked;
+    STATE.building_names=[picked];
+    trailSet("name","Name","<b style='font-weight:600'>"+esc(picked)+"</b>"+(STATE.byline?" · By Falzon":""));
+    ctx.done();
+  };
+}
+function nameConstraints(inner,ctx){
+  sceneSay(inner,"Fair — no forcing it. Two quick constraints and I'll go again.").then(function(){
+    var b=qblock(inner,'<div class="q-label">What should it sound like?</div><div class="chips">'+["Shorter","More local","More international","More literal","More abstract"].map(function(x){return '<button class="chip">'+x+'</button>';}).join("")+'</div>');
+    b.querySelectorAll(".chip").forEach(function(ch){
+      ch.onclick=function(){
+        var v1=ch.textContent; b.remove();
+        var b2=qblock(inner,'<div class="q-label">Anything to avoid?</div>'
+          +'<div class="free-row" style="margin-top:0"><input type="text" placeholder="e.g. no \u2018Tign\u00e9\u2019, nothing nautical…" maxlength="80"><button class="btn-g">Send</button></div>'
+          +'<div class="chips" style="margin-top:10px"><button class="chip ghost">Nothing specific</button></div>');
+        function done2(v2){
+          b2.remove();
+          toast("Regenerating — "+v1.toLowerCase()+", avoiding "+v2.toLowerCase());
+          renderLockups(inner,ctx,NAME_MORE,true);
+        }
+        b2.querySelector(".btn-g").onclick=function(){ done2(b2.querySelector("input").value.trim()||"nothing specific"); };
+        b2.querySelector("input").onkeydown=function(e){ if(e.key==="Enter") b2.querySelector(".btn-g").click(); };
+        b2.querySelector(".chip").onclick=function(){ done2("nothing specific"); };
+      };
+    });
+  });
+}
+
+/* ═══════════ SCENE 12 · BLOCK NAMES (n14, conditional) ═══════════ */
+function scBNames(inner,ctx){
+  var d=DIRECTIONS[STATE.direction];
+  var setsA=["The Salt House","The Net Loft","The Boat Store"];
+  var setsB=[STATE.name+" One",STATE.name+" Two",STATE.name+" Three"];
+  var count=STATE.blocks==="2–3 blocks"?3:3;
+  sceneSay(inner,"Several blocks — so let's name them as a family.","Two suggested sets in your locked style. Accept one, or edit any name after picking.").then(function(){
+    function setHTML(id,names){
+      return '<div class="pickcard" data-s="'+id+'" style="text-align:center"><div class="q-label" style="margin-bottom:14px">Set '+id+'</div>'
+        +names.slice(0,count).map(function(n){return '<div class="lk-name" style="font-family:'+d.type.disp+';font-weight:'+d.type.dispW+';font-size:17px;min-height:34px">'+esc(n)+'</div>';}).join("")+'</div>';
+    }
+    var b=qblock(inner,'<div class="ccards c2">'+setHTML("A",setsA)+setHTML("B",setsB)+'</div>');
+    b.querySelectorAll(".pickcard").forEach(function(pc){
+      pc.onclick=function(){
+        var names=pc.getAttribute("data-s")==="A"?setsA:setsB;
+        STATE.building_names=names.slice(0,count);
+        trailSet("bnames","Blocks",STATE.building_names.map(esc).join(" · "));
+        ctx.done();
+      };
+    });
+  });
+}
+</script>
+<script id="sc-c">
+"use strict";
+/* ═══════════ SCENE 13 · PHASE 0 RENDER REVIEW (n15) ═══════════ */
+function renderSVG(kind){
+  var sky = kind==="dusk" ? '<linearGradient id="rs-'+kind+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#31405c"/><stop offset="1" stop-color="#c98d5a"/></linearGradient>'
+          : '<linearGradient id="rs-'+kind+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a9bfcc"/><stop offset="1" stop-color="#e8e2d2"/></linearGradient>';
+  var body = kind==="detail"
+    ? '<g><rect x="0" y="0" width="300" height="200" fill="#cfc9ba"/><g fill="#a89f8d">'+[0,1,2].map(function(r){return [0,1,2,3].map(function(c){return '<rect x="'+(18+c*72)+'" y="'+(16+r*62)+'" width="52" height="46" rx="3"/>';}).join("");}).join("")+'</g><rect x="0" y="98" width="300" height="8" fill="#8f8672"/></g>'
+    : '<g><rect width="300" height="200" fill="url(#rs-'+kind+')"/>'
+      +'<rect y="156" width="300" height="44" fill="'+(kind==="dusk"?"#22303f":"#7fa3b5")+'"/>'
+      +'<g fill="'+(kind==="dusk"?"#3d3a33":"#b5ad9c")+'"><rect x="30" y="64" width="80" height="92"/><rect x="110" y="42" width="76" height="114"/><rect x="186" y="80" width="70" height="76"/></g>'
+      +'<g fill="'+(kind==="dusk"?"#f0c98c":"#e8e2d2")+'" opacity=".85">'+[0,1,2].map(function(r){return [0,1].map(function(c){return '<rect x="'+(122+c*34)+'" y="'+(52+r*32)+'" width="22" height="20" rx="2"/>';}).join("");}).join("")+'</g>'
+      +(kind==="dusk"?'<circle cx="258" cy="30" r="13" fill="#f5d9a8"/>':'<circle cx="250" cy="32" r="18" fill="#fff" opacity=".8"/>')
+      +'</g>';
+  return '<svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice">'+sky+body+'</svg>';
+}
+var RENDER_SHOTS=[
+  {kind:"day",cap:"North-west face · mid-morning"},
+  {kind:"dusk",cap:"Seafront elevation · last light"},
+  {kind:"detail",cap:"Facade detail · limestone grid"}
+];
+function scRenders(inner,ctx){
+  renderLaneReady();
+  var idx=0, reacted={};
+  sceneSay(inner,"While we talked, Studio built your building.","This is it — before any brand. Honest massing, real materials, neutral light. React to each shot; I'm listening.").then(function(){
+    var b=qblock(inner,
+      '<div class="rstage" id="rstage">'+renderSVG(RENDER_SHOTS[0].kind)+'</div>'
+      +'<div class="r-cap" id="rcap">'+esc(RENDER_SHOTS[0].cap)+' · 1 of 3</div>'
+      +'<div class="r-reacts">'
+      +'<button class="chip" data-r="like">👍 Like this</button>'
+      +'<button class="chip" data-r="not">👎 Not this</button>'
+      +'<button class="chip" data-r="more">✨ More like this</button>'
+      +'<button class="chip ghost" data-r="why" title="the light / angle / mood / materials">What exactly? ▾</button>'
+      +'</div>'
+      +'<div class="chips" id="why-chips" style="display:none;justify-content:center;margin-top:10px">'
+      +["the light","the angle","the mood","the materials"].map(function(x){return '<button class="chip" data-w="'+x+'" style="padding:7px 15px;font-size:12px">'+x+'</button>';}).join("")+'</div>'
+      +'<div class="actions" style="justify-content:center">'
+      +'<button class="btn-g" id="r-prev">← Prev</button><button class="btn-g" id="r-next">Next →</button>'
+      +'<button class="btn-p" id="r-done">That\u2019s what resonates →</button>'
+      +'<button class="btn-g" id="r-stuck">Hard to say</button></div>');
+    function show(){
+      b.querySelector("#rstage").innerHTML=renderSVG(RENDER_SHOTS[idx].kind);
+      b.querySelector("#rcap").textContent=RENDER_SHOTS[idx].cap+" · "+(idx+1)+" of 3";
+      b.querySelectorAll("[data-r]").forEach(function(x){ x.classList.toggle("sel", reacted[idx]===x.getAttribute("data-r")); });
+    }
+    b.querySelector("#r-prev").onclick=function(){ idx=(idx+2)%3; show(); };
+    b.querySelector("#r-next").onclick=function(){ idx=(idx+1)%3; show(); };
+    b.querySelectorAll("[data-r]").forEach(function(ch){
+      ch.onclick=function(){
+        var r=ch.getAttribute("data-r");
+        if(r==="why"){ var w=b.querySelector("#why-chips"); w.style.display=w.style.display==="none"?"flex":"none"; return; }
+        reacted[idx]=r;
+        STATE.render_reactions.push(r+" · "+RENDER_SHOTS[idx].cap.toLowerCase());
+        show();
+        if(idx<2){ setTimeout(function(){ idx++; show(); },350); }
+      };
+    });
+    b.querySelectorAll("[data-w]").forEach(function(ch){
+      ch.onclick=function(){
+        ch.classList.toggle("sel");
+        STATE.render_reactions.push(ch.getAttribute("data-w")+" · "+RENDER_SHOTS[idx].cap.toLowerCase());
+      };
+    });
+    b.querySelector("#r-done").onclick=function(){
+      if(!STATE.render_reactions.length) STATE.render_reactions.push("like · seafront elevation · last light");
+      trailSet("renders","Renders",STATE.render_reactions.length+" reactions");
+      ctx.done();
+    };
+    b.querySelector("#r-stuck").onclick=function(){
+      b.remove(); cropChoice(inner,ctx);
+    };
+  });
+}
+function cropChoice(inner,ctx){
+  var d=DIRECTIONS[STATE.direction];
+  sceneSay(inner,"Then let's make it binary. Same building, two treatments — which is closer?").then(function(){
+    var b=qblock(inner,'<div class="tot">'
+      +'<div class="tot-side" data-p="warm"><div class="tot-art">'+totArt("render","warm",d)+'</div><div class="tot-cap">Warm late light<small>Low sun, long shadows</small></div></div>'
+      +'<div class="tot-side" data-p="cool"><div class="tot-art">'+totArt("render","cool",d)+'</div><div class="tot-cap">Cool morning light<small>Crisp, even, editorial</small></div></div></div>');
+    b.querySelectorAll(".tot-side").forEach(function(s){
+      s.onclick=function(){
+        var p=s.getAttribute("data-p");
+        STATE.render_reactions.push("the light · "+(p==="warm"?"warm, late-afternoon":"cool, editorial morning"));
+        trailSet("renders","Renders","inferred from binary pick");
+        ctx.done();
+      };
+    });
+  });
+}
+
+/* ═══════════ SCENE 14 · VISUAL STYLE (n16) ═══════════ */
+function scStyle(inner,ctx){
+  var d=DIRECTIONS[STATE.direction];
+  sceneSay(inner,"Which visual style should the renders follow?","Four treatments of your world. If none jumps out, I'll make it a this-or-that.").then(function(){
+    var styles=[
+      {id:"Warm & lifestyle",g:"linear-gradient(200deg,#f2b06b,"+d.pal[2]+" 45%,"+d.pal[1]+")",sub:"Golden hour, styled, lived-in"},
+      {id:"Cool & editorial",g:"linear-gradient(190deg,"+d.pal[3]+","+d.pal[0]+" 70%)",sub:"Crisp, restrained, architectural"},
+      {id:"Bright & airy",g:"linear-gradient(180deg,"+d.pal[0]+","+d.pal[4]+")",sub:"High-key, open, weightless"},
+      {id:"Moody & dramatic",g:"linear-gradient(210deg,"+d.pal[1]+",#101014 80%)",sub:"Dusk, contrast, cinematic"}
+    ];
+    var b=qblock(inner,'<div class="ccards c2">'+styles.map(function(s,i){
+      return '<div class="pickcard vibe" data-v="'+esc(s.id)+'" style="animation-delay:'+(i*80)+'ms;height:130px"><div class="v-art" style="background:'+s.g+'"></div><h4>'+esc(s.id)+'</h4><div class="pc-sub">'+esc(s.sub)+'</div></div>';
+    }).join("")+'</div>'
+    +'<div class="actions"><button class="btn-g" id="st-unsure">Can\u2019t decide</button></div>');
+    b.querySelectorAll(".pickcard").forEach(function(pc){
+      pc.onclick=function(){
+        STATE.style_pick=pc.getAttribute("data-v");
+        trailSet("style","Style",esc(STATE.style_pick));
+        ctx.done();
+      };
+    });
+    b.querySelector("#st-unsure").onclick=function(){
+      b.remove();
+      sceneSay(inner,"No problem — two at a time is easier than four.").then(function(){
+        var c=qblock(inner,'<div class="tot" style="grid-template-columns:1fr 1fr">'
+          +'<div class="tot-side" data-v="Warm & lifestyle" style="height:220px"><div class="tot-art" style="background:'+styles[0].g+'"></div><div class="tot-cap">Warm & lifestyle</div></div>'
+          +'<div class="tot-side" data-v="Cool & editorial" style="height:220px"><div class="tot-art" style="background:'+styles[1].g+'"></div><div class="tot-cap">Cool & editorial</div></div></div>');
+        c.querySelectorAll(".tot-side").forEach(function(s){
+          s.onclick=function(){
+            STATE.style_pick=s.getAttribute("data-v");
+            trailSet("style","Style",esc(STATE.style_pick)+" · inferred");
+            ctx.done();
+          };
+        });
+      });
+    };
+  });
+}
+
+/* ═══════════ SCENE 15 · ART DIRECTION BRIEF (n17–n18) ═══════════ */
+var BRIEF_LINES=[];
+function buildBriefLines(){
+  var d=DIRECTIONS[STATE.direction];
+  var warm=/Warm|Moody/.test(STATE.style_pick||"")||STATE.axes.render==="warm";
+  BRIEF_LINES=[
+    {k:"Mood",v:[STATE.axes.lifestyle==="quiet"?"warm minimalism, unhurried":"bright, social, alive",STATE.axes.lifestyle==="quiet"?"serene and assured, never staged":"energetic but composed"],avoid:false,cur:0},
+    {k:"Light",v:[warm?"late-afternoon, low contrast, long shadows":"cool morning light, crisp and even","golden-hour heroes, neutral daylight elsewhere"],avoid:false,cur:0},
+    {k:"Palette intent",v:[d.pal.slice(0,3).join(" · ")+" — from your locked world","lean on "+d.pal[1]+" for depth, "+d.pal[2]+" as the warm accent"],avoid:false,cur:0},
+    {k:"Materials",v:["limestone, pale oak, linen — honest and local","natural stone and soft textiles, nothing lacquered"],avoid:false,cur:0},
+    {k:"Composition",v:[(STATE.axes.photography==="architecture"?"form-first framing; ":"people in frame, mid-distance; ")+"investor shots favour the building, lifestyle shots favour the terrace","calm, uncluttered frames — one subject per image"],avoid:false,cur:0},
+    {k:"Avoid",v:["cool blue tones, busy staging, aerial-only heroes","fisheye angles, crowded scenes, stock-photo gloss"],avoid:true,cur:0}
+  ];
+}
+function scArtDir(inner,ctx){
+  buildBriefLines();
+  sceneSay(inner,"Here's the art direction — written from everything you chose and reacted to.","Specific beats poetic. Tap any line you disagree with and I'll rewrite just that line. The Avoid list is as binding as the rest.").then(function(){
+    var html=BRIEF_LINES.map(function(l,i){
+      return '<div class="brief-line'+(l.avoid?" avoid":"")+'" data-i="'+i+'"><div class="bl-k">'+esc(l.k)+'</div><div class="bl-v"></div></div>';
+    }).join("")
+    +'<div class="actions"><button class="btn-p" id="ad-ok" style="display:none">Approve the art direction →</button></div>';
+    var b=qblock(inner,html);
+    typeLines(b,0);
+    b.querySelectorAll(".brief-line").forEach(function(bl){
+      bl.onclick=function(){
+        var i=+bl.getAttribute("data-i"), l=BRIEF_LINES[i];
+        if(!bl.classList.contains("typed")) return;
+        bl.classList.add("struck");
+        setTimeout(function(){
+          l.cur=(l.cur===1)?0:1;
+          bl.classList.remove("struck");
+          typeInto(bl.querySelector(".bl-v"),l.v[l.cur]);
+        },REDUCED?50:450);
+      };
+    });
+    b.querySelector("#ad-ok").onclick=function(){
+      STATE.art_direction={
+        mood:BRIEF_LINES[0].v[BRIEF_LINES[0].cur],
+        light:BRIEF_LINES[1].v[BRIEF_LINES[1].cur],
+        palette_intent:DIRECTIONS[STATE.direction].pal.slice(0,3),
+        materials:BRIEF_LINES[3].v[BRIEF_LINES[3].cur].split(",").slice(0,3).map(function(s){return s.trim();}),
+        composition:BRIEF_LINES[4].v[BRIEF_LINES[4].cur],
+        avoid:BRIEF_LINES[5].v[BRIEF_LINES[5].cur].split(",").map(function(s){return s.trim();}),
+        style:STATE.style_pick
+      };
+      trailSet("artdir","Art direction",esc(STATE.art_direction.mood));
+      toast("Attached to the BrandKit — every render, page and ad inherits it");
+      ctx.done();
+    };
+  });
+}
+function typeLines(card,i){
+  if(i>=BRIEF_LINES.length){ card.querySelector("#ad-ok").style.display="inline-block"; return; }
+  var bl=card.querySelector('[data-i="'+i+'"]');
+  bl.classList.add("typed");
+  typeInto(bl.querySelector(".bl-v"),BRIEF_LINES[i].v[0],function(){ typeLines(card,i+1); });
+}
+function typeInto(elm,text,done){
+  if(REDUCED){ elm.textContent=text; if(done)done(); return; }
+  elm.innerHTML='<span class="cursor"></span>';
+  var i=0;
+  var t=setInterval(function(){
+    i+=2;
+    elm.innerHTML=esc(text.slice(0,i))+'<span class="cursor"></span>';
+    if(i>=text.length){ clearInterval(t); elm.textContent=text; if(done)done(); }
+  },18);
+}
+
+/* ═══════════ SCENE 16 · CANDIDATES (n19–n21) ═══════════ */
+var CANDIDATES=[], regenUsed=false;
+function buildCandidates(round){
+  var d=DIRECTIONS[STATE.direction];
+  var base=[
+    {id:"A",dir:"Airy editorial",type:"Serif display · grotesk body",font:"'Cormorant Garamond',serif",fw:"500",tf:"none",ls:".05em",pal:[d.pal[0],d.pal[1],d.pal[3]],mock:"hoarding"},
+    {id:"B",dir:"Heritage maritime",type:"Serif smallcaps · generous leading",font:"'Cormorant Garamond',serif",fw:"600",tf:"uppercase",ls:".22em",pal:[d.pal[1],d.pal[2],d.pal[0]],mock:"brochure"},
+    {id:"C",dir:"Crisp modern",type:"Light grotesk · tight grid",font:"'Space Grotesk',sans-serif",fw:"300",tf:"uppercase",ls:".3em",pal:[d.pal[3],d.pal[1],d.pal[4]],mock:"hoarding"},
+    {id:"D",dir:"Soft resort",type:"Humanist grotesk · warm neutrals",font:"'Space Grotesk',sans-serif",fw:"500",tf:"none",ls:".02em",pal:[d.pal[2],d.pal[4],d.pal[0]],mock:"brochure"}
+  ];
+  if(round===2) base.forEach(function(c){ c.dir=c.dir+" · reworked"; c.pal=[c.pal[1],c.pal[0],c.pal[2]]; });
+  return base;
+}
+function candLogo(c){
+  return '<div style="font-family:'+c.font+';font-weight:'+c.fw+';text-transform:'+c.tf+';letter-spacing:'+c.ls+';font-size:'+(c.tf==="uppercase"?"14px":"20px")+';color:var(--fg)">'+esc(STATE.name)+'</div>';
+}
+function candMock(c){
+  var name=esc(STATE.name);
+  if(c.mock==="hoarding")
+    return '<div style="position:absolute;inset:0;background:linear-gradient(180deg,#20252b 55%,#15181c)">'
+      +'<div style="position:absolute;left:0;right:0;top:24%;height:48%;background:'+c.pal[0]+';display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">'
+      +'<div style="font-family:'+c.font+';font-weight:'+c.fw+';text-transform:'+c.tf+';letter-spacing:'+c.ls+';font-size:16px;color:'+c.pal[1]+'">'+name+'</div>'
+      +'<div style="font-size:7.5px;letter-spacing:.28em;color:'+c.pal[1]+';opacity:.7">SEAFRONT RESIDENCES · SLIEMA</div></div>'
+      +'<div style="position:absolute;bottom:6px;left:0;right:0;text-align:center;font-size:8px;color:#777">site hoarding · the Strand</div></div>';
+  return '<div style="position:absolute;inset:0;background:'+c.pal[0]+';display:flex;flex-direction:column;justify-content:space-between;padding:14px">'
+    +'<div style="font-size:7.5px;letter-spacing:.28em;color:'+c.pal[1]+';opacity:.75">TWENTY-FOUR RESIDENCES</div>'
+    +'<div style="font-family:'+c.font+';font-weight:'+c.fw+';text-transform:'+c.tf+';letter-spacing:'+c.ls+';font-size:17px;color:'+c.pal[1]+'">'+name+'</div>'
+    +'<div style="display:flex;justify-content:space-between"><div style="font-size:7.5px;color:'+c.pal[1]+';opacity:.7">BY FALZON GROUP</div><div style="font-size:7.5px;color:'+c.pal[1]+';opacity:.5">brochure cover</div></div></div>';
+}
+function scCands(inner,ctx){
+  scCands._done=ctx.done;
+  var d=DIRECTIONS[STATE.direction];
+  var ov=el('<div class="overlay" id="gen-ov"><div class="gen-blobs">'
+    +'<div class="gblob" style="background:'+d.pal[1]+';top:14%;left:16%"></div>'
+    +'<div class="gblob" style="background:'+d.pal[2]+';top:44%;right:14%;animation-delay:.7s"></div>'
+    +'<div class="gblob" style="background:'+d.pal[3]+';bottom:8%;left:36%;animation-delay:1.3s"></div></div>'
+    +'<div class="gen-status"><div class="shimmer-text" id="gen-line">Reading your brief…</div><div class="gs-sub">'+esc(STATE.name)+' · '+esc(d.name)+'</div></div></div>');
+  document.body.appendChild(ov);
+  var lines=["Reading your brief…","Drawing four marks…","Setting type against your voice…","Applying each identity to the world…"];
+  lines.forEach(function(l,i){ setTimeout(function(){ var g=document.getElementById("gen-line"); if(g) g.textContent=l; },i*1500); });
+  wait(REDUCED?400:6200).then(function(){
+    ov.remove();
+    CANDIDATES=buildCandidates(1);
+    sceneSay(inner,"Four identities, one brief.","They differ in direction, not just colour — that's what makes the choice mean something. Compare any two, merge two if you're torn. Your pick sets the BrandKit live.").then(function(){
+      showCandidates(inner);
+    });
+  });
+}
+var cmpSel=[];
+function showCandidates(inner,extra){
+  var old=inner.querySelector(".qblock"); if(old) old.remove();
+  var list=CANDIDATES.slice(); if(extra) list=list.concat([extra]);
+  cmpSel=[];
+  var html='<div class="cgrid">'+list.map(function(c,i){
+    return '<div class="ccard" data-id="'+c.id+'" style="animation-delay:'+(i*120)+'ms">'
+      +'<div class="c-mock">'+candMock(c)+'</div>'
+      +'<div class="c-body"><div class="c-dir">Candidate '+c.id+' · '+esc(c.dir)+'</div>'
+      +'<div class="c-logo">'+candLogo(c)+'</div>'
+      +'<div class="c-pal">'+c.pal.map(function(h){return '<i style="background:'+h+'"></i>';}).join("")+'</div>'
+      +'<div class="c-type">'+esc(c.type)+'</div>'
+      +'<div class="c-acts"><button class="btn-p" style="padding:8px 18px;font-size:12px" data-pick="'+c.id+'">This one →</button>'
+      +'<button class="btn-g" style="padding:7px 14px;font-size:11px" data-cmp="'+c.id+'">compare</button></div>'
+      +'</div></div>';
+  }).join("")+'</div>'
+  +'<div class="cmp-bar"><span id="cmp-hint">Tap “compare” on two candidates to see them side by side.</span>'
+  +'<button class="btn-g" id="c-merge" style="display:none;font-size:11px">Merge these two</button></div>'
+  +'<div class="actions"><button class="btn-g" id="c-none">I don\u2019t love any of them</button></div>';
+  var b=qblock(inner,html);
+  b.querySelectorAll("[data-pick]").forEach(function(btn){
+    btn.onclick=function(){ pickCandidate(list.filter(function(c){return c.id===btn.getAttribute("data-pick");})[0]); };
+  });
+  b.querySelectorAll("[data-cmp]").forEach(function(btn){
+    btn.onclick=function(){
+      var id=btn.getAttribute("data-cmp");
+      var idx=cmpSel.indexOf(id);
+      if(idx>=0) cmpSel.splice(idx,1); else { cmpSel.push(id); if(cmpSel.length>2) cmpSel.shift(); }
+      b.querySelectorAll(".ccard").forEach(function(cc){ cc.classList.toggle("cmp",cmpSel.indexOf(cc.getAttribute("data-id"))>=0); });
+      var m=b.querySelector("#c-merge"), h=b.querySelector("#cmp-hint");
+      if(cmpSel.length===2){ m.style.display="inline-block"; h.textContent="Comparing "+cmpSel.join(" and ")+" — highlighted side by side."; }
+      else { m.style.display="none"; h.textContent="Tap “compare” on two candidates to see them side by side."; }
+    };
+  });
+  b.querySelector("#c-merge").onclick=function(){
+    var a=CANDIDATES.filter(function(c){return c.id===cmpSel[0];})[0], bb=CANDIDATES.filter(function(c){return c.id===cmpSel[1];})[0];
+    var m={id:"E",dir:a.dir.split(" ·")[0]+" × "+bb.dir.split(" ·")[0]+" — merged",type:a.type,font:a.font,fw:a.fw,tf:a.tf,ls:a.ls,pal:bb.pal,mock:a.mock};
+    toast("Candidate E — "+a.id+"'s mark and type, "+bb.id+"'s palette. Explicit fifth option, never a silent blend.");
+    showCandidates(inner,m);
+  };
+  b.querySelector("#c-none").onclick=function(){
+    if(regenUsed){ b.remove(); escalateDesigner(inner); return; }
+    b.remove();
+    sceneSay(inner,"That's useful — two things. Which is closest?").then(function(){
+      var c1=qblock(inner,'<div class="chips">'+CANDIDATES.map(function(c){return '<button class="chip">Candidate '+c.id+'</button>';}).join("")+'</div>');
+      c1.querySelectorAll(".chip").forEach(function(ch){
+        ch.onclick=function(){
+          var closest=ch.textContent; c1.remove();
+          sceneSay(inner,"And what's off about it?").then(function(){
+            var c2=qblock(inner,'<div class="chips">'+["The logo","The colours","The type","The overall feel"].map(function(x){return '<button class="chip">'+x+'</button>';}).join("")+'</div>');
+            c2.querySelectorAll(".chip").forEach(function(ch2){
+              ch2.onclick=function(){
+                c2.remove(); regenUsed=true;
+                toast("One rework round — anchored to "+closest.toLowerCase()+", fixing "+ch2.textContent.toLowerCase());
+                CANDIDATES=buildCandidates(2);
+                showCandidates(inner);
+              };
+            });
+          });
+        };
+      });
+    });
+  };
+}
+function escalateDesigner(inner){
+  sceneSay(inner,"Then I'm not going to keep generating at you.","I'm handing this to our design team — with your full brief and everything you've said about what's off attached. You'll get human-made candidates; nothing from this session is wasted.").then(function(){
+    qblock(inner,'<div class="pickcard" style="cursor:default;max-width:480px"><h4>→ Escalated to Bricly design team</h4><div class="pc-sub">Brief + feedback attached · you\u2019ll be notified when candidates land</div></div>');
+  });
+}
+function pickCandidate(c){
+  var mocks=[["Site hoarding","hoarding"],["Brochure cover","brochure"],["Sales sign","hoarding"],["Digital avatar","brochure"]];
+  var ov=el('<div class="overlay" id="act-ov"><div class="act-stage">'
+    +'<div class="act-cap" id="act-cap">Applying — site hoarding</div>'
+    +'<div class="act-mock" id="act-mock"></div>'
+    +'<div class="say" id="act-line" style="margin:8px 0 0;font-size:20px;opacity:0;transition:opacity .6s;max-width:none"></div>'
+    +'<div class="actions" style="justify-content:center;opacity:0;transition:opacity .5s" id="act-done"><button class="btn-p">Continue →</button></div>'
+    +'</div></div>');
+  document.body.appendChild(ov);
+  var mk=document.getElementById("act-mock");
+  mocks.forEach(function(m,i){
+    setTimeout(function(){
+      document.getElementById("act-cap").textContent="Applying — "+m[0].toLowerCase();
+      mk.style.opacity="0";
+      setTimeout(function(){ var cc=JSON.parse(JSON.stringify(c)); cc.mock=m[1]; mk.innerHTML=candMock(cc); mk.style.opacity="1"; },REDUCED?0:350);
+    }, i*(REDUCED?150:1400));
+  });
+  setTimeout(function(){
+    var al=document.getElementById("act-line");
+    al.textContent=STATE.name+" is live. Everything Studio makes from here is on-brand.";
+    al.style.opacity="1";
+    document.getElementById("act-done").style.opacity="1";
+    document.getElementById("act-cap").textContent="BrandKit · Active";
+  }, mocks.length*(REDUCED?150:1400)+500);
+  ov.querySelector("#act-done .btn-p").onclick=function(){
+    ov.remove();
+    STATE.brandkit={candidate:c.id,dir:c.dir,active:true};
+    trailSet("cands","BrandKit","<b style='font-weight:600'>Candidate "+esc(c.id)+"</b> · Active");
+    if(scCands._done) scCands._done();
+  };
+}
+
+/* ═══════════ SCENE 17 · HOUSE BRAND (n22) ═══════════ */
+function scHouse(inner,ctx){
+  sceneSay(inner,"One optional thing before we wrap.","Multi-project developers reuse a house brand so every new project starts pre-seeded — a seed, not a lock. Each project can still diverge.").then(function(){
+    var b=qblock(inner,'<div class="ccards c2">'
+      +'<div class="pickcard" data-v="yes"><span class="pc-ico">⌂</span><h4>Yes — make this my house brand</h4><div class="pc-sub">Future Falzon Group projects inherit it as an editable seed</div></div>'
+      +'<div class="pickcard" data-v="no"><span class="pc-ico">◇</span><h4>No — keep it project-only</h4><div class="pc-sub">Full per-project freedom, decide later in settings</div></div></div>');
+    b.querySelectorAll(".pickcard").forEach(function(pc){
+      pc.onclick=function(){
+        STATE.house_brand=pc.getAttribute("data-v")==="yes";
+        trailSet("house","House brand",STATE.house_brand?"Set on workspace":"Project-only");
+        if(STATE.house_brand) toast("Set on the workspace — inheritance never overwrites an approved BrandKit");
+        ctx.done();
+      };
+    });
+  });
+}
+
+/* ═══════════ SCENE 18 · HANDOFF (n23) ═══════════ */
+function scHandoff(inner,ctx){
+  STATE.locked_at=new Date().toISOString();
+  var d=DIRECTIONS[STATE.direction];
+  sceneSay(inner,"Done. One consultation — a complete brand.","Name, blocks, buyers, voice, world, taste, art direction, and a live BrandKit. Everything downstream now aims at the right buyer and reads as one brand.").then(function(){
+    var rows=[
+      ["Name",esc(STATE.name)+(STATE.byline?" · By Falzon Group":"")],
+      ["Blocks",STATE.building_names.map(esc).join(" · ")],
+      ["Buyers",STATE.buyers.map(function(p){return esc(p.label);}).join(" · ")],
+      ["Voice","“"+esc(STATE.voice_line)+"”"],
+      ["World",esc(d.name)],
+      ["Taste",Object.keys(STATE.axes).map(function(k){return esc(k)+": "+esc(STATE.axes[k]);}).join(" · ")],
+      ["Art direction",esc((STATE.art_direction||{}).mood||"")+" · "+esc((STATE.art_direction||{}).light||"")],
+      ["BrandKit","Candidate "+esc((STATE.brandkit||{}).candidate||"—")+" · Active"],
+      ["Next","Final render set → website → brochure → ads (downstream, out of scope)"]
+    ];
+    var front=rows.map(function(r,i){
+      return '<div class="brief-row" style="animation-delay:'+(i*120)+'ms"><div class="br-k">'+esc(r[0])+'</div><div class="br-v">'+r[1]+'</div></div>';
+    }).join("");
+    qblock(inner,'<div id="brief-flip">'
+      +'<div class="bf-face"><div class="q-label" style="color:var(--accent)">Brand brief · locked '+STATE.locked_at.slice(0,10)+'</div>'+front
+      +'<div class="actions"><button class="btn-g" id="hf-json">view as JSON</button><button class="btn-p" id="hf-fin">Enter Studio with your brand →</button></div></div>'
+      +'<div class="bf-face bf-back"><pre id="json-pre"></pre><div class="actions"><button class="btn-g" id="hf-back">back to the brief</button></div></div>'
+      +'</div>');
+    var flip=inner.querySelector("#brief-flip");
+    inner.querySelector("#hf-json").onclick=function(){
+      inner.querySelector("#json-pre").textContent=JSON.stringify(STATE,null,2);
+      flip.classList.add("flipped");
+    };
+    inner.querySelector("#hf-back").onclick=function(){ flip.classList.remove("flipped"); };
+    inner.querySelector("#hf-fin").onclick=function(){
+      toast("Consultation complete — handing off to asset generation");
+    };
+  });
+}
+
+/* ═══════════ INIT ═══════════ */
+window.addEventListener("DOMContentLoaded",function(){
+  buildSpine();
+  wait(400).then(function(){ gotoScene(0,false); });
+});
+</script>
+</body>
+</html>

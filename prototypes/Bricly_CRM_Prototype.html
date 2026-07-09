@@ -1059,6 +1059,123 @@ body.mgr-role .agent-col{display:table-cell}
 /* Pill colours */
 .pill-green{background:rgba(46,125,50,0.12);color:#2e7d32}
 .pill-yellow{background:rgba(230,126,34,0.12);color:#b7610a}
+
+/* ── WHATSAPP (namespace: wa) ──────────────────────── */
+.wa-container{display:flex;align-items:center;justify-content:center;height:100%;background:linear-gradient(135deg,#f6f1e7 0%,#f9f5ea 100%);padding:20px}
+.wa-phone{width:420px;max-width:100%;height:680px;background:#fff;border-radius:20px;box-shadow:0 8px 30px rgba(0,0,0,0.15);display:flex;flex-direction:column;overflow:hidden}
+.wa-header{background:var(--accent);color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+.wa-header-left{display:flex;align-items:center;gap:10px}
+.wa-avatar{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:#fff}
+.wa-header-name{font-weight:600;font-size:14px}
+.wa-header-status{font-size:11px;opacity:0.9;display:flex;align-items:center;gap:4px}
+.wa-online-dot{width:6px;height:6px;border-radius:50%;background:#4ade80;animation:waBlink 1.8s infinite}
+@keyframes waBlink{0%,100%{opacity:1}50%{opacity:0.3}}
+.wa-thread{flex:1;overflow-y:auto;padding:16px;background:#f3efe4;display:flex;flex-direction:column;gap:10px}
+.wa-bubble{max-width:85%;padding:9px 13px;border-radius:10px;font-size:13px;line-height:1.5;word-wrap:break-word;animation:waBubbleIn 0.2s ease-out}
+@keyframes waBubbleIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.wa-bubble.wa-rep{background:#dcf8c6;align-self:flex-end;border-bottom-right-radius:2px}
+.wa-bubble.wa-assistant{background:#fff;align-self:flex-start;border-bottom-left-radius:2px;box-shadow:0 1px 2px rgba(0,0,0,0.08)}
+.wa-bubble.wa-voice{display:flex;align-items:center;gap:8px;padding:8px 12px}
+.wa-voice-waveform{display:flex;align-items:center;gap:2px;height:20px}
+.wa-voice-bar{width:2px;background:var(--accent);border-radius:2px;animation:waWave 1.2s ease-in-out infinite}
+.wa-voice-bar:nth-child(1){height:8px;animation-delay:0s}
+.wa-voice-bar:nth-child(2){height:14px;animation-delay:0.1s}
+.wa-voice-bar:nth-child(3){height:18px;animation-delay:0.2s}
+.wa-voice-bar:nth-child(4){height:12px;animation-delay:0.3s}
+.wa-voice-bar:nth-child(5){height:16px;animation-delay:0.4s}
+@keyframes waWave{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.5)}}
+.wa-voice-duration{font-size:11px;color:var(--text3);font-family:var(--mono)}
+.wa-typing{display:flex;gap:4px;padding:10px 13px;background:#fff;border-radius:10px;align-self:flex-start;border-bottom-left-radius:2px;box-shadow:0 1px 2px rgba(0,0,0,0.08)}
+.wa-typing-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);animation:waTypingDot 1.4s infinite}
+.wa-typing-dot:nth-child(1){animation-delay:0s}
+.wa-typing-dot:nth-child(2){animation-delay:0.2s}
+.wa-typing-dot:nth-child(3){animation-delay:0.4s}
+@keyframes waTypingDot{0%,60%,100%{opacity:0.3}30%{opacity:1}}
+.wa-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:6px;box-shadow:0 2px 6px rgba(0,0,0,0.08)}
+.wa-card-title{font-weight:600;font-size:13px;color:var(--accent);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.wa-card-row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px}
+.wa-card-label{color:var(--text3);font-weight:500}
+.wa-card-value{color:var(--text);font-weight:500}
+.wa-card-actions{display:flex;gap:6px;margin-top:10px}
+.wa-card-btn{flex:1;padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface);font-size:11px;font-weight:600;cursor:pointer;transition:all 0.15s;font-family:var(--font)}
+.wa-card-btn:hover{background:var(--surface2)}
+.wa-card-btn.wa-confirm{background:var(--accent);color:#fff;border-color:var(--accent)}
+.wa-card-btn.wa-confirm:hover{background:var(--accent-dark)}
+.wa-brief-digest{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:6px;box-shadow:0 2px 6px rgba(0,0,0,0.08)}
+.wa-brief-title{font-weight:700;font-size:13px;color:var(--accent);margin-bottom:10px}
+.wa-brief-section{margin-bottom:12px}
+.wa-brief-section:last-child{margin-bottom:0}
+.wa-brief-heading{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px}
+.wa-brief-item{font-size:12px;color:var(--text);margin-bottom:4px;padding-left:12px;position:relative}
+.wa-brief-item:before{content:'•';position:absolute;left:0;color:var(--accent)}
+.wa-brief-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.wa-brief-btn{padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface);font-size:10px;font-weight:600;cursor:pointer;transition:all 0.15s;font-family:var(--font)}
+.wa-brief-btn:hover{background:var(--surface2)}
+.wa-composer{border-top:1px solid var(--border);padding:12px;background:#fff}
+.wa-voice-chips{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.wa-voice-chip{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:8px}
+.wa-voice-chip:hover{background:var(--surface3);border-color:var(--border2)}
+.wa-input-row{display:flex;gap:6px;align-items:center}
+.wa-input{flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:20px;font-size:13px;font-family:var(--font);outline:none;transition:border-color 0.15s}
+.wa-input:focus{border-color:var(--accent)}
+.wa-mic-btn,.wa-send-btn{padding:8px 14px;border-radius:20px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;font-family:var(--font)}
+.wa-mic-btn{background:var(--surface2);color:var(--text)}
+.wa-mic-btn:hover{background:var(--surface3)}
+.wa-send-btn{background:var(--accent);color:#fff}
+.wa-send-btn:hover{background:var(--accent-dark)}
+.wa-home-pill{position:fixed;bottom:30px;right:30px;padding:12px 20px;background:var(--accent);color:#fff;border:none;border-radius:100px;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(203,77,26,0.3);transition:all 0.2s;font-family:var(--font);z-index:100}
+.wa-home-pill:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(203,77,26,0.4)}
+
+/* ── AI ASSISTANT (prefix: ai) ─────────────────────────────────── */
+.ai-morning-brief{background:linear-gradient(135deg,#fef9f0,#fdf5e8);border:1px solid #e8d9c3;border-radius:14px;padding:16px;margin:20px 0;box-shadow:0 2px 8px rgba(203,77,26,0.08)}
+.ai-brief-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.ai-brief-icon{font-size:20px}
+.ai-brief-title{font-size:15px;font-weight:700;color:var(--text);font-family:var(--display)}
+.ai-brief-greeting{font-size:12px;color:var(--text2);margin-bottom:12px}
+.ai-brief-items{display:flex;flex-direction:column;gap:10px}
+.ai-brief-item{background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px;display:flex;align-items:center;gap:12px;transition:all 0.15s}
+.ai-brief-item:hover{box-shadow:0 2px 6px rgba(0,0,0,0.06)}
+.ai-brief-icon-wrap{font-size:18px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:var(--surface2);border-radius:8px;flex-shrink:0}
+.ai-brief-content{flex:1;min-width:0}
+.ai-brief-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px}
+.ai-brief-text{font-size:12px;color:var(--text);font-weight:500}
+.ai-brief-action{padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:var(--surface);font-size:11px;font-weight:600;cursor:pointer;transition:all 0.15s;white-space:nowrap}
+.ai-brief-action:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+.ai-log{margin:20px 0;display:flex;flex-direction:column;gap:14px}
+.ai-exchange{display:flex;flex-direction:column;gap:10px}
+.ai-user-msg{font-size:13px;color:var(--text2);font-weight:500;padding:10px 14px;background:var(--surface2);border-radius:10px;align-self:flex-start;max-width:80%}
+.ai-response{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px;box-shadow:0 2px 6px rgba(0,0,0,0.04)}
+.ai-card-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.ai-card-body{font-size:12px;color:var(--text2);line-height:1.5}
+.ai-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.ai-list-item{padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;transition:all 0.15s}
+.ai-list-item:hover{background:var(--surface2);transform:translateX(2px)}
+.ai-list-left{flex:1;min-width:0}
+.ai-list-id{font-size:11px;font-weight:700;color:var(--accent)}
+.ai-list-name{font-size:12px;color:var(--text);font-weight:600;margin-top:2px}
+.ai-list-meta{font-size:10px;color:var(--text3);margin-top:3px}
+.ai-list-arrow{font-size:16px;color:var(--text3)}
+.ai-summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+.ai-summary-box{padding:10px;background:var(--surface);border:1px solid var(--border);border-radius:8px;text-align:center}
+.ai-summary-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:4px}
+.ai-summary-value{font-size:16px;font-weight:700;color:var(--accent)}
+.ai-summary-sub{font-size:10px;color:var(--text2);margin-top:2px}
+.ai-message-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:10px}
+.ai-message-text{font-size:12px;color:var(--text);line-height:1.6;white-space:pre-wrap;margin-bottom:10px;font-style:italic}
+.ai-message-actions{display:flex;gap:8px}
+.ai-btn{padding:7px 14px;border-radius:6px;border:1px solid var(--border);background:var(--surface);font-size:11px;font-weight:600;cursor:pointer;transition:all 0.15s;font-family:var(--font)}
+.ai-btn:hover{background:var(--surface3)}
+.ai-btn.ai-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.ai-btn.ai-primary:hover{background:var(--accent-dark)}
+.ai-appt-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:10px}
+.ai-appt-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.ai-appt-icon{font-size:16px}
+.ai-appt-text{font-size:12px;color:var(--text);font-weight:500}
+.ai-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.ai-chip{padding:7px 12px;border-radius:20px;border:1px solid var(--border);background:var(--surface);font-size:11px;font-weight:600;cursor:pointer;transition:all 0.15s;font-family:var(--font)}
+.ai-chip:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+
 </style>
 </head>
 <body>
@@ -1084,13 +1201,14 @@ body.mgr-role .agent-col{display:table-cell}
     <div class="ni" onclick="go('devs')"><svg viewBox="0 0 14 14" fill="currentColor"><path d="M1 13V5l6-4 6 4v8H1zm4-2h2v-3H5v3zm4 0h2v-3H9v3z"/></svg>Projects</div>
     <div class="ni" id="ni-props" onclick="go('props')"><svg viewBox="0 0 14 14" fill="currentColor"><rect x="1" y="4" width="12" height="9" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M4 4V3a3 3 0 016 0v1"/><circle cx="7" cy="8.5" r="1.5"/><path d="M7 10v1.5"/></svg>Properties</div>
     <div class="ni" id="ni-approvals" style="display:none" onclick="go('approvals')"><svg viewBox="0 0 14 14" fill="currentColor"><path d="M12 3L6 9l-3-3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/><rect x="1" y="1" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1"/></svg>Approvals<span class="bc" id="approvals-count" style="display:none">0</span></div>
+    <div class="ni" id="ni-whatsapp" style="display:none" onclick="go('whatsapp')"><svg viewBox="0 0 14 14" fill="currentColor"><path d="M7 0.5C3.4 0.5 0.5 3.4 0.5 7c0 1.3 0.4 2.5 1 3.5L0.6 13.4l3-0.9c1 0.6 2.2 0.9 3.4 0.9 3.6 0 6.5-2.9 6.5-6.5S10.6 0.5 7 0.5z" fill="none" stroke="currentColor" stroke-width="1.1"/><path d="M4 5.5c0.2-0.7 0.7-1.2 1.3-1.2 0.3 0 0.5 0.1 0.6 0.4l0.3 0.8c0.1 0.2 0 0.5-0.2 0.7l-0.3 0.3c0 0.4 0.5 1 1 1.5s1.1 1 1.5 1l0.3-0.3c0.2-0.2 0.5-0.3 0.7-0.2l0.8 0.3c0.3 0.1 0.4 0.3 0.4 0.6 0 0.6-0.5 1.1-1.2 1.3-0.8 0.2-2-0.1-3.3-1.4S3.8 6.3 4 5.5z"/></svg>WhatsApp</div>
   </div>
   <div class="nav-section">
     <div class="nav-label">Workspace</div>
     <div class="ni" onclick="go('calendar')"><svg viewBox="0 0 14 14" fill="currentColor"><rect x="1" y="2" width="12" height="11" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M1 5h12"/><path d="M4 1v2M10 1v2"/><rect x="3" y="7" width="2" height="2" rx="0.5"/><rect x="6" y="7" width="2" height="2" rx="0.5"/><rect x="9" y="7" width="2" height="2" rx="0.5"/></svg>Calendar</div>
     <div class="ni" onclick="go('reports')"><svg viewBox="0 0 14 14" fill="currentColor"><rect x="0" y="8" width="3" height="6"/><rect x="4" y="5" width="3" height="9"/><rect x="8" y="2" width="3" height="12"/><rect x="12" y="0" width="2" height="14"/></svg>Reports</div>
-    <div class="ni" id="ni-marketing" style="display:none" onclick="go('marketing')"><svg viewBox="0 0 14 14" fill="currentColor"><path d="M1 4h8l3-3v10l-3-3H1V4z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M4 8v3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Marketing</div>
-    <div class="ni" id="ni-automations" style="display:none" onclick="go('automations')"><svg viewBox="0 0 14 14" fill="currentColor"><path d="M8 1L5 7h4l-3 6" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Automations</div>
+    <div class="ni" id="ni-marketing" style="display:none" onclick="go('marketing')"><svg viewBox="0 0 14 14" fill="currentColor"><path d="M1 4h8l3-3v10l-3-3H1V4z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M4 8v3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Marketing<span class="st-badge">v1.1</span></div>
+    <div class="ni" id="ni-automations" style="display:none" onclick="go('automations')"><svg viewBox="0 0 14 14" fill="currentColor"><path d="M8 1L5 7h4l-3 6" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Automations<span class="st-badge">v1.1</span></div>
     <div class="ni" id="ni-partners" style="display:none" onclick="go('partners')"><svg viewBox="0 0 14 14" fill="currentColor"><circle cx="5" cy="4" r="2"/><path d="M0 12c0-1.5 1.5-2.5 5-2.5s5 1 5 2.5"/><circle cx="11" cy="4" r="2"/><path d="M8.5 12c0-1 1-1.8 3-1.8s3 0.8 3 1.8"/></svg>Partners</div>
     <div class="ni" id="ni-team" style="display:none" onclick="go('team')"><svg viewBox="0 0 14 14" fill="currentColor"><circle cx="5" cy="4" r="3"/><path d="M0 13c0-2.5 2-4.5 5-4.5s5 2 5 4.5"/><circle cx="11" cy="5" r="2"/><path d="M11 9c1.5 0 3 1 3 3"/></svg>Team</div>
     <div class="ni" onclick="go('settings')"><svg viewBox="0 0 14 14" fill="currentColor"><circle cx="7" cy="7" r="2" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M7 1v1M7 12v1M13 7h1M0 7h1M11.3 2.7l.7-.7M2.4 11.6l.7-.7M11.3 11.3l.7.7M2.4 2.4l.7.7" stroke="currentColor" stroke-width="1.2"/></svg>Settings</div>
@@ -1141,13 +1259,27 @@ body.mgr-role .agent-col{display:table-cell}
               </div>
 
               <div class="home-quick">
-                <button class="hq-btn" onclick="setHomePrompt('Ask AI to help with pipeline force reporting.')"><strong>Pipeline Force Report</strong>Generate a concise status report.</button>
-                <button class="hq-btn" onclick="setHomePrompt('Show the top opportunities at risk this week and what to do next.')"><strong>At-Risk Deals</strong>Prioritize what needs action now.</button>
-                <button class="hq-btn" onclick="setHomePrompt('Draft follow-up messages for clients with expiring holds.')"><strong>Draft Follow-ups</strong>Prepare clear client updates.</button>
-                <button class="hq-btn" onclick="setHomePrompt('Prepare a manager summary with pipeline, approvals, and forecast.')"><strong>Manager Summary</strong>One-page weekly briefing.</button>
+                <button class="hq-btn" onclick="aiSubmit('how is my pipeline')"><strong>Pipeline Force Report</strong>Generate a concise status report.</button>
+                <button class="hq-btn" onclick="aiSubmit('show holds expiring')"><strong>At-Risk Deals</strong>Prioritize what needs action now.</button>
+                <button class="hq-btn" onclick="aiSubmit('draft a follow-up to Mike')"><strong>Draft Follow-ups</strong>Prepare clear client updates.</button>
+                <button class="hq-btn" onclick="aiSubmit('how is my pipeline')"><strong>Manager Summary</strong>One-page weekly briefing.</button>
               </div>
 
+              <button class="wa-home-pill" id="wa-home-pill" onclick="go('whatsapp')" style="display:none">💬 WhatsApp Assistant</button>
+
           </div>
+
+          <!-- Morning brief (rep only) -->
+          <div id="ai-morning-brief" class="ai-morning-brief" style="display:none"></div>
+
+          <!-- AI conversation log -->
+          <div id="ai-log" class="ai-log"></div>
+
+          <!-- KPIs -->
+          <div class="home-kpi-grid" id="home-kpis"></div>
+
+          <!-- Quick actions -->
+          <div id="home-actions" style="margin-top:20px;display:grid;gap:10px"></div>
         </div>
       </div>
 
@@ -1390,7 +1522,6 @@ body.mgr-role .agent-col{display:table-cell}
             <button class="btn btn-sm" style="color:var(--text3)" onclick="clearAllFilters()">Reset all</button>
           </div>
         </div>
-                  <button class="btn" onclick="openPersonalisationFlowFromOpportunity()">Start render-first pack</button>
         <!-- Search + status quick-filters -->
         <div style="padding:9px 18px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0">
           <div style="position:relative;flex:1;max-width:300px">
@@ -1841,6 +1972,10 @@ body.mgr-role .agent-col{display:table-cell}
                     <button class="btn btn-sm" style="flex:1" onclick="go('contacts')">View contact →</button>
                     <button class="btn btn-sm" style="flex:1" onclick="switchOppTab('notes');document.getElementById('oppd-new-note').focus()">Add note</button>
                   </div>
+                </div>
+                <div class="det-section" id="oppd-ms-engagement" style="display:none">
+                  <div class="det-title">Buyer engagement</div>
+                  <div id="oppd-ms-content"></div>
                 </div>
                 <div class="det-section">
                   <div class="det-title">Approval gates</div>
@@ -2910,6 +3045,336 @@ body.mgr-role .agent-col{display:table-cell}
         </div>
         <div class="auto-panel on" id="autopanel-active"></div>
         <div class="auto-panel" id="autopanel-templates"></div>
+      </div>
+
+      <!-- WHATSAPP INTEGRATION ADMIN -->
+      <div class="page" id="p-whatsapp">
+        <div class="ph" style="padding:11px 18px;flex-shrink:0">
+          <h1 style="font-size:17px">WhatsApp Integration</h1>
+          <div class="ph-actions">
+            <a class="btn btn-sm btn-accent" href="https://wa.me/your-number" target="_blank" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none">Open WhatsApp ↗</a>
+          </div>
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:16px">
+
+          <!-- Status banner -->
+          <div style="background:linear-gradient(135deg,#e8f7ef,#d4f0e2);border:1px solid #4CAF82;border-radius:14px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:10px;height:10px;border-radius:50%;background:#4CAF82;box-shadow:0 0 0 3px rgba(76,175,130,0.3)"></div>
+              <div>
+                <div style="font-weight:700;font-size:13px;color:#1a3a2a">Connected · Bricly Business Number</div>
+                <div style="font-size:11px;color:#3a7a5a;margin-top:2px">+356 9900 1234 · Active since 1 Jul 2026</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-sm" onclick="toast('Reconnecting…')">Reconnect</button>
+              <button class="btn btn-sm" onclick="waAdminTab('settings')">Settings</button>
+            </div>
+          </div>
+
+          <!-- Tab bar (static) -->
+          <div style="display:flex;gap:3px;background:var(--surface2);border-radius:100px;padding:3px;width:fit-content">
+            <button id="wat-activity"    class="btn btn-sm btn-accent" style="border-radius:100px;padding:6px 16px;font-size:11px;border:none" onclick="waAdminTab('activity')">Activity</button>
+            <button id="wat-commands"    class="btn btn-sm"            style="border-radius:100px;padding:6px 16px;font-size:11px;border:none" onclick="waAdminTab('commands')">Commands</button>
+            <button id="wat-integration" class="btn btn-sm"            style="border-radius:100px;padding:6px 16px;font-size:11px;border:none" onclick="waAdminTab('integration')">Integration</button>
+            <button id="wat-settings"    class="btn btn-sm"            style="border-radius:100px;padding:6px 16px;font-size:11px;border:none" onclick="waAdminTab('settings')">Settings</button>
+          </div>
+
+          <!-- ── Activity ── -->
+          <div id="wa-tab-activity">
+            <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:10px">Recent messages parsed by Bricly AI — rep phones send to the business number natively</div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden">
+
+              <div style="display:flex;align-items:flex-start;gap:14px;padding:12px 16px;border-bottom:1px solid var(--border)">
+                <div style="width:32px;height:32px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">🔒</div>
+                <div style="flex:1;min-width:0">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px"><span style="font-size:12px;font-weight:700">Sam Urpani</span><span style="font-family:var(--mono);font-size:9.5px;color:var(--text3)">+356 9912 0001</span><span style="margin-left:auto;font-size:10px;color:var(--text3)">Today 14:22</span></div>
+                  <div style="font-size:11.5px;color:var(--text2);margin-bottom:5px;font-style:italic">"showed Mike the maisonette, wants hold on CM9802"</div>
+                  <span style="display:inline-flex;align-items:center;gap:5px;background:var(--surface2);border-radius:100px;padding:3px 10px"><span style="width:6px;height:6px;border-radius:50%;background:#f5a623;flex-shrink:0"></span><span style="font-size:10px;font-weight:600;color:var(--text2)">Hold request + Activity log</span></span>
+                </div>
+              </div>
+
+              <div style="display:flex;align-items:flex-start;gap:14px;padding:12px 16px;border-bottom:1px solid var(--border)">
+                <div style="width:32px;height:32px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">✅</div>
+                <div style="flex:1;min-width:0">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px"><span style="font-size:12px;font-weight:700">Maria Borg</span><span style="font-family:var(--mono);font-size:9.5px;color:var(--text3)">+356 9912 0002</span><span style="margin-left:auto;font-size:10px;color:var(--text3)">Today 11:05</span></div>
+                  <div style="font-size:11.5px;color:var(--text2);margin-bottom:5px;font-style:italic">"POS signed for Emma Said, upload confirmed"</div>
+                  <span style="display:inline-flex;align-items:center;gap:5px;background:var(--surface2);border-radius:100px;padding:3px 10px"><span style="width:6px;height:6px;border-radius:50%;background:#4CAF82;flex-shrink:0"></span><span style="font-size:10px;font-weight:600;color:var(--text2)">Stage updated → POS Signed</span></span>
+                </div>
+              </div>
+
+              <div style="display:flex;align-items:flex-start;gap:14px;padding:12px 16px;border-bottom:1px solid var(--border)">
+                <div style="width:32px;height:32px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">📋</div>
+                <div style="flex:1;min-width:0">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px"><span style="font-size:12px;font-weight:700">James Camilleri</span><span style="font-family:var(--mono);font-size:9.5px;color:var(--text3)">+356 9912 0003</span><span style="margin-left:auto;font-size:10px;color:var(--text3)">Yesterday 16:40</span></div>
+                  <div style="font-size:11.5px;color:var(--text2);margin-bottom:5px;font-style:italic">"follow up Robert Pace on Friday"</div>
+                  <span style="display:inline-flex;align-items:center;gap:5px;background:var(--surface2);border-radius:100px;padding:3px 10px"><span style="width:6px;height:6px;border-radius:50%;background:#3b82f6;flex-shrink:0"></span><span style="font-size:10px;font-weight:600;color:var(--text2)">Task created · Due Friday</span></span>
+                </div>
+              </div>
+
+              <div style="display:flex;align-items:flex-start;gap:14px;padding:12px 16px;border-bottom:1px solid var(--border)">
+                <div style="width:32px;height:32px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">🏠</div>
+                <div style="flex:1;min-width:0">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px"><span style="font-size:12px;font-weight:700">Sam Urpani</span><span style="font-family:var(--mono);font-size:9.5px;color:var(--text3)">+356 9912 0001</span><span style="margin-left:auto;font-size:10px;color:var(--text3)">Yesterday 09:14</span></div>
+                  <div style="font-size:11.5px;color:var(--text2);margin-bottom:5px;font-style:italic">"mark CM9810 available"</div>
+                  <span style="display:inline-flex;align-items:center;gap:5px;background:var(--surface2);border-radius:100px;padding:3px 10px"><span style="width:6px;height:6px;border-radius:50%;background:#8b5cf6;flex-shrink:0"></span><span style="font-size:10px;font-weight:600;color:var(--text2)">Unit status → Available</span></span>
+                </div>
+              </div>
+
+              <div style="display:flex;align-items:flex-start;gap:14px;padding:12px 16px;border-bottom:1px solid var(--border)">
+                <div style="width:32px;height:32px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">☀️</div>
+                <div style="flex:1;min-width:0">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px"><span style="font-size:12px;font-weight:700">Claire Zammit</span><span style="font-family:var(--mono);font-size:9.5px;color:var(--text3)">+356 9912 0004</span><span style="margin-left:auto;font-size:10px;color:var(--text3)">2 days ago</span></div>
+                  <div style="font-size:11.5px;color:var(--text2);margin-bottom:5px;font-style:italic">"anything urgent today?"</div>
+                  <span style="display:inline-flex;align-items:center;gap:5px;background:var(--surface2);border-radius:100px;padding:3px 10px"><span style="width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0"></span><span style="font-size:10px;font-weight:600;color:var(--text2)">Brief sent · 2 holds expiring</span></span>
+                </div>
+              </div>
+
+              <div style="padding:10px 16px;font-size:11px;color:var(--text3);text-align:center">Showing last 5 of 47 this month · <a onclick="go('pipeline')" style="color:var(--accent);cursor:pointer">View all in pipeline activity →</a></div>
+            </div>
+          </div>
+
+          <!-- ── Commands ── -->
+          <div id="wa-tab-commands" style="display:none">
+            <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:10px">Supported voice note &amp; text commands — sent from the rep's personal phone to the Bricly number</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px">
+                <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:6px">Log activity + Hold request</div>
+                <div style="font-size:12px;color:var(--text);font-style:italic;line-height:1.4">"Showed Mike the maisonette at Dolphin Court, he wants a hold on CM9802"</div>
+                <div style="margin-top:7px"><span style="font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--accent);background:rgba(203,77,26,0.08);padding:2px 7px;border-radius:4px">EXAMPLE USED TODAY</span></div>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px">
+                <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:6px">Create task → Due date</div>
+                <div style="font-size:12px;color:var(--text);font-style:italic;line-height:1.4">"Follow up Mike Gatt on Thursday"</div>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px">
+                <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:6px">Unit status update</div>
+                <div style="font-size:12px;color:var(--text);font-style:italic;line-height:1.4">"Mark CM9804 available"</div>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px">
+                <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:6px">Appointment + activity</div>
+                <div style="font-size:12px;color:var(--text);font-style:italic;line-height:1.4">"Book viewing Sarah Borg Friday 10am"</div>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px">
+                <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:6px">Stage → POS Signed</div>
+                <div style="font-size:12px;color:var(--text);font-style:italic;line-height:1.4">"POS signed for Emma Said"</div>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px">
+                <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:6px">Daily brief sent back</div>
+                <div style="font-size:12px;color:var(--text);font-style:italic;line-height:1.4">"Anything urgent today?" or "What's on?"</div>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px">
+                <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:6px">Message drafted &amp; sent back</div>
+                <div style="font-size:12px;color:var(--text);font-style:italic;line-height:1.4">"Draft a follow-up to John Vella"</div>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px">
+                <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:6px">Pipeline summary</div>
+                <div style="font-size:12px;color:var(--text);font-style:italic;line-height:1.4">"How is my pipeline?"</div>
+              </div>
+
+            </div>
+            <div style="background:var(--surface2);border-radius:12px;padding:14px 16px;font-size:12px;color:var(--text2);line-height:1.6">
+              💡 <strong>How it works:</strong> Reps send voice notes or texts to the Bricly WhatsApp Business number from their <strong>own phones</strong>. Bricly AI parses the message and updates the CRM automatically — no app, no login, no form required from the field. Confirmations are sent back as a WhatsApp reply.
+            </div>
+          </div>
+
+          <!-- ── Integration ── -->
+          <div id="wa-tab-integration" style="display:none">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px">
+                <div style="font-size:12px;font-weight:700;margin-bottom:12px">Connection details</div>
+                <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:11.5px"><span style="color:var(--text2)">Business number</span><span style="font-weight:600;font-family:var(--mono);font-size:11px">+356 9900 1234</span></div>
+                <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:11.5px"><span style="color:var(--text2)">Display name</span><span style="font-weight:600;font-family:var(--mono);font-size:11px">Bricly Sales Assistant</span></div>
+                <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:11.5px"><span style="color:var(--text2)">WhatsApp API</span><span style="font-weight:600;font-family:var(--mono);font-size:11px">Cloud API v18.0</span></div>
+                <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:11.5px"><span style="color:var(--text2)">Webhook URL</span><span style="font-weight:600;font-family:var(--mono);font-size:11px">api.bricly.io/wa/hook</span></div>
+                <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:11.5px"><span style="color:var(--text2)">Last message</span><span style="font-weight:600;font-family:var(--mono);font-size:11px">Today 14:22</span></div>
+                <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:11.5px"><span style="color:var(--text2)">Messages this month</span><span style="font-weight:600;font-family:var(--mono);font-size:11px">47 parsed</span></div>
+                <button class="btn btn-sm" style="margin-top:12px;width:100%" onclick="toast('Webhook test sent — check WhatsApp')">Test webhook</button>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px">
+                <div style="font-size:12px;font-weight:700;margin-bottom:12px">Registered agents</div>
+                <div id="wa-agent-list"></div>
+                <button class="btn btn-sm btn-accent" style="margin-top:12px;width:100%" onclick="toast('Invite link copied — send to agent')">+ Add agent number</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Settings ── -->
+          <div id="wa-tab-settings" style="display:none">
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;max-width:560px">
+              <div style="font-size:12px;font-weight:700;margin-bottom:14px">AI parsing settings</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><span style="font-size:12px">Auto-create hold requests from messages</span><input type="checkbox" checked onchange="toast('Setting saved')" style="width:16px;height:16px;accent-color:var(--accent)"></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><span style="font-size:12px">Auto-create tasks from follow-up mentions</span><input type="checkbox" checked onchange="toast('Setting saved')" style="width:16px;height:16px;accent-color:var(--accent)"></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><span style="font-size:12px">Send daily brief to agents at 8 am</span><input type="checkbox" checked onchange="toast('Setting saved')" style="width:16px;height:16px;accent-color:var(--accent)"></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><span style="font-size:12px">Parse voice notes (transcription)</span><input type="checkbox" checked onchange="toast('Setting saved')" style="width:16px;height:16px;accent-color:var(--accent)"></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><span style="font-size:12px">Require confirmation before stage changes</span><input type="checkbox" onchange="toast('Setting saved')" style="width:16px;height:16px;accent-color:var(--accent)"></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0"><span style="font-size:12px">Log all raw messages to activity feed</span><input type="checkbox" checked onchange="toast('Setting saved')" style="width:16px;height:16px;accent-color:var(--accent)"></div>
+              <button class="btn btn-accent" style="margin-top:14px" onclick="toast('Settings saved')">Save settings</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- MY DEALS (Brief 04) -->
+      <div class="page" id="p-mydeals">
+        <div id="pn-mydeals-content"></div>
+      </div>
+
+      <!-- SETTINGS (Brief 05) -->
+      <div class="page" id="p-settings">
+        <div class="ph">
+          <h1>Settings</h1>
+        </div>
+          <div id="wa-status-banner" style="background:linear-gradient(135deg,#e8f7ef,#d4f0e2);border:1px solid #4CAF82;border-radius:14px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:10px;height:10px;border-radius:50%;background:#4CAF82;box-shadow:0 0 0 3px rgba(76,175,130,0.3)"></div>
+              <div>
+                <div style="font-weight:700;font-size:13px;color:#1a3a2a">Connected · Bricly Business Number</div>
+                <div style="font-size:11px;color:#3a7a5a;margin-top:2px">+356 9900 1234 · Active since 1 Jul 2026</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-sm" onclick="toast('Reconnecting…')">Reconnect</button>
+              <button class="btn btn-sm" onclick="waAdminTab('settings')">Settings</button>
+            </div>
+          </div>
+
+          <!-- Tabs -->
+          <div style="display:flex;gap:3px;background:var(--surface2);border-radius:100px;padding:3px;width:fit-content">
+            ${['activity','commands','integration','settings'].map(t => `<button id="wat-${t}" class="btn btn-sm ${t==='activity'?'btn-accent':''}" style="border-radius:100px;padding:6px 16px;font-size:11px;border:none" onclick="waAdminTab('${t}')">${t.charAt(0).toUpperCase()+t.slice(1)}</button>`).join('')}
+          </div>
+
+          <!-- Tab panels -->
+          <div id="wa-tab-activity">
+            <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:10px">Recent messages parsed by Bricly AI</div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden">
+              ${[
+                {who:'Sam Urpani',phone:'+356 9912 0001',time:'Today 14:22',msg:'showed Mike the maisonette, wants hold on CM9802',parsed:'Hold request + Activity log',icon:'🔒',color:'#f5a623'},
+                {who:'Maria Borg',phone:'+356 9912 0002',time:'Today 11:05',msg:'POS signed for Emma Said, upload confirmed',parsed:'Stage updated → POS Signed',icon:'✅',color:'#4CAF82'},
+                {who:'James Camilleri',phone:'+356 9912 0003',time:'Yesterday 16:40',msg:'follow up Robert Pace on Friday',parsed:'Task created · Due Friday',icon:'📋',color:'#3b82f6'},
+                {who:'Sam Urpani',phone:'+356 9912 0001',time:'Yesterday 09:14',msg:'mark CM9810 available',parsed:'Unit status → Available',icon:'🏠',color:'#8b5cf6'},
+                {who:'Claire Zammit',phone:'+356 9912 0004',time:'2 days ago',msg:'anything urgent today?',parsed:'Brief sent · 2 holds expiring',icon:'☀️',color:'var(--accent)'},
+              ].map(r=>`
+                <div style="display:flex;align-items:flex-start;gap:14px;padding:12px 16px;border-bottom:1px solid var(--border)" class="hover-row">
+                  <div style="width:32px;height:32px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">${r.icon}</div>
+                  <div style="flex:1;min-width:0">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
+                      <span style="font-size:12px;font-weight:700;color:var(--text)">${r.who}</span>
+                      <span style="font-family:var(--mono);font-size:9.5px;color:var(--text3)">${r.phone}</span>
+                      <span style="margin-left:auto;font-size:10px;color:var(--text3)">${r.time}</span>
+                    </div>
+                    <div style="font-size:11.5px;color:var(--text2);margin-bottom:4px;font-style:italic">"${r.msg}"</div>
+                    <div style="display:inline-flex;align-items:center;gap:5px;background:var(--surface2);border-radius:100px;padding:3px 10px"><span style="width:6px;height:6px;border-radius:50%;background:${r.color};flex-shrink:0"></span><span style="font-size:10px;font-weight:600;color:var(--text2)">${r.parsed}</span></div>
+                  </div>
+                </div>`).join('')}
+              <div style="padding:10px 16px;font-size:11px;color:var(--text3);text-align:center">Showing last 5 · <a href="#" style="color:var(--accent)">View all in pipeline activity →</a></div>
+            </div>
+          </div>
+
+          <div id="wa-tab-commands" style="display:none">
+            <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:10px">Supported voice note &amp; text commands — Bricly AI listens on your business number</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              ${[
+                {cmd:'Show me the maisonette at Dolphin Court, client wants hold on CM9802',intent:'Log activity + Hold request',example:true},
+                {cmd:'Follow up Mike Gatt on Thursday',intent:'Create task → Due Thursday'},
+                {cmd:'Mark CM9804 available',intent:'Unit status update'},
+                {cmd:'Book viewing Sarah Borg Friday 10am',intent:'Appointment + activity'},
+                {cmd:'POS signed for Emma Said',intent:'Stage → Promise of Sale Signed'},
+                {cmd:'Anything urgent today? / What\'s on?',intent:'Daily brief sent back to you'},
+                {cmd:'Draft follow-up to John Vella',intent:'Message drafted & sent back'},
+                {cmd:'How is my pipeline?',intent:'Summary with totals & top risks'},
+              ].map(c=>`
+                <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px">
+                  <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:6px">${c.intent}</div>
+                  <div style="font-size:12px;color:var(--text);font-style:italic;line-height:1.4">"${c.cmd}"</div>
+                  ${c.example?'<div style="margin-top:6px"><span style="font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--accent);background:rgba(203,77,26,0.08);padding:2px 7px;border-radius:4px">EXAMPLE USED TODAY</span></div>':''}
+                </div>`).join('')}
+            </div>
+            <div style="margin-top:14px;background:var(--surface2);border-radius:12px;padding:14px 16px;font-size:12px;color:var(--text2);line-height:1.6">
+              💡 <strong>How it works:</strong> Reps send voice notes or texts to the Bricly WhatsApp Business number from their <strong>personal phones</strong>. Bricly AI parses the message and updates the CRM automatically — no app, no login required from the field.
+            </div>
+          </div>
+
+          <div id="wa-tab-integration" style="display:none">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px">
+                <div style="font-size:12px;font-weight:700;margin-bottom:12px">Connection details</div>
+                ${[
+                  ['Business number','+356 9900 1234'],
+                  ['Display name','Bricly Sales Assistant'],
+                  ['WhatsApp API','Cloud API v18.0'],
+                  ['Webhook URL','https://api.bricly.io/wa/hook'],
+                  ['Last message received','Today 14:22'],
+                  ['Messages this month','47 parsed'],
+                ].map(([l,v])=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:11.5px"><span style="color:var(--text2)">${l}</span><span style="font-weight:600;color:var(--text);font-family:var(--mono);font-size:11px">${v}</span></div>`).join('')}
+                <button class="btn btn-sm" style="margin-top:12px;width:100%" onclick="toast('Webhook test sent — check WhatsApp')">Test webhook</button>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px">
+                <div style="font-size:12px;font-weight:700;margin-bottom:12px">Registered agents</div>
+                ${pipelineCards.map(c=>c.owner).filter((v,i,a)=>a.indexOf(v)===i).map(name=>`
+                  <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+                    <div style="width:28px;height:28px;border-radius:50%;background:var(--accent-light);color:var(--accent);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">${name.split(' ').map(w=>w[0]).join('').slice(0,2)}</div>
+                    <div style="flex:1"><div style="font-size:12px;font-weight:600">${name}</div><div style="font-size:10px;color:var(--text3)">Sales Rep · linked</div></div>
+                    <span class="pill p-green" style="font-size:9px">Active</span>
+                  </div>`).join('')}
+                <button class="btn btn-sm btn-accent" style="margin-top:12px;width:100%" onclick="toast('Invite sent')">+ Add agent number</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="wa-tab-settings" style="display:none">
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;max-width:560px">
+              <div style="font-size:12px;font-weight:700;margin-bottom:14px">AI parsing settings</div>
+              ${[
+                ['Auto-create hold requests from messages','on'],
+                ['Auto-create tasks from follow-up mentions','on'],
+                ['Send daily brief to agents at 8 am','on'],
+                ['Parse voice notes (transcription)','on'],
+                ['Require confirmation before stage changes','off'],
+                ['Log all raw messages to activity feed','on'],
+              ].map(([l,def])=>`
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
+                  <span style="font-size:12px;color:var(--text)">${l}</span>
+                  <label style="position:relative;display:inline-block;width:38px;height:22px;cursor:pointer">
+                    <input type="checkbox" ${def==='on'?'checked':''} style="opacity:0;width:0;height:0" onchange="toast('Setting saved')">
+                    <span style="position:absolute;inset:0;background:${def==='on'?'var(--accent)':'var(--border)'};border-radius:11px;transition:background .2s"></span>
+                    <span style="position:absolute;top:3px;left:${def==='on'?'19px':'3px'};width:16px;height:16px;background:#fff;border-radius:50%;transition:left .2s"></span>
+                  </label>
+                </div>`).join('')}
+              <button class="btn btn-accent" style="margin-top:14px" onclick="toast('Settings saved')">Save settings</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- MY DEALS (Brief 04) -->
+      <div class="page" id="p-mydeals">
+        <div id="pn-mydeals-content"></div>
+      </div>
+
+      <!-- SETTINGS (Brief 05) -->
+      <div class="page" id="p-settings">
+        <div class="ph">
+          <h1>Settings</h1>
+        </div>
+        <div style="padding:24px;max-width:800px">
+          <div class="card">
+            <div class="card-title">Features</div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)">
+              <label style="flex:1;cursor:pointer" for="st-v11-toggle">
+                <div style="font-weight:500;margin-bottom:4px">Show v1.1 preview features</div>
+                <div style="font-size:11px;color:var(--text3)">Enable Marketing and Automations modules (coming in v1.1)</div>
+              </label>
+              <label class="st-switch">
+                <input type="checkbox" id="st-v11-toggle" onchange="stToggleV11(this.checked)">
+                <span class="st-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
       </div>
 
     </div>
@@ -4401,7 +4866,7 @@ const allContacts = [
   {id:2,first:'John',last:'Vella',email:'j.vella@email.com',phone:'+356 9988 7766',wa:'+356 9988 7766',nat:'British',lang:'English',contactType:'buyer',btype:'Investment buyer',bmin:500000,bmax:800000,interest:'Penthouse or large apartment, sea views',ploc:'Sliema, Valletta, Pembroke',finance:'Cash buyer',timeline:'Ready now',source:'Referral',ref:'Maria Borg',notes:'Experienced investor with a portfolio of 4 properties. Looking for high yield. Cash buyer, can move fast.',agent:'Sam Urpani',status:'active',createdAt:'2024-03-01',addedAt:'2024-03-10',added:'10/03/24',lastActivity:'5 days ago',lastActivityDate:'2024-04-17'},
   {id:3,first:'Emma',last:'Said',email:'e.said@email.com',phone:'+356 9944 5566',wa:'+356 9944 5566',nat:'Maltese',lang:'English, Maltese',contactType:'buyer',btype:'Owner occupier',bmin:300000,bmax:450000,interest:'2-3 bed, modern finish, parking',ploc:'Attard, Naxxar, Balzan',finance:'Pre-approved',timeline:'1–3 months',source:'Website enquiry',ref:'',notes:'Referred by Maria Borg. Looking to upsize from current home. Needs parking and garden if possible.',agent:'Maria Borg',status:'contract',createdAt:'2024-02-21',addedAt:'2024-02-28',added:'28/02/24',lastActivity:'Today',lastActivityDate:'2024-04-22'},
   {id:4,first:'Robert',last:'Pace',email:'r.pace@email.com',phone:'+356 9876 5432',wa:'+356 9876 5432',nat:'Maltese',lang:'English, Maltese, Italian',contactType:'buyer',btype:'Investment buyer',bmin:500000,bmax:750000,interest:'Penthouse, La Lex or similar luxury',ploc:'Pembroke, St Julian\'s',finance:'Arranging finance',timeline:'3–6 months',source:'Instagram ad',ref:'',notes:'High net worth. Has legal team reviewing contracts. Prefers off-plan with stage payments.',agent:'James Camilleri',status:'active',createdAt:'2024-02-25',addedAt:'2024-03-05',added:'05/03/24',lastActivity:'2 weeks ago',lastActivityDate:'2024-04-08'},
-  {id:5,first:'Claire',last:'Micallef',email:'c.micallef@bricklyvendors.mt',phone:'+356 7971 2388',wa:'+356 7971 2388',nat:'Maltese',lang:'English, Maltese',contactType:'vendor',btype:'Property owner',bmin:0,bmax:0,interest:'Vendor listing for 3-bedroom townhouse',ploc:'Mosta',finance:'N/A',timeline:'Ready now',source:'Walk-in',ref:'',notes:'Owner wants staged marketing and strong digital campaign.',agent:'Maria Borg',status:'active',createdAt:'2024-03-11',addedAt:'2024-03-11',added:'11/03/24',lastActivity:'6 days ago',lastActivityDate:'2024-04-16'},
+  {id:5,first:'Claire',last:'Micallef',email:'c.micallef@briclyvendors.mt',phone:'+356 7971 2388',wa:'+356 7971 2388',nat:'Maltese',lang:'English, Maltese',contactType:'vendor',btype:'Property owner',bmin:0,bmax:0,interest:'Vendor listing for 3-bedroom townhouse',ploc:'Mosta',finance:'N/A',timeline:'Ready now',source:'Walk-in',ref:'',notes:'Owner wants staged marketing and strong digital campaign.',agent:'Maria Borg',status:'active',createdAt:'2024-03-11',addedAt:'2024-03-11',added:'11/03/24',lastActivity:'6 days ago',lastActivityDate:'2024-04-16'},
   {id:6,first:'Alex',last:'Azzopardi',email:'alex@azzosupplies.mt',phone:'+356 9930 1104',wa:'+356 9930 1104',nat:'Maltese',lang:'English',contactType:'supplier',btype:'Service supplier',bmin:0,bmax:0,interest:'Photography and staging services',ploc:'Nationwide',finance:'N/A',timeline:'Ongoing',source:'Referral',ref:'Emma Said',notes:'Preferred supplier for listing photo packages and 360 tours.',agent:'James Camilleri',status:'active',createdAt:'2024-01-18',addedAt:'2024-01-19',added:'19/01/24',lastActivity:'3 days ago',lastActivityDate:'2024-04-19'},
   {id:7,first:'Nadia',last:'Spiteri',email:'nadia@northshorelegal.mt',phone:'+356 9981 4420',wa:'+356 9981 4420',nat:'Maltese',lang:'English, Italian',contactType:'partner',btype:'Legal partner',bmin:0,bmax:0,interest:'Conveyancing and due diligence support',ploc:'Sliema',finance:'N/A',timeline:'Ongoing',source:'LinkedIn',ref:'',notes:'Legal partner for promise-of-sale and final contract support.',agent:'Sam Urpani',status:'active',createdAt:'2024-01-06',addedAt:'2024-01-07',added:'07/01/24',lastActivity:'1 week ago',lastActivityDate:'2024-04-15'},
 ];
@@ -6279,6 +6744,9 @@ function renderOpportunityDetail() {
   if (overviewTab) overviewTab.classList.add('on');
   if (overviewPanel) overviewPanel.classList.add('on');
 
+  // Render buyer engagement panel (guarded because this code runs before ms script block)
+  if (typeof msRenderEngagement === 'function') msRenderEngagement(opp.id);
+
   // Pre-populate badge counts from ext data
   const ext = oppExtData[opp.id];
   if (ext) {
@@ -6477,14 +6945,17 @@ function renderOppMarketing(filterType) {
   const linksEl = document.getElementById('oppd-marketing-links');
   if (linksEl) {
     const links = ext.marketingLinks || [];
-    linksEl.innerHTML = links.length ? links.map(l => `
-      <a class="mkt-link-tile" onclick="toast('Opening ${l.label}...')" href="javascript:void(0)">
+    linksEl.innerHTML = links.length ? links.map(l => {
+      const onclick = l.label === 'Personal Presentation' ? `msOpen('${activeOppId}')` : `toast('Opening ${l.label}...')`;
+      return `
+      <a class="mkt-link-tile" onclick="${onclick}" href="javascript:void(0)">
         <div class="mkt-link-icon" style="background:var(--surface3)">${l.icon}</div>
         <div>
           <div class="mkt-link-label">${l.label}</div>
           <div class="mkt-link-sub">${l.sub}</div>
         </div>
-      </a>`).join('')
+      </a>`;
+    }).join('')
       : '<div style="color:var(--text3);font-size:12px;padding:8px 0">No marketing links added yet.</div>';
   }
 
@@ -7175,8 +7646,8 @@ function toggleStatusFilter(s) {
 
 
 const noPanel=['home','approval','prop-detail','dev-detail','contact-detail','team','calendar','booking-preview','opp-detail'];
-const bcMap={home:'Home',dash:'Sales dashboard',pipeline:'Pipeline',opps:'Pipeline','opp-detail':'Opportunity detail',devs:'Developments','dev-detail':'Dolphin Court',props:'Properties','prop-detail':'DR-1909 · Maisonette',approval:'Approval requests',contacts:'Contacts','contact-detail':'Contact profile',reports:'Reports',marketing:'Marketing',automations:'Automations',team:'Team & roles',calendar:'Calendar','booking-preview':'Booking page preview',studio:'Bricly Studio'};
-const navIdx={home:0,dash:1,pipeline:2,opps:2,'opp-detail':2,leads:3,contacts:4,'contact-detail':4,devs:5,'dev-detail':5,props:6,'prop-detail':6,approval:7,approvals:7,calendar:8,'booking-preview':8,reports:9,marketing:10,automations:11,team:13,studio:15};
+const bcMap={home:'Home',dash:'Sales dashboard',pipeline:'Pipeline',opps:'Pipeline','opp-detail':'Opportunity detail',devs:'Developments','dev-detail':'Dolphin Court',props:'Properties','prop-detail':'DR-1909 · Maisonette',approval:'Approval requests',whatsapp:'WhatsApp',mydeals:'My Deals',contacts:'Contacts','contact-detail':'Contact profile',reports:'Reports',marketing:'Marketing',automations:'Automations',team:'Team & roles',calendar:'Calendar','booking-preview':'Booking page preview',studio:'Bricly Studio'};
+const navIdx={home:0,dash:1,pipeline:2,opps:2,'opp-detail':2,leads:3,contacts:4,'contact-detail':4,devs:5,'dev-detail':5,props:6,'prop-detail':6,approval:7,approvals:7,whatsapp:7,mydeals:7,calendar:8,'booking-preview':8,reports:9,marketing:10,automations:11,team:13,studio:15};
 
 let notifVisible = false;
 let notifAutoHideTimer = null;
@@ -7366,6 +7837,17 @@ function cancelQuickInput() {
 function go(p){
   if (p === 'opps') p = 'pipeline';
   if (p === 'approvals') p = 'approval';
+  // Brief 05: redirect Marketing/Automations to Home when v1.1 flag is OFF
+  if (typeof stV11Enabled !== 'undefined' && !stV11Enabled) {
+    if (p === 'marketing') {
+      toast('Marketing is a v1.1 feature');
+      p = 'home';
+    }
+    if (p === 'automations') {
+      toast('Automations is a v1.1 feature');
+      p = 'home';
+    }
+  }
   const studioApp = document.getElementById('studio-app');
   if (p === 'studio') {
     document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));
@@ -7407,6 +7889,8 @@ function go(p){
       setTimeout(()=>renderQueue('queue-tbody'),0);
     }
   }
+  if(p==='whatsapp') setTimeout(waRenderPage, 0);
+  if(p==='mydeals') setTimeout(pnRenderMyDeals, 0);
 }
 
 const HOME_DATA = {
@@ -7455,6 +7939,14 @@ function renderHome() {
   greetingEl.textContent = data.greet;
   subEl.textContent = data.sub;
 
+  // Render morning brief for reps (guard: ai block is defined later in the file)
+  if (role === 'rep' && typeof aiRenderMorningBrief === 'function') {
+    aiRenderMorningBrief();
+  } else if (role !== 'rep') {
+    const briefEl = document.getElementById('ai-morning-brief');
+    if (briefEl) briefEl.style.display = 'none';
+  }
+
   if (kpisEl) {
     kpisEl.innerHTML = data.kpis.map(k => `
       <div class="home-kpi">
@@ -7501,8 +7993,8 @@ function sendHomePrompt() {
     toast('Ask the assistant anything about CRM data, clients, or forecasting.');
     return;
   }
-  toast('Assistant queued: ' + promptText.slice(0, 74) + (promptText.length > 74 ? '...' : ''));
   input.value = '';
+  aiSubmit(promptText);
 }
 
 // ── DASHBOARD DATA ────────────────────────────────────────────────────────────
@@ -8544,22 +9036,41 @@ function renderMgrDashCards(cash) {
 
 function setRole(r){
   role=r;
+  // Brief 04: if the rep nav is active, restore the full nav FIRST so the
+  // visibility toggles below can find their elements (ni-team etc.)
+  if (typeof pnState === 'object' && pnState && pnState.originalNavHTML && pnState.currentMode === 'rep') {
+    const _sb = document.querySelector('.sidebar');
+    if (_sb) _sb.innerHTML = pnState.originalNavHTML;
+    pnState.currentMode = null;
+  }
   document.getElementById('rb-rep').classList.toggle('on',r==='rep');
   document.getElementById('rb-mgr').classList.toggle('on',r==='mgr');
   document.getElementById('rb-op').classList.toggle('on',r==='op');
   document.getElementById('ni-team').style.display=(r==='mgr'||r==='op')?'flex':'none';
   document.getElementById('btn-add-dev').style.display=(r==='mgr'||r==='op')?'inline-flex':'none';
   document.getElementById('nav-section-studio').style.display=(r==='op')?'block':'none';
-  document.getElementById('ni-marketing').style.display=(r==='op')?'flex':'none';
-  document.getElementById('ni-automations').style.display=(r==='op')?'flex':'none';
+  // Brief 05: Marketing/Automations visibility handled by stApplyFlag()
+  // WhatsApp visibility
+  const whatsapp=document.getElementById('ni-whatsapp');
+  if(whatsapp)whatsapp.style.display=(r==='rep'||r==='mgr')?'flex':'none';
+  const waPill=document.getElementById('wa-home-pill');
+  if(waPill)waPill.style.display=(r==='rep'||r==='mgr')?'block':'none';
+  // Approvals visibility
+  const approvals=document.getElementById('ni-approvals');
+  if(approvals)approvals.style.display=r==='mgr'?'flex':'none';
+  // Continue with rest
   document.getElementById('urole').textContent=r==='rep'?'Sales Rep':r==='op'?'Operator':'Sales Manager';
   document.body.classList.toggle('mgr-role', r==='mgr'||r==='op');
   document.body.classList.toggle('op-role', r==='op');
   document.getElementById('dash-title').textContent = r==='op' ? 'Command Center' : r==='mgr' ? 'Good morning, Sam' : "Sam, here's what's happening";
   document.getElementById('dash-sub').textContent   = r==='op' ? 'Operator' : r==='mgr' ? 'Sales Manager' : 'Sales Rep';
+  // Brief 05: apply v1.1 flag logic
+  if (typeof stApplyFlag === 'function') stApplyFlag();
   renderHome();
   renderDashboard();
   go('home');
+  // Brief 04: call persona-nav after role change
+  if (typeof pnRenderNav === 'function') pnRenderNav(r);
 }
 
 function openModal(m){
@@ -14829,6 +15340,7 @@ function pmRenderWrapup(){
           </div>
           <div class="pm-link-url" id="pm-link-url"></div>
           <div style="font-size:10.5px;color:var(--pm-t3);margin-top:7px">Branded to your agency · shows their shortlisted units, live configurations, floor plans and payment plans. Views are tracked back to the opportunity.</div>
+          <button class="pm-btn" style="margin-top:10px;font-size:11.5px;padding:7px 12px" onclick="msOpenFromPresent()">Preview buyer view →</button>
         </div>
         <div class="pm-done-banner" id="pm-done-banner"></div>
         <div style="display:flex;gap:8px;margin-top:16px">
@@ -14931,6 +15443,1721 @@ function pmFinish(){
     toast('Presentation saved — you’re on the opportunity file');
   }
 }
+</script>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- WHATSAPP CONVERSATIONAL CAPTURE (namespace: wa)        -->
+<!-- ══════════════════════════════════════════════════════ -->
+<script>
+// ── WhatsApp State ──
+const waState = {
+  thread: [],
+  voiceShown: false,
+};
+
+const waVoiceNotes = [
+  {
+    id: 1,
+    duration: '0:42',
+    transcript: 'Just showed Mike Gatt the maisonette at Dolphin Court, he loves the terrace, wants a hold on CM9802, needs finance, follow up Thursday.',
+  },
+  {
+    id: 2,
+    duration: '0:38',
+    transcript: 'Had a call with Sarah Borg, she\'s ready to move forward on CM9805, needs to sign POS by Friday, mark as reservation please.',
+  },
+  {
+    id: 3,
+    duration: '0:29',
+    transcript: 'Quick update - mark CM9804 as available again, the hold just expired and client went silent.',
+  },
+];
+
+// ── Entry point ──
+function waRenderPage() {
+  const thread = document.getElementById('wa-thread');
+  if (!thread) return;
+  
+  // Initial welcome message
+  if (waState.thread.length === 0) {
+    waState.thread.push({
+      type: 'assistant',
+      text: 'Hi Sam! I\'m your Bricly assistant. Send me voice notes or messages about viewings, holds, tasks, or ask me for your daily brief.',
+    });
+  }
+  
+  waRenderThread();
+  waRenderVoiceChips();
+}
+
+// ── Render thread ──
+function waRenderThread() {
+  const thread = document.getElementById('wa-thread');
+  if (!thread) return;
+  
+  thread.innerHTML = waState.thread.map(msg => {
+    if (msg.type === 'rep') {
+      if (msg.isVoice) {
+        return `<div class="wa-bubble wa-rep wa-voice">
+          <div class="wa-voice-waveform">
+            <div class="wa-voice-bar"></div><div class="wa-voice-bar"></div><div class="wa-voice-bar"></div>
+            <div class="wa-voice-bar"></div><div class="wa-voice-bar"></div>
+          </div>
+          <span class="wa-voice-duration">${msg.duration}</span>
+        </div>`;
+      }
+      return `<div class="wa-bubble wa-rep">${msg.text}</div>`;
+    }
+    if (msg.type === 'assistant') {
+      return `<div class="wa-bubble wa-assistant">${msg.text}</div>`;
+    }
+    if (msg.type === 'card') {
+      return msg.html;
+    }
+    if (msg.type === 'typing') {
+      return `<div class="wa-typing"><div class="wa-typing-dot"></div><div class="wa-typing-dot"></div><div class="wa-typing-dot"></div></div>`;
+    }
+    return '';
+  }).join('');
+  
+  // Scroll to bottom
+  thread.scrollTop = thread.scrollHeight;
+}
+
+// ── Voice chips ──
+function waToggleVoice() {
+  waState.voiceShown = !waState.voiceShown;
+  const chips = document.getElementById('wa-voice-chips');
+  if (!chips) return;
+  chips.style.display = waState.voiceShown ? 'block' : 'none';
+  if (waState.voiceShown) waRenderVoiceChips();
+}
+
+function waRenderVoiceChips() {
+  const chips = document.getElementById('wa-voice-chips');
+  if (!chips) return;
+  
+  chips.innerHTML = waVoiceNotes.map(note => `
+    <div class="wa-voice-chip" onclick="waSendVoice(${note.id})">
+      <div class="wa-voice-waveform">
+        <div class="wa-voice-bar"></div><div class="wa-voice-bar"></div><div class="wa-voice-bar"></div>
+        <div class="wa-voice-bar"></div><div class="wa-voice-bar"></div>
+      </div>
+      <span class="wa-voice-duration">${note.duration}</span>
+    </div>
+  `).join('');
+}
+
+function waSendVoice(voiceId) {
+  const note = waVoiceNotes.find(n => n.id === voiceId);
+  if (!note) return;
+  
+  // Hide chips
+  waState.voiceShown = false;
+  document.getElementById('wa-voice-chips').style.display = 'none';
+  
+  // Add voice bubble
+  waState.thread.push({type: 'rep', isVoice: true, duration: note.duration});
+  waRenderThread();
+  
+  // Show typing, then transcript, then parse
+  setTimeout(() => {
+    waState.thread.push({type: 'typing'});
+    waRenderThread();
+    
+    setTimeout(() => {
+      waState.thread.pop(); // remove typing
+      waState.thread.push({type: 'assistant', text: `Transcript: "${note.transcript}"`});
+      waRenderThread();
+      
+      setTimeout(() => {
+        waParse(note.transcript);
+      }, 400);
+    }, 700);
+  }, 300);
+}
+
+// ── Text send ──
+function waSend() {
+  const inp = document.getElementById('wa-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  
+  waState.thread.push({type: 'rep', text});
+  inp.value = '';
+  waRenderThread();
+  
+  // Show typing, then parse
+  setTimeout(() => {
+    waState.thread.push({type: 'typing'});
+    waRenderThread();
+    
+    setTimeout(() => {
+      waState.thread.pop();
+      waParse(text);
+    }, 700);
+  }, 300);
+}
+
+// ── Parser ──
+function waParse(text) {
+  const lower = text.toLowerCase();
+  
+  // Intent: get_brief
+  if (/(what|anything|give me|show).*(today|urgent|brief|happening|on today)/i.test(text) || /urgent.*today/i.test(text)) {
+    waShowBrief();
+    return;
+  }
+  
+  // Intent: update_unit (explicit status command — exclusive)
+  const unitCmd = /(mark|set|update|change).*(available|sold)/i.test(lower) ||
+                  (/(mark|set|update|change)/i.test(lower) && /\bas hold\b|\bto hold\b/i.test(lower));
+  if (unitCmd && /#?CM\d{4}/i.test(text)) {
+    const unitId = text.match(/#?CM\d{4}/i)?.[0] || '';
+    const status = text.match(/(available|sold|hold)/i)?.[0] || 'available';
+    waShowUnitUpdateCard(unitId, status);
+    return;
+  }
+  
+  // Entity extraction for activity/hold/task
+  const entities = waExtractEntities(text);
+  
+  // Compound messages can carry several intents — emit a card for EACH match
+  let matched = 0;
+  
+  // Intent: log_activity (viewings/calls/meetings)
+  if (/(showed|show(ing)?|viewing|visited|had a call|call with|meeting|met with)/i.test(lower)) {
+    waShowActivityCard(entities);
+    matched++;
+  }
+  
+  // Intent: request_hold
+  if (/(hold|reserve|put on hold|wants? hold|requesting hold)/i.test(lower) && entities.unit) {
+    waShowHoldCard(entities);
+    matched++;
+  }
+  
+  // Intent: create_task
+  if (/(follow up|call back|remind|task|to-?do|sign pos|needs finance)/i.test(lower)) {
+    waShowTaskCard(entities);
+    matched++;
+  }
+  
+  if (matched > 0) return;
+  
+  // Fallback
+  waState.thread.push({type: 'assistant', text: 'Got it! I can help with logging activities, hold requests, tasks, unit updates, or daily briefs. Try "anything urgent today?" or describe a viewing.'});
+  waRenderThread();
+}
+
+function waExtractEntities(text) {
+  const entities = {contact: null, unit: null, unitId: null, project: null, date: null, note: text};
+  
+  // Extract unit ID
+  const unitMatch = text.match(/#?CM\d{4}/i);
+  if (unitMatch) {
+    entities.unitId = unitMatch[0].replace('#', '').toUpperCase();
+    entities.unitId = '#' + entities.unitId;
+    const unit = allProps.find(p => p.id.toUpperCase() === entities.unitId.toUpperCase());
+    if (unit) {
+      entities.unit = unit;
+      entities.project = unit.dev;
+    }
+  }
+  
+  // Extract contact name from pipelineCards
+  for (const card of pipelineCards) {
+    const name = card.contact;
+    const nameRegex = new RegExp(name.replace(/\s+/g, '\\s+'), 'i');
+    if (nameRegex.test(text)) {
+      entities.contact = name;
+      entities.opp = card;
+      if (!entities.project && card.project) entities.project = card.project;
+      break;
+    }
+  }
+  
+  // Extract date
+  if (/thursday|friday|monday|tuesday|wednesday|saturday|sunday/i.test(text)) {
+    const day = text.match(/thursday|friday|monday|tuesday|wednesday|saturday|sunday/i)[0];
+    entities.date = day.charAt(0).toUpperCase() + day.slice(1);
+  } else if (/tomorrow/i.test(text)) {
+    entities.date = 'Tomorrow';
+  } else if (/today/i.test(text)) {
+    entities.date = 'Today';
+  }
+  
+  return entities;
+}
+
+// ── Cards ──
+function waShowActivityCard(entities) {
+  const html = `<div class="wa-card">
+    <div class="wa-card-title">📝 Activity Log</div>
+    <div class="wa-card-row"><span class="wa-card-label">Contact:</span><span class="wa-card-value">${entities.contact || '—'}</span></div>
+    <div class="wa-card-row"><span class="wa-card-label">Unit:</span><span class="wa-card-value">${entities.unitId || '—'}</span></div>
+    <div class="wa-card-row"><span class="wa-card-label">Project:</span><span class="wa-card-value">${entities.project || '—'}</span></div>
+    <div class="wa-card-row"><span class="wa-card-label">Note:</span><span class="wa-card-value" style="font-weight:400">${entities.note.substring(0, 80)}${entities.note.length > 80 ? '...' : ''}</span></div>
+    <div class="wa-card-actions">
+      <button class="wa-card-btn" onclick="waEditCard('activity', ${JSON.stringify(entities).replace(/"/g, '&quot;')})">✎ Edit</button>
+      <button class="wa-card-btn wa-confirm" onclick="waConfirmActivity(${JSON.stringify(entities).replace(/"/g, '&quot;')})">✓ Confirm</button>
+    </div>
+  </div>`;
+  waState.thread.push({type: 'card', html});
+  waRenderThread();
+}
+
+function waShowHoldCard(entities) {
+  const html = `<div class="wa-card">
+    <div class="wa-card-title">🔒 Hold Request</div>
+    <div class="wa-card-row"><span class="wa-card-label">Contact:</span><span class="wa-card-value">${entities.contact || '—'}</span></div>
+    <div class="wa-card-row"><span class="wa-card-label">Unit:</span><span class="wa-card-value">${entities.unitId || '—'}</span></div>
+    <div class="wa-card-row"><span class="wa-card-label">Project:</span><span class="wa-card-value">${entities.project || '—'}</span></div>
+    <div class="wa-card-actions">
+      <button class="wa-card-btn" onclick="waEditCard('hold', ${JSON.stringify(entities).replace(/"/g, '&quot;')})">✎ Edit</button>
+      <button class="wa-card-btn wa-confirm" onclick="waConfirmHold(${JSON.stringify(entities).replace(/"/g, '&quot;')})">✓ Confirm</button>
+    </div>
+  </div>`;
+  waState.thread.push({type: 'card', html});
+  waRenderThread();
+}
+
+function waShowTaskCard(entities) {
+  // Synthesise a clean task line instead of echoing the raw transcript
+  const who = entities.contact ? entities.contact.split(' ')[0] : 'client';
+  let taskText = `Follow up with ${who}`;
+  if (/finance|financing|loan|bank/i.test(entities.note)) taskText = `Follow up with ${who} on financing`;
+  else if (/sign pos|pos signing|promise of sale/i.test(entities.note)) taskText = `Arrange POS signing with ${who}`;
+  else if (/call back/i.test(entities.note)) taskText = `Call ${who} back`;
+  if (entities.unitId) taskText += ` (${entities.unitId})`;
+  entities = {...entities, taskText};
+  const html = `<div class="wa-card">
+    <div class="wa-card-title">✅ New Task</div>
+    <div class="wa-card-row"><span class="wa-card-label">Task:</span><span class="wa-card-value" style="font-weight:400">${taskText}</span></div>
+    <div class="wa-card-row"><span class="wa-card-label">Due:</span><span class="wa-card-value">${entities.date || 'Today'}</span></div>
+    <div class="wa-card-row"><span class="wa-card-label">Contact:</span><span class="wa-card-value">${entities.contact || '—'}</span></div>
+    <div class="wa-card-actions">
+      <button class="wa-card-btn" onclick="waEditCard('task', ${JSON.stringify(entities).replace(/"/g, '&quot;')})">✎ Edit</button>
+      <button class="wa-card-btn wa-confirm" onclick="waConfirmTask(${JSON.stringify(entities).replace(/"/g, '&quot;')})">✓ Confirm</button>
+    </div>
+  </div>`;
+  waState.thread.push({type: 'card', html});
+  waRenderThread();
+}
+
+function waShowUnitUpdateCard(unitId, status) {
+  const cleanId = unitId.startsWith('#') ? unitId : '#' + unitId.toUpperCase();
+  const unit = allProps.find(p => p.id.toUpperCase() === cleanId.toUpperCase());
+  const html = `<div class="wa-card">
+    <div class="wa-card-title">🏠 Unit Update</div>
+    <div class="wa-card-row"><span class="wa-card-label">Unit:</span><span class="wa-card-value">${cleanId}</span></div>
+    <div class="wa-card-row"><span class="wa-card-label">Project:</span><span class="wa-card-value">${unit ? unit.dev : '—'}</span></div>
+    <div class="wa-card-row"><span class="wa-card-label">New Status:</span><span class="wa-card-value" style="color:var(--accent);font-weight:600">${status.charAt(0).toUpperCase() + status.slice(1)}</span></div>
+    <div class="wa-card-actions">
+      <button class="wa-card-btn" onclick="waEditCard('unit', {unitId:'${cleanId}',status:'${status}'})">✎ Edit</button>
+      <button class="wa-card-btn wa-confirm" onclick="waConfirmUnitUpdate('${cleanId}','${status}')">✓ Confirm</button>
+    </div>
+  </div>`;
+  waState.thread.push({type: 'card', html});
+  waRenderThread();
+}
+
+function waShowBrief() {
+  // Calculate brief data
+  const holdsExpiring = pipelineCards.filter(c => c.stage === 'hold' && c.daysInStage >= 5);
+  const tasksDue = [];
+  pipelineCards.forEach(opp => {
+    const ext = oppExtData[opp.id];
+    if (ext && ext.tasks) {
+      ext.tasks.forEach(t => {
+        if (!t.done && (t.due === 'Today' || t.due === 'Yesterday')) {
+          tasksDue.push({opp: opp.id, text: t.text, due: t.due});
+        }
+      });
+    }
+  });
+  const nextAppt = pipelineCards.find(c => c.stage === 'viewing_booked');
+  
+  const html = `<div class="wa-brief-digest">
+    <div class="wa-brief-title">📊 Your Daily Brief</div>
+    ${holdsExpiring.length > 0 ? `<div class="wa-brief-section">
+      <div class="wa-brief-heading">⚠️ Holds Expiring Soon</div>
+      ${holdsExpiring.map(h => `<div class="wa-brief-item">${h.contact} · ${h.unit} · ${h.daysInStage} days held</div>`).join('')}
+    </div>` : ''}
+    ${tasksDue.length > 0 ? `<div class="wa-brief-section">
+      <div class="wa-brief-heading">✅ Tasks Due Today</div>
+      ${tasksDue.slice(0, 3).map(t => `<div class="wa-brief-item">${t.text}</div>`).join('')}
+    </div>` : ''}
+    ${nextAppt ? `<div class="wa-brief-section">
+      <div class="wa-brief-heading">📅 Next Appointment</div>
+      <div class="wa-brief-item">${nextAppt.contact} · ${nextAppt.nextStep}</div>
+    </div>` : ''}
+    <div class="wa-brief-actions">
+      ${holdsExpiring.length > 0 ? `<button class="wa-brief-btn" onclick="go('pipeline')">Open Pipeline</button>` : ''}
+      ${nextAppt ? `<button class="wa-brief-btn" onclick="activeOppId='${nextAppt.id}';go('opp-detail')">Open ${nextAppt.id}</button>` : ''}
+      <button class="wa-brief-btn" onclick="waState.thread=[];waRenderPage()">Clear chat</button>
+    </div>
+  </div>`;
+  waState.thread.push({type: 'card', html});
+  waRenderThread();
+}
+
+// ── Edit handlers ──
+function waEditCard(type, entities) {
+  if (type === 'activity') {
+    showQuickInput('Edit activity note', entities.note, (newNote) => {
+      entities.note = newNote;
+      waState.thread.pop(); // remove old card
+      waShowActivityCard(entities);
+    });
+  } else if (type === 'hold') {
+    showQuickInput('Edit unit ID', entities.unitId || '', (newUnit) => {
+      entities.unitId = newUnit;
+      const u = allProps.find(p => p.id.toUpperCase() === newUnit.toUpperCase());
+      if (u) {
+        entities.unit = u;
+        entities.project = u.dev;
+      }
+      waState.thread.pop();
+      waShowHoldCard(entities);
+    });
+  } else if (type === 'task') {
+    showQuickInput('Edit task text', entities.note, (newNote) => {
+      entities.note = newNote;
+      waState.thread.pop();
+      waShowTaskCard(entities);
+    });
+  } else if (type === 'unit') {
+    showQuickInput('Edit unit ID', entities.unitId || '', (newUnit) => {
+      waConfirmUnitUpdate(newUnit, entities.status);
+    });
+  }
+}
+
+// ── Confirm handlers (mutate real data) ──
+function waConfirmActivity(entities) {
+  let opp = entities.opp;
+  if (!opp && entities.contact) {
+    opp = pipelineCards.find(c => c.contact === entities.contact);
+  }
+  if (!opp && entities.unitId) {
+    opp = pipelineCards.find(c => c.unitIds && c.unitIds.includes(entities.unitId));
+  }
+  
+  if (opp) {
+    if (!opp.activity) opp.activity = [];
+    opp.activity.unshift({t: 'Just now', v: entities.note});
+    waState.thread.push({type: 'assistant', text: `✓ Activity logged to ${opp.id}`});
+  } else {
+    waState.thread.push({type: 'assistant', text: '✓ Activity logged (no opportunity matched, saved to notes)'});
+  }
+  waRenderThread();
+}
+
+function waConfirmHold(entities) {
+  let opp = entities.opp;
+  if (!opp && entities.contact) {
+    opp = pipelineCards.find(c => c.contact === entities.contact);
+  }
+  if (!opp && entities.unitId) {
+    opp = pipelineCards.find(c => c.unitIds && c.unitIds.includes(entities.unitId));
+  }
+  
+  if (opp) {
+    opp.holdApproval = 'Waiting manager approval';
+    opp.stage = 'hold';
+    if (!opp.activity) opp.activity = [];
+    opp.activity.unshift({t: 'Just now', v: `Hold request submitted via WhatsApp for ${entities.unitId || 'unit'}`});
+    
+    // Add to approvals queue
+    const newReq = {
+      id: requests.length,
+      agent: 'Sam Urpani',
+      av: 'SU',
+      unit: entities.unitId || opp.unit,
+      type: entities.unit ? entities.unit.type : 'Unit',
+      project: entities.project || opp.project,
+      client: entities.contact || opp.contact,
+      reqtype: 'On Hold',
+      price: entities.unit ? ('€' + (entities.unit.price / 1000) + 'k') : '—',
+      days: '—',
+      floor: entities.unit ? String(entities.unit.floor) : '—',
+      beds: entities.unit ? String(entities.unit.beds) : '—',
+      sqm: entities.unit ? (entities.unit.sqm + ' m²') : '—',
+      note: 'Via WhatsApp: ' + entities.note.substring(0, 80),
+      submitted: 'Just now',
+      urgency: 'New request',
+      urgencyClass: 'p-amber',
+    };
+    requests.push(newReq);
+    
+    // Update approvals count
+    const count = document.getElementById('approvals-count');
+    if (count) {
+      count.textContent = requests.length;
+      count.style.display = 'inline';
+    }
+    
+    waState.thread.push({type: 'assistant', text: `✓ Hold request submitted for ${entities.unitId || 'unit'}. Manager approval queued.`});
+  } else {
+    waState.thread.push({type: 'assistant', text: '✓ Hold request noted (no opportunity matched)'});
+  }
+  waRenderThread();
+}
+
+function waConfirmTask(entities) {
+  let opp = entities.opp;
+  if (!opp && entities.contact) {
+    opp = pipelineCards.find(c => c.contact === entities.contact);
+  }
+  
+  if (opp) {
+    if (!oppExtData[opp.id]) {
+      oppExtData[opp.id] = {notes: [], reminders: [], tasks: [], files: [], docChecklist: [], marketingLinks: [], bids: [], contract: null};
+    }
+    const ext = oppExtData[opp.id];
+    if (!ext.tasks) ext.tasks = [];
+    ext.tasks.push({
+      done: false,
+      text: entities.taskText || entities.note,
+      due: entities.date || 'Today',
+      priority: 'high',
+    });
+    waState.thread.push({type: 'assistant', text: `✓ Task added to ${opp.id} — due ${entities.date || 'Today'}`});
+  } else {
+    waState.thread.push({type: 'assistant', text: '✓ Task noted (no opportunity matched)'});
+  }
+  waRenderThread();
+}
+
+function waConfirmUnitUpdate(unitId, status) {
+  const cleanId = unitId.startsWith('#') ? unitId : '#' + unitId.toUpperCase();
+  const unit = allProps.find(p => p.id.toUpperCase() === cleanId.toUpperCase());
+  if (unit) {
+    unit.status = status.toLowerCase();
+    waState.thread.push({type: 'assistant', text: `✓ ${cleanId} marked as ${status}`});
+    toast(`${cleanId} status updated to ${status}`);
+  } else {
+    waState.thread.push({type: 'assistant', text: `✗ Unit ${cleanId} not found`});
+  }
+  waRenderThread();
+}
+</script>
+
+<script>
+// Initialize WhatsApp visibility for default role
+(function() {
+  const whatsapp = document.getElementById('ni-whatsapp');
+  const waPill = document.getElementById('wa-home-pill');
+  if (whatsapp && role === 'rep') whatsapp.style.display = 'flex';
+  if (waPill && role === 'rep') waPill.style.display = 'block';
+})();
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     AI ASSISTANT (prefix: ai)
+     ═══════════════════════════════════════════════════════════════════ -->
+<script>
+// AI conversation state
+const aiState = {
+  exchanges: [] // {user: string, response: HTMLstring}
+};
+
+// ── Core: Submit and parse ────────────────────────────────────────────
+function aiSubmit(text) {
+  const trimmed = text.trim();
+  if (!trimmed) return;
+  
+  const intent = aiParse(trimmed);
+  const responseHtml = aiExecuteIntent(intent, trimmed);
+  
+  aiState.exchanges.push({user: trimmed, response: responseHtml});
+  aiRenderLog();
+}
+
+function aiParse(text) {
+  const lower = text.toLowerCase();
+  
+  // Intent: show holds expiring
+  if (lower.includes('hold') && (lower.includes('expiring') || lower.includes('at-risk') || lower.includes('risk'))) {
+    return {type: 'holds-expiring'};
+  }
+  
+  // Intent: draft follow-up
+  if (lower.includes('draft') && lower.includes('follow')) {
+    const entities = waExtractEntities(text);
+    return {type: 'draft-followup', contact: entities.contact, opp: entities.opp};
+  }
+  
+  // Intent: book viewing
+  if ((lower.includes('book') || lower.includes('schedule')) && lower.includes('view')) {
+    const entities = waExtractEntities(text);
+    return {type: 'book-viewing', contact: entities.contact, date: entities.date, opp: entities.opp};
+  }
+  
+  // Intent: pipeline summary
+  if (lower.includes('pipeline') || lower.includes('summary') || lower.includes('report')) {
+    return {type: 'pipeline-summary'};
+  }
+  
+  // Intent: present to contact
+  if (lower.includes('present')) {
+    const entities = waExtractEntities(text);
+    return {type: 'present', contact: entities.contact, opp: entities.opp};
+  }
+  
+  // Fallback
+  return {type: 'fallback'};
+}
+
+function aiExecuteIntent(intent, originalText) {
+  switch (intent.type) {
+    case 'holds-expiring':
+      return aiHandleHoldsExpiring();
+    case 'draft-followup':
+      return aiHandleDraftFollowup(intent.contact, intent.opp);
+    case 'book-viewing':
+      return aiHandleBookViewing(intent.contact, intent.date, intent.opp, originalText);
+    case 'pipeline-summary':
+      return aiHandlePipelineSummary();
+    case 'present':
+      return aiHandlePresent(intent.contact, intent.opp);
+    case 'fallback':
+      return aiHandleFallback();
+    default:
+      return aiHandleFallback();
+  }
+}
+
+// ── Intent handlers ───────────────────────────────────────────────────
+
+function aiHandleHoldsExpiring() {
+  const holds = pipelineCards.filter(c => c.stage === 'hold')
+    .sort((a, b) => (b.daysInStage || 0) - (a.daysInStage || 0));
+  
+  if (holds.length === 0) {
+    return `<div class="ai-response">
+      <div class="ai-card-title">📋 Holds Expiring</div>
+      <div class="ai-card-body">No opportunities currently on hold.</div>
+    </div>`;
+  }
+  
+  const rows = holds.map(opp => `
+    <div class="ai-list-item" onclick="activeOppId='${opp.id}';go('opp-detail')">
+      <div class="ai-list-left">
+        <div class="ai-list-id">${opp.id}</div>
+        <div class="ai-list-name">${opp.contact}</div>
+        <div class="ai-list-meta">${opp.project} · ${opp.unit || 'Multiple units'} · ${opp.daysInStage || 0} days in hold</div>
+      </div>
+      <div class="ai-list-arrow">→</div>
+    </div>
+  `).join('');
+  
+  return `<div class="ai-response">
+    <div class="ai-card-title">📋 Holds Expiring</div>
+    <div class="ai-card-body">Found ${holds.length} ${holds.length > 1 ? 'opportunities' : 'opportunity'} on hold, sorted by urgency:</div>
+    <div class="ai-list">${rows}</div>
+  </div>`;
+}
+
+function aiHandleDraftFollowup(contactName, opp) {
+  if (!opp) {
+    // Try to find by contact name
+    opp = pipelineCards.find(c => c.contact.toLowerCase().includes(contactName ? contactName.toLowerCase() : ''));
+  }
+  
+  if (!opp) {
+    // Fallback to first hold
+    opp = pipelineCards.find(c => c.stage === 'hold');
+  }
+  
+  if (!opp) {
+    return `<div class="ai-response">
+      <div class="ai-card-title">✉️ Draft Follow-up</div>
+      <div class="ai-card-body">No opportunity found${contactName ? ' for ' + contactName : ''}. Try specifying a contact name.</div>
+    </div>`;
+  }
+  
+  const stage = pipelineStages[opp.stage] || {name: opp.stage};
+  const units = opp.unitIds && opp.unitIds.length > 0 ? opp.unitIds.join(', ') : (opp.unit || 'your selected unit');
+  
+  const stageLine = opp.stage === 'hold'
+    ? 'Good news — your hold on the unit is still active, so it stays reserved for you while we finalise the next steps.'
+    : opp.stage === 'negotiating'
+      ? 'I’ve been working on the numbers we discussed and have an update for you.'
+      : 'Just checking in to see how you’re feeling after the viewing.';
+  const message = `Hi ${opp.contact.split(' ')[0]},
+
+I wanted to follow up on ${units} at ${opp.project}. ${stageLine}
+
+Would a quick call this week suit you? I can also arrange another visit whenever works for you.
+
+Best regards,
+Sam`;
+  
+  return `<div class="ai-response">
+    <div class="ai-card-title">✉️ Draft Follow-up to ${opp.contact}</div>
+    <div class="ai-message-card">
+      <div class="ai-message-text">${message}</div>
+      <div class="ai-message-actions">
+        <button class="ai-btn" onclick="aiCopyText(\`${message.replace(/`/g, '\\`')}\`)">Copy</button>
+        <button class="ai-btn ai-primary" onclick="aiSendViaWhatsApp(\`${message.replace(/`/g, '\\`')}\`)">Send via WhatsApp</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function aiHandleBookViewing(contactName, date, opp, originalText) {
+  if (!opp && contactName) {
+    opp = pipelineCards.find(c => c.contact.toLowerCase().includes(contactName.toLowerCase()));
+  }
+  
+  if (!opp) {
+    opp = pipelineCards[0]; // Fallback to first opp
+  }
+  
+  if (!date) {
+    date = 'this week';
+  }
+  
+  // Extract time if present
+  let time = '2:00 PM';
+  const timeMatch = originalText.match(/(\d{1,2}):?(\d{2})?\s*(am|pm)?/i);
+  if (timeMatch) {
+    time = timeMatch[0];
+  } else if (originalText.match(/morning/i)) {
+    time = '10:00 AM';
+  } else if (originalText.match(/afternoon/i)) {
+    time = '2:00 PM';
+  } else if (originalText.match(/evening/i)) {
+    time = '6:00 PM';
+  }
+  
+  return `<div class="ai-response">
+    <div class="ai-card-title">📅 Book Viewing</div>
+    <div class="ai-appt-card">
+      <div class="ai-appt-row">
+        <div class="ai-appt-icon">👤</div>
+        <div class="ai-appt-text"><strong>${opp.contact}</strong></div>
+      </div>
+      <div class="ai-appt-row">
+        <div class="ai-appt-icon">🏢</div>
+        <div class="ai-appt-text">${opp.project} · ${opp.unit || 'Unit TBD'}</div>
+      </div>
+      <div class="ai-appt-row">
+        <div class="ai-appt-icon">🕐</div>
+        <div class="ai-appt-text">${date} at ${time}</div>
+      </div>
+      <div style="margin-top:12px">
+        <button class="ai-btn ai-primary" onclick="aiConfirmViewing('${opp.id}', '${date}', '${time}')">Confirm Viewing</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function aiHandlePipelineSummary() {
+  const totalOpps = pipelineCards.length;
+  const activeOpps = pipelineCards.filter(c => c.stage !== 'closed_lost' && c.stage !== 'closed_won');
+  
+  // Calculate totals by stage group
+  let earlyTotal = 0;
+  let negotiatingTotal = 0;
+  let closingTotal = 0;
+  
+  activeOpps.forEach(opp => {
+    const value = typeof opp.offer === 'number' ? opp.offer : (parseInt(String(opp.offer).replace(/[^0-9]/g, '')) || 0);
+    const stage = opp.stage;
+    
+    if (['new_lead', 'qualified', 'contacted', 'viewing_booked'].includes(stage)) {
+      earlyTotal += value;
+    } else if (['hold', 'negotiating'].includes(stage)) {
+      negotiatingTotal += value;
+    } else if (['reservation', 'promise_of_sale_signed', 'final_contract_signed'].includes(stage)) {
+      closingTotal += value;
+    }
+  });
+  
+  // Top 3 needs-action
+  const needsAction = pipelineCards
+    .filter(c => c.stage !== 'closed_lost' && c.stage !== 'closed_won')
+    .sort((a, b) => (b.daysInStage || 0) - (a.daysInStage || 0))
+    .slice(0, 3);
+  
+  const actionRows = needsAction.map(opp => `
+    <div class="ai-list-item" onclick="activeOppId='${opp.id}';go('opp-detail')">
+      <div class="ai-list-left">
+        <div class="ai-list-id">${opp.id}</div>
+        <div class="ai-list-name">${opp.contact}</div>
+        <div class="ai-list-meta">${opp.stage} · ${opp.daysInStage || 0} days · ${opp.nextStep || 'No next step'}</div>
+      </div>
+      <div class="ai-list-arrow">→</div>
+    </div>
+  `).join('');
+  
+  return `<div class="ai-response">
+    <div class="ai-card-title">📊 Pipeline Summary</div>
+    <div class="ai-card-body">Here's your current pipeline overview:</div>
+    <div class="ai-summary-grid">
+      <div class="ai-summary-box">
+        <div class="ai-summary-label">Early Stage</div>
+        <div class="ai-summary-value">€${Math.round(earlyTotal / 1000)}k</div>
+        <div class="ai-summary-sub">Qualified & viewing</div>
+      </div>
+      <div class="ai-summary-box">
+        <div class="ai-summary-label">Negotiating</div>
+        <div class="ai-summary-value">€${Math.round(negotiatingTotal / 1000)}k</div>
+        <div class="ai-summary-sub">Hold & negotiation</div>
+      </div>
+      <div class="ai-summary-box">
+        <div class="ai-summary-label">Closing</div>
+        <div class="ai-summary-value">€${Math.round(closingTotal / 1000)}k</div>
+        <div class="ai-summary-sub">Reservation & contract</div>
+      </div>
+    </div>
+    <div class="ai-card-body" style="margin-top:14px;font-weight:600">${activeOpps.length} active opportunities · Total value €${Math.round((earlyTotal + negotiatingTotal + closingTotal) / 1000)}k</div>
+    <div class="ai-card-body" style="margin-top:10px;font-size:11px"><strong>Top 3 needs action:</strong></div>
+    <div class="ai-list">${actionRows}</div>
+  </div>`;
+}
+
+function aiHandlePresent(contactName, opp) {
+  if (!opp && contactName) {
+    opp = pipelineCards.find(c => c.contact.toLowerCase().includes(contactName.toLowerCase()));
+  }
+  
+  if (!opp) {
+    return `<div class="ai-response">
+      <div class="ai-card-title">🎯 Present Mode</div>
+      <div class="ai-card-body">No opportunity found${contactName ? ' for ' + contactName : ''}. Try specifying a contact name.</div>
+    </div>`;
+  }
+  
+  // Execute present mode
+  setTimeout(() => {
+    pmOpenFromOpp(opp.id);
+  }, 300);
+  
+  return `<div class="ai-response">
+    <div class="ai-card-title">🎯 Present Mode</div>
+    <div class="ai-card-body">Opening Present Mode for ${opp.contact}...</div>
+  </div>`;
+}
+
+function aiHandleFallback() {
+  return `<div class="ai-response">
+    <div class="ai-card-title">💡 Try these commands</div>
+    <div class="ai-card-body">Here are some things I can help you with:</div>
+    <div class="ai-chips">
+      <button class="ai-chip" onclick="aiSubmit('show holds expiring')">Show holds expiring</button>
+      <button class="ai-chip" onclick="aiSubmit('draft a follow-up to Mike')">Draft follow-up</button>
+      <button class="ai-chip" onclick="aiSubmit('book a viewing Thursday 2pm')">Book viewing</button>
+      <button class="ai-chip" onclick="aiSubmit('how is my pipeline')">Pipeline summary</button>
+      <button class="ai-chip" onclick="aiSubmit('present to Sarah Borg')">Present to client</button>
+    </div>
+  </div>`;
+}
+
+// ── Action helpers ────────────────────────────────────────────────────
+
+function aiCopyText(text) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => {
+      toast('Copied to clipboard');
+    }).catch(() => {
+      toast('Copy failed (clipboard not available)');
+    });
+  } else {
+    toast('Copy failed (clipboard not available)');
+  }
+}
+
+function aiSendViaWhatsApp(message) {
+  go('whatsapp');
+  setTimeout(() => {
+    const input = document.getElementById('wa-input');
+    if (input) {
+      input.value = message;
+      input.focus();
+    }
+  }, 100);
+  toast('Switched to WhatsApp with prefilled draft');
+}
+
+function aiConfirmViewing(oppId, date, time) {
+  const opp = pipelineCards.find(c => c.id === oppId);
+  if (!opp) {
+    toast('Opportunity not found');
+    return;
+  }
+  
+  if (!opp.activity) opp.activity = [];
+  opp.activity.unshift({
+    t: 'Just now',
+    v: `Viewing scheduled for ${date} at ${time}`
+  });
+  
+  toast(`Viewing confirmed for ${date} at ${time}`);
+  
+  // Re-render to show confirmation
+  aiState.exchanges[aiState.exchanges.length - 1].response = `<div class="ai-response">
+    <div class="ai-card-title">✓ Viewing Confirmed</div>
+    <div class="ai-card-body">Viewing booked for <strong>${opp.contact}</strong> on ${date} at ${time}.</div>
+    <div style="margin-top:10px">
+      <button class="ai-btn" onclick="activeOppId='${oppId}';go('opp-detail')">View opportunity →</button>
+    </div>
+  </div>`;
+  aiRenderLog();
+}
+
+// ── Rendering ─────────────────────────────────────────────────────────
+
+function aiRenderLog() {
+  const logEl = document.getElementById('ai-log');
+  if (!logEl) return;
+  
+  if (aiState.exchanges.length === 0) {
+    logEl.innerHTML = '';
+    return;
+  }
+  
+  logEl.innerHTML = aiState.exchanges.map(ex => `
+    <div class="ai-exchange">
+      <div class="ai-user-msg">${ex.user}</div>
+      ${ex.response}
+    </div>
+  `).join('');
+}
+
+function aiRenderMorningBrief() {
+  const briefEl = document.getElementById('ai-morning-brief');
+  if (!briefEl) return;
+  
+  if (role !== 'rep') {
+    briefEl.style.display = 'none';
+    return;
+  }
+  
+  // Find urgent items
+  const holdExpiring = pipelineCards
+    .filter(c => c.stage === 'hold')
+    .sort((a, b) => (b.daysInStage || 0) - (a.daysInStage || 0))[0];
+  
+  let openTask = null;
+  for (const oppId in oppExtData) {
+    const ext = oppExtData[oppId];
+    if (ext.tasks && ext.tasks.length > 0) {
+      const open = ext.tasks.find(t => !t.done);
+      if (open) {
+        openTask = {oppId, task: open};
+        break;
+      }
+    }
+  }
+  
+  const stalestOpp = pipelineCards
+    .filter(c => c.stage !== 'closed_lost' && c.stage !== 'closed_won' && (c.daysInStage || 0) > 5)
+    .sort((a, b) => (b.daysInStage || 0) - (a.daysInStage || 0))[0];
+  
+  const items = [];
+  
+  if (holdExpiring) {
+    items.push(`
+      <div class="ai-brief-item">
+        <div class="ai-brief-icon-wrap">⏰</div>
+        <div class="ai-brief-content">
+          <div class="ai-brief-label">Hold expiring</div>
+          <div class="ai-brief-text">${holdExpiring.contact} · ${holdExpiring.daysInStage || 0} days in hold</div>
+        </div>
+        <button class="ai-brief-action" onclick="activeOppId='${holdExpiring.id}';go('opp-detail')">Open</button>
+      </div>
+    `);
+  }
+  
+  if (openTask) {
+    items.push(`
+      <div class="ai-brief-item">
+        <div class="ai-brief-icon-wrap">✓</div>
+        <div class="ai-brief-content">
+          <div class="ai-brief-label">Open task</div>
+          <div class="ai-brief-text">${openTask.task.text} · Due ${openTask.task.due || 'soon'}</div>
+        </div>
+        <button class="ai-brief-action" onclick="activeOppId='${openTask.oppId}';go('opp-detail')">Open</button>
+      </div>
+    `);
+  }
+  
+  if (stalestOpp) {
+    items.push(`
+      <div class="ai-brief-item">
+        <div class="ai-brief-icon-wrap">📞</div>
+        <div class="ai-brief-content">
+          <div class="ai-brief-label">Stale opportunity</div>
+          <div class="ai-brief-text">${stalestOpp.contact} · ${stalestOpp.daysInStage || 0} days without update</div>
+        </div>
+        <button class="ai-brief-action" onclick="go('whatsapp')">WhatsApp</button>
+      </div>
+    `);
+  }
+  
+  if (items.length === 0) {
+    briefEl.style.display = 'none';
+    return;
+  }
+  
+  const hour = new Date().getHours();
+  let greeting = 'Good morning';
+  if (hour >= 12 && hour < 17) greeting = 'Good afternoon';
+  if (hour >= 17) greeting = 'Good evening';
+  
+  briefEl.style.display = 'block';
+  briefEl.innerHTML = `
+    <div class="ai-brief-header">
+      <div class="ai-brief-icon">☀️</div>
+      <div class="ai-brief-title">Your Daily Brief</div>
+    </div>
+    <div class="ai-brief-greeting">${greeting}, Sam. Here's what needs your attention:</div>
+    <div class="ai-brief-items">${items.join('')}</div>
+  `;
+}
+
+// Init: the initial renderHome() ran before this block was parsed — render the brief now
+if (role === 'rep' && document.getElementById('p-home')?.classList.contains('on')) {
+  aiRenderMorningBrief();
+}
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════════════════
+     BUYER MICROSITE + ENGAGEMENT SIGNALS (Brief 03)
+     Namespace: ms
+     Entry: msOpen(oppId) from Marketing Collateral | msOpenFromPresent() from Present Mode wrap-up
+     ═══════════════════════════════════════════════════════════════════════════════════════════ -->
+<style>
+/* ── Microsite overlay (buyer-facing, cream/orange theme) ── */
+#ms-overlay{position:fixed;inset:0;z-index:7000;background:#f2eee5;display:none;overflow-y:auto;overflow-x:hidden}
+#ms-overlay.on{display:block;animation:msFadeIn .35s ease}
+@keyframes msFadeIn{from{opacity:0}to{opacity:1}}
+
+.ms-container{max-width:920px;margin:0 auto;padding:24px 20px 60px}
+.ms-hero{background:linear-gradient(135deg,#f5ebe0,#f9f4ed);border:1px solid rgba(232,89,12,0.18);border-radius:20px;padding:32px 28px;margin-bottom:28px;box-shadow:0 2px 12px rgba(0,0,0,0.04)}
+.ms-brand{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#211e17;margin-bottom:8px}
+.ms-agent{font-size:13px;color:#6b6459;margin-bottom:16px}
+.ms-greeting{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;color:#211e17;margin-bottom:6px}
+.ms-sub{font-size:14px;color:#6b6459;line-height:1.5}
+
+.ms-section-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#211e17;margin:32px 0 16px}
+.ms-units-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-bottom:32px}
+.ms-unit-card{background:#fff;border:1px solid #dbcfbb;border-radius:16px;overflow:hidden;cursor:pointer;transition:all .25s ease;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.ms-unit-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.12);transform:translateY(-2px)}
+.ms-unit-plan{position:relative;width:100%;height:180px;background:#faf8f4;border-bottom:1px solid #dbcfbb;overflow:hidden}
+.ms-unit-plan svg{position:absolute;inset:0;width:100%;height:100%;padding:10px}
+.ms-unit-photo{position:absolute;top:8px;right:8px;width:70px;height:70px;border-radius:10px;border:2px solid rgba(255,255,255,0.9);overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.15)}
+.ms-unit-info{padding:16px}
+.ms-unit-id{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#e8590c;font-weight:600;margin-bottom:4px}
+.ms-unit-name{font-size:15px;font-weight:600;color:#211e17;margin-bottom:8px}
+.ms-unit-spec{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.ms-unit-badge{font-size:10px;background:#f5ebe0;color:#6b6459;padding:3px 8px;border-radius:6px;font-weight:600}
+.ms-unit-price{font-size:18px;font-weight:700;color:#e8590c}
+
+.ms-story{background:linear-gradient(135deg,#fff5e6,#fef9f1);border:1px solid rgba(245,166,35,0.25);border-radius:16px;padding:24px;margin-bottom:28px}
+.ms-story-text{font-size:14px;color:#4a4236;line-height:1.6;margin-bottom:18px}
+.ms-story-chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px}
+.ms-story-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;background:#fff;border:1px solid #dbcfbb;border-radius:100px;padding:6px 12px;color:#4a4236}
+.ms-story-photos{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ms-story-photo{position:relative;height:160px;border-radius:12px;overflow:hidden;border:1px solid #dbcfbb}
+.ms-story-photo svg{width:100%;height:100%}
+
+.ms-payment{background:#fff;border:1px solid #dbcfbb;border-radius:16px;padding:24px;margin-bottom:28px}
+.ms-payment-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#211e17;margin-bottom:16px}
+.ms-payment-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f0ebe2}
+.ms-payment-row:last-child{border-bottom:none}
+.ms-payment-label{font-size:13px;color:#6b6459}
+.ms-payment-amount{font-size:16px;font-weight:700;color:#211e17}
+
+.ms-footer{background:linear-gradient(135deg,#e8590c,#f5a623);border-radius:16px;padding:28px;text-align:center;color:#fff}
+.ms-footer-agent{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;margin-bottom:8px}
+.ms-footer-contact{font-size:13px;opacity:0.9;margin-bottom:20px}
+.ms-footer-ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.ms-btn{background:#fff;color:#e8590c;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s ease;font-family:'Space Grotesk',sans-serif}
+.ms-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.2)}
+.ms-btn-sec{background:rgba(255,255,255,0.25);color:#fff;backdrop-filter:blur(4px)}
+.ms-btn-sec:hover{background:rgba(255,255,255,0.35)}
+
+.ms-close{position:fixed;top:20px;right:20px;z-index:7001;background:#fff;border:1px solid #dbcfbb;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;color:#6b6459;transition:all .2s ease;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+.ms-close:hover{background:#f5ebe0;transform:scale(1.08)}
+
+/* ── Engagement panel in CRM ── */
+.ms-stat-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.ms-stat-row:last-child{border-bottom:none}
+.ms-stat-label{font-size:12px;color:var(--text2)}
+.ms-stat-value{font-size:14px;font-weight:600;color:var(--text)}
+.ms-bar-wrap{margin-top:12px}
+.ms-bar-label{font-size:11px;color:var(--text3);margin-bottom:4px;display:flex;justify-content:space-between}
+.ms-bar-track{height:6px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.ms-bar-fill{height:100%;background:linear-gradient(90deg,#e8590c,#f5a623);border-radius:3px;transition:width .3s ease}
+</style>
+
+<div id="ms-overlay">
+  <button class="ms-close" onclick="msClose()" title="Close">&times;</button>
+  <div class="ms-container" id="ms-content"></div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════════════════════
+   BUYER MICROSITE + ENGAGEMENT SIGNALS (Brief 03) — namespace: ms
+   Entry: msOpen(oppId) from Marketing Collateral or msOpenFromPresent() from Present wrap-up
+   ══════════════════════════════════════════════════════════════════════════════════════ */
+
+// Engagement tracking: {oppId: {views, lastSeen, unitClicks:{unitId:count}, ctas}}
+const msStats = {};
+
+function msOpen(oppId) {
+  const opp = pipelineCards.find(c => c.id === oppId);
+  if (!opp) { toast('Opportunity not found'); return; }
+
+  // Find latest presentSession for this opp, or synthesize from opp.unitIds
+  let session = [...presentSessions].reverse().find(s => s.oppId === oppId);
+  let shortlist = [];
+  let contact = opp.contact;
+  let dev = opp.project;
+
+  if (session) {
+    shortlist = session.shortlist;
+    contact = session.contact || opp.contact;
+    dev = session.dev || opp.project;
+  } else {
+    // Synthesize from opp.unitIds with default config
+    const unitIds = opp.unitIds || (opp.unit ? [opp.unit] : []);
+    shortlist = unitIds.map(unitId => {
+      const u = allProps.find(p => p.id === unitId);
+      if (!u) return null;
+      const cfg = { finish: 'oak', layout: 'open', addons: [] };
+      const pricing = pmPriceFor(u, cfg);
+      return { unitId, dev: u.dev, config: cfg, total: pricing.total };
+    }).filter(Boolean);
+    dev = shortlist[0]?.dev || opp.project;
+  }
+
+  if (shortlist.length === 0) {
+    toast('No units to display');
+    return;
+  }
+
+  // Track engagement
+  if (!msStats[oppId]) msStats[oppId] = { views: 0, lastSeen: '', unitClicks: {}, ctas: 0 };
+  msStats[oppId].views++;
+  msStats[oppId].lastSeen = 'Just now';
+
+  // Render microsite
+  const firstName = contact.split(' ')[0];
+  const totalShortlist = shortlist.reduce((s, x) => s + x.total, 0);
+  
+  const unitsHTML = shortlist.map(sl => {
+    const u = allProps.find(p => p.id === sl.unitId);
+    if (!u) return '';
+    const finishName = PM_FINISHES.find(f => f.key === sl.config.finish)?.name || 'Signature Oak';
+    const layoutName = sl.config.layout === 'open' ? 'Open plan' : 'Closed plan';
+    return `
+      <div class="ms-unit-card" onclick="msUnitClick('${oppId}','${u.id}')">
+        <div class="ms-unit-plan">
+          ${pmPlanSVG(u, sl.config, true)}
+          <div class="ms-unit-photo">${pmPhotoSVG('interior')}</div>
+        </div>
+        <div class="ms-unit-info">
+          <div class="ms-unit-id">${u.id}</div>
+          <div class="ms-unit-name">${u.beds === 0 ? 'Studio' : u.beds + '-bed ' + u.type}</div>
+          <div class="ms-unit-spec">
+            <span class="ms-unit-badge">${finishName}</span>
+            <span class="ms-unit-badge">${layoutName}</span>
+            <span class="ms-unit-badge">${u.sqm} sqm</span>
+            ${u.ext > 0 ? `<span class="ms-unit-badge">+${u.ext} terrace</span>` : ''}
+          </div>
+          <div class="ms-unit-price">${pmEuro(sl.total)}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Dev story highlights
+  const devStory = PM_DEV_STORY[dev] || PM_DEV_STORY['Dolphin Court'];
+  const distancesHTML = devStory.distances.map(d => 
+    `<div class="ms-story-chip">${d[0]} <span>${d[1]} · ${d[2]}</span></div>`
+  ).join('');
+  const photosHTML = `
+    <div class="ms-story-photo">${pmPhotoSVG('cafe')}</div>
+    <div class="ms-story-photo">${pmPhotoSVG('harbour')}</div>`;
+
+  // Payment plan
+  const pp = opp.paymentPlan || '10/20/70';
+  const parts = pp.split('/').map(x => parseInt(x) || 0);
+  const milestones = [
+    { label: 'Reservation deposit', pct: parts[0] || 10 },
+    { label: 'Promise of Sale signing', pct: parts[1] || 20 },
+    { label: 'Final payment at deed', pct: parts[2] || 70 }
+  ];
+  const paymentHTML = milestones.map(m => {
+    const amt = Math.round((totalShortlist * m.pct) / 100);
+    return `
+      <div class="ms-payment-row">
+        <div class="ms-payment-label">${m.label} (${m.pct}%)</div>
+        <div class="ms-payment-amount">${pmEuro(amt)}</div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('ms-content').innerHTML = `
+    <div class="ms-hero">
+      <div class="ms-brand">Bricly Estates</div>
+      <div class="ms-agent">Your agent: ${opp.owner}</div>
+      <div class="ms-greeting">Prepared for ${firstName}</div>
+      <div class="ms-sub">Your personalised property selection — shortlisted units, configured finishes and payment options.</div>
+    </div>
+
+    <div class="ms-section-title">Your shortlisted units</div>
+    <div class="ms-units-grid">${unitsHTML}</div>
+
+    <div class="ms-section-title">About ${dev}</div>
+    <div class="ms-story">
+      <div class="ms-story-text">${devStory.hood}</div>
+      <div class="ms-story-chips">${distancesHTML}</div>
+      <div class="ms-story-photos">${photosHTML}</div>
+    </div>
+
+    <div class="ms-payment">
+      <div class="ms-payment-title">Payment plan</div>
+      ${paymentHTML}
+    </div>
+
+    <div class="ms-footer">
+      <div class="ms-footer-agent">${opp.owner}</div>
+      <div class="ms-footer-contact">${opp.email || 'sam.urpani@bricly.com'} · ${opp.phone || '+356 9999 1234'}</div>
+      <div class="ms-footer-ctas">
+        <button class="ms-btn" onclick="msCTA('${oppId}','viewing')">📅 Book a viewing</button>
+        <button class="ms-btn ms-btn-sec" onclick="msCTA('${oppId}','interest')">✨ I'm interested</button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('ms-overlay').classList.add('on');
+  
+  // Notify rep and update activity
+  setTimeout(() => msNotifyRep(oppId), 300);
+}
+
+function msOpenFromPresent() {
+  // Open microsite from Present Mode wrap-up without closing Present Mode
+  // Use current pmState to render even before saving
+  if (!pmState.oppId && !pmState.shortlist.length) {
+    toast('Save the session first to generate the microsite');
+    return;
+  }
+  
+  const oppId = pmState.oppId || pmState.savedOppId;
+  if (oppId) {
+    msOpen(oppId);
+  } else {
+    toast('Associate with an opportunity first');
+  }
+}
+
+function msClose() {
+  document.getElementById('ms-overlay').classList.remove('on');
+}
+
+function msUnitClick(oppId, unitId) {
+  if (!msStats[oppId]) msStats[oppId] = { views: 0, lastSeen: '', unitClicks: {}, ctas: 0 };
+  msStats[oppId].unitClicks[unitId] = (msStats[oppId].unitClicks[unitId] || 0) + 1;
+  const u = allProps.find(p => p.id === unitId);
+  const unitName = u ? (u.beds === 0 ? 'Studio' : `${u.beds}-bed ${u.type}`) : unitId;
+  toast(`👀 ${unitName} viewed`, 1500);
+}
+
+function msCTA(oppId, action) {
+  if (!msStats[oppId]) msStats[oppId] = { views: 0, lastSeen: '', unitClicks: {}, ctas: 0 };
+  msStats[oppId].ctas++;
+  
+  const opp = pipelineCards.find(c => c.id === oppId);
+  if (opp) {
+    const msg = action === 'viewing' ? 'Buyer requested a viewing via microsite' : 'Buyer expressed interest via microsite';
+    opp.activity = opp.activity || [];
+    opp.activity.unshift({ t: 'Just now', v: msg });
+    toast(action === 'viewing' ? '📅 Viewing request received' : '✨ Interest logged');
+  }
+  
+  msNotifyRep(oppId);
+}
+
+function msNotifyRep(oppId) {
+  const opp = pipelineCards.find(c => c.id === oppId);
+  if (!opp) return;
+  
+  const stats = msStats[oppId];
+  if (!stats) return;
+  
+  // Find most-viewed unit
+  let mostViewedUnit = '';
+  let maxClicks = 0;
+  Object.keys(stats.unitClicks).forEach(uid => {
+    if (stats.unitClicks[uid] > maxClicks) {
+      maxClicks = stats.unitClicks[uid];
+      mostViewedUnit = uid;
+    }
+  });
+  
+  const activityMsg = mostViewedUnit 
+    ? `Buyer opened microsite — viewed ${mostViewedUnit} ${maxClicks} time${maxClicks > 1 ? 's' : ''}`
+    : `Buyer opened microsite`;
+  
+  opp.activity = opp.activity || [];
+  const lastActivity = opp.activity[0]?.v || '';
+  if (!lastActivity.includes('opened microsite')) {
+    opp.activity.unshift({ t: 'Just now', v: activityMsg });
+  }
+  
+  // Re-render engagement panel if on the opp detail page
+  if (activeOppId === oppId && typeof msRenderEngagement === 'function') {
+    msRenderEngagement(oppId);
+  }
+}
+
+function msRenderEngagement(oppId) {
+  const stats = msStats[oppId];
+  const panel = document.getElementById('oppd-ms-engagement');
+  const content = document.getElementById('oppd-ms-content');
+  
+  if (!stats || stats.views === 0) {
+    if (panel) panel.style.display = 'none';
+    return;
+  }
+  
+  if (panel) panel.style.display = '';
+  if (!content) return;
+  
+  // Find most-viewed unit
+  let mostViewedUnit = '—';
+  let maxClicks = 0;
+  Object.keys(stats.unitClicks).forEach(uid => {
+    if (stats.unitClicks[uid] > maxClicks) {
+      maxClicks = stats.unitClicks[uid];
+      mostViewedUnit = uid;
+    }
+  });
+  
+  const totalClicks = Object.values(stats.unitClicks).reduce((s, n) => s + n, 0);
+  const clicksPct = totalClicks > 0 ? Math.min(100, (totalClicks / stats.views) * 50) : 0;
+  const ctasPct = stats.ctas > 0 ? Math.min(100, (stats.ctas / stats.views) * 100) : 0;
+  
+  content.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="ms-stat-row">
+        <div class="ms-stat-label">Total views</div>
+        <div class="ms-stat-value">${stats.views}</div>
+      </div>
+      <div class="ms-stat-row">
+        <div class="ms-stat-label">Last seen</div>
+        <div class="ms-stat-value">${stats.lastSeen}</div>
+      </div>
+      <div class="ms-stat-row">
+        <div class="ms-stat-label">Most-viewed unit</div>
+        <div class="ms-stat-value">${mostViewedUnit} (${maxClicks}×)</div>
+      </div>
+      <div class="ms-stat-row">
+        <div class="ms-stat-label">CTA clicks</div>
+        <div class="ms-stat-value">${stats.ctas}</div>
+      </div>
+      <div class="ms-bar-wrap">
+        <div class="ms-bar-label"><span>Unit engagement</span><span>${totalClicks} clicks</span></div>
+        <div class="ms-bar-track"><div class="ms-bar-fill" style="width:${clicksPct}%"></div></div>
+      </div>
+      <div class="ms-bar-wrap">
+        <div class="ms-bar-label"><span>CTA conversion</span><span>${stats.ctas} actions</span></div>
+        <div class="ms-bar-track"><div class="ms-bar-fill" style="width:${ctasPct}%"></div></div>
+      </div>
+      <button class="btn btn-sm" style="margin-top:8px" onclick="msSimulateVisit('${oppId}')">🎲 Simulate buyer visit</button>
+    </div>
+  `;
+}
+
+function msSimulateVisit(oppId) {
+  const opp = pipelineCards.find(c => c.id === oppId);
+  if (!opp) return;
+  
+  if (!msStats[oppId]) msStats[oppId] = { views: 0, lastSeen: '', unitClicks: {}, ctas: 0 };
+  
+  // Add 1-3 views
+  const addViews = 1 + Math.floor(Math.random() * 3);
+  msStats[oppId].views += addViews;
+  msStats[oppId].lastSeen = 'Just now';
+  
+  // Random unit clicks
+  const unitIds = opp.unitIds || (opp.unit ? [opp.unit] : []);
+  if (unitIds.length > 0) {
+    const randomUnit = unitIds[Math.floor(Math.random() * unitIds.length)];
+    const clicks = 1 + Math.floor(Math.random() * 3);
+    msStats[oppId].unitClicks[randomUnit] = (msStats[oppId].unitClicks[randomUnit] || 0) + clicks;
+  }
+  
+  // Maybe a CTA
+  if (Math.random() > 0.6) {
+    msStats[oppId].ctas++;
+  }
+  
+  opp.activity = opp.activity || [];
+  opp.activity.unshift({ t: 'Just now', v: `[Simulated] Buyer opened microsite ${addViews} time${addViews > 1 ? 's' : ''}` });
+  
+  toast(`🎲 Simulated ${addViews} visit${addViews > 1 ? 's' : ''} + engagement`);
+  msRenderEngagement(oppId);
+}
+
+// Keydown handler for Esc (capture:true to stop before Present Mode handler)
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && document.getElementById('ms-overlay')?.classList.contains('on')) {
+    e.stopImmediatePropagation();
+    msClose();
+  }
+}, true);
+
+</script>
+
+<!-- ══════════════════════════════════════════════════════════════════════════════════
+     PERSONA-SPLIT NAVIGATION (Brief 04)
+     Namespace: pn
+     Rep mode: 5 focused items (Today, WhatsApp, Present, My Deals, Contacts)
+     Manager/Op: full original nav with role-specific visibility
+     ══════════════════════════════════════════════════════════════════════════════════ -->
+<style>
+/* ── My Deals page ── */
+#pn-mydeals-content{padding:24px;max-width:1200px;margin:0 auto}
+.pn-header{margin-bottom:24px}
+.pn-title{font-family:var(--display);font-size:26px;font-weight:700;color:var(--text);margin-bottom:4px}
+.pn-subtitle{font-size:13px;color:var(--text3)}
+
+.pn-deals-grid{display:flex;flex-direction:column;gap:14px;margin-bottom:20px}
+.pn-deal-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;cursor:pointer;transition:all .2s ease;display:flex;align-items:center;gap:16px}
+.pn-deal-card:hover{box-shadow:var(--shadow);border-color:var(--border2);transform:translateY(-1px)}
+
+.pn-deal-left{flex:1;min-width:0}
+.pn-deal-header{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.pn-deal-contact{font-size:15px;font-weight:600;color:var(--text)}
+.pn-deal-unit{font-family:var(--mono);font-size:11px;color:var(--text3);background:var(--surface2);padding:3px 8px;border-radius:6px}
+.pn-deal-next{font-size:12px;color:var(--text2);margin-bottom:8px;line-height:1.4}
+.pn-deal-meta{font-size:11px;color:var(--text3)}
+
+.pn-deal-urgency{flex-shrink:0}
+.pn-urgency-chip{display:inline-block;padding:6px 12px;border-radius:100px;font-size:11px;font-weight:600}
+.pn-urgency-chip.hold{background:var(--amber-bg);color:var(--amber-text)}
+.pn-urgency-chip.task{background:var(--red-bg);color:var(--red-text)}
+.pn-urgency-chip.stale{background:var(--surface2);color:var(--text3)}
+.pn-urgency-chip.normal{background:var(--green-bg);color:var(--green-text)}
+
+.pn-deal-actions{display:flex;gap:8px;flex-shrink:0}
+.pn-deal-actions .btn-sm{padding:7px 14px;font-size:11px;border-radius:8px;white-space:nowrap}
+
+.pn-footer-link{display:inline-flex;align-items:center;gap:6px;color:var(--accent);font-size:13px;font-weight:500;cursor:pointer;padding:8px 0;transition:all .15s}
+.pn-footer-link:hover{gap:8px}
+
+/* ── Rep nav overrides (when in rep mode, nav items use custom handlers) ── */
+.pn-rep-nav .ni{cursor:pointer}
+.pn-rep-nav .ni.on{background:var(--accent-light);color:var(--accent-dark);font-weight:500}
+
+/* ── Brief 05: v1.1 Scope Tidy ── */
+.st-badge{display:inline-block;margin-left:6px;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;background:rgba(203,77,26,0.12);color:#cb4d1a;vertical-align:middle}
+.st-switch{position:relative;display:inline-block;width:42px;height:24px}
+.st-switch input{opacity:0;width:0;height:0}
+.st-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#ccc;border-radius:24px;transition:.2s}
+.st-slider:before{position:absolute;content:"";height:18px;width:18px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.2s}
+.st-switch input:checked + .st-slider{background:#cb4d1a}
+.st-switch input:checked + .st-slider:before{transform:translateX(18px)}
+</style>
+
+<script>
+// ── State ──
+const pnState = {
+  originalNavHTML: null,  // captured once
+  currentMode: null,
+};
+
+// ── Entry point: called by setRole(r) and on initial load ──
+function pnRenderNav(newRole) {
+  const sidebar = document.querySelector('.sidebar');
+  if (!sidebar) return;
+
+  // Capture original nav HTML once on first call (before any modifications)
+  if (!pnState.originalNavHTML) {
+    pnState.originalNavHTML = sidebar.innerHTML;
+  }
+
+  pnState.currentMode = newRole;
+
+  if (newRole === 'rep') {
+    pnRenderRepNav(sidebar);
+  } else {
+    pnRestoreFullNav(sidebar, newRole);
+  }
+}
+
+function pnRenderRepNav(sidebar) {
+  // Build rep-focused 5-item nav
+  const repNav = `
+    <div class="sidebar-top">
+      <div class="logo"><em>bricly</em></div>
+      <div class="role-row">
+        <button class="rb on" id="rb-rep" onclick="setRole('rep')">R</button>
+        <button class="rb" id="rb-mgr" onclick="setRole('mgr')">M</button>
+        <button class="rb" id="rb-op" onclick="setRole('op')">O</button>
+      </div>
+    </div>
+    <div class="nav-section pn-rep-nav">
+      <div class="nav-label">Main</div>
+      <div class="ni" data-pn-page="home" onclick="pnNav('home')">
+        <svg viewBox="0 0 14 14" fill="currentColor"><rect x="0" y="0" width="6" height="6" rx="1"/><rect x="8" y="0" width="6" height="6" rx="1"/><rect x="0" y="8" width="6" height="6" rx="1"/><rect x="8" y="8" width="6" height="6" rx="1"/></svg>Today
+      </div>
+      <div class="ni" data-pn-page="pipeline" onclick="pnNav('pipeline')">
+        <svg viewBox="0 0 14 14" fill="currentColor"><rect x="0" y="2" width="3" height="11" rx="1"/><rect x="5.5" y="5" width="3" height="8" rx="1"/><rect x="11" y="7" width="3" height="6" rx="1"/></svg>Pipeline<span class="bc">14</span>
+      </div>
+      <div class="ni" data-pn-page="mydeals" onclick="pnNav('mydeals')">
+        <svg viewBox="0 0 14 14" fill="currentColor"><path d="M2 2h10a1 1 0 011 1v1H1V3a1 1 0 011-1zM1 5h12v7a1 1 0 01-1 1H2a1 1 0 01-1-1V5zm3 3h2m0 0h2M4 8v2" stroke="currentColor" stroke-width="1.1" fill="none" stroke-linecap="round"/></svg>My Deals
+      </div>
+      <div class="ni" data-pn-page="present" onclick="pnNav('present')">
+        <svg viewBox="0 0 14 14" fill="currentColor"><rect x="1" y="3" width="12" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M1 6h12M4 3v-2M10 3v-2" stroke="currentColor" stroke-width="1.2"/></svg>Present
+      </div>
+      <div class="ni" data-pn-page="contacts" onclick="pnNav('contacts')">
+        <svg viewBox="0 0 14 14" fill="currentColor"><circle cx="7" cy="5" r="3"/><path d="M1 14c0-3 2.5-5 6-5s6 2 6 5"/></svg>Contacts
+      </div>
+      <div class="ni" data-pn-page="devs" onclick="pnNav('devs')">
+        <svg viewBox="0 0 14 14" fill="currentColor"><path d="M1 13V5l6-4 6 4v8H1zm4-2h2v-3H5v3zm4 0h2v-3H9v3z"/></svg>Projects
+      </div>
+      <div class="ni" data-pn-page="props" onclick="pnNav('props')">
+        <svg viewBox="0 0 14 14" fill="currentColor"><rect x="1" y="4" width="12" height="9" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M4 4V3a3 3 0 016 0v1"/><circle cx="7" cy="8.5" r="1.5"/><path d="M7 10v1.5"/></svg>Properties
+      </div>
+    </div>
+    <div class="nav-section pn-rep-nav">
+      <div class="nav-label">Workspace</div>
+      <div class="ni" data-pn-page="calendar" onclick="pnNav('calendar')">
+        <svg viewBox="0 0 14 14" fill="currentColor"><rect x="1" y="2" width="12" height="11" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M1 5h12"/><path d="M4 1v2M10 1v2"/><rect x="3" y="7" width="2" height="2" rx="0.5"/><rect x="6" y="7" width="2" height="2" rx="0.5"/><rect x="9" y="7" width="2" height="2" rx="0.5"/></svg>Calendar
+      </div>
+      <div class="ni" data-pn-page="reports" onclick="pnNav('reports')">
+        <svg viewBox="0 0 14 14" fill="currentColor"><rect x="0" y="8" width="3" height="6"/><rect x="4" y="5" width="3" height="9"/><rect x="8" y="2" width="3" height="12"/><rect x="12" y="0" width="2" height="14"/></svg>Reports
+      </div>
+      <div class="ni" data-pn-page="whatsapp" onclick="pnNav('whatsapp')">
+        <svg viewBox="0 0 14 14" fill="currentColor"><path d="M7 0.5C3.4 0.5 0.5 3.4 0.5 7c0 1.3 0.4 2.5 1 3.5L0.6 13.4l3-0.9c1 0.6 2.2 0.9 3.4 0.9 3.6 0 6.5-2.9 6.5-6.5S10.6 0.5 7 0.5z" fill="none" stroke="currentColor" stroke-width="1.1"/><path d="M4 5.5c0.2-0.7 0.7-1.2 1.3-1.2 0.3 0 0.5 0.1 0.6 0.4l0.3 0.8c0.1 0.2 0 0.5-0.2 0.7l-0.3 0.3c0 0.4 0.5 1 1 1.5s1.1 1 1.5 1l0.3-0.3c0.2-0.2 0.5-0.3 0.7-0.2l0.8 0.3c0.3 0.1 0.4 0.3 0.4 0.6 0 0.6-0.5 1.1-1.2 1.3-0.8 0.2-2-0.1-3.3-1.4S3.8 6.3 4 5.5z"/></svg>WhatsApp
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-row">
+        <div class="av">SU</div>
+        <div><div class="uname">Sam Urpani</div><div class="urole-text" id="urole">Sales Rep</div></div>
+      </div>
+    </div>
+  `;
+  
+  sidebar.innerHTML = repNav;
+  
+  // Apply active state based on current page
+  const currentPage = document.querySelector('.page.on')?.id?.replace('p-', '') || 'home';
+  pnSetRepActive(currentPage);
+}
+
+function pnRestoreFullNav(sidebar, newRole) {
+  // Restore original nav HTML
+  if (pnState.originalNavHTML) {
+    sidebar.innerHTML = pnState.originalNavHTML;
+  }
+  
+  // Re-apply role-specific visibility (same logic as setRole)
+  document.getElementById('rb-rep')?.classList.toggle('on', newRole === 'rep');
+  document.getElementById('rb-mgr')?.classList.toggle('on', newRole === 'mgr');
+  document.getElementById('rb-op')?.classList.toggle('on', newRole === 'op');
+  
+  const niTeam = document.getElementById('ni-team');
+  if (niTeam) niTeam.style.display = (newRole === 'mgr' || newRole === 'op') ? 'flex' : 'none';
+  
+  const studioSection = document.getElementById('nav-section-studio');
+  if (studioSection) studioSection.style.display = newRole === 'op' ? 'block' : 'none';
+  
+  // Brief 05: Marketing/Automations visibility handled by stApplyFlag()
+  if (typeof stApplyFlag === 'function') stApplyFlag();
+  
+  const whatsapp = document.getElementById('ni-whatsapp');
+  if (whatsapp) whatsapp.style.display = (newRole === 'rep' || newRole === 'mgr') ? 'flex' : 'none';
+  
+  const approvals = document.getElementById('ni-approvals');
+  if (approvals) approvals.style.display = newRole === 'mgr' ? 'flex' : 'none';
+  
+  // Re-apply active nav state using go()'s logic
+  const currentPage = document.querySelector('.page.on')?.id?.replace('p-', '') || 'home';
+  document.querySelectorAll('.ni').forEach((n, i) => n.classList.toggle('on', navIdx[currentPage] === i));
+}
+
+// ── Rep nav item click handler ──
+function pnNav(page) {
+  if (page === 'present') {
+    // Launch Present Mode
+    pmOpen();
+    return;
+  }
+  
+  // Set active state first
+  pnSetRepActive(page);
+  
+  // Then navigate
+  go(page);
+}
+
+function pnSetRepActive(page) {
+  document.querySelectorAll('.pn-rep-nav .ni').forEach(ni => ni.classList.remove('on'));
+  const targetNi = document.querySelector(`.pn-rep-nav .ni[data-pn-page="${page}"]`);
+  if (targetNi) targetNi.classList.add('on');
+}
+
+// ── WhatsApp admin tab switcher ──
+function waAdminTab(tab) {
+  ['activity','commands','integration','settings'].forEach(t => {
+    const el = document.getElementById('wa-tab-'+t);
+    const btn = document.getElementById('wat-'+t);
+    if (el) el.style.display = t===tab ? '' : 'none';
+    if (btn) { btn.classList.toggle('btn-accent', t===tab); }
+  });
+  if (tab === 'integration') {
+    const el = document.getElementById('wa-agent-list');
+    if (el && !el.innerHTML) {
+      const names = pipelineCards.map(c=>c.owner).filter((v,i,a)=>a.indexOf(v)===i);
+      el.innerHTML = names.map(name=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+          <div style="width:28px;height:28px;border-radius:50%;background:var(--accent-light);color:var(--accent);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">${name.split(' ').map(w=>w[0]).join('').slice(0,2)}</div>
+          <div style="flex:1"><div style="font-size:12px;font-weight:600">${name}</div><div style="font-size:10px;color:var(--text3)">Sales Rep · linked</div></div>
+          <span class="pill p-green" style="font-size:9px">Active</span>
+        </div>`).join('');
+    }
+  }
+}
+
+// ── My Deals page renderer ──
+function pnRenderMyDeals() {
+  const container = document.getElementById('pn-mydeals-content');
+  if (!container) return;
+
+  // Filter active deals (exclude closed_won/closed_lost)
+  const activeDeals = pipelineCards.filter(c => 
+    c.stage !== 'closed_won' && c.stage !== 'closed_lost'
+  );
+
+  // Compute urgency scores and sort
+  const scored = activeDeals.map(opp => {
+    let score = 0;
+    let urgencyType = 'normal';
+    let urgencyLabel = 'Active';
+
+    // Hold expiring (highest priority)
+    if (opp.stage === 'hold') {
+      score = 100 + (opp.daysInStage || 0);
+      urgencyType = 'hold';
+      urgencyLabel = `Hold day ${opp.daysInStage || 0}`;
+    }
+    // Task overdue/today
+    else if (oppExtData[opp.id]?.tasks) {
+      const openTask = oppExtData[opp.id].tasks.find(t => !t.done);
+      if (openTask) {
+        score = 80;
+        urgencyType = 'task';
+        urgencyLabel = `Task: ${openTask.text.substring(0, 20)}...`;
+      }
+    }
+    // Stale (daysInStage > 5)
+    if (score === 0 && (opp.daysInStage || 0) > 5) {
+      score = 60 + (opp.daysInStage || 0);
+      urgencyType = 'stale';
+      urgencyLabel = `${opp.daysInStage} days in stage`;
+    }
+    // Default
+    if (score === 0) {
+      score = opp.daysInStage || 0;
+      urgencyType = 'normal';
+      urgencyLabel = 'On track';
+    }
+
+    return { opp, score, urgencyType, urgencyLabel };
+  });
+
+  scored.sort((a, b) => b.score - a.score);
+
+  const dealsHTML = scored.map(({ opp, urgencyType, urgencyLabel }) => {
+    const units = opp.unitIds?.join(', ') || opp.unit || 'No unit';
+    const nextStep = opp.nextStep || 'Follow up pending';
+    
+    return `
+      <div class="pn-deal-card" onclick="activeOppId='${opp.id}';go('opp-detail')">
+        <div class="pn-deal-left">
+          <div class="pn-deal-header">
+            <div class="pn-deal-contact">${opp.contact}</div>
+            <div class="pn-deal-unit">${units}</div>
+          </div>
+          <div class="pn-deal-next">${nextStep}</div>
+          <div class="pn-deal-meta">${opp.project} · ${opp.stage.replace(/_/g, ' ')}</div>
+        </div>
+        <div class="pn-deal-urgency">
+          <div class="pn-urgency-chip ${urgencyType}">${urgencyLabel}</div>
+        </div>
+        <div class="pn-deal-actions" onclick="event.stopPropagation()">
+          <button class="btn btn-sm btn-accent" onclick="pmOpenFromOpp('${opp.id}')">Present</button>
+          <button class="btn btn-sm" onclick="go('whatsapp')">WhatsApp</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="pn-header">
+      <div class="pn-title">My Deals</div>
+      <div class="pn-subtitle">Your active opportunities, sorted by urgency</div>
+    </div>
+    <div class="pn-deals-grid">
+      ${dealsHTML}
+    </div>
+    <div class="pn-footer-link" onclick="go('pipeline')">
+      Full pipeline view →
+    </div>
+  `;
+}
+
+// ── Initial setup on page load ──
+document.addEventListener('DOMContentLoaded', () => {
+  // Call pnRenderNav with the initial role (which is 'rep' by default)
+  // This ensures the nav is set up correctly on first load
+  if (typeof pnRenderNav === 'function') {
+    pnRenderNav(role);
+  }
+});
+
+// ── Brief 05: v1.1 Feature Flag (st namespace) ──
+let stV11Enabled = false;
+
+function stToggleV11(checked) {
+  stV11Enabled = checked;
+  stApplyFlag();
+  if (checked) {
+    toast('v1.1 features enabled');
+  } else {
+    toast('v1.1 features hidden');
+    // If currently on Marketing or Automations, redirect to Home
+    const currentPage = document.querySelector('.page.on')?.id;
+    if (currentPage === 'p-marketing' || currentPage === 'p-automations') {
+      go('home');
+    }
+  }
+}
+
+function stApplyFlag() {
+  // Marketing and Automations are visible ONLY when:
+  // - v1.1 flag is ON, AND
+  // - role is 'op'
+  const shouldShow = stV11Enabled && role === 'op';
+  const niMarketing = document.getElementById('ni-marketing');
+  const niAutomations = document.getElementById('ni-automations');
+  if (niMarketing) niMarketing.style.display = shouldShow ? 'flex' : 'none';
+  if (niAutomations) niAutomations.style.display = shouldShow ? 'flex' : 'none';
+}
+
+// Apply flag on initial load
+if (typeof stApplyFlag === 'function') stApplyFlag();
+
 </script>
 
 </body>

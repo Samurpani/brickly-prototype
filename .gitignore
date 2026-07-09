@@ -1,5 +1,2 @@
-node_modules/
-.next/
 .DS_Store
-*.bak
-*.bak2
+node_modules/
