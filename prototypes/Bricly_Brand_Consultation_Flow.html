@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bricly Studio — Brand Consultation Flow</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#161923; --panel2:#1c202c; --line:#2a2f3d;
+    --ink:#e8eaf0; --ink2:#a3a9ba; --ink3:#727a90;
+    --start:#2dd4bf; --gather:#60a5fa; --decision:#f59e0b; --gate:#34d399;
+    --action:#a78bfa; --system:#94a3b8; --parallel:#22d3ee; --escape:#fb7185; --end:#fbbf24; --visual:#f472b6;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{display:flex;height:100vh;overflow:hidden}
+  .diagram{flex:1;overflow-y:auto;padding:22px 26px 120px}
+  header.top{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,var(--bg) 78%,rgba(15,17,21,0));margin:-22px -26px 8px;padding:22px 26px 14px}
+  h1{font-size:19px;margin:0 0 3px;letter-spacing:.2px}
+  .sub{color:var(--ink2);font-size:12.5px;margin:0 0 12px;max-width:760px}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .toggle{display:flex;gap:6px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--ink2);cursor:pointer;user-select:none}
+  .toggle input{accent-color:var(--parallel);margin:0}
+  .legend{display:flex;gap:5px 12px;flex-wrap:wrap;margin:12px 0 4px;font-size:11.5px;color:var(--ink2)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .dot{width:10px;height:10px;border-radius:3px;display:inline-block}
+
+  .phase{margin:22px 0 6px;display:flex;align-items:center;gap:10px}
+  .phase b{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink3)}
+  .phase b.mode{color:var(--ink2)}
+  .phase .tag{font-size:9.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;padding:2px 8px;border-radius:20px}
+  .tag.g{background:rgba(96,165,250,.15);color:var(--gather)} .tag.d{background:rgba(244,114,182,.15);color:var(--visual)}
+  .phase .hr{flex:1;height:1px;background:var(--line)}
+
+  .row{display:flex;gap:16px;align-items:flex-start}
+  .spinecol{flex:1;min-width:0}
+  .branchcol{width:300px;flex-shrink:0;padding-top:2px}
+
+  .node{position:relative;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--system);
+        border-radius:10px;padding:11px 13px;cursor:pointer;transition:.14s}
+  .node:hover{background:var(--panel2);transform:translateX(2px)}
+  .node.sel{outline:2px solid var(--gather);outline-offset:1px}
+  .node .nt{display:flex;align-items:center;gap:8px;margin-bottom:2px}
+  .node .num{font-size:11px;font-weight:700;color:var(--ink3);min-width:22px}
+  .node .title{font-weight:600;font-size:13.5px;flex:1}
+  .badge{font-size:9.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:2px 7px;border-radius:20px;white-space:nowrap}
+  .node .sopref{font-size:11px;color:var(--ink3);margin-top:2px}
+
+  .arrow{display:flex;justify-content:center;color:var(--ink3);font-size:15px;line-height:1;padding:5px 0}
+  .arrow.small{padding:2px 0}
+
+  .branch{border-left-style:dashed;border-left-width:4px}
+  .blabel{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.6px;color:var(--ink3);text-transform:uppercase}
+  .connector{color:var(--ink3);font-size:12px;margin:0 0 2px 2px}
+  .branch-item{margin-bottom:10px}
+
+  .parallel-lane{background:rgba(34,211,238,.05);border:1px dashed rgba(34,211,238,.35);border-radius:12px;padding:10px}
+  .parallel-lane .lane-h{font-size:10px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:var(--parallel);margin:0 0 8px 2px}
+
+  .t-start{border-left-color:var(--start)} .b-start{background:rgba(45,212,191,.15);color:var(--start)}
+  .t-gather{border-left-color:var(--gather)} .b-gather{background:rgba(96,165,250,.15);color:var(--gather)}
+  .t-decision{border-left-color:var(--decision)} .b-decision{background:rgba(245,158,11,.15);color:var(--decision)}
+  .t-gate{border-left-color:var(--gate)} .b-gate{background:rgba(52,211,153,.15);color:var(--gate)}
+  .t-action{border-left-color:var(--action)} .b-action{background:rgba(167,139,250,.15);color:var(--action)}
+  .t-system{border-left-color:var(--system)} .b-system{background:rgba(148,163,184,.15);color:var(--system)}
+  .t-parallel{border-left-color:var(--parallel)} .b-parallel{background:rgba(34,211,238,.15);color:var(--parallel)}
+  .t-escape{border-left-color:var(--escape)} .b-escape{background:rgba(251,113,133,.15);color:var(--escape)}
+  .t-end{border-left-color:var(--end)} .b-end{background:rgba(251,191,36,.15);color:var(--end)}
+  .t-visual{border-left-color:var(--visual)} .b-visual{background:rgba(244,114,182,.15);color:var(--visual)}
+
+  .panel{width:400px;flex-shrink:0;background:var(--panel);border-left:1px solid var(--line);overflow-y:auto;padding:24px 22px 70px}
+  .panel .ph{font-size:10.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink3)}
+  .panel h2{font-size:18px;margin:6px 0 8px;line-height:1.25}
+  .panel .badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .panel .sop{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 11px;font-size:11.5px;color:var(--ink2);margin-bottom:16px}
+  .sec{margin-bottom:16px}
+  .sec h3{font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);margin:0 0 8px}
+  .sec ul{margin:0;padding:0;list-style:none}
+  .sec li{position:relative;padding:4px 0 4px 16px;font-size:12.8px;border-bottom:1px solid rgba(42,47,61,.5)}
+  .sec li:last-child{border-bottom:0}
+  .sec li:before{content:"";position:absolute;left:2px;top:11px;width:5px;height:5px;border-radius:50%;background:var(--ink3)}
+  .sec.out li:before{background:var(--gate)}
+  .sec.guard li:before{background:var(--escape)}
+
+  .howbox{background:linear-gradient(180deg,rgba(244,114,182,.08),transparent);border:1px solid rgba(244,114,182,.25);border-radius:10px;padding:11px 13px;font-size:12.8px;color:var(--ink);margin-bottom:16px}
+  .howbox .hh{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--visual);margin-bottom:5px}
+
+  .q{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 11px;margin-bottom:9px}
+  .q .qh{font-size:13px;font-weight:600;margin-bottom:3px}
+  .q .qmode{display:inline-block;font-size:9.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--gather);background:rgba(96,165,250,.12);padding:1px 7px;border-radius:20px;margin-left:6px;vertical-align:middle}
+  .opts{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+  .opt{font-size:11px;padding:3px 9px;border-radius:7px;background:var(--panel);border:1px solid var(--line);color:var(--ink2)}
+  .opt.add{border-style:dashed;color:var(--ink3)}
+  .chip{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:6px;background:var(--panel2);border:1px solid var(--line);color:var(--ink2);font-family:ui-monospace,Menlo,monospace}
+  .toolwrap{display:flex;flex-wrap:wrap;gap:6px}
+  .hint{color:var(--ink3);font-size:12px;margin-top:8px}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-thumb{background:#2a2f3d;border-radius:6px}
+  ::-webkit-scrollbar-track{background:transparent}
+  @media(max-width:900px){.panel{position:fixed;right:0;top:0;bottom:0;transform:translateX(100%);transition:.2s;z-index:20;box-shadow:-20px 0 40px rgba(0,0,0,.4)}.panel.open{transform:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="diagram" id="diagram">
+    <header class="top">
+      <h1>Bricly Studio — AI Brand Consultation Flow <span style="font-size:12px;font-weight:400;color:var(--ink3);margin-left:10px">v2 · as built in prototype</span></h1>
+      <p class="sub">Full-screen scene flow. Each step is a viewport takeover with typed agent text + tap-card decisions. A persistent receipt trail on the left shows every locked decision (tap to jump back and edit, then returns to where you were). Phase 0 renders run in a parallel background lane from intake onwards. Scope ends at the handoff to asset generation.</p>
+      <div class="controls">
+        <label class="toggle"><input type="checkbox" id="tBranch" checked> Show branches &amp; escapes</label>
+        <label class="toggle"><input type="checkbox" id="tParallel" checked> Show Phase 0 render lane</label>
+      </div>
+      <div class="legend" id="legend"></div>
+    </header>
+    <div id="flow"></div>
+  </div>
+
+  <aside class="panel" id="panel">
+    <div class="ph" id="pPhase">Getting started</div>
+    <h2 id="pTitle">Select a node</h2>
+    <div class="badges" id="pBadges"></div>
+    <div class="sop" id="pSop" style="display:none"></div>
+    <div class="howbox" id="pHow" style="display:none"></div>
+    <div class="sec" id="secAsk"></div>
+    <div class="sec" id="secTopics"></div>
+    <div class="sec out" id="secOut"></div>
+    <div class="sec" id="secTools"></div>
+    <div class="sec guard" id="secGuard"></div>
+    <p class="hint" id="pHint">Blue = gather steps (tap-select cards, no commitment). Pink = visual decision moments where they see it before they choose. Amber diamonds are branches, green are approval gates, cyan is the parallel render track, dashed red are escape / failure paths.</p>
+  </aside>
+</div>
+
+<script>
+const TYPE={
+  start:"Start",gather:"Gather · cards",decision:"Decision",gate:"Developer gate",
+  action:"Agent · auto",system:"System · auto",parallel:"Render track",escape:"Escape / fail",end:"Handoff",visual:"Visual decision"
+};
+
+const FLOW=[
+{phase:"A · Entry & project intake"},
+{id:"n1",type:"start",num:"1",title:"Brand step reached",sop:"OPS-ON-03 → MKT-BR-01. Developer reaches the brand step in onboarding.",
+ how:"Entry point. One clear prompt, no typing. Three large choice cards, one tap decides the path.",
+ out:["Consultation session eligible to open"]},
+{id:"n2",type:"decision",num:"2",title:"Generate a brand, or import one?",sop:"Routes into the full consultation or straight to inheritance.",
+ how:"Three cards on a full-screen scene. Generate → full 18-scene flow. Import and House brand show informational stubs (out of scope for MVP) with a fallback to Generate.",
+ ask:[{q:"How do you want to start your brand?",mode:"pick one",opts:["Generate a new brand with Studio","Import my existing logo & assets","Use my company house brand"]}],
+ out:["Route: Generate → full flow","Route: Import / House brand → stub screen → back to Generate"],
+ branches:[{label:"Import / House brand",type:"escape",id:"n2b",title:"Import or house brand stub",sop:"Out of scope for MVP — shown as informational.",
+   how:"Tap shows a description of what the feature will do, with a 'Continue with Generate instead →' button. Keeps the prototype honest without a dead end.",
+   out:["Returns to Generate path"]}]},
+{id:"n3",type:"gather",num:"3",title:"Project intake — upload files & start the render lane",sop:"Uploads feed the ConstraintModel. Immediately kicks off the parallel Phase 0 render track.",
+ how:"A dropzone for plans, elevations, photos and brochures (tap to simulate in prototype), plus a pre-filled location chip from the known address. Clicking 'Start building →' triggers the render lane and advances to gather. Nothing is mandatory — location is the minimum. A status indicator in the bottom-left receipt trail shows 'Generating in background…' and flips to 'Ready · 3 hero shots' when renders are done (20s simulated).",
+ ask:[
+   {q:"Upload anything you already have on the project",mode:"dropzone · all optional",opts:["Site / floor plans","Elevations or drawings","Location & address","Photos of the site","Existing brand assets","Brochures / reference material"]},
+   {q:"Confirm the location",mode:"pre-filled chip · edit if wrong",opts:["📍 Tigné seafront, Sliema, Malta","Different address"]}],
+ out:["ConstraintModel layer 1 seeded","Resources attached","Phase 0 render lane started in parallel"],
+ guard:["Nothing is mandatory beyond enough to start renders","Location is the one field renders really need"],
+ parallel:{
+   head:"Parallel · MKT-RN-01 Phase 0 renders (neutral, no brand) — runs silently from this point",
+   nodes:[
+    {id:"r1",type:"parallel",num:"P1",title:"Compose brief + generate 2–3 neutral hero shots",sop:"MKT-RN-01. Constraint-strict, neutrally styled.",
+      how:"Runs silently while developer answers gather questions. No brand applied. In prototype: SVG / gradient building illustrations (3 shots: day, dusk, detail). In MVP: concierge render task filed to design team.",
+      out:["2–3 Phase 0 hero shots (no brand)"],tools:["create_and_submit_brief","generate_render"]},
+    {id:"r2",type:"parallel",num:"P2",title:"Vision-verify vs ConstraintModel L1",sop:"MKT-RN-01. Three silent retries on failure.",
+      how:"Automatic gate, invisible to developer. In prototype: simulated pass after 20s.",out:["Passing renders flagged"],tools:["vision_verify"],
+      branches:[{label:"All fail 3×",type:"escape",id:"r2b",title:"Escalate internally, proceed with whatever passed",sop:"Failure mode.",
+        how:"Silent escalation — developer never sees an unverified render.",out:["Internal flag"]}]},
+    {id:"r3",type:"parallel",num:"P3",title:"Surface renders — trail shows 'Ready'",sop:"Rejoins main flow at Renders scene (n15).",
+      how:"Receipt trail flips from amber pulsing 'Generating in background…' to green 'Ready · 3 hero shots'. Renders are shown at n15 when the developer reaches that scene.",
+      out:["Hero shots available for the renders scene"]}
+   ]}},
+
+{phase:"B · Gather · full-screen tap-card scenes",mode:"g"},
+{id:"n4",type:"gather",num:"4",title:"About the project",sop:"MKT-BR-01. Tap-first, no typing required.",
+ how:"Four questions asked one at a time on the scene. Each answer animates to an 'answered' row above the next question. USPs are multi-select with a free-text 'Add your own' chip.",
+ ask:[
+   {q:"What type of project is this?",mode:"pick one",opts:["Apartment block","Villa / detached","Townhouses","Mixed-use","Student housing","Commercial + residential"]},
+   {q:"What tier is it?",mode:"pick one",opts:["Mid-market","Premium","Ultra-prime"]},
+   {q:"Roughly how many units?",mode:"pick one",opts:["1–10","11–30","31–75","75+"]},
+   {q:"Anything that makes it special?",mode:"multi-select · optional · free-text",opts:["Sea views","Rooftop pool","Heritage building","Eco / sustainable","Smart homes","Concierge","Add your own"]}],
+ out:["Project type, tier, scale and USPs on STATE — feeds direction filter and receipt trail"]},
+{id:"n5",type:"gather",num:"5",title:"Location, setting & site story",sop:"MKT-BR-01. Pre-fills from intake address. Kept story + rival questions from v1.",
+ how:"Where/character answered via tap-cards. Then two freeform-optional questions — site story and rival — each with chip suggestions AND a 'Not sure' escape. 'Not sure' → agent offers a researched hypothesis to confirm or deny. Both answers fly as insight chips to the receipt trail and are quoted verbatim in the moodboard why-lines later.",
+ ask:[
+   {q:"Where is it? · pre-filled from your address",mode:"pick one",opts:["Seafront / waterfront","Old town / historic core","City centre","Suburban residential","Coastal town","Regeneration zone"]},
+   {q:"What's the surrounding character?",mode:"multi-select",opts:["Historic & traditional","Busy & urban","Quiet & residential","Scenic & natural","Touristic / leisure"]},
+   {q:"What's the story of this site — anything worth building on?",mode:"chip · free-text · Not sure → hypothesis",opts:["Old fishing harbour frontage","Salt-pan history","New quarter","Former industrial","Nothing notable","Not sure → hypothesis"]},
+   {q:"Any nearby project you want this to beat?",mode:"chip · free-text · Not sure → hypothesis",opts:["The Quad","Tigné Point resales","Fort Cambridge","No direct rival","Not sure → hypothesis"]}],
+ out:["setting.where, character, story, rival captured","Insight chips added to receipt trail","Why-lines on moodboards quote these answers"]},
+{id:"n6",type:"gather",num:"6",title:"Target buyers — multi-select preset cards, 2–4",sop:"MKT-BR-01 step 3. Inventory-pinned, no open-ended typing.",
+ how:"Seven preset buyer cards arranged in a grid. Each card shows: buyer type badge (investor/end user), label, motivation, live budget band with ± steppers (taps in €25k increments), and an inventory-match pin ('→ matches your 3-beds'). Multi-select 2–4 enforced: selecting fewer than 2 keeps the 'Lock these buyers →' button disabled; selecting a 5th triggers a toast 'Four max — more personas dilute the targeting'. Thin-inventory cards (e.g. local first-time buyer at this tier) show an amber warning pin. Budget band updated by tapping +/− and only affects this session.",
+ ask:[{q:"Who's buying? Pick 2–4.",mode:"multi-select (2–4 enforced) · ± budget steppers per card",opts:["Overseas investor · €250–400k","Local first-time buyer · €200–350k","Local upgrader / 2nd home · €400–600k","Downsizer / retiree · €300–500k","Young professional · yield · €180–300k","Holiday-home buyer · €350–600k","HNW luxury end-user · €600k–1.4M"]}],
+ out:["2–4 buyers on STATE.buyers (label, budget_band_eur, buyer_type, motivation)","Each persona pinned to actual inventory"],
+ guard:["Persona with no matching inventory flagged amber, not hidden","5th selection bounces — max four","Selection fewer than 2 disables the continue button"]},
+{id:"n7",type:"gather",num:"7",title:"Brand feel — vibe tiebreaker",sop:"MKT-BR-01. Weighs into direction filter; never deterministic.",
+ how:"Six visual vibe cards, each shown as a gradient composition (the direction's real palette colours). One primary pick. Important rule: this is a tiebreaker weight only — the direction filter (filterDirections) rules directions in/out first by project type, tier, and location; vibe only re-sorts the remaining candidates. A seafront project always keeps Coastal in the list regardless of vibe. The derived voice_line (copy register) is computed from vibe + buyer mix and shown as an editable chip at the Confirm step.",
+ ask:[{q:"How should this brand feel?",mode:"pick one primary",opts:["Timeless & refined","Clean & architectural","Warm & natural","Light & leisurely","Sharp & investor-focused","Bold & expressive"]}],
+ out:["STATE.vibe set","STATE.voice_line derived (shown + editable at Confirm)","Direction filter pre-weighted but not locked"]},
+{id:"n8",type:"gather",num:"8",title:"Block structure",sop:"Determines whether the block-naming scene appears.",
+ how:"One quick tap. If multi-block, building names are presented as lockup sets after the project name locks (scene n14), not entered as text here.",
+ ask:[{q:"One building or several?",mode:"pick one",opts:["Single building","2–3 blocks","4+ blocks","Phased development"]}],
+ out:["STATE.blocks set","Multi-block → n14 (block names) is shown; single → n14 skipped"]},
+{id:"n9",type:"gate",num:"9",title:"Confirm the brief — soft gate + edit-jump",sop:"One checkpoint before all visuals. Every chip is editable.",
+ how:"All gathered data shown as coloured chips grouped by category (Project, Location & story, Buyers, Feel, Structure, Voice). Tapping any chip jumps directly to that scene to edit — done() then returns the developer to this confirm screen with the edit applied. The voice_line chip is separately editable inline (tap → text field appears). One 'Confirm & design →' button advances to the direction phase.",
+ ask:[{q:"Here's your brief. Anything to change before we design?",mode:"tap any chip to edit · confirm to continue",opts:["Project chips","Location & story chips","Buyers chips","Feel chip","Structure chip","Voice · derived · editable"]}],
+ out:["Brief soft-locked","All STATE values confirmed","Feeds direction filter, naming, and generation"]},
+
+{phase:"C · Direction — full-screen visual scenes",mode:"d"},
+{id:"n10",type:"action",num:"10",title:"Filter library 6 → 3 directions",sop:"Brand Direction SOP §4. Runs automatically, no user input.",
+ how:"filterDirections() runs after confirm. Uses project type, tier, location and surrounding character to exclude directions that can't fit (e.g. seafront → Urban excluded; no historic character → Heritage excluded). Vibe is a sort weight only — it can't add an excluded direction back. Result: 3 present directions + 1 wildcard. A 'rest' array holds the remaining directions for the none-fit swap.",
+ out:["boardList[3] set · wildcard set · rest[] ready for none-fit swap"],
+ guard:["Both Stage-2 pairs must stay inside the chosen world — enforced structurally, not by guideline"]},
+{id:"n10b",type:"visual",num:"10b",title:"Pre-boards explanation scene",sop:"New step added in v2. Typed agent text before the boards appear.",
+ how:"A full-screen scene (not an overlay) with typed agent text: 'We've curated three brand worlds built specifically for your project.' + sub-text explaining filtering rationale, what each board contains, and the instruction to browse all three before picking. A single CTA button 'Show me the three worlds →' triggers the shimmer interstitial then the boards overlay.",
+ ask:[{q:"",mode:"single CTA",opts:["Show me the three worlds →"]}],
+ out:["Developer understands what they are about to see and why"]},
+{id:"n11",type:"visual",num:"11",title:"Stage 1 — pick your world",sop:"Brand Direction SOP §2. Full-screen boards overlay.",
+ how:"Full-screen overlay (takes over entire viewport). Three boards, arrow/keyboard navigation. Each board: hero SVG illustration (direction palette), colour palette strip with hex values, type specimen using the locked project name, material texture tiles, positioning line, and a personalised why-line quoting the developer's own insight chips (e.g. 'You told me \"former fishing harbour frontage\" and your lead buyer is the overseas investor…'). Instruction text at the top of the overlay: 'Use the arrows ← → to go through all three — each one has been chosen for a specific reason that fits your project.' + sub-text on how to commit. Wildcard hidden behind 'Show me something unexpected'. Picking one triggers a full-screen colour wash clip-path animation + the entire UI re-skins (CSS custom properties: --accent, --accent-ink, --bg) to the chosen world's palette for the rest of the session.",
+ ask:[{q:"Which world feels right for this project?",mode:"full-screen overlay · arrow browse · pick one",opts:["Board A (present[0])","Board B (present[1])","Board C (present[2])","Wildcard (optional 4th)"]}],
+ out:["STATE.direction locked","STATE.moodboard_refs.stage1_board set","UI palette re-skinned to chosen world"],
+ guard:["Three boards must be coherent comparable worlds","Instruction overlay text: browse all before picking"],
+ branches:[{label:"None fit",type:"escape",id:"n11b",title:"What's-off chips → one nearest-neighbour swap",sop:"One swap round, then curation-flag.",
+   how:"What's-off chips (Too cold, Too busy, Too traditional, Too safe). Agent swaps the weakest board for the nearest neighbour from rest[]. One swap allowed (swapUsed flag). Second rejection → honest message: 'No forcing a pick that doesn't land — flagging this for our curation team.' No dead end.",
+   out:["One board swapped from rest[] on first rejection","Second rejection → curation escalation flag"]}]},
+{id:"n12",type:"visual",num:"12",title:"Stage 2 — four this-or-that pairs",sop:"Brand Direction SOP §5. Both poles always inside the locked world.",
+ how:"Four split-screen pairs, one at a time, each as a full-width card. Hover/tap a side to pick. Both options are styled within the locked direction (funnel rule: enforced structurally). Framed as 'which feels closer', not 'pick your logo'. Photography and lifestyle pairs have a soft-escape 'Neither — show me two more'. After two consecutive escapes on one axis, the flow switches to freeform inference: 'Describe the photo you'd want on the brochure cover' → agent infers the pole from keywords → states the inference → one-tap overrule available.",
+ ask:[
+   {q:"Logo & mark",mode:"this or that",opts:["Wordmark-led","Symbol-led"]},
+   {q:"Photography",mode:"this or that · Neither → 2 more",opts:["People-led","Architecture-led"]},
+   {q:"Lifestyle",mode:"this or that · Neither → 2 more",opts:["Quiet & aspirational","Social & energetic"]},
+   {q:"Render",mode:"this or that",opts:["Warm & lifestyle","Cool & editorial"]}],
+ out:["STATE.axes: {logo, photography, lifestyle, render} locked","moodboard_refs.stage2_picks[] set","axis picks become hard constraints in MKT-RN-04 prompting"],
+ branches:[{label:"Double escape",type:"escape",id:"n12b",title:"Freeform describe-and-infer",sop:"Two consecutive escapes on one axis.",
+   how:"Agent asks: 'Describe the photo you'd want on the brochure cover.' Keywords (couple/people/family → people-led; architecture/building/facade → architecture-led). Infers and states the pole ('That's people-led — locking that in — overrule me with one tap'). No dead end.",
+   out:["Pole inferred from freeform text · one-tap overrule available"]}]},
+
+{phase:"D · Naming — visual lockups",mode:"d"},
+{id:"n13",type:"visual",num:"13",title:"Names as styled wordmarks — pick + lock",sop:"MKT-BR-01. Names shown in the type direction just chosen, not in the abstract.",
+ how:"Names rendered as lockup cards in the locked direction's type face (font-family and weight from the chosen world). Three categories — 'From the place', 'From the building', 'From the whole picture' — each with 3 names and a one-line rationale. Tapping a name selects it and shows a large live preview below all cards. 'Show me more' cycles to a second set (NAME_MORE) and back. Byline toggle ('By Falzon Group') previews on the selected lockup. 'Type your own name' input validates and feeds the same preview. 'None of these work' → two constraint questions (sounds-like chips + avoid free text) → one regenerated set of names (NAME_MORE). Never forces a pick.",
+ ask:[{q:"Pick your project name — shown as a logotype in your world's type style",mode:"tap lockup · show more · type your own",opts:["From the place · 3 lockups","From the building · 3 lockups","From the whole picture · 3 lockups","Show me more","Type your own name"]},
+   {q:"Add 'By {Developer Name}' under the logo?",mode:"toggle · live preview on selected lockup",opts:["On","Off"]}],
+ out:["STATE.name locked","STATE.byline set","STATE.building_names seeded"],
+ guard:["Names in three distinct categories, not a random list","Reject-all path: 2 constraint questions then 1 regen — never force"],
+ branches:[{label:"Reject all",type:"escape",id:"n13b",title:"Constraint questions → one regen set",sop:"Failure mode.",
+   how:"Sound-like chips (Shorter, More local, More international, More literal, More abstract) + free-text avoid field. Regenerates NAME_MORE set. If that set is also rejected, captures constraints on STATE and flags for human naming support.",
+   out:["One regen round — never force a pick from a rejected set"]}]},
+{id:"n14",type:"visual",num:"14",title:"Name the blocks (conditional — only if multi-block)",sop:"Only shown when STATE.blocks !== 'Single building'.",
+ how:"Two suggested block-name sets shown as lockup cards in the locked type style. Set A is site-history-derived names, Set B uses the project name as a family prefix (e.g. Saltline One, Saltline Two). Tap a set to accept. Both sets visible simultaneously for comparison.",
+ ask:[{q:"Name each block",mode:"pick a set",opts:["Set A · site-history family","Set B · project-name family"]}],
+ out:["STATE.building_names[] locked as a family"]},
+
+{phase:"E · Art direction — renders + brief",mode:"d"},
+{id:"n15",type:"visual",num:"15",title:"Phase 0 renders — react to your building",sop:"MKT-BR-03 step 1. Render lane rejoins here.",
+ how:"The parallel render lane has been running since intake. On entering this scene: 'While we talked, Studio built your building. This is it — before any brand.' Three hero shots shown (day / dusk / facade detail). Navigation: prev/next buttons. Reaction chips per view: Like this, Not this, More like this, plus 'What exactly?' expandable sub-chips (the light / the angle / the mood / the materials). Multiple reactions can be added across shots. Reactions are stored in STATE.render_reactions[] and feed the art-direction brief. 'Hard to say' escape → forced crop this-or-that on two contrasting treatments.",
+ ask:[{q:"Here's your actual building. What feels right?",mode:"3 shots · prev/next · per-shot reactions",opts:["Like this","Not this","More like this","What exactly? → the light / angle / mood / materials"]},
+   {q:"Hard to say?",mode:"escape → forced this-or-that",opts:["Warm late light · low sun","Cool morning light · crisp"]}],
+ out:["STATE.render_reactions[] with shot + reaction pairs","Feeds art direction brief derivation"],
+ tools:["continue_consultation"]},
+{id:"n16",type:"visual",num:"16",title:"Visual style for renders",sop:"MKT-BR-03 step 2.",
+ how:"Four style cards (visual gradient compositions in the direction's palette): Warm & lifestyle, Cool & editorial, Bright & airy, Moody & dramatic. One tap picks. 'Can't decide' escape collapses to a this-or-that between the top two options only.",
+ ask:[{q:"Which visual style should the renders follow?",mode:"pick one of four · can't decide → this-or-that",opts:["Warm & lifestyle","Cool & editorial","Bright & airy","Moody & dramatic"]}],
+ out:["STATE.style_pick set — feeds art direction mood and light lines"],
+ branches:[{label:"Can't decide",type:"escape",id:"n16b",title:"Simplified this-or-that — top two only",sop:"Failure mode.",
+   how:"Shows only Warm & lifestyle vs Cool & editorial as a large split-screen pair. Pick one — the flow continues.",out:["style_pick inferred from binary"]}]},
+{id:"n17",type:"gate",num:"17",title:"Art direction brief — typed line by line, strike to rewrite",sop:"MKT-BR-03 step 3. Agent drafts from all prior picks; developer approves.",
+ how:"The agent composes the brief in real time — each line types itself character by character (18ms/char) in sequence: Mood, Light, Palette intent, Materials, Composition, Avoid (in amber to signal equal weight to the positive lines). Each line is tappable once typed: tap → line strikes through → agent rewrites just that line (toggles between two pre-written variants). Approve button appears after all six lines complete. 'Specific beats poetic' — every line is concrete enough to prompt a render without interpretation. The Avoid list is as binding as the rest.",
+ ask:[{q:"Confirm your art direction",mode:"6 typed lines · tap any line to rewrite it · approve",opts:["Mood","Light","Palette intent","Materials","Composition","Avoid"]}],
+ out:["STATE.art_direction {mood, light, palette_intent, materials, composition, avoid[], style} locked","Attached to BrandKit for all downstream inheritance"],
+ guard:["List exclusions as explicitly as targets — the Avoid list is as prominent as the pursuits","Tie composition to persona (investor vs lifestyle framing)"]},
+{id:"n18",type:"system",num:"18",title:"Attach art direction to BrandKit — autonomous",sop:"MKT-BR-03 step 4.",
+ how:"Silent. Toast: 'Attached to the BrandKit — every render, page and ad inherits it'.",
+ out:["Art direction on BrandKit for downstream inheritance"]},
+
+{phase:"F · Brand kit — generation + selection",mode:"d"},
+{id:"n19",type:"action",num:"19",title:"Generate 4 distinct brand candidates",sop:"MKT-BR-02 step 1. Full-screen generative sequence.",
+ how:"Lock triggers a full-screen takeover: particles / blurred blobs in the chosen direction's palette coalesce into four blurred shapes. Animated status lines: 'Reading your brief… Drawing four marks… Setting type against your voice… Applying each identity to the world.' (~6s simulated, then candidates appear). Four candidates differ in DIRECTION not just colour (e.g. within Coastal: airy editorial, heritage maritime, crisp modern, soft resort) — so the choice is meaningful.",
+ out:["4 candidate objects with: id, direction label, type pairing, palette, font stack, mock type (hoarding/brochure)"],tools:["generate_brand_candidates"],
+ guard:["Candidates differ in direction, not just colour","Four is the standard spread — enough contrast to reveal preference, few enough to decide quickly"]},
+{id:"n20",type:"visual",num:"20",title:"Select one brand kit",sop:"MKT-BR-02 step 2. Hard gate — no auto-promotion.",
+ how:"Four candidate cards in a 2×2 grid. Each: applied mockup (site hoarding or brochure cover), logo specimen, palette chips, type label. Compare mode: tap 'compare' on any two → they highlight side by side. Merge: with two selected, a 'Merge these two' button produces an explicit labelled Candidate E (A's mark+type, B's palette — never a silent blend). 'I don't love any of them' escape → feedback flow → one regen round → human designer escalation.",
+ ask:[{q:"Pick your brand direction",mode:"pick one of four · compare any two · merge two → Candidate E",opts:["Candidate A","Candidate B","Candidate C","Candidate D","Merge two → Candidate E","I don't love any of them"]}],
+ out:["One candidate chosen"],guard:["Developer selection required — nothing auto-promotes to Active"],
+ branches:[
+   {label:"Likes none",type:"escape",id:"n20b",title:"Feedback chips → one regen → designer escalation",sop:"Failure mode.",
+     how:"Two questions: 'Which is closest?' (candidate chips) and 'What's off about it?' (The logo / The colours / The type / The overall feel). One regen round with feedback applied (candidates visibly reworked). If still rejected: honest message 'I'm handing this to our design team — with your full brief and everything you've said about what's off attached.' No retry loop.",
+     out:["One regen round → escalate to human designer with feedback attached"]},
+   {label:"Merge two",type:"decision",id:"n20c",title:"Explicit Candidate E — labelled merge, never silent",sop:"MKT-BR-02 mixing path.",
+     how:"Selecting two and tapping 'Merge these two' produces Candidate E (e.g. 'A's mark and type, B's palette'). Shown as a fifth card with the E label. Never silently blends.",out:["Labelled 5th candidate — developer still makes an explicit pick"]}]},
+{id:"n21",type:"system",num:"21",title:"Candidate activation — full-screen takeover",sop:"MKT-BR-02 step 3. Sets BrandKit Active.",
+ how:"Picking triggers a full-screen takeover overlay. The chosen identity applies itself sequentially across four mockups (site hoarding → brochure cover → sales sign → digital avatar), each with a brief caption. Ends on: '{Name} is live. Everything Studio makes from here is on-brand.' BrandKit set to Active. 'Continue →' advances the flow. Exactly one BrandKit may be Active — developer selection is required, no auto-promotion.",
+ out:["BrandKit Active with logo, palette, type, moodboard refs, art direction, usage rules"],tools:["conclude_consultation"],
+ guard:["Exactly one BrandKit Active","Developer selection is required — never auto-promote"]},
+
+{phase:"G · Corporate brand (optional)"},
+{id:"n22",type:"decision",num:"22",title:"Promote to house brand?",sop:"MKT-BR-05. Deferred until the developer has a brand they're happy to reuse.",
+ how:"Two cards: 'Yes — make this my house brand' (future projects inherit it as an editable seed) and 'No — keep it project-only' (per-project freedom, decidable later in settings). Toast on Yes: 'Set on the workspace — inheritance never overwrites an approved BrandKit'.",
+ ask:[{q:"Reuse this as your company house brand on future projects?",mode:"pick one",opts:["Yes, make it my house brand — future projects inherit as editable seed","No, keep it project-only"]}],
+ out:["STATE.house_brand set","If yes → Workspace.CorporateBrand flagged"],
+ guard:["Inheritance is a seed, not a lock — each project can still diverge","Decision deferred until post-selection so they have a brand worth reusing"],
+ branches:[{label:"If yes",type:"system",id:"n22b",title:"Set CorporateBrand on the workspace",sop:"Autonomous.",
+   how:"Toast confirms. New projects will inherit it as an editable seed.",out:["Workspace.CorporateBrand set","New project BrandKits seeded from it — still editable"]}]},
+
+{phase:"Boundary"},
+{id:"n23",type:"end",num:"23",title:"Handoff — brand brief locked + JSON export",sop:"Consultation complete. Downstream: MKT-RN-02 final renders, website, brochure, ads.",
+ how:"Full brand brief shown as labelled rows: Name + byline, Blocks, Buyers, Voice, World, Taste axes, Art direction, BrandKit candidate. 'View as JSON' flips the card 3D to show the raw STATE object (pretty-printed JSON) — the literal BrandProfile that feeds all downstream generation. 'Enter Studio with your brand →' CTA. Everything downstream now aims at the right buyer and reads as one brand.",
+ out:["Name, blocks, buyers, voice, direction, 4 axis picks, art direction, active BrandKit all locked","BrandProfile JSON exported (feeds MKT-RN-04 prompt engineering + MKT-BR-02 generation)","Feeds MKT-RN-02 final render set + all downstream assets (out of current scope)"]}
+];
+
+const NODES={};
+function reg(n){if(n&&n.id)NODES[n.id]=n;}
+FLOW.forEach(item=>{if(item.id){reg(item);(item.branches||[]).forEach(reg);
+  if(item.parallel)item.parallel.nodes.forEach(pn=>{reg(pn);(pn.branches||[]).forEach(reg);});}});
+
+const flowEl=document.getElementById('flow');
+function badge(type){return `<span class="badge b-${type}">${TYPE[type]}</span>`;}
+function nodeCard(n,extraClass=""){
+  return `<div class="node t-${n.type} ${extraClass}" data-id="${n.id}">
+    <div class="nt"><span class="num">${n.num||""}</span><span class="title">${n.title}</span>${badge(n.type)}</div>
+    ${n.sop?`<div class="sopref">${n.sop.split(".")[0]}.</div>`:""}
+  </div>`;
+}
+function branchBlock(b){
+  return `<div class="branch-item" data-kind="${b.type==='escape'?'escape':'branch'}">
+    <div class="connector">⤷ <span class="blabel">${b.label}</span></div>
+    ${nodeCard(b,"branch")}
+  </div>`;
+}
+function render(){
+  let html="";
+  FLOW.forEach(item=>{
+    if(item.phase){
+      const tag=item.mode==='g'?'<span class="tag g">Ask first</span>':item.mode==='d'?'<span class="tag d">Show, then decide</span>':'';
+      html+=`<div class="phase"><b>${item.phase}</b>${tag}<span class="hr"></span></div>`;return;
+    }
+    html+=`<div class="row"><div class="spinecol">${nodeCard(item)}</div><div class="branchcol">`;
+    if(item.branches&&item.branches.length)html+=item.branches.map(branchBlock).join("");
+    if(item.parallel){
+      html+=`<div class="parallel-lane" data-kind="parallel"><div class="lane-h">${item.parallel.head}</div>`;
+      item.parallel.nodes.forEach((pn,i)=>{
+        html+=nodeCard(pn);
+        if(pn.branches)html+=pn.branches.map(branchBlock).join("");
+        if(i<item.parallel.nodes.length-1)html+=`<div class="arrow small">↓</div>`;
+      });
+      html+=`</div>`;
+    }
+    html+=`</div></div><div class="arrow">↓</div>`;
+  });
+  html=html.replace(/<div class="arrow">↓<\/div>\s*$/,"");
+  flowEl.innerHTML=html;bind();applyToggles();
+}
+document.getElementById('legend').innerHTML=Object.keys(TYPE).map(t=>
+  `<span><i class="dot" style="background:var(--${t})"></i>${TYPE[t]}</span>`).join("");
+
+function bind(){document.querySelectorAll('.node').forEach(el=>el.onclick=()=>select(el.dataset.id,el));}
+function select(id,el){
+  const n=NODES[id];if(!n)return;
+  document.querySelectorAll('.node.sel').forEach(x=>x.classList.remove('sel'));
+  if(el)el.classList.add('sel');
+  document.getElementById('pPhase').textContent=TYPE[n.type];
+  document.getElementById('pTitle').textContent=n.title;
+  document.getElementById('pBadges').innerHTML=badge(n.type);
+  const sop=document.getElementById('pSop');
+  if(n.sop){sop.style.display="";sop.textContent=n.sop;}else sop.style.display="none";
+  const how=document.getElementById('pHow');
+  if(n.how){how.style.display="";how.innerHTML=`<div class="hh">How it works</div>${n.how}`;}else how.style.display="none";
+  fillAsk(n.ask);
+  fillSec('secTopics','',null,'');
+  fillSec('secOut','Output · data captured',n.out,'out');
+  fillTools(n.tools);
+  fillSec('secGuard','Guardrails / notes',n.guard,'guard');
+  document.getElementById('pHint').style.display='none';
+  document.getElementById('panel').classList.add('open');
+}
+function fillAsk(ask){
+  const el=document.getElementById('secAsk');
+  if(!ask||!ask.length){el.innerHTML="";return;}
+  el.className="sec";
+  el.innerHTML=`<h3>Line of questioning</h3>`+ask.map(q=>{
+    const opts=(q.opts||[]).map(o=>`<span class="opt ${/add your own|edit|show me more|tap|drop a pin|search/i.test(o)?'add':''}">${o}</span>`).join("");
+    return `<div class="q"><div class="qh">${q.q}<span class="qmode">${q.mode}</span></div>${opts?`<div class="opts">${opts}</div>`:""}</div>`;
+  }).join("");
+}
+function fillSec(elid,label,arr,cls){
+  const el=document.getElementById(elid);el.className="sec "+cls;
+  if(!arr||!arr.length){el.innerHTML="";return;}
+  el.innerHTML=`<h3>${label}</h3><ul>${arr.map(x=>`<li>${x}</li>`).join("")}</ul>`;
+}
+function fillTools(tools){
+  const el=document.getElementById('secTools');
+  if(!tools||!tools.length){el.innerHTML="";return;}
+  el.className="sec";
+  el.innerHTML=`<h3>Tools</h3><div class="toolwrap">${tools.map(t=>`<span class="chip">${t}</span>`).join("")}</div>`;
+}
+function applyToggles(){
+  const showB=document.getElementById('tBranch').checked;
+  const showP=document.getElementById('tParallel').checked;
+  document.querySelectorAll('.branch-item').forEach(e=>e.style.display=showB?"":"none");
+  document.querySelectorAll('[data-kind="parallel"]').forEach(e=>e.style.display=showP?"":"none");
+}
+document.getElementById('tBranch').onchange=applyToggles;
+document.getElementById('tParallel').onchange=applyToggles;
+render();
+</script>
+</body>
+</html>
