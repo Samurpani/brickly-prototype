@@ -1,0 +1,112 @@
+/*
+ * Bricly Design System — tokens
+ * Generated from Figma variables export (design-system/tokens.json).
+ * Light theme = "Sandstone", dark theme = "Blackstone".
+ * Prototype-facing aliases (--bg, --surface, --text, --accent, ...) are
+ * mapped at the bottom so existing prototype CSS re-skins by swapping this file.
+ */
+:root {
+  /* ---- Sandstone (light) raw tokens ---- */
+  --ds-background: #FCFBF9;
+  --ds-surface: #FFFFFF;
+  --ds-surface-container-lowest: #F7F5F0;
+  --ds-surface-container-low: #F0EEEA;
+  --ds-surface-container: #EFECE7;
+  --ds-surface-container-high: #EBEAE9;
+  --ds-surface-container-highest: #E3DFD8;
+  --ds-on-surface: #2E2D2C;
+  --ds-on-surface-variant: #6D6D62;
+  --ds-outline: #E5E4E1;
+  --ds-outline-variant: #EBEAE9;
+  --ds-primary: #657A32;
+  --ds-primary-container-high: #52671F;
+  --ds-primary-container-low: #B6C78D;
+  --ds-on-primary-container: #FAF9F7;
+  --ds-inverse-surface: #FAF9F7;
+  --ds-inverse-on-surface: #FAF9F7;
+  --ds-error: #EB5759;
+
+  /* ---- Typography ---- */
+  --ds-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --ds-display-large: 500 28px/40px var(--ds-font);      /* -0.75 tracking */
+  --ds-display-medium: 400 26px/36px var(--ds-font);     /* -0.25 tracking */
+  --ds-display-small: 600 22px/30px var(--ds-font);      /* -0.25 tracking */
+  --ds-headline-large: 400 18px/30px var(--ds-font);
+  --ds-headline-medium: 500 16px/26px var(--ds-font);
+  --ds-headline-small: 400 15px/24px var(--ds-font);
+  --ds-title-large: 500 15px/24px var(--ds-font);
+  --ds-title-medium: 500 14px/20px var(--ds-font);
+  --ds-title-small: 500 13px/20px var(--ds-font);
+  --ds-body-large: 400 15px/24px var(--ds-font);
+  --ds-body-medium: 400 14px/22px var(--ds-font);
+  --ds-body-small: 400 13px/20px var(--ds-font);
+  --ds-label-large: 500 13px/18px var(--ds-font);
+  --ds-label-medium: 500 12px/16px var(--ds-font);
+  --ds-label-small: 400 12px/16px var(--ds-font);
+
+  /* ---- Elevation (from Effects) ---- */
+  --ds-shadow-2xs: 0 1px 0 0 rgba(0,0,0,0.05);
+  --ds-shadow-xs: 0 1px 2px 0 rgba(0,0,0,0.05);
+  --ds-shadow-sm: 0 1px 2px -1px rgba(0,0,0,0.1), 0 1px 3px 0 rgba(0,0,0,0.1);
+  --ds-shadow-md: 0 2px 4px -2px rgba(0,0,0,0.1), 0 4px 6px -1px rgba(0,0,0,0.1);
+  --ds-shadow-lg: 0 4px 6px -4px rgba(0,0,0,0.1), 0 10px 15px -3px rgba(0,0,0,0.1);
+  --ds-shadow-xl: 0 8px 10px -6px rgba(0,0,0,0.1), 0 20px 25px -5px rgba(0,0,0,0.1);
+  --ds-shadow-2xl: 0 25px 50px -12px rgba(0,0,0,0.25);
+  --ds-focus-ring: 0 0 0 2px rgba(246,240,235,0.7), 0 0 0 3px var(--ds-primary);
+
+  /* ---- Prototype-facing aliases (drop-in remap) ---- */
+  --font: var(--ds-font);
+  --body: var(--ds-font);
+  --display: var(--ds-font);
+  --bg: var(--ds-background);
+  --bg2: var(--ds-surface-container-lowest);
+  --bg3: var(--ds-surface-container-low);
+  --surface: var(--ds-surface);
+  --surface2: var(--ds-surface-container-lowest);
+  --surface3: var(--ds-surface-container);
+  --text: var(--ds-on-surface);
+  --text2: var(--ds-on-surface-variant);
+  --text3: #9a978d;
+  --border: var(--ds-outline);
+  --border2: #d8d6d0;
+  --accent: var(--ds-primary);
+  --accent-light: rgba(101,122,50,0.12);
+  --accent-dark: var(--ds-primary-container-high);
+  --accent-text: var(--ds-on-primary-container);
+  --green-bg: rgba(101,122,50,0.14);
+  --green-text: #52671F;
+  --amber-bg: rgba(168,118,17,0.14);
+  --amber-text: #8d6715;
+  --red-bg: rgba(235,87,89,0.14);
+  --red-text: #c4383a;
+  --blue-bg: rgba(43,108,176,0.12);
+  --blue-text: #2b6cb0;
+  --purple-bg: rgba(101,122,50,0.12);
+  --purple-text: #657A32;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --shadow: var(--ds-shadow-sm);
+  --shadow-md: var(--ds-shadow-lg);
+}
+
+/* Blackstone (dark) — apply with <html data-theme="dark"> or prefers-color-scheme */
+[data-theme="dark"] {
+  --ds-background: #141413;
+  --ds-surface: #1C1C1A;
+  --ds-surface-container-lowest: #242421;
+  --ds-surface-container-low: #1C1C1A;
+  --ds-surface-container: #2B2B28;
+  --ds-surface-container-high: #282826;
+  --ds-surface-container-highest: #302F2C;
+  --ds-on-surface: #E8E8DC;
+  --ds-on-surface-variant: #A1A1A1;
+  --ds-outline: #2E2E2A;
+  --ds-outline-variant: #2E2E2C;
+  --ds-primary: #7F944D;
+  --ds-primary-container-high: #B1C87B;
+  --ds-inverse-on-surface: #191919;
+  --text3: #7c7a72;
+  --border2: #3a3a35;
+  --accent-light: rgba(127,148,77,0.16);
+}
