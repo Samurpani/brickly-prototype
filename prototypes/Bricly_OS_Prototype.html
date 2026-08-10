@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bricly OS — Prototype (v2)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   Bricly design system — Sandstone (light) / Blackstone (dark)
+   Built from design-system/tokens.json. No legacy styles.
+   ============================================================ */
+:root{
+  --bg:#FCFBF9; --surface:#FFFFFF;
+  --sc-lowest:#F7F5F0; --sc-low:#F0EEEA; --sc:#EFECE7; --sc-high:#EBEAE9; --sc-highest:#E3DFD8;
+  --on-surface:#2E2D2C; --on-variant:#6D6D62; --muted:#9a978d;
+  --outline:#E5E4E1; --outline-variant:#EBEAE9;
+  --primary:#657A32; --primary-high:#52671F; --primary-low:#B6C78D; --on-primary:#FAF9F7;
+  --error:#EB5759;
+  --font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --sh-xs:0 1px 2px 0 rgba(0,0,0,0.05);
+  --sh-sm:0 1px 2px -1px rgba(0,0,0,.1),0 1px 3px 0 rgba(0,0,0,.1);
+  --sh-md:0 2px 4px -2px rgba(0,0,0,.1),0 4px 6px -1px rgba(0,0,0,.1);
+  --sh-lg:0 4px 6px -4px rgba(0,0,0,.1),0 10px 15px -3px rgba(0,0,0,.1);
+  --sh-xl:0 8px 10px -6px rgba(0,0,0,.1),0 20px 25px -5px rgba(0,0,0,.1);
+  --r:8px; --r-lg:12px; --r-xl:16px;
+}
+html[data-theme="dark"]{
+  --bg:#141413; --surface:#1C1C1A;
+  --sc-lowest:#242421; --sc-low:#1C1C1A; --sc:#2B2B28; --sc-high:#282826; --sc-highest:#302F2C;
+  --on-surface:#E8E8DC; --on-variant:#A1A1A1; --muted:#7c7a72;
+  --outline:#2E2E2A; --outline-variant:#2E2E2C;
+  --primary:#7F944D; --primary-high:#B1C87B; --on-primary:#191919;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--on-surface);font-size:14px;line-height:1.5;height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased}
+button{font-family:inherit}
+.app{display:flex;height:100vh}
+
+/* ---------- Sidebar ---------- */
+.sidebar{width:190px;background:var(--bg);border-right:1px solid var(--outline);display:flex;flex-direction:column;flex-shrink:0;height:100vh}
+.sb-top{padding:16px 14px 6px}
+.logo{font-size:19px;font-weight:600;letter-spacing:-0.3px;margin-bottom:12px}
+.ws{display:flex;align-items:center;gap:9px;width:100%;padding:8px 10px;background:var(--surface);border:1px solid var(--outline);border-radius:9px;cursor:pointer;transition:.12s}
+.ws:hover{background:var(--sc-lowest);border-color:var(--sc-highest)}
+.ws-dot{width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#9db56a,var(--primary));flex:none}
+.ws-name{font-size:13px;font-weight:500;flex:1;text-align:left;letter-spacing:-0.1px}
+.ws>svg{width:12px;height:12px;color:var(--muted);flex:none}
+.nav{padding:5px 0;overflow-y:auto;flex:1}
+.nav-label{font-size:11px;font-weight:600;color:var(--muted);padding:10px 16px 5px;text-transform:uppercase;letter-spacing:0.05em}
+.ni{display:flex;align-items:center;gap:10px;padding:6px 10px;margin:0 8px;font-size:13px;color:#45443f;cursor:pointer;transition:.12s;border-radius:7px;letter-spacing:-0.1px;position:relative}
+.ni svg{width:16px;height:16px;color:var(--on-variant);flex:none}
+.ni:hover{background:var(--sc-low);color:var(--on-surface)}
+.ni.on{background:var(--sc-high);color:var(--on-surface);font-weight:500}
+.ni.on svg{color:var(--on-surface)}
+.sb-foot{margin-top:auto;padding:10px 12px 12px;border-top:1px solid var(--outline)}
+.user{display:flex;align-items:center;gap:9px;padding:5px 6px;border-radius:8px;cursor:pointer;transition:.12s}
+.user:hover{background:var(--sc-lowest)}
+.avatar{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--on-primary);flex:none;background:linear-gradient(135deg,var(--primary),var(--primary-high))}
+.user .uname{font-size:13px;font-weight:500;letter-spacing:-0.1px}
+.user>svg{width:11px;height:11px;color:var(--muted);margin-left:auto}
+
+/* ---------- Main / topbar ---------- */
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{height:52px;border-bottom:1px solid var(--outline);display:flex;align-items:center;padding:0 14px;gap:8px;flex-shrink:0;background:var(--bg)}
+.tb-left{display:flex;align-items:center;gap:8px;min-width:200px}
+.tb-toggle{width:28px;height:28px;border-radius:7px;border:none;background:transparent;color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.12s;flex:none}
+.tb-toggle:hover{background:var(--sc-lowest);color:var(--on-variant)}
+.crumb{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--on-variant)}
+.crumb .cur{color:var(--on-surface);font-weight:500}
+.crumb .sep{color:var(--muted)}
+.crumb a{color:var(--on-variant);text-decoration:none;cursor:pointer}
+.crumb a:hover{color:var(--on-surface)}
+.tb-search{margin:0 auto;display:flex;align-items:center;gap:8px;background:var(--sc-lowest);border:1px solid var(--outline);border-radius:100px;padding:6px 12px;width:360px;max-width:36vw;cursor:text;transition:.15s}
+.tb-search:hover{border-color:var(--sc-highest)}
+.tb-search>svg{color:var(--muted);flex:none}
+.tb-search input{border:none;background:transparent;outline:none;width:100%;font-size:12.5px;color:var(--on-variant);font-family:inherit}
+.tb-search input::placeholder{color:var(--muted)}
+.kbd{font-size:10px;color:var(--muted);background:var(--surface);border:1px solid var(--outline);border-radius:5px;padding:1px 6px;flex:none}
+.tb-right{display:flex;align-items:center;gap:8px;min-width:200px;justify-content:flex-end}
+.icon-btn{width:34px;height:34px;border-radius:100px;border:1px solid var(--outline);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--on-variant);transition:.12s}
+.icon-btn:hover{background:var(--sc-lowest);border-color:var(--sc-highest)}
+.ask-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:100px;border:1px solid var(--outline);background:var(--surface);color:var(--on-surface);font-size:12px;font-weight:500;cursor:pointer;transition:.12s}
+.ask-btn:hover{background:var(--sc-lowest);border-color:var(--sc-highest)}
+.ask-btn svg{color:var(--primary)}
+
+/* ---------- Pages ---------- */
+.content{flex:1;overflow-y:auto;min-height:0}
+.page{display:none}
+.page.on{display:block}
+.wrap{max-width:1040px;margin:0 auto;padding:26px 32px 60px}
+.page-title{font-size:22px;font-weight:600;letter-spacing:-0.3px;margin-bottom:2px}
+.page-sub{font-size:13px;color:var(--on-variant)}
+
+/* segmented tabs */
+.tabs{display:flex;gap:2px}
+.tab{padding:5px 12px;border-radius:7px;font-size:13px;font-weight:500;color:var(--on-variant);cursor:pointer;border:none;background:transparent;transition:.12s}
+.tab:hover{color:var(--on-surface)}
+.tab.on{background:var(--sc-high);color:var(--on-surface)}
+
+.row-between{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.toolbar{display:flex;align-items:center;gap:8px}
+.tool{width:30px;height:30px;border-radius:7px;border:1px solid transparent;background:transparent;display:flex;align-items:center;justify-content:center;color:var(--on-variant);cursor:pointer;transition:.12s}
+.tool:hover{background:var(--sc-lowest)}
+.viewtoggle{display:flex;border:1px solid var(--outline);border-radius:8px;overflow:hidden}
+.viewtoggle button{width:32px;height:30px;border:none;background:var(--surface);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.12s}
+.viewtoggle button.on{background:var(--sc-high);color:var(--on-surface)}
+.btn-primary{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:8px;border:1px solid var(--primary-high);background:var(--primary);color:var(--on-primary);font-size:13px;font-weight:500;cursor:pointer;transition:.12s}
+.btn-primary:hover{background:var(--primary-high)}
+.btn-ghost{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;border:1px solid var(--outline);background:var(--surface);color:var(--on-surface);font-size:13px;font-weight:500;cursor:pointer;transition:.12s}
+.btn-ghost:hover{background:var(--sc-lowest)}
+
+/* ---------- Table ---------- */
+.table{width:100%;border-collapse:collapse;font-size:13px}
+.table th{text-align:left;font-weight:400;color:var(--muted);font-size:12px;padding:10px 14px;border-bottom:1px solid var(--outline)}
+.table td{padding:12px 14px;border-bottom:1px solid var(--outline-variant);color:var(--on-surface)}
+.table tbody tr:hover,.table tbody tr:hover{background:var(--sc-lowest);cursor:pointer}
+.cell-id{color:var(--on-variant)}
+.cell-strong{font-weight:500}
+.avatar-sm{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:#fff;flex:none;vertical-align:middle}
+.contact{display:inline-flex;align-items:center;gap:8px}
+.proj{display:inline-flex;align-items:center;gap:8px}
+.proj-ic{width:18px;height:18px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#fff;flex:none}
+.pill{display:inline-flex;align-items:center;padding:2px 9px;border-radius:100px;font-size:11.5px;font-weight:500;white-space:nowrap}
+.p-hold{background:rgba(168,118,17,.14);color:#8d6715}
+.p-res{background:rgba(101,122,50,.16);color:#52671F}
+.p-neg{background:var(--sc);color:var(--on-variant)}
+.p-view{background:rgba(101,122,50,.12);color:#52671F}
+.p-paused{background:var(--sc-high);color:var(--on-variant)}
+.p-cold{background:var(--sc-high);color:var(--muted)}
+.p-avail{background:var(--sc-high);color:var(--on-variant)}
+
+.table-foot{display:flex;align-items:center;justify-content:space-between;padding:14px 4px;font-size:12.5px;color:var(--on-variant)}
+.pager{display:flex;align-items:center;gap:4px}
+.pg{width:26px;height:26px;border-radius:6px;border:1px solid transparent;background:transparent;color:var(--on-variant);cursor:pointer;font-size:12.5px}
+.pg.on{background:var(--sc-high);color:var(--on-surface);font-weight:500}
+.pg:hover{background:var(--sc-lowest)}
+
+/* ---------- Board ---------- */
+.board{display:flex;gap:14px;padding:4px 2px 20px;overflow-x:auto}
+.col{width:230px;flex:none}
+.col-head{margin-bottom:10px}
+.col-title{font-size:13px;font-weight:600}
+.col-count{font-size:12px;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--outline);border-radius:var(--r-lg);padding:12px;margin-bottom:10px;cursor:pointer;transition:.12s}
+.card:hover{box-shadow:var(--sh-sm);border-color:var(--sc-highest)}
+.card-proj{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;margin-bottom:8px}
+.card-row{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--on-variant);margin:3px 0}
+.card-row svg{width:12px;height:12px;color:var(--muted);flex:none}
+.card-foot{display:flex;align-items:center;gap:7px;margin-top:9px;padding-top:9px;border-top:1px solid var(--outline-variant);font-size:12px;color:var(--on-variant)}
+.card-foot .ago{margin-left:auto;color:var(--muted)}
+
+/* ---------- Opportunity detail ---------- */
+.opp-grid{display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:start}
+.dcard{background:var(--surface);border:1px solid var(--outline);border-radius:var(--r-lg);padding:18px;margin-bottom:16px}
+.dcard h3{font-size:14px;font-weight:600;margin-bottom:14px}
+.kv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px 20px}
+.kv .k{font-size:12px;color:var(--muted);margin-bottom:3px}
+.kv .v{font-size:13px;color:var(--on-surface)}
+.mini-th{display:grid;grid-template-columns:80px 1fr 100px 90px 80px;gap:10px;font-size:12px;color:var(--muted);padding:0 0 8px;border-bottom:1px solid var(--outline)}
+.mini-tr{display:grid;grid-template-columns:80px 1fr 100px 90px 80px;gap:10px;font-size:13px;padding:11px 0;border-bottom:1px solid var(--outline-variant);align-items:center}
+.timeline .tl{display:flex;gap:10px;padding:8px 0}
+.tl-dot{width:20px;height:20px;border-radius:6px;background:var(--sc);display:flex;align-items:center;justify-content:center;font-size:10px;flex:none;color:var(--on-variant)}
+.tl-t{font-size:13px;font-weight:500}
+.tl-d{font-size:12px;color:var(--muted)}
+.side-h{font-size:14px;font-weight:600;margin-bottom:14px}
+.side-kv{margin-bottom:14px}
+.side-kv .k{font-size:12px;color:var(--muted);margin-bottom:2px}
+.side-kv .v{font-size:13px}
+.rep{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.rep .avatar{width:38px;height:38px;font-size:13px}
+.status-sel{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;border:1px solid var(--outline);background:var(--surface);font-size:12.5px;font-weight:500;color:var(--on-surface);cursor:pointer}
+.status-sel .dot{width:7px;height:7px;border-radius:50%;background:#8d6715}
+
+/* notes/tasks */
+.note{padding:12px 0;border-bottom:1px solid var(--outline-variant)}
+.note-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.note-head .who{font-size:13px;font-weight:500}
+.note-head .when{font-size:12px;color:var(--muted);margin-left:auto}
+.note-body{font-size:13px;color:var(--on-variant)}
+.task{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--outline-variant)}
+.check{width:16px;height:16px;border-radius:5px;border:1.5px solid var(--sc-highest);flex:none;display:flex;align-items:center;justify-content:center}
+.check.done{background:var(--primary);border-color:var(--primary);color:#fff}
+.task .tt{font-size:13px}
+.task .td{font-size:12px;color:var(--muted)}
+.progress{height:5px;border-radius:3px;background:var(--sc-high);overflow:hidden;margin:6px 0 2px}
+.progress>span{display:block;height:100%;background:var(--primary)}
+.badge-prio{margin-left:auto;font-size:10px;font-weight:600;padding:2px 8px;border-radius:100px}
+.prio-high{background:rgba(168,118,17,.14);color:#8d6715}
+.prio-low{background:var(--sc-high);color:var(--on-variant)}
+.uploader{border:1.5px dashed var(--sc-highest);border-radius:var(--r-lg);padding:30px;text-align:center;color:var(--on-variant);cursor:pointer;transition:.12s;background:var(--sc-lowest)}
+.uploader:hover{border-color:var(--primary-low);background:var(--sc-low)}
+.uploader .big{font-size:13px;color:var(--on-surface);margin:8px 0 3px}
+.uploader .small{font-size:12px;color:var(--muted)}
+.filerow{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--outline-variant);font-size:13px}
+.filerow .fsz{color:var(--muted);font-size:12px}
+.subtabs{display:flex;gap:16px;border-bottom:1px solid var(--outline);margin:16px 0 4px}
+.subtab{padding:8px 0;font-size:13px;color:var(--on-variant);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.subtab.on{color:var(--on-surface);border-color:var(--primary);font-weight:500}
+.storage-bar{height:6px;border-radius:3px;background:var(--sc-high);overflow:hidden;margin:8px 0 4px}
+.storage-bar>span{display:block;height:100%;background:#8aa653;width:5%}
+
+/* ---------- Home ---------- */
+.home{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:0 24px}
+.home h1{font-size:26px;font-weight:500;letter-spacing:-0.3px;margin-bottom:22px}
+.composer{width:100%;max-width:640px;background:var(--surface);border:1px solid var(--outline);border-radius:var(--r-xl);padding:16px;box-shadow:var(--sh-sm)}
+.composer textarea{width:100%;border:none;outline:none;resize:none;font-family:inherit;font-size:14px;color:var(--on-surface);background:transparent;min-height:46px}
+.composer textarea::placeholder{color:var(--muted)}
+.composer-foot{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.scope{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:7px;background:var(--sc-lowest);border:1px solid var(--outline);font-size:12px;color:var(--on-variant);cursor:pointer}
+.send{padding:6px 14px;border-radius:7px;border:none;background:var(--primary-low);color:var(--primary-high);font-size:12.5px;font-weight:600;cursor:pointer}
+.send:hover{background:var(--primary);color:var(--on-primary)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:16px}
+.chip{display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:100px;border:1px solid var(--outline);background:var(--surface);font-size:12.5px;color:var(--on-variant);cursor:pointer;transition:.12s}
+.chip:hover{background:var(--sc-lowest);color:var(--on-surface)}
+.chip svg{width:13px;height:13px;color:var(--muted)}
+
+/* ---------- Chat history ---------- */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:70%;color:var(--muted);gap:6px}
+
+/* ---------- Ask panel (drawer) ---------- */
+.ask-panel{position:fixed;top:0;right:0;bottom:0;width:340px;background:var(--surface);border-left:1px solid var(--outline);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .22s cubic-bezier(.4,0,.2,1);z-index:50;box-shadow:var(--sh-xl)}
+.ask-panel.open{transform:translateX(0)}
+.ap-head{height:52px;display:flex;align-items:center;gap:8px;padding:0 14px;border-bottom:1px solid var(--outline)}
+.ap-head .t{font-size:13px;font-weight:500}
+.ap-head .sp{margin-left:auto;display:flex;gap:4px}
+.ap-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column}
+.ap-suggests{margin-top:auto}
+.ap-suggests .h{font-size:15px;font-weight:500;margin-bottom:12px}
+.suggest{display:flex;align-items:center;gap:9px;padding:9px 4px;font-size:13px;color:var(--on-variant);cursor:pointer;border-radius:7px}
+.suggest:hover{color:var(--on-surface)}
+.suggest svg{width:15px;height:15px;color:var(--muted);flex:none}
+.ap-foot{padding:12px;border-top:1px solid var(--outline)}
+.ap-input{background:var(--sc-lowest);border:1px solid var(--outline);border-radius:var(--r-lg);padding:10px}
+.ap-input textarea{width:100%;border:none;outline:none;resize:none;background:transparent;font-family:inherit;font-size:13px;min-height:34px;color:var(--on-surface)}
+.ap-input textarea::placeholder{color:var(--muted)}
+.ap-input-foot{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
+.msg{margin-bottom:14px}
+.msg .meta{font-size:11px;color:var(--muted);margin-bottom:6px}
+.msg .thought{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--on-variant);background:var(--sc-lowest);padding:4px 9px;border-radius:100px;margin-bottom:8px}
+.msg p{font-size:13px;color:var(--on-surface);margin-bottom:8px}
+.msg .lead{color:var(--on-variant)}
+.msg strong{font-weight:600}
+.msg ul{margin:4px 0 10px;padding-left:16px}
+.msg li{font-size:13px;color:var(--on-variant);margin-bottom:8px}
+.tag{display:inline-block;background:var(--sc-high);border-radius:5px;padding:1px 7px;font-size:12px;color:var(--on-surface)}
+.scrim{position:fixed;inset:0;background:rgba(20,20,19,.12);opacity:0;pointer-events:none;transition:.2s;z-index:49}
+.scrim.on{opacity:1;pointer-events:auto}
+.placeholder-empty{display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-top">
+      <div class="logo">Bricly</div>
+      <button class="ws" onclick="toggleTheme()" title="Toggle theme / workspace">
+        <span class="ws-dot"></span><span class="ws-name">Bricly OS</span>
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 4.5L6 7.5 9 4.5"/></svg>
+      </button>
+    </div>
+    <nav class="nav">
+      <div class="nav-label">Manage</div>
+      <div class="ni on" data-page="home" onclick="go('home')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1.5 6L7 1.5 12.5 6v6.5a1 1 0 01-1 1h-3v-4h-3v4h-3a1 1 0 01-1-1V6z"/></svg>Home</div>
+      <div class="ni" data-page="newchat" onclick="go('newchat')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 4.5v5M4.5 7h5"/></svg>New Chat</div>
+      <div class="ni" data-page="dashboard" onclick="go('dashboard')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 7l3-2"/></svg>Dashboard</div>
+      <div class="ni" data-page="pipeline" onclick="go('pipeline')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M1.5 12.5V8M7 12.5V3M12.5 12.5V6"/></svg>Pipeline</div>
+      <div class="ni" data-page="properties" onclick="go('properties')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1" y="4" width="12" height="9" rx="1"/><path d="M4 4V3a3 3 0 016 0v1"/><circle cx="7" cy="8.5" r="1.3"/></svg>Properties</div>
+      <div class="ni" data-page="developments" onclick="go('developments')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1 13V5l6-4 6 4v8H1z"/><path d="M5 13v-3h4v3"/></svg>Developments</div>
+      <div class="ni" data-page="contacts" onclick="go('contacts')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="7" cy="5" r="2.6"/><path d="M2 13c0-2.8 2.2-4.5 5-4.5s5 1.7 5 4.5"/></svg>Contacts</div>
+      <div class="nav-label">Tools</div>
+      <div class="ni" data-page="calendar" onclick="go('calendar')"><svg viewBox="0 0 14 14" fill="currentColor"><rect x="1" y="2" width="12" height="11" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M1 5h12"/><path d="M4 1v2M10 1v2"/><rect x="3" y="7" width="2" height="2" rx="0.5"/><rect x="6" y="7" width="2" height="2" rx="0.5"/><rect x="9" y="7" width="2" height="2" rx="0.5"/></svg>Calendar</div>
+      <div class="ni" data-page="reports" onclick="go('reports')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="2.5" y="1.5" width="9" height="11" rx="1.5"/><path d="M4.5 4.5h5M4.5 7h5M4.5 9.5h3"/></svg>Reports</div>
+      <div class="ni" data-page="settings" onclick="go('settings')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="7" cy="7" r="2"/><path d="M7 1v1.5M7 11.5V13M13 7h-1.5M2.5 7H1M11.3 2.7l-1 1M3.7 10.3l-1 1M11.3 11.3l-1-1M3.7 3.7l-1-1"/></svg>Settings</div>
+    </nav>
+    <div class="sb-foot">
+      <div class="user">
+        <div class="avatar">SU</div><div class="uname">Sam</div>
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 4.5L6 7.5 9 4.5"/></svg>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+    <div class="topbar">
+      <div class="tb-left">
+        <button class="tb-toggle" onclick="document.getElementById('sidebar').classList.toggle('collapsed')" title="Toggle sidebar"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="2.5" width="13" height="11" rx="2"/><path d="M6 2.5v11"/></svg></button>
+        <div class="crumb" id="crumb"><span class="cur">Home</span></div>
+      </div>
+      <div class="tb-search" onclick="this.querySelector('input').focus()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg>
+        <input placeholder="Search or jump into"><span class="kbd">⌘/K</span>
+      </div>
+      <div class="tb-right">
+        <button class="icon-btn" title="Notifications"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><path d="M7 1a4 4 0 014 4v3l1 2H2l1-2V5a4 4 0 014-4z" opacity=".75"/><path d="M5.5 11a1.5 1.5 0 003 0" opacity=".75"/></svg></button>
+        <button class="ask-btn" onclick="openAsk()"><svg width="13" height="13" viewBox="0 0 14 14" fill="currentColor"><path d="M7 0l1.5 4.5L13 6 8.5 7.5 7 12 5.5 7.5 1 6l4.5-1.5L7 0z"/></svg>Ask</button>
+      </div>
+    </div>
+
+    <div class="content" id="content">
+      <!-- ===== HOME ===== -->
+      <section class="page on" id="p-home">
+        <div class="home">
+          <h1>What can I help with?</h1>
+          <div class="composer">
+            <textarea placeholder="Ask me anything..."></textarea>
+            <div class="composer-foot">
+              <button class="scope">All pages <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 4.5L6 7.5 9 4.5"/></svg></button>
+              <button class="send">Ask Bricly</button>
+            </div>
+          </div>
+          <div class="chips">
+            <button class="chip" onclick="go('pipeline')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="2" width="10" height="10" rx="2"/><path d="M2 5.5h10"/></svg>Recap today</button>
+            <button class="chip" onclick="go('pipeline')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 12V8M7 12V3M12 12V6"/></svg>Pipeline Health</button>
+            <button class="chip"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 2"/></svg>Generate roadmap</button>
+            <button class="chip"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="2" width="10" height="10" rx="2"/><path d="M4.5 7l2 2 3-4"/></svg>Create todo's</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PIPELINE ===== -->
+      <section class="page" id="p-pipeline">
+        <div class="wrap">
+          <div class="page-title" style="margin-bottom:16px">Pipeline</div>
+          <div class="row-between" style="margin-bottom:14px">
+            <div class="tabs">
+              <button class="tab on">All Items</button>
+              <button class="tab">Active Work</button>
+              <button class="tab">Post Viewing</button>
+            </div>
+            <div class="toolbar">
+              <button class="tool" title="Search"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg></button>
+              <button class="tool" title="Sort"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 4h10M4 7h6M6 10h2"/></svg></button>
+              <div class="viewtoggle">
+                <button id="vt-table" class="on" onclick="setPipeView('table')" title="Table"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="2.5" width="11" height="9" rx="1.5"/><path d="M1.5 5.5h11M5.5 5.5v6"/></svg></button>
+                <button id="vt-board" onclick="setPipeView('board')" title="Board"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="2" width="3.5" height="10" rx="1"/><rect x="9" y="2" width="3.5" height="7" rx="1"/></svg></button>
+              </div>
+              <button class="btn-primary">New <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 4.5L6 7.5 9 4.5"/></svg></button>
+            </div>
+          </div>
+
+          <div id="pipe-table">
+            <table class="table">
+              <thead><tr><th>ID</th><th>Contact</th><th>Project</th><th>Unit</th><th>Stage</th><th>Source</th><th>Offer</th></tr></thead>
+              <tbody id="pipe-rows"></tbody>
+            </table>
+            <div class="table-foot">
+              <span>Showing 1 to 10 of 100 Entries</span>
+              <div class="pager">
+                <button class="pg">‹</button>
+                <button class="pg on">1</button><button class="pg">2</button><button class="pg">3</button>
+                <button class="pg">›</button>
+              </div>
+              <span>Show 10 <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" style="vertical-align:middle"><path d="M3 4.5L6 7.5 9 4.5"/></svg></span>
+            </div>
+          </div>
+
+          <div id="pipe-board" style="display:none"><div class="board" id="board-cols"></div></div>
+        </div>
+      </section>
+
+      <!-- ===== OPPORTUNITY DETAIL ===== -->
+      <section class="page" id="p-opp">
+        <div class="wrap">
+          <div class="row-between" style="align-items:flex-start;margin-bottom:16px">
+            <div>
+              <div class="page-title">Mike Gatt</div>
+              <div class="page-sub">Dolphin Court · #CM9802 · Hold</div>
+            </div>
+            <button class="status-sel"><span class="dot"></span>On Hold <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 4.5L6 7.5 9 4.5"/></svg></button>
+          </div>
+          <div class="tabs" style="margin-bottom:18px">
+            <button class="tab on" onclick="oppTab('overview',this)">Overview</button>
+            <button class="tab" onclick="oppTab('notes',this)">Notes &amp; Tasks</button>
+            <button class="tab" onclick="oppTab('deals',this)">Deals &amp; Contracts</button>
+            <button class="tab" onclick="oppTab('bids',this)">Bid History</button>
+          </div>
+
+          <!-- Overview -->
+          <div class="opp-tab on" id="ot-overview">
+            <div class="opp-grid">
+              <div>
+                <div class="dcard">
+                  <h3>Opportunity overview</h3>
+                  <div class="kv-grid">
+                    <div class="kv"><div class="k">Lifecycle</div><div class="v">Active</div></div>
+                    <div class="kv"><div class="k">Lead Source</div><div class="v">Meta Lead Form</div></div>
+                    <div class="kv"><div class="k">Next Step</div><div class="v">Hold approval and POS prep</div></div>
+                    <div class="kv"><div class="k">Days in Stage</div><div class="v">3</div></div>
+                    <div class="kv"><div class="k">Payment Plan</div><div class="v">10/20/70</div></div>
+                    <div class="kv"><div class="k">Deposit</div><div class="v">€28,000</div></div>
+                  </div>
+                </div>
+                <div class="dcard">
+                  <h3>Linked units</h3>
+                  <div class="mini-th"><span>Unit</span><span>Unit</span><span>Type</span><span>Price</span><span>Status</span></div>
+                  <div class="mini-tr"><span class="cell-id">#CM9802</span><span class="proj"><span class="proj-ic" style="background:#657A32">◈</span>Dolphin Court</span><span>Maisonette</span><span>€280,000</span><span class="pill p-avail">Available</span></div>
+                  <div class="mini-tr"><span class="cell-id">#CM9802</span><span class="proj"><span class="proj-ic" style="background:#657A32">◈</span>Dolphin Court</span><span>Maisonette</span><span>€280,000</span><span class="pill p-hold">Hold</span></div>
+                  <div class="mini-tr"><span class="cell-id">#CM9802</span><span class="proj"><span class="proj-ic" style="background:#8aa653">◈</span>Verdala</span><span>Maisonette</span><span>€280,000</span><span class="pill p-avail">Available</span></div>
+                  <div style="font-size:12px;color:var(--muted);margin-top:10px">Showing 2 of 12 units</div>
+                </div>
+                <div class="dcard">
+                  <h3>Offer &amp; payment terms</h3>
+                  <div class="kv-grid" style="grid-template-columns:repeat(3,1fr)">
+                    <div class="kv"><div class="k">Offer</div><div class="v">€280,000</div></div>
+                    <div class="kv"><div class="k">Price Exception</div><div class="v">Not required</div></div>
+                    <div class="kv"><div class="k">Payment Terms</div><div class="v">10/20/70</div></div>
+                  </div>
+                </div>
+                <div class="dcard timeline">
+                  <h3>Activity timeline</h3>
+                  <div class="tl"><div class="tl-dot">◷</div><div><div class="tl-t">July 10 · Meeting Name</div><div class="tl-d">Hold request submitted with client note</div></div></div>
+                  <div class="tl"><div class="tl-dot">◷</div><div><div class="tl-t">July 10 · Meeting Name</div><div class="tl-d">Hold request submitted with client note</div></div></div>
+                  <div class="tl"><div class="tl-dot">◷</div><div><div class="tl-t">July 10 · Meeting Name</div><div class="tl-d">Hold request submitted with client note</div></div></div>
+                </div>
+              </div>
+              <div>
+                <div class="dcard">
+                  <div class="rep">
+                    <div style="flex:1"><div class="side-h" style="margin-bottom:2px">Contact profile</div></div>
+                  </div>
+                  <div class="rep">
+                    <div class="avatar">SU</div>
+                    <div><div class="side-kv" style="margin:0"><div class="k">Assigned Rep</div><div class="v">Sam Urpani</div></div></div>
+                  </div>
+                  <div class="side-kv"><div class="k">Name</div><div class="v">Mike Gatt</div></div>
+                  <div class="side-kv"><div class="k">Email</div><div class="v">mike.gatt@email.com</div></div>
+                  <div class="side-kv" style="margin:0"><div class="k">Phone</div><div class="v">+356 9912 3456</div></div>
+                </div>
+                <div class="dcard">
+                  <div class="side-h">Approval gates</div>
+                  <div class="side-kv"><div class="k">Price Exception</div><div class="v">No</div></div>
+                  <div class="side-kv"><div class="k">Hold Approval</div><div class="v">Waiting manager approval</div></div>
+                  <div class="side-kv" style="margin:0"><div class="k">Reservation Approval</div><div class="v">Not requested</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notes & Tasks -->
+          <div class="opp-tab" id="ot-notes" style="display:none">
+            <div class="opp-grid">
+              <div>
+                <div class="dcard">
+                  <div class="row-between" style="margin-bottom:6px"><h3 style="margin:0">Notes</h3><button class="btn-ghost" style="padding:4px 10px">+ Add</button></div>
+                  <div class="note"><div class="note-head"><span class="avatar-sm" style="background:#657A32">LC</span><span class="who">Luca Camilleri</span><span class="when">Today 10:24</span></div><div class="note-body">Hold request submitted. Client is very motivated - visited twice, shortlisted #CM9802 (maisonette with terrace) and #CM9803 (penthouse). Need to secure before end of month.</div></div>
+                  <div class="note"><div class="note-head"><span class="avatar-sm" style="background:#8aa653">LC</span><span class="who">Luca Camilleri</span><span class="when">Today 10:24</span></div><div class="note-body">Hold request submitted. Client is very motivated - visited twice, shortlisted #CM9802 and #CM9803.</div></div>
+                  <div class="note" style="border:none"><div class="note-head"><span class="avatar-sm" style="background:#b58a3a">LC</span><span class="who">Luca Camilleri</span><span class="when">Today 10:24</span></div><div class="note-body">Need to secure before end of month.</div></div>
+                </div>
+                <div class="dcard">
+                  <div class="row-between" style="margin-bottom:10px"><h3 style="margin:0">Reminders</h3><button class="btn-ghost" style="padding:4px 10px">+ Add</button></div>
+                  <div class="mini-th" style="grid-template-columns:1fr 120px"><span>Description</span><span>Due On</span></div>
+                  <div class="mini-tr" style="grid-template-columns:1fr 120px"><span>Follow up on finance confirmation</span><span>Today</span></div>
+                  <div class="mini-tr" style="grid-template-columns:1fr 120px"><span>Send updated floor plans for #CM9803</span><span>Tomorrow</span></div>
+                  <div class="mini-tr" style="grid-template-columns:1fr 120px;border:none"><span>Check if legal team received KYC</span><span>28th Jun</span></div>
+                </div>
+              </div>
+              <div>
+                <div class="dcard">
+                  <div class="row-between" style="margin-bottom:4px"><h3 style="margin:0">Tasks</h3><button class="btn-ghost" style="padding:4px 10px">+ Add</button></div>
+                  <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted)"><span>1 of 3 complete</span><span>33%</span></div>
+                  <div class="progress"><span style="width:33%"></span></div>
+                  <div class="task"><div class="check done"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.5 6.5l2.5 2.5 4.5-5"/></svg></div><div><div class="tt">Book second viewing</div><div class="td">Due yesterday</div></div><span class="badge-prio prio-high">High</span></div>
+                  <div class="task"><div class="check"></div><div><div class="tt">Share personalised buyer pack</div><div class="td">Due yesterday</div></div><span class="badge-prio prio-low">Low</span></div>
+                  <div class="task" style="border:none"><div class="check"></div><div><div class="tt">Submit hold request to manager</div><div class="td">Due Today</div></div><span class="badge-prio prio-high">High</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Deals & Contracts -->
+          <div class="opp-tab" id="ot-deals" style="display:none">
+            <div class="opp-grid">
+              <div>
+                <div class="dcard">
+                  <h3>Documents</h3>
+                  <div class="uploader">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.3"><path d="M12 16V4M8 8l4-4 4 4"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
+                    <div class="big">Click to upload or drag &amp; drop contract &amp; deal files here</div>
+                    <div class="small">KYC, POS, contracts, payment receipts - max 25 MB each</div>
+                  </div>
+                  <div class="subtabs">
+                    <div class="subtab on">All Files</div><div class="subtab">KYC</div><div class="subtab">POS</div><div class="subtab">Contract</div><div class="subtab">Payments</div>
+                  </div>
+                  <div class="mini-th" style="grid-template-columns:1fr 90px 90px 40px"><span>Name</span><span>Size</span><span>Status</span><span></span></div>
+                  <div class="mini-tr" style="grid-template-columns:1fr 90px 90px 40px"><span>Mike-gatt-Id.pdf</span><span class="fsz">1.2 MB</span><span class="pill p-avail">KYC</span><span>⤓</span></div>
+                  <div class="mini-tr" style="grid-template-columns:1fr 90px 90px 40px;border:none"><span>Mike-gatt-passport.pdf</span><span class="fsz">3 MB</span><span class="pill p-avail">KYC</span><span>⤓</span></div>
+                </div>
+              </div>
+              <div>
+                <div class="dcard">
+                  <div class="side-h">Document checklist</div>
+                  <div class="task"><div class="check done"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.5 6.5l2.5 2.5 4.5-5"/></svg></div><div class="tt">Passport / ID</div></div>
+                  <div class="task"><div class="check done"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.5 6.5l2.5 2.5 4.5-5"/></svg></div><div class="tt">Proof of address</div></div>
+                  <div class="task"><div class="check"></div><div class="tt">Source of funds declaration</div></div>
+                  <div class="task"><div class="check"></div><div class="tt">Promise of Sale (POS)</div></div>
+                  <div class="task" style="border:none"><div class="check"></div><div class="tt">Deposit receipt</div></div>
+                </div>
+                <div class="dcard">
+                  <div class="side-h">Storage used</div>
+                  <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--on-variant)"><span>Total</span><span>24 MB</span></div>
+                  <div class="storage-bar"><span></span></div>
+                  <div class="small" style="font-size:12px;color:var(--muted)">of 500 MB deal limit</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bid History -->
+          <div class="opp-tab" id="ot-bids" style="display:none">
+            <div class="dcard">
+              <h3>Linked units</h3>
+              <div class="mini-th" style="grid-template-columns:70px 1fr 90px 100px 1fr 90px"><span>Date</span><span>By</span><span>Amount</span><span>Type</span><span>Notes</span><span>Result</span></div>
+              <div id="bid-rows"></div>
+            </div>
+            <div class="opp-grid">
+              <div class="dcard">
+                <div class="side-h">Negotiation summary</div>
+                <div class="side-kv"><div class="k">Opening Offer</div><div class="v">€260,000</div></div>
+                <div class="side-kv"><div class="k">Accepted At</div><div class="v">€280,000</div></div>
+                <div class="side-kv"><div class="k">Rounds</div><div class="v">4</div></div>
+                <div class="side-kv" style="margin:0"><div class="k">Movement</div><div class="v">+€20,000</div></div>
+              </div>
+              <div class="dcard timeline">
+                <div class="side-h">Price Movement</div>
+                <div class="tl"><div class="tl-dot">◷</div><div><div class="tl-t">July 10 · €280,000</div><div class="tl-d">Increased by €10,000</div></div></div>
+                <div class="tl"><div class="tl-dot">◷</div><div><div class="tl-t">July 10 · Meeting Name</div><div class="tl-d">Hold request submitted with client note</div></div></div>
+                <div class="tl"><div class="tl-dot">◷</div><div><div class="tl-t">July 10 · Meeting Name</div><div class="tl-d">Hold request submitted with client note</div></div></div>
+                <div class="tl"><div class="tl-dot">◷</div><div><div class="tl-t">July 10 · Meeting Name</div><div class="tl-d">Hold request submitted with client note</div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== NEW CHAT / CHAT HISTORY ===== -->
+      <section class="page" id="p-newchat">
+        <div class="wrap">
+          <div class="page-title" style="margin-bottom:16px">Chat history</div>
+          <div class="row-between" style="margin-bottom:14px">
+            <div class="tabs"><button class="tab on">All Chats</button><button class="tab">Personal</button><button class="tab">Shared</button></div>
+            <div class="toolbar">
+              <button class="tool" title="Search"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg></button>
+              <button class="tool" title="Sort"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 4h10M4 7h6M6 10h2"/></svg></button>
+              <button class="btn-primary" onclick="openAsk()">New <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 4.5L6 7.5 9 4.5"/></svg></button>
+            </div>
+          </div>
+          <table class="table">
+            <thead><tr><th>Chat</th><th>Last Edited By</th><th>Last Edited</th></tr></thead>
+            <tbody id="chat-rows"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===== PLACEHOLDER PAGES ===== -->
+      <section class="page" id="p-dashboard"><div class="placeholder-empty">Dashboard</div></section>
+      <section class="page" id="p-properties"><div class="placeholder-empty">Properties</div></section>
+      <section class="page" id="p-developments"><div class="placeholder-empty">Developments</div></section>
+      <section class="page" id="p-contacts"><div class="placeholder-empty">Contacts</div></section>
+      <section class="page" id="p-calendar"><div class="placeholder-empty">Calendar</div></section>
+      <section class="page" id="p-reports"><div class="placeholder-empty">Reports</div></section>
+      <section class="page" id="p-settings"><div class="placeholder-empty">Settings</div></section>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ASK PANEL ============ -->
+<div class="scrim" id="scrim" onclick="closeAsk()"></div>
+<aside class="ask-panel" id="askPanel">
+  <div class="ap-head">
+    <span class="t">New Chat</span>
+    <div class="sp">
+      <button class="icon-btn" style="width:28px;height:28px;border:none" title="History"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 1.5"/></svg></button>
+      <button class="icon-btn" style="width:28px;height:28px;border:none" onclick="closeAsk()" title="Close"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3l8 8M11 3l-8 8"/></svg></button>
+    </div>
+  </div>
+  <div class="ap-body" id="apBody">
+    <div class="ap-suggests" id="apSuggests">
+      <div class="h">How can I help you today?</div>
+      <div class="suggest" onclick="askSample()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="2" width="10" height="10" rx="2"/><path d="M4.5 5h5M4.5 7.5h3"/></svg>Summarize my weekly deals</div>
+      <div class="suggest" onclick="askSample()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4"/><path d="M9 9l3 3"/></svg>Find deals that need a follow up</div>
+      <div class="suggest" onclick="askSample()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 2v10M2 7h10"/></svg>Brainstorm ideas to chase cold leads</div>
+      <div class="suggest" onclick="askSample()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 2"/></svg>Create a pipeline roadmap for Q3</div>
+    </div>
+  </div>
+  <div class="ap-foot">
+    <div class="ap-input">
+      <textarea placeholder="Ask me anything..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();askSample()}"></textarea>
+      <div class="ap-input-foot">
+        <button class="scope">Pipeline <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 4.5L6 7.5 9 4.5"/></svg></button>
+        <button class="send" onclick="askSample()">Ask Bricly</button>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<script>
+// ---------- Data ----------
+const AC = ['#657A32','#8aa653','#b58a3a','#5a7d8c','#a05a5a','#6a5a9c','#3f7d5a','#9c6a3f'];
+function color(seed){let h=0;for(const c of seed)h=(h*31+c.charCodeAt(0))>>>0;return AC[h%AC.length];}
+function initials(name){return name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();}
+
+const PROJ_IC = {'La Lex':'#657A32','Mercury':'#8aa653','Verdala':'#5a7d8c','Onyx Rise':'#6a5a9c'};
+const rows = [
+  ['OPP-1042','Mike Gatt','La Lex','#CM9802','Hold','p-hold','Meta Lead Form','€280k'],
+  ['OPP-1038','Luca Camilleri','La Lex','#CM9803','Reservation','p-res','Walk in','€350k'],
+  ['OPP-1027','Ben Zammit','Mercury','#CM2701','Negotiating','p-neg','Google Ads','€370k'],
+  ['OPP-1041','Daniel Vella','Mercury','#CM2702','Viewing Booked','p-view','Referral','€450k'],
+  ['OPP-1047','Daniela Spiteri','Verdala','#CM4509','Paused','p-paused','Website','€420k'],
+  ['OPP-1045','Emma Farrugia','Verdala','#CM4510','Cold','p-cold','Agency Partner','€280k'],
+  ['OPP-1032','Julia Micallef','Onyx Rise','#CM9702','Negotiating','p-neg','Meta Lead Form','€350k'],
+  ['OPP-1036','Maria Borg','Onyx Rise','#CM9703','Viewing Booked','p-view','Portal','€350k'],
+  ['OPP-1040','Nathan Schembri','La Lex','#CM9602','Paused','p-paused','Walk in','€380k'],
+  ['OPP-1049','Rachel Attard','La Lex','#CM9402','Cold','p-cold','Portal','€350k'],
+];
+function projCell(p){return `<span class="proj"><span class="proj-ic" style="background:${PROJ_IC[p]||'#657A32'}">◈</span>${p}</span>`;}
+function renderRows(){
+  document.getElementById('pipe-rows').innerHTML = rows.map(r=>`
+    <tr onclick="openOpp()">
+      <td class="cell-id">${r[0]}</td>
+      <td><span class="contact"><span class="avatar-sm" style="background:${color(r[1])}">${initials(r[1])}</span>${r[1]}</span></td>
+      <td>${projCell(r[2])}</td>
+      <td class="cell-id">${r[3]}</td>
+      <td><span class="pill ${r[5]}">${r[4]}</span></td>
+      <td>${r[6]}</td>
+      <td class="cell-strong">${r[7]}</td>
+    </tr>`).join('');
+}
+
+const board = [
+  {name:'New Lead',cards:[{p:'La Lex',id:'OPP-1027',c:'Robert Pace',u:'#CM9813',d:'2026-06-28',price:'490k',rep:'Matthew'},{p:'Verdala',id:'OPP-1028',c:'Robert Pace',u:'#CM9813',d:'2026-06-28',price:'490k',rep:'Maria'}]},
+  {name:'Qualified',cards:[{p:'Mercury',id:'OPP-1028',c:'Robert Pace',u:'#CM9813',d:'2026-06-28',price:'490k',rep:'Lucy'}]},
+  {name:'Contacted',cards:[]},
+  {name:'Viewing Booked',cards:[{p:'Onyx Rise',id:'OPP-1027',c:'Robert Pace',u:'#CM9813',d:'2026-06-28',price:'490k',rep:'Sarah'},{p:'Verdala',id:'OPP-1028',c:'Robert Pace',u:'#CM9813',d:'2026-06-28',price:'490k',rep:'Maria'}]},
+  {name:'Negotiating',cards:[{p:'La Lex',id:'OPP-1028',c:'Robert Pace',u:'#CM9813',d:'2026-06-28',price:'490k',rep:'Matthew'}]},
+];
+function renderBoard(){
+  document.getElementById('board-cols').innerHTML = board.map(col=>`
+    <div class="col">
+      <div class="col-head"><div class="col-title">${col.name}</div><div class="col-count">${col.cards.length} opportunities</div></div>
+      ${col.cards.map(c=>`
+        <div class="card" onclick="openOpp()">
+          <div class="card-proj"><span class="proj-ic" style="background:${PROJ_IC[c.p]||'#657A32'}">◈</span>${c.p}</div>
+          <div class="card-row"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="2" width="10" height="10" rx="2"/></svg>${c.id}</div>
+          <div class="card-row"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="5" r="2.4"/><path d="M2.5 12c0-2.4 2-3.8 4.5-3.8s4.5 1.4 4.5 3.8"/></svg>${c.c}</div>
+          <div class="card-row"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="3" width="10" height="8" rx="1"/></svg>${c.u}</div>
+          <div class="card-row"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="3" width="10" height="9" rx="1.5"/><path d="M2 6h10"/></svg>${c.d}</div>
+          <div class="card-row"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 2v10M4 4h4.5a1.5 1.5 0 010 3H4M4 7h5"/></svg>€ ${c.price}</div>
+          <div class="card-foot"><span class="avatar-sm" style="background:${color(c.rep)}">${initials(c.rep)}</span>${c.rep}<span class="ago">3 days</span></div>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+const bids = [
+  ['24 Jun','Matthew Borg','€280,000','Maisonette','7% below asking - client testing flexibility'],
+  ['24 Jun','Martina Zammit','€280,000','Maisonette','7% below asking - client testing flexibility'],
+  ['24 Jun','Emma Farrugia','€280,000','Maisonette','7% below asking - client testing flexibility'],
+  ['24 Jun','Rachel Attard','€280,000','Maisonette','7% below asking - client testing flexibility'],
+  ['24 Jun','Sarah Zammit','€280,000','Maisonette','7% below asking - client testing flexibility'],
+];
+function renderBids(){
+  document.getElementById('bid-rows').innerHTML = bids.map((b,i)=>`
+    <div class="mini-tr" style="grid-template-columns:70px 1fr 90px 100px 1fr 90px;${i===bids.length-1?'border:none':''}">
+      <span class="cell-id">${b[0]}</span>
+      <span class="contact"><span class="avatar-sm" style="background:${color(b[1])}">${initials(b[1])}</span>${b[1]}</span>
+      <span>${b[2]}</span><span>${b[3]}</span>
+      <span style="color:var(--on-variant);font-size:12px">${b[4]}</span>
+      <span class="pill p-avail">Available</span>
+    </div>`).join('');
+}
+
+const chats = [
+  ['Chat Title placeholder','Clive Dimech','1 day ago'],
+  ['Chat Title placeholder','','1 day ago'],
+  ['Chat Title placeholder','Maria Farrugia','1 day ago'],
+  ['Chat Title placeholder','','1 day ago'],
+  ['Chat Title placeholder','','1 day ago'],
+];
+function renderChats(){
+  document.getElementById('chat-rows').innerHTML = chats.map(c=>`
+    <tr>
+      <td class="cell-strong">${c[0]}</td>
+      <td>${c[1]?`<span class="contact"><span class="avatar-sm" style="background:${color(c[1])}">${initials(c[1])}</span>${c[1]}</span>`:'<span style="color:var(--muted)">-</span>'}</td>
+      <td style="color:var(--on-variant)">${c[2]}</td>
+    </tr>`).join('');
+}
+
+// ---------- Routing ----------
+const CRUMB = {home:'Home',newchat:'Chat history',dashboard:'Dashboard',pipeline:'Pipeline',properties:'Properties',developments:'Developments',contacts:'Contacts',calendar:'Calendar',reports:'Reports',settings:'Settings',opp:'Mike Gatt'};
+function go(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.getElementById('p-'+page).classList.add('on');
+  document.querySelectorAll('.ni').forEach(n=>n.classList.toggle('on',n.dataset.page===page));
+  document.getElementById('crumb').innerHTML = '<span class="cur">'+(CRUMB[page]||page)+'</span>';
+  document.getElementById('content').scrollTop=0;
+}
+function openOpp(){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.getElementById('p-opp').classList.add('on');
+  document.querySelectorAll('.ni').forEach(n=>n.classList.toggle('on',n.dataset.page==='pipeline'));
+  document.getElementById('crumb').innerHTML='<a onclick="go(\'pipeline\')">Pipeline</a><span class="sep">/</span><span class="cur">Mike Gatt</span>';
+  oppTab('overview',document.querySelector('#p-opp .tab'));
+  document.getElementById('content').scrollTop=0;
+}
+function setPipeView(v){
+  document.getElementById('pipe-table').style.display = v==='table'?'block':'none';
+  document.getElementById('pipe-board').style.display = v==='board'?'block':'none';
+  document.getElementById('vt-table').classList.toggle('on',v==='table');
+  document.getElementById('vt-board').classList.toggle('on',v==='board');
+}
+function oppTab(tab,el){
+  document.querySelectorAll('#p-opp .tab').forEach(t=>t.classList.remove('on'));
+  if(el)el.classList.add('on');
+  ['overview','notes','deals','bids'].forEach(t=>{document.getElementById('ot-'+t).style.display = t===tab?'block':'none';});
+}
+
+// ---------- Ask panel ----------
+function openAsk(){document.getElementById('askPanel').classList.add('open');document.getElementById('scrim').classList.add('on');}
+function closeAsk(){document.getElementById('askPanel').classList.remove('open');document.getElementById('scrim').classList.remove('on');}
+function askSample(){
+  document.getElementById('apSuggests').style.display='none';
+  const body=document.getElementById('apBody');
+  if(document.getElementById('ap-answer'))return;
+  const div=document.createElement('div');div.className='msg';div.id='ap-answer';
+  div.innerHTML=`
+    <div class="meta">2:03 PM, 15 Nov</div>
+    <div class="thought"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 1.5"/></svg>Thought for 3 seconds</div>
+    <p class="lead">Sure. Here's the activity across <span class="tag">Dolphin Court</span> this week:</p>
+    <p><strong>Key movements:</strong></p>
+    <ul>
+      <li>Luke Attard (OPP-1038) moved from Viewing Booked to Reservation — €350k offer on unit #CM9802, sourced from a Meta Lead Form.</li>
+      <li>Sam Zammit (OPP-1034) is Negotiating on Mercury Towers — came in via Website, offer on the table at €350k.</li>
+    </ul>
+    <p><strong>Needs attention:</strong></p>
+    <ul>
+      <li>Maria Farrugia (OPP-1042) and Andrew Cauchi (OPP-1021) are both Paused on Dolphin Court. Worth a follow-up before they go cold.</li>
+      <li>Shannon Cassar (OPP-1009) has gone Cold on Verdala Terraces — a personalised render pack could re-open the conversation.</li>
+    </ul>`;
+  body.insertBefore(div,document.getElementById('apSuggests'));
+}
+
+// ---------- Theme ----------
+function toggleTheme(){const h=document.documentElement;h.dataset.theme=h.dataset.theme==='dark'?'light':'dark';}
+
+// ---------- init ----------
+renderRows();renderBoard();renderBids();renderChats();
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAsk();});
+</script>
+</body>
+</html>
