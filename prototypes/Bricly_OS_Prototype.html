@@ -238,14 +238,10 @@ button{font-family:inherit}
 .arow{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--outline);background:var(--surface);border-radius:10px;margin-bottom:8px;cursor:pointer;transition:.15s}
 .arow:hover{border-color:var(--sc-highest);box-shadow:var(--sh-xs)}
 .arow .aw{flex:1;min-width:0}
-.arow .a1{font-size:14px;font-weight:500}
+.arow .a1{font-size:14px;font-weight:500;display:flex;align-items:center;gap:7px}
 .arow .a2{font-size:12.5px;color:var(--muted);margin-top:1px}
-.arow .achan{margin-top:7px}
-.chan{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--on-variant);background:var(--sc-lowest);border:1px solid var(--outline);border-radius:100px;padding:2px 9px 2px 7px;white-space:nowrap}
-.chan svg{width:11px;height:11px;flex:none}
-.chan .chto{color:var(--muted)}
-.chan-whatsapp{color:#3a7d44;border-color:rgba(58,125,68,.28);background:rgba(58,125,68,.09)}
-.chan-whatsapp .chto{color:rgba(58,125,68,.7)}
+.chan{display:inline-flex;align-items:center;flex:none}
+.chan svg{width:12px;height:12px;flex:none;color:var(--muted);opacity:.6}
 .arow .alater{flex:none;font-size:11px;color:var(--muted);opacity:0;transition:.15s}
 .arow:hover .alater{opacity:1}
 .arow .averb{flex:none;padding:5px 13px;border-radius:7px;border:1px solid var(--outline);background:var(--sc-lowest);font-size:12.5px;font-weight:500;color:var(--on-surface);transition:.15s}
@@ -986,7 +982,7 @@ function renderLetter(){
     if(S.done[a.id]){
       h+=`<div class="announce" id="ann-${a.id}"><span class="ck"><svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2.5 7.5l3 3 6-7"/></svg></span><span>${S.done[a.id]}</span><span class="undo" onclick="undoAction('${a.id}')">Undo</span></div>`;
     }else{
-      h+=`<div class="arow" id="row-${a.id}" onclick="openActionRoom('${a.id}')"><div class="aw"><div class="a1">${a.what}</div><div class="a2">${a.why}</div>${a.chan?`<div class="achan">${chanChip(a.chan)}</div>`:''}</div><span class="alater">L · later</span><span class="averb">${a.verb}</span></div>`;
+      h+=`<div class="arow" id="row-${a.id}" onclick="openActionRoom('${a.id}')"><div class="aw"><div class="a1">${a.what}${a.chan?chanChip(a.chan):''}</div><div class="a2">${a.why}</div></div><span class="alater">L · later</span><span class="averb">${a.verb}</span></div>`;
     }
   });
   (P.announced||[]).forEach(a=>{h+=`<div class="announce"><span class="ck"><svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2.5 7.5l3 3 6-7"/></svg></span><span>${a.text}</span><span class="undo">Undo</span></div>`;});
@@ -1038,8 +1034,7 @@ const CHAN_IC={
 };
 function chanChip(c){
   if(!c)return'';
-  const cls='chan-'+c.via.toLowerCase().replace(/[^a-z]/g,'');
-  return `<span class="chan ${cls}">${CHAN_IC[c.via]||CHAN_IC['In-app']}${c.via}${c.to?` · <span class="chto">${c.to}</span>`:''}</span>`;
+  return `<span class="chan" title="${c.via}${c.to?' · '+c.to:''}">${CHAN_IC[c.via]||CHAN_IC['In-app']}</span>`;
 }
 function chanBar(c){
   const wa=c.via==='WhatsApp'?' wa':'';
