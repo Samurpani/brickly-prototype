@@ -123,6 +123,7 @@ button{font-family:inherit}
 .cell-id{color:var(--on-variant)}
 .cell-strong{font-weight:500}
 .avatar-sm{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:#fff;flex:none;vertical-align:middle}
+.avatar-sm.neutral{background:var(--sc-high);color:var(--on-variant)}
 .contact{display:inline-flex;align-items:center;gap:8px}
 .proj{display:inline-flex;align-items:center;gap:8px}
 .proj-ic{width:18px;height:18px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#fff;flex:none}
@@ -134,6 +135,7 @@ button{font-family:inherit}
 .p-paused{background:var(--sc-high);color:var(--on-variant)}
 .p-cold{background:var(--sc-high);color:var(--muted)}
 .p-avail{background:var(--sc-high);color:var(--on-variant)}
+.p-won{background:var(--primary);color:var(--on-primary)}
 
 .table-foot{display:flex;align-items:center;justify-content:space-between;padding:14px 4px;font-size:12.5px;color:var(--on-variant)}
 .pager{display:flex;align-items:center;gap:4px}
@@ -143,17 +145,96 @@ button{font-family:inherit}
 
 /* ---------- Board ---------- */
 .board{display:flex;gap:14px;padding:4px 2px 20px;overflow-x:auto}
-.col{width:230px;flex:none}
-.col-head{margin-bottom:10px}
+.col{width:242px;flex:none;background:var(--sc-lowest);border-radius:var(--r-lg);padding:12px 10px 6px;transition:background .12s,outline .12s;outline:2px solid transparent;outline-offset:-2px}
+.col.drag-over{background:var(--sc-low);outline-color:var(--primary-low)}
+.col-head{display:flex;align-items:baseline;gap:7px;margin-bottom:10px;padding:0 2px}
+.col-title-row{display:flex;align-items:baseline;justify-content:space-between;flex:1;gap:8px}
 .col-title{font-size:13px;font-weight:600}
+.col-value{font-size:11px;font-weight:500;color:var(--muted)}
 .col-count{font-size:12px;color:var(--muted)}
-.card{background:var(--surface);border:1px solid var(--outline);border-radius:var(--r-lg);padding:12px;margin-bottom:10px;cursor:pointer;transition:.12s}
+.col-empty{font-size:12px;color:var(--muted);padding:8px 4px 16px}
+.card{background:var(--surface);border:1px solid var(--outline);border-radius:var(--r-lg);padding:12px;margin-bottom:10px;cursor:pointer;transition:box-shadow .12s,border-color .12s,opacity .12s}
 .card:hover{box-shadow:var(--sh-sm);border-color:var(--sc-highest)}
-.card-proj{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;margin-bottom:8px}
+.card.dragging{opacity:.4}
+.card-head{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;margin-bottom:8px}
 .card-row{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--on-variant);margin:3px 0}
 .card-row svg{width:12px;height:12px;color:var(--muted);flex:none}
-.card-foot{display:flex;align-items:center;gap:7px;margin-top:9px;padding-top:9px;border-top:1px solid var(--outline-variant);font-size:12px;color:var(--on-variant)}
-.card-foot .ago{margin-left:auto;color:var(--muted)}
+.money-lbl{font-size:10px;font-weight:500;color:var(--muted);background:var(--sc-lowest);border:1px solid var(--outline-variant);padding:1px 6px;border-radius:100px;margin-left:5px}
+.card-row.trunc{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card-tags{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0 0}
+.tag-chip{font-size:10.5px;font-weight:500;padding:2px 8px;border-radius:100px;background:var(--sc-high);color:var(--on-variant);white-space:nowrap}
+.card-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px;padding-top:9px;border-top:1px solid var(--outline-variant);font-size:12px;color:var(--on-variant)}
+.dev-chips{display:flex;align-items:center;gap:5px;overflow:hidden;min-width:0}
+.dev-chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--on-variant);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dev-chip .dot{width:7px;height:7px;border-radius:50%;flex:none}
+.dev-more{font-size:10px;font-weight:500;color:var(--muted);background:var(--sc-high);padding:1px 6px;border-radius:100px;flex:none;cursor:default}
+.rep-mini{display:flex;align-items:center;gap:6px;flex:none}
+.rep-mini .rep-name{color:var(--on-variant);white-space:nowrap}
+.rep-mini .ago{color:var(--muted)}
+
+/* ---------- Closed tab (post-sale tracker) ---------- */
+.closed-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.csum{background:var(--surface);border:1px solid var(--outline);border-radius:var(--r-lg);padding:14px 16px}
+.csum .v{font-size:18px;font-weight:600;letter-spacing:-0.2px}
+.csum .l{font-size:12px;color:var(--muted);margin-top:2px}
+.closed-row{display:flex;align-items:center;gap:20px;background:var(--surface);border:1px solid var(--outline);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:.12s}
+.closed-row:hover{box-shadow:var(--sh-sm);border-color:var(--sc-highest)}
+.cr-who{width:200px;flex:none}
+.cr-name{font-size:13px;font-weight:600}
+.cr-sub{font-size:12px;color:var(--muted)}
+.stepper{flex:1;min-width:0}
+.step-track{display:flex;align-items:center;gap:0}
+.sdot{width:9px;height:9px;border-radius:50%;background:var(--sc-highest);flex:none}
+.sdot.done{background:var(--primary)}
+.sdot.cur{width:11px;height:11px;background:var(--surface);border:2.5px solid var(--primary)}
+.sbar{height:2px;flex:1;background:var(--sc-highest)}
+.sbar.done{background:var(--primary)}
+.step-label{font-size:12px;color:var(--on-variant);margin-top:7px}
+.step-label b{font-weight:600;color:var(--on-surface)}
+.step-label .stall{color:#8d6715;font-weight:500}
+.cr-date{width:100px;flex:none;text-align:right}
+.cr-date .v{font-size:13px;font-weight:500}
+.cr-date .l{font-size:11px;color:var(--muted)}
+.cr-money{width:150px;flex:none;text-align:right}
+.cr-money .v{font-size:13px;font-weight:600}
+.cr-money .c{font-size:12px;color:var(--on-variant);display:flex;align-items:center;gap:6px;justify-content:flex-end;margin-top:2px}
+
+/* ---------- Pipeline filters ---------- */
+.filter-row{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin-bottom:14px;position:relative}
+.fchip-add{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:100px;border:1px dashed var(--sc-highest);background:transparent;color:var(--on-variant);font-size:12.5px;font-weight:500;cursor:pointer;transition:.12s}
+.fchip-add:hover{background:var(--sc-lowest);color:var(--on-surface);border-color:var(--muted)}
+.fchip{display:inline-flex;align-items:center;gap:6px;padding:5px 8px 5px 11px;border-radius:100px;background:var(--sc-high);color:var(--on-surface);font-size:12.5px;font-weight:500}
+.fchip b{font-weight:600}
+.fchip .x{display:flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;color:var(--muted);cursor:pointer}
+.fchip .x:hover{background:var(--sc-highest);color:var(--on-surface)}
+.fclear{font-size:12.5px;color:var(--on-variant);cursor:pointer;padding:5px 4px}
+.fclear:hover{color:var(--on-surface);text-decoration:underline}
+.filter-menu{position:absolute;top:calc(100% + 6px);left:0;width:280px;background:var(--surface);border:1px solid var(--outline);border-radius:var(--r-lg);box-shadow:var(--sh-lg);padding:12px;z-index:20}
+.fm-group{margin-bottom:12px}
+.fm-group:last-child{margin-bottom:0}
+.fm-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:7px}
+.fm-opts{display:flex;flex-wrap:wrap;gap:6px}
+.fm-opt{padding:4px 10px;border-radius:100px;border:1px solid var(--outline);background:var(--surface);color:var(--on-surface);font-size:12px;cursor:pointer;transition:.12s}
+.fm-opt:hover{background:var(--sc-lowest)}
+.fm-opt.on{background:var(--primary);border-color:var(--primary-high);color:var(--on-primary)}
+.pipe-search-wrap{display:flex;align-items:center;gap:6px;background:var(--sc-lowest);border:1px solid var(--outline);border-radius:100px;padding:5px 11px;transition:.12s}
+.pipe-search-wrap input{border:none;outline:none;background:transparent;font-family:inherit;font-size:12.5px;color:var(--on-surface);width:150px}
+.pipe-search-wrap input::placeholder{color:var(--muted)}
+.pipe-search-wrap svg{color:var(--muted);flex:none}
+
+/* ---------- Side drawer (New Opportunity) ---------- */
+.opp-drawer{position:fixed;top:0;right:0;bottom:0;width:400px;background:var(--surface);border-left:1px solid var(--outline);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .22s cubic-bezier(.4,0,.2,1);z-index:56;box-shadow:var(--sh-xl)}
+.opp-drawer.open{transform:translateX(0)}
+.od-head{height:52px;display:flex;align-items:center;padding:0 16px;border-bottom:1px solid var(--outline);font-size:13px;font-weight:600}
+.od-head .x{margin-left:auto;width:28px;height:28px;border-radius:7px;border:none;background:transparent;color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.od-head .x:hover{background:var(--sc-lowest);color:var(--on-surface)}
+.od-body{flex:1;overflow-y:auto;padding:16px}
+.od-field{margin-bottom:14px}
+.od-field label{display:block;font-size:12px;font-weight:500;color:var(--on-variant);margin-bottom:5px}
+.od-field input,.od-field select{width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--outline);background:var(--sc-lowest);font-family:inherit;font-size:13px;color:var(--on-surface)}
+.od-field .chk-row{display:flex;flex-wrap:wrap;gap:6px}
+.od-field .chk-row .fm-opt{cursor:pointer}
+.od-foot{padding:14px 16px;border-top:1px solid var(--outline);display:flex;gap:8px;justify-content:flex-end}
 
 /* ---------- Opportunity detail ---------- */
 .opp-grid{display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:start}
@@ -176,6 +257,9 @@ button{font-family:inherit}
 .rep .avatar{width:38px;height:38px;font-size:13px}
 .status-sel{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;border:1px solid var(--outline);background:var(--surface);font-size:12.5px;font-weight:500;color:var(--on-surface);cursor:pointer}
 .status-sel .dot{width:7px;height:7px;border-radius:50%;background:#8d6715}
+.btn-back{display:inline-flex;align-items:center;gap:6px;padding:5px 4px;margin-bottom:14px;border:none;background:transparent;color:var(--on-variant);font-size:12.5px;font-weight:500;cursor:pointer;border-radius:7px;transition:.12s}
+.btn-back:hover{color:var(--on-surface);background:var(--sc-lowest)}
+.btn-back svg{width:13px;height:13px;flex:none}
 
 /* notes/tasks */
 .note{padding:12px 0;border-bottom:1px solid var(--outline-variant)}
@@ -252,12 +336,20 @@ button{font-family:inherit}
 .announce .undo{margin-left:auto;font-size:12px;color:var(--on-variant);text-decoration:underline;cursor:pointer;flex:none}
 .announce .undo:hover{color:var(--on-surface)}
 .zero{padding:12px 2px;font-size:13.5px;color:var(--muted);font-style:italic}
-.dayline{display:flex;gap:14px;padding:10px 2px;border-bottom:1px solid var(--outline-variant)}
+.dayline{display:flex;gap:14px;padding:10px 8px;border-bottom:1px solid var(--outline-variant);border-radius:8px;cursor:pointer;transition:.13s}
+.dayline:hover{background:var(--sc-lowest)}
 .dayline:last-of-type{border-bottom:none}
 .dayline .dt{width:48px;flex:none;color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums;padding-top:1px}
-.dayline .dw{flex:1;font-size:14px}
+.dayline .dbody{flex:1;min-width:0}
+.dayline .dw{font-size:14px}
 .dayline .dprom{font-size:12.5px;color:var(--muted);margin-top:1px}
 .dayline .dprom .pk{color:var(--primary)}
+.dayline .dchev{margin-left:auto;flex:none;align-self:center;color:var(--muted);opacity:0;transition:.15s}
+.dayline:hover .dchev{opacity:1}
+.rpoints{margin:2px 0 14px;padding:0;list-style:none}
+.rpoints li{font-size:13px;color:var(--on-surface);line-height:1.55;padding:7px 0 7px 18px;position:relative;border-bottom:1px solid var(--outline-variant)}
+.rpoints li:last-child{border-bottom:none}
+.rpoints li:before{content:'';position:absolute;left:3px;top:13px;width:5px;height:5px;border-radius:50%;background:var(--primary-low)}
 .fb{display:flex;gap:12px;padding:12px 14px;border-radius:10px;cursor:pointer;margin-bottom:6px;border:1px solid transparent;transition:.15s;align-items:flex-start}
 .fb:hover{background:var(--sc-lowest);border-color:var(--outline)}
 .fb .fn{flex:none;width:20px;height:20px;border-radius:6px;background:var(--y-bg);color:var(--y-ink);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;margin-top:1px}
@@ -327,8 +419,89 @@ button{font-family:inherit}
 .send{padding:6px 14px;border-radius:7px;border:none;background:var(--primary-low);color:var(--primary-high);font-size:12.5px;font-weight:600;cursor:pointer}
 .send:hover{background:var(--primary);color:var(--on-primary)}
 
-/* ---------- Chat history ---------- */
+/* ---------- Chat page ---------- */
 .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:70%;color:var(--muted);gap:6px}
+/* Landing */
+.chat-landing{min-height:calc(100vh - 92px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px 48px}
+.chat-greeting{font-size:22px;font-weight:600;letter-spacing:-.4px;margin-bottom:6px;text-align:center}
+.chat-sub{font-size:14px;color:var(--on-variant);margin-bottom:28px;text-align:center}
+.chat-composer{width:100%;max-width:640px;background:var(--surface);border:1px solid var(--outline);border-radius:var(--r-xl);box-shadow:var(--sh-sm);padding:14px 14px 10px}
+.chat-composer textarea{width:100%;border:none;outline:none;resize:none;background:transparent;font-family:inherit;font-size:14px;min-height:44px;max-height:160px;color:var(--on-surface);line-height:1.55}
+.chat-composer textarea::placeholder{color:var(--muted)}
+.chat-composer-foot{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.chat-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:18px;max-width:640px}
+.chat-chip{display:flex;align-items:center;gap:7px;padding:7px 13px;background:var(--surface);border:1px solid var(--outline);border-radius:100px;font-size:12.5px;color:var(--on-variant);cursor:pointer;transition:.12s}
+.chat-chip:hover{background:var(--sc-low);border-color:var(--sc-highest);color:var(--on-surface)}
+.chat-chip svg{width:13px;height:13px;flex:none;color:var(--muted)}
+/* View-history sticky bar */
+#chatHistBar{position:sticky;bottom:0;z-index:5;display:flex;justify-content:center;padding:56px 0 20px;background:linear-gradient(to bottom,transparent 0%,var(--bg) 54%);pointer-events:none;transition:opacity .25s,visibility .25s}
+#chatHistBar.gone{opacity:0;visibility:hidden}
+.vhb-btn{pointer-events:auto;display:inline-flex;align-items:center;gap:7px;padding:9px 20px;background:var(--surface);border:1px solid var(--outline);border-radius:100px;font-size:13px;font-weight:500;color:var(--on-surface);cursor:pointer;box-shadow:var(--sh-md);transition:.12s;font-family:inherit}
+.vhb-btn:hover{background:var(--sc-low);border-color:var(--sc-highest);transform:translateY(-1px);box-shadow:var(--sh-lg)}
+
+/* History section */
+.chat-hist-section{border-top:1px solid var(--outline);padding:28px 24px 48px;max-width:760px;margin:0 auto;width:100%}
+.chat-hist-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.chat-hist-head h2{font-size:15px;font-weight:600}
+.chat-hist-filter{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hist-search{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--outline);border-radius:7px;padding:5px 10px}
+.hist-search input{border:none;outline:none;background:transparent;font-family:inherit;font-size:12.5px;width:130px;color:var(--on-surface)}
+.hist-search input::placeholder{color:var(--muted)}
+.hist-group-lbl{font-size:11.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding:14px 0 6px}
+.hist-row{display:flex;align-items:center;gap:10px;padding:9px 8px;margin:0 -8px;border-radius:7px;cursor:pointer;position:relative}
+.hist-row:hover{background:var(--sc-lowest)}
+.hist-row-ic{width:28px;height:28px;border-radius:8px;background:var(--sc-low);border:1px solid var(--outline);display:flex;align-items:center;justify-content:center;flex:none;color:var(--on-variant)}
+.hist-row-body{flex:1;min-width:0}
+.hist-row-title{font-size:13px;font-weight:500;color:var(--on-surface);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hist-row-meta{font-size:11.5px;color:var(--muted);margin-top:1px}
+.hist-scope-tag{display:inline-flex;align-items:center;gap:3px;padding:1px 6px;background:var(--sc-high);border-radius:4px;font-size:11px;color:var(--on-variant);margin-left:6px}
+.hist-row-acts{display:none;align-items:center;gap:2px;margin-left:auto;flex:none}
+.hist-row:hover .hist-row-acts{display:flex}
+.hist-row-acts button{width:26px;height:26px;display:flex;align-items:center;justify-content:center;border:none;background:transparent;border-radius:6px;cursor:pointer;color:var(--on-variant)}
+.hist-row-acts button:hover{background:var(--sc-highest);color:var(--on-surface)}
+/* Thread view — fills page height when active, swaps with landing */
+#chatThread{display:none;height:100%;flex-direction:column;background:var(--bg)}
+#chatThread.on{display:flex}
+.ct-header{flex:none;height:52px;display:flex;align-items:center;padding:0 20px;border-bottom:1px solid var(--outline);gap:10px}
+.ct-title{font-size:13px;font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:text;padding:3px 6px;border-radius:5px}
+.ct-title:hover{background:var(--sc-lowest)}
+.ct-title[contenteditable="true"]{background:var(--sc-lowest);outline:none;border:1px solid var(--outline)}
+.ct-body{flex:1;overflow-y:auto;padding:24px 0;display:flex;flex-direction:column;gap:2px}
+.ct-inner{max-width:700px;margin:0 auto;width:100%;padding:0 20px}
+.ct-foot{flex:none;padding:12px 20px 16px;border-top:1px solid var(--outline);background:var(--bg)}
+.ct-foot .chat-composer{max-width:100%}
+/* Message bubbles */
+.msg-user{display:flex;justify-content:flex-end;margin-bottom:10px}
+.msg-user .bubble{background:var(--primary);color:var(--on-primary);padding:9px 14px;border-radius:14px 14px 4px 14px;font-size:13.5px;max-width:78%;line-height:1.5;word-break:break-word}
+.msg-ai-row{display:flex;gap:10px;margin-bottom:16px;align-items:flex-start}
+.ai-ic{width:26px;height:26px;border-radius:8px;background:var(--primary-low);display:flex;align-items:center;justify-content:center;flex:none;margin-top:2px}
+.ai-ic svg{color:var(--primary-high)}
+.ai-body p{font-size:13.5px;color:var(--on-surface);margin-bottom:8px;line-height:1.6}
+.ai-body .lead{color:var(--on-variant)}
+.ai-body strong{font-weight:600}
+.ai-body ul{margin:4px 0 10px;padding-left:18px}
+.ai-body li{font-size:13.5px;color:var(--on-variant);margin-bottom:8px;line-height:1.5}
+/* Shared thought/tag styles — used in both drawer and thread */
+.thought{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--on-variant);background:var(--sc-lowest);padding:4px 9px;border-radius:100px;margin-bottom:8px}
+/* Action buttons */
+.msg-acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.msg-act{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:7px;font-size:12.5px;font-weight:500;cursor:pointer;border:1px solid var(--outline);background:var(--surface);color:var(--on-surface);transition:.12s;font-family:inherit}
+.msg-act:hover{background:var(--sc-low);border-color:var(--sc-highest)}
+.msg-act.primary{background:var(--primary);color:var(--on-primary);border-color:transparent}
+.msg-act.primary:hover{opacity:.9}
+/* Draft card */
+.draft-card{background:var(--sc-lowest);border:1px solid var(--outline);border-radius:var(--r-lg);padding:14px;margin:8px 0}
+.draft-card .draft-lbl{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.draft-card textarea{width:100%;border:none;outline:none;resize:vertical;background:transparent;font-family:inherit;font-size:13px;color:var(--on-surface);min-height:88px;line-height:1.55}
+/* Thinking shimmer */
+.thinking{display:flex;gap:5px;padding:10px 0 4px;align-items:center}
+.thinking span{width:7px;height:7px;border-radius:50%;background:var(--sc-highest);animation:thinkpulse 1.4s ease-in-out infinite}
+.thinking span:nth-child(2){animation-delay:.2s}
+.thinking span:nth-child(3){animation-delay:.4s}
+@keyframes thinkpulse{0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+/* Toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--on-surface);color:var(--bg);border-radius:8px;padding:9px 16px;font-size:13px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:200;white-space:nowrap;box-shadow:var(--sh-lg)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* ---------- Ask panel (drawer) ---------- */
 .ask-panel{position:fixed;top:0;right:0;bottom:0;width:340px;background:var(--surface);border-left:1px solid var(--outline);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .22s cubic-bezier(.4,0,.2,1);z-index:50;box-shadow:var(--sh-xl)}
@@ -375,10 +548,10 @@ button{font-family:inherit}
     <nav class="nav">
       <div class="nav-label">Manage</div>
       <div class="ni on" data-page="today" onclick="go('today')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="3"/><path d="M7 1v1.4M7 11.6V13M13 7h-1.4M2.4 7H1M11.2 2.8l-.9.9M3.7 10.3l-.9.9M11.2 11.2l-.9-.9M3.7 3.7l-.9-.9"/></svg>Today</div>
-      <div class="ni" data-page="newchat" onclick="go('newchat')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 4.5v5M4.5 7h5"/></svg>New Chat</div>
+      <div class="ni" data-page="newchat" onclick="chatNavClick()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 3h10M2 7h8M2 11h5"/></svg>Chat</div>
       <div class="ni" data-page="dashboard" onclick="go('dashboard')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 7l3-2"/></svg>Dashboard</div>
-      <div class="ni" data-page="pipeline" onclick="go('pipeline')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M1.5 12.5V8M7 12.5V3M12.5 12.5V6"/></svg>Pipeline</div>
-      <div class="ni" data-page="properties" onclick="go('properties')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1" y="4" width="12" height="9" rx="1"/><path d="M4 4V3a3 3 0 016 0v1"/><circle cx="7" cy="8.5" r="1.3"/></svg>Properties</div>
+      <div class="ni" data-page="pipeline" onclick="go('pipeline')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M1.5 12.5V8M7 12.5V3M12.5 12.5V6"/></svg>Opportunities</div>
+      <div class="ni" data-page="properties" onclick="go('properties')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1" y="4" width="12" height="9" rx="1"/><path d="M4 4V3a3 3 0 016 0v1"/><circle cx="7" cy="8.5" r="1.3"/></svg>Units</div>
       <div class="ni" data-page="developments" onclick="go('developments')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1 13V5l6-4 6 4v8H1z"/><path d="M5 13v-3h4v3"/></svg>Developments</div>
       <div class="ni" data-page="contacts" onclick="go('contacts')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="7" cy="5" r="2.6"/><path d="M2 13c0-2.8 2.2-4.5 5-4.5s5 1.7 5 4.5"/></svg>Contacts</div>
       <div class="nav-label">Tools</div>
@@ -400,7 +573,7 @@ button{font-family:inherit}
     <div class="topbar">
       <div class="tb-left">
         <button class="tb-toggle" onclick="document.getElementById('sidebar').classList.toggle('collapsed')" title="Toggle sidebar"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="2.5" width="13" height="11" rx="2"/><path d="M6 2.5v11"/></svg></button>
-        <div class="crumb" id="crumb"><span class="cur">Today</span></div>
+        <div class="crumb" id="crumb"><span class="cur">Pipeline</span></div>
       </div>
       <div class="tb-search" onclick="this.querySelector('input').focus()">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg>
@@ -414,7 +587,7 @@ button{font-family:inherit}
 
     <div class="content" id="content">
       <!-- ===== TODAY (the letter) ===== -->
-      <section class="page on" id="p-today">
+      <section class="page" id="p-today">
         <div class="t-demo">
           <span class="hint">Demo</span>
           <div class="seg" id="personaSeg">
@@ -438,33 +611,44 @@ button{font-family:inherit}
       </section>
 
       <!-- ===== PIPELINE ===== -->
-      <section class="page" id="p-pipeline">
+      <section class="page on" id="p-pipeline">
         <div class="wrap">
           <div class="page-title" style="margin-bottom:16px">Pipeline</div>
           <div class="row-between" style="margin-bottom:14px">
             <div class="tabs">
-              <button class="tab on">All Items</button>
-              <button class="tab">Active Work</button>
-              <button class="tab">Post Viewing</button>
+              <button class="tab on" onclick="setPipeSeg('all',this)">All Items</button>
+              <button class="tab" onclick="setPipeSeg('active',this)">Active Work</button>
+              <button class="tab" onclick="setPipeSeg('post',this)">Post Viewing</button>
+              <button class="tab" onclick="setPipeSeg('closed',this)">Closed</button>
             </div>
             <div class="toolbar">
-              <button class="tool" title="Search"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg></button>
+              <div class="pipe-search-wrap" id="pipe-search-wrap" style="display:none">
+                <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg>
+                <input id="pipe-search" placeholder="Search leads, developments, IDs" oninput="setPipeSearch(this.value)">
+              </div>
+              <button class="tool" title="Search" onclick="togglePipeSearch()"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg></button>
               <button class="tool" title="Sort"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 4h10M4 7h6M6 10h2"/></svg></button>
               <div class="viewtoggle">
-                <button id="vt-table" class="on" onclick="setPipeView('table')" title="Table"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="2.5" width="11" height="9" rx="1.5"/><path d="M1.5 5.5h11M5.5 5.5v6"/></svg></button>
-                <button id="vt-board" onclick="setPipeView('board')" title="Board"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="2" width="3.5" height="10" rx="1"/><rect x="9" y="2" width="3.5" height="7" rx="1"/></svg></button>
+                <button id="vt-table" onclick="setPipeView('table')" title="Table"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="2.5" width="11" height="9" rx="1.5"/><path d="M1.5 5.5h11M5.5 5.5v6"/></svg></button>
+                <button id="vt-board" class="on" onclick="setPipeView('board')" title="Board"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="2" width="3.5" height="10" rx="1"/><rect x="9" y="2" width="3.5" height="7" rx="1"/></svg></button>
               </div>
-              <button class="btn-primary">New <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 4.5L6 7.5 9 4.5"/></svg></button>
+              <button class="btn-primary" onclick="openNewOpp()">New <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 4.5L6 7.5 9 4.5"/></svg></button>
             </div>
           </div>
 
-          <div id="pipe-table">
+          <div class="filter-row" id="filter-row">
+            <button class="fchip-add" onclick="toggleFilterMenu(event)">+ Filter</button>
+            <div id="active-filters" style="display:contents"></div>
+            <div class="filter-menu" id="filter-menu" style="display:none"></div>
+          </div>
+
+          <div id="pipe-table" style="display:none">
             <table class="table">
-              <thead><tr><th>ID</th><th>Contact</th><th>Project</th><th>Unit</th><th>Stage</th><th>Source</th><th>Offer</th></tr></thead>
+              <thead><tr><th>ID</th><th>Contact</th><th>Development</th><th>Unit</th><th>Stage</th><th>Source</th><th>Value</th></tr></thead>
               <tbody id="pipe-rows"></tbody>
             </table>
             <div class="table-foot">
-              <span>Showing 1 to 10 of 100 Entries</span>
+              <span id="pipe-count">Showing 10 Entries</span>
               <div class="pager">
                 <button class="pg">‹</button>
                 <button class="pg on">1</button><button class="pg">2</button><button class="pg">3</button>
@@ -474,19 +658,22 @@ button{font-family:inherit}
             </div>
           </div>
 
-          <div id="pipe-board" style="display:none"><div class="board" id="board-cols"></div></div>
+          <div id="pipe-board"><div class="board" id="board-cols"></div></div>
+
+          <div id="pipe-closed" style="display:none"></div>
         </div>
       </section>
 
       <!-- ===== OPPORTUNITY DETAIL ===== -->
       <section class="page" id="p-opp">
         <div class="wrap">
+          <button class="btn-back" onclick="go('pipeline')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8.5 3L4 7l4.5 4"/></svg>Back to Pipeline</button>
           <div class="row-between" style="align-items:flex-start;margin-bottom:16px">
             <div>
-              <div class="page-title">Mike Gatt</div>
-              <div class="page-sub">Dolphin Court · #CM9802 · Hold</div>
+              <div class="page-title" id="opp-title">Mike Gatt</div>
+              <div class="page-sub" id="opp-sub">Dolphin Court · #CM9802 · Negotiating</div>
             </div>
-            <button class="status-sel"><span class="dot"></span>On Hold <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 4.5L6 7.5 9 4.5"/></svg></button>
+            <button class="status-sel"><span class="dot"></span><span id="opp-status-label">Negotiating</span> <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 4.5L6 7.5 9 4.5"/></svg></button>
           </div>
           <div class="tabs" style="margin-bottom:18px">
             <button class="tab on" onclick="oppTab('overview',this)">Overview</button>
@@ -503,8 +690,8 @@ button{font-family:inherit}
                   <h3>Opportunity overview</h3>
                   <div class="kv-grid">
                     <div class="kv"><div class="k">Lifecycle</div><div class="v">Active</div></div>
-                    <div class="kv"><div class="k">Lead Source</div><div class="v">Meta Lead Form</div></div>
-                    <div class="kv"><div class="k">Next Step</div><div class="v">Hold approval and POS prep</div></div>
+                    <div class="kv"><div class="k">Lead Source</div><div class="v" id="opp-source">Meta Lead Form</div></div>
+                    <div class="kv"><div class="k">Next Step</div><div class="v" id="opp-nextstep">Hold approval and POS prep</div></div>
                     <div class="kv"><div class="k">Days in Stage</div><div class="v">3</div></div>
                     <div class="kv"><div class="k">Payment Plan</div><div class="v">10/20/70</div></div>
                     <div class="kv"><div class="k">Deposit</div><div class="v">€28,000</div></div>
@@ -512,11 +699,9 @@ button{font-family:inherit}
                 </div>
                 <div class="dcard">
                   <h3>Linked units</h3>
-                  <div class="mini-th"><span>Unit</span><span>Unit</span><span>Type</span><span>Price</span><span>Status</span></div>
-                  <div class="mini-tr"><span class="cell-id">#CM9802</span><span class="proj"><span class="proj-ic" style="background:#657A32">◈</span>Dolphin Court</span><span>Maisonette</span><span>€280,000</span><span class="pill p-avail">Available</span></div>
-                  <div class="mini-tr"><span class="cell-id">#CM9802</span><span class="proj"><span class="proj-ic" style="background:#657A32">◈</span>Dolphin Court</span><span>Maisonette</span><span>€280,000</span><span class="pill p-hold">Hold</span></div>
-                  <div class="mini-tr"><span class="cell-id">#CM9802</span><span class="proj"><span class="proj-ic" style="background:#8aa653">◈</span>Verdala</span><span>Maisonette</span><span>€280,000</span><span class="pill p-avail">Available</span></div>
-                  <div style="font-size:12px;color:var(--muted);margin-top:10px">Showing 2 of 12 units</div>
+                  <div class="mini-th"><span>Unit</span><span>Development</span><span>Type</span><span>Price</span><span>Stage</span></div>
+                  <div id="opp-units"></div>
+                  <div style="font-size:12px;color:var(--muted);margin-top:10px">Showing linked units for this opportunity</div>
                 </div>
                 <div class="dcard">
                   <h3>Offer &amp; payment terms</h3>
@@ -542,8 +727,8 @@ button{font-family:inherit}
                     <div class="avatar">SU</div>
                     <div><div class="side-kv" style="margin:0"><div class="k">Assigned Rep</div><div class="v">Sam Urpani</div></div></div>
                   </div>
-                  <div class="side-kv"><div class="k">Name</div><div class="v">Mike Gatt</div></div>
-                  <div class="side-kv"><div class="k">Email</div><div class="v">mike.gatt@email.com</div></div>
+                  <div class="side-kv"><div class="k">Name</div><div class="v" id="opp-contact-name">Mike Gatt</div></div>
+                  <div class="side-kv"><div class="k">Email</div><div class="v" id="opp-contact-email">mike.gatt@email.com</div></div>
                   <div class="side-kv" style="margin:0"><div class="k">Phone</div><div class="v">+356 9912 3456</div></div>
                 </div>
                 <div class="dcard">
@@ -652,22 +837,70 @@ button{font-family:inherit}
         </div>
       </section>
 
-      <!-- ===== NEW CHAT / CHAT HISTORY ===== -->
+      <!-- ===== CHAT ===== -->
       <section class="page" id="p-newchat">
-        <div class="wrap">
-          <div class="page-title" style="margin-bottom:16px">Chat history</div>
-          <div class="row-between" style="margin-bottom:14px">
-            <div class="tabs"><button class="tab on">All Chats</button><button class="tab">Personal</button><button class="tab">Shared</button></div>
-            <div class="toolbar">
-              <button class="tool" title="Search"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg></button>
-              <button class="tool" title="Sort"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 4h10M4 7h6M6 10h2"/></svg></button>
-              <button class="btn-primary" onclick="openAsk()">New <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 4.5L6 7.5 9 4.5"/></svg></button>
+        <!-- Landing: greeting + composer + history below the fold -->
+        <div id="chatLanding">
+          <div class="chat-landing">
+            <div class="chat-greeting">What can I help with?</div>
+            <div class="chat-sub">Ask anything across your pipeline, contacts, or deals.</div>
+            <div class="chat-composer">
+              <textarea id="landingInput" rows="2" placeholder="Ask me anything…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();chatSend(document.getElementById('landingInput').value)}"></textarea>
+              <div class="chat-composer-foot">
+                <button class="scope">Pipeline <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 4.5L6 7.5 9 4.5"/></svg></button>
+                <button class="send" onclick="chatSend(document.getElementById('landingInput').value)">Ask Bricly</button>
+              </div>
+            </div>
+            <div class="chat-chips">
+              <div class="chat-chip" onclick="chatSend('Summarize my weekly deals')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="2" width="10" height="10" rx="2"/><path d="M4.5 5h5M4.5 7.5h3"/></svg>Summarize my weekly deals</div>
+              <div class="chat-chip" onclick="chatSend('Find deals that need a follow up')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4"/><path d="M9 9l3 3"/></svg>Find deals needing follow up</div>
+              <div class="chat-chip" onclick="chatSend('Draft a follow-up message for Mike Gatt')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 3h10M2 7h6M2 11h4"/></svg>Draft a follow-up for Mike Gatt</div>
+              <div class="chat-chip" onclick="chatSend('Create a pipeline roadmap for Q3')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 2"/></svg>Create a Q3 pipeline roadmap</div>
             </div>
           </div>
-          <table class="table">
-            <thead><tr><th>Chat</th><th>Last Edited By</th><th>Last Edited</th></tr></thead>
-            <tbody id="chat-rows"></tbody>
-          </table>
+          <!-- Sticky teaser bar — gradient peek over first history rows, hides when scrolled in -->
+          <div id="chatHistBar">
+            <button class="vhb-btn" onclick="chatScrollToHistory()"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M2 4l4 4 4-4"/></svg>View history</button>
+          </div>
+          <!-- History section -->
+          <div class="chat-hist-section" id="histSection">
+            <div class="chat-hist-head">
+              <h2>Recent chats</h2>
+              <div class="chat-hist-filter">
+                <div class="tabs" id="histTabs">
+                  <button class="tab on" onclick="histFilterScope('all',this)">All</button>
+                  <button class="tab" onclick="histFilterScope('personal',this)">Personal</button>
+                  <button class="tab" onclick="histFilterScope('shared',this)">Shared</button>
+                </div>
+                <div class="hist-search">
+                  <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg>
+                  <input id="histSearch" placeholder="Search chats…" oninput="renderHistory()">
+                </div>
+                <button class="tool" id="histSortBtn" title="Sort A-Z / Recent" onclick="histToggleSort()"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 4h10M4 7h6M6 10h2"/></svg></button>
+                <button class="btn-primary" onclick="chatNew()" style="font-size:12px;padding:5px 12px">+ New chat</button>
+              </div>
+            </div>
+            <div id="histList"></div>
+          </div>
+        </div>
+        <!-- Thread view: overlays the landing when a chat is open -->
+        <div id="chatThread" class="on" style="display:none">
+          <div class="ct-header">
+            <button class="icon-btn" style="border:none" onclick="chatGoLanding()" title="Back"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M9 3L5 7l4 4"/></svg></button>
+            <div class="ct-title" id="ctTitle" onclick="this.contentEditable='true';this.focus()" onblur="chatRenameActive(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"></div>
+            <button class="tool" title="All chats" onclick="chatGoLanding(true)"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 1.5"/></svg></button>
+            <button class="btn-primary" onclick="chatNew()" style="font-size:12px;padding:5px 12px">New chat</button>
+          </div>
+          <div class="ct-body" id="ctBody"></div>
+          <div class="ct-foot">
+            <div class="chat-composer">
+              <textarea id="threadInput" rows="2" placeholder="Reply…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();chatReply()}"></textarea>
+              <div class="chat-composer-foot">
+                <button class="scope">Pipeline <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 4.5L6 7.5 9 4.5"/></svg></button>
+                <button class="send" onclick="chatReply()">Send</button>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -690,88 +923,309 @@ button{font-family:inherit}
 <div class="evpop" id="evpop"></div>
 <aside class="ask-panel" id="askPanel">
   <div class="ap-head">
-    <span class="t">New Chat</span>
+    <span class="t" id="apTitle">New Chat</span>
     <div class="sp">
-      <button class="icon-btn" style="width:28px;height:28px;border:none" title="History"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 1.5"/></svg></button>
+      <button class="icon-btn" style="width:28px;height:28px;border:none" title="All chats" onclick="apHistory()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 1.5"/></svg></button>
+      <button class="icon-btn" style="width:28px;height:28px;border:none" title="Expand to full page" onclick="apExpand()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M8 2h4v4M2 12l5-5M6 2H2v4M12 8v4H8"/></svg></button>
       <button class="icon-btn" style="width:28px;height:28px;border:none" onclick="closeAsk()" title="Close"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3l8 8M11 3l-8 8"/></svg></button>
     </div>
   </div>
   <div class="ap-body" id="apBody">
     <div class="ap-suggests" id="apSuggests">
       <div class="h">How can I help you today?</div>
-      <div class="suggest" onclick="askSample()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="2" width="10" height="10" rx="2"/><path d="M4.5 5h5M4.5 7.5h3"/></svg>Summarize my weekly deals</div>
-      <div class="suggest" onclick="askSample()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4"/><path d="M9 9l3 3"/></svg>Find deals that need a follow up</div>
-      <div class="suggest" onclick="askSample()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 2v10M2 7h10"/></svg>Brainstorm ideas to chase cold leads</div>
-      <div class="suggest" onclick="askSample()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 2"/></svg>Create a pipeline roadmap for Q3</div>
+      <div class="suggest" onclick="apChipSend('Summarize my weekly deals')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="2" width="10" height="10" rx="2"/><path d="M4.5 5h5M4.5 7.5h3"/></svg>Summarize my weekly deals</div>
+      <div class="suggest" onclick="apChipSend('Find deals that need a follow up')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4"/><path d="M9 9l3 3"/></svg>Find deals that need a follow up</div>
+      <div class="suggest" onclick="apChipSend('Brainstorm ideas to chase cold leads')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 2v10M2 7h10"/></svg>Brainstorm ideas for cold leads</div>
+      <div class="suggest" onclick="apChipSend('Create a pipeline roadmap for Q3')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 2"/></svg>Create a Q3 pipeline roadmap</div>
     </div>
   </div>
   <div class="ap-foot">
     <div class="ap-input">
-      <textarea placeholder="Ask me anything..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();askSample()}"></textarea>
+      <textarea id="apInput" placeholder="Ask me anything…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();apSend()}"></textarea>
       <div class="ap-input-foot">
         <button class="scope">Pipeline <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 4.5L6 7.5 9 4.5"/></svg></button>
-        <button class="send" onclick="askSample()">Ask Bricly</button>
+        <button class="send" onclick="apSend()">Ask Bricly</button>
       </div>
     </div>
   </div>
 </aside>
 
+<!-- ============ NEW OPPORTUNITY DRAWER ============ -->
+<div class="scrim" id="oppScrim" onclick="closeNewOpp()"></div>
+<aside class="opp-drawer" id="oppDrawer">
+  <div class="od-head"><span>New opportunity</span><button class="x" onclick="closeNewOpp()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3l8 8M11 3l-8 8"/></svg></button></div>
+  <div class="od-body" id="oppFormBody"></div>
+  <div class="od-foot">
+    <button class="btn-ghost" onclick="closeNewOpp()">Cancel</button>
+    <button class="btn-primary" onclick="submitNewOpp()">Create opportunity</button>
+  </div>
+</aside>
+
 <script>
+
 // ---------- Data ----------
 const AC = ['#657A32','#8aa653','#b58a3a','#5a7d8c','#a05a5a','#6a5a9c','#3f7d5a','#9c6a3f'];
 function color(seed){let h=0;for(const c of seed)h=(h*31+c.charCodeAt(0))>>>0;return AC[h%AC.length];}
 function initials(name){return name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();}
 
-const PROJ_IC = {'La Lex':'#657A32','Mercury':'#8aa653','Verdala':'#5a7d8c','Onyx Rise':'#6a5a9c'};
-const rows = [
-  ['OPP-1042','Mike Gatt','La Lex','#CM9802','Hold','p-hold','Meta Lead Form','€280k'],
-  ['OPP-1038','Luca Camilleri','La Lex','#CM9803','Reservation','p-res','Walk in','€350k'],
-  ['OPP-1027','Ben Zammit','Mercury','#CM2701','Negotiating','p-neg','Google Ads','€370k'],
-  ['OPP-1041','Daniel Vella','Mercury','#CM2702','Viewing Booked','p-view','Referral','€450k'],
-  ['OPP-1047','Daniela Spiteri','Verdala','#CM4509','Paused','p-paused','Website','€420k'],
-  ['OPP-1045','Emma Farrugia','Verdala','#CM4510','Cold','p-cold','Agency Partner','€280k'],
-  ['OPP-1032','Julia Micallef','Onyx Rise','#CM9702','Negotiating','p-neg','Meta Lead Form','€350k'],
-  ['OPP-1036','Maria Borg','Onyx Rise','#CM9703','Viewing Booked','p-view','Portal','€350k'],
-  ['OPP-1040','Nathan Schembri','La Lex','#CM9602','Paused','p-paused','Walk in','€380k'],
-  ['OPP-1049','Rachel Attard','La Lex','#CM9402','Cold','p-cold','Portal','€350k'],
+const PROJ_IC = {'La Lex':'#657A32','Mercury':'#8aa653','Verdala':'#5a7d8c','Onyx Rise':'#6a5a9c','Dolphin Court':'#b58a3a'};
+const STAGES = ['New Lead','Qualified','Contacted','Viewing Booked','Negotiating','Reservation','Closed Won'];
+const STAGE_PILL = {'New Lead':'p-cold','Qualified':'p-paused','Contacted':'p-neg','Viewing Booked':'p-view','Negotiating':'p-hold','Reservation':'p-res','Closed Won':'p-won'};
+const SEG_STAGES = {
+  all: STAGES,
+  active: ['Qualified','Contacted','Viewing Booked','Negotiating'],
+  post: ['Viewing Booked','Negotiating','Reservation','Closed Won'],
+  closed: ['Closed Won'],
+};
+
+// Unified opportunity records — one source of truth for table + board.
+// budget = client's stated budget (estimate); value = offer/unit price once a unit is chosen.
+const OPPS = [
+  {id:'OPP-1001',lead:'Mike Gatt',devs:['Dolphin Court'],units:['#CM9802'],stage:'Negotiating',source:'Meta Lead Form',budget:300,value:280,tags:['Urgent'],rep:'Sam',next:{d:'Aug 13',t:'Hold approval follow-up'},ago:'Today'},
+  {id:'OPP-1002',lead:'Luca Camilleri',devs:['La Lex'],units:['#CM9803'],stage:'Reservation',source:'Walk-in',budget:350,value:350,tags:['Cash Buyer'],rep:'Matthew',next:{d:'Aug 14',t:'Send POS draft'},ago:'1 day'},
+  {id:'OPP-1003',lead:'Ben Zammit',devs:['Mercury'],units:['#CM2701'],stage:'Negotiating',source:'Google Ads',budget:400,value:370,tags:['Investor'],rep:'Lucy',next:{d:'Aug 15',t:'Counter-offer review'},ago:'2 days'},
+  {id:'OPP-1004',lead:'Daniel Vella',devs:['Mercury'],units:['#CM2702'],stage:'Viewing Booked',source:'Referral',budget:450,value:450,tags:[],rep:'Sarah',next:{d:'Aug 16',t:'Second viewing'},ago:'3 days'},
+  {id:'OPP-1005',lead:'Daniela Spiteri',devs:['Verdala'],units:['#CM4509'],stage:'Contacted',source:'Website',budget:450,value:420,tags:['Foreign Buyer'],rep:'Maria',next:{d:'Aug 20',t:'Re-engagement call'},ago:'14 days'},
+  {id:'OPP-1006',lead:'Emma Farrugia',devs:['Verdala'],units:['#CM4510'],stage:'New Lead',source:'Agency Partner',budget:300,value:280,tags:[],rep:'Chris',next:{d:'Aug 13',t:'Initial qualification call'},ago:'Today'},
+  {id:'OPP-1007',lead:'Julia Micallef',devs:['Onyx Rise'],units:['#CM9702'],stage:'Negotiating',source:'Meta Lead Form',budget:400,value:350,tags:['Repeat Client'],rep:'Matthew',next:{d:'Aug 14',t:'Send revised offer'},ago:'1 day'},
+  {id:'OPP-1008',lead:'Maria Borg',devs:['Onyx Rise','La Lex'],units:['#CM9703','#CM9814'],stage:'Viewing Booked',source:'Portal',budget:350,value:350,tags:['Cash Buyer'],rep:'Sarah',next:{d:'Aug 17',t:'Compare units with client'},ago:'3 days'},
+  {id:'OPP-1009',lead:'Nathan Schembri',devs:['La Lex'],units:['#CM9602'],stage:'Qualified',source:'Walk-in',budget:400,value:380,tags:[],rep:'Lucy',next:{d:'Aug 18',t:'Send finance options'},ago:'21 days'},
+  {id:'OPP-1010',lead:'Rachel Attard',devs:['La Lex'],units:['#CM9402'],stage:'New Lead',source:'Portal',budget:350,value:350,tags:['First-Time Buyer'],rep:'Chris',next:{d:'Aug 13',t:'Qualify budget'},ago:'Today'},
+  {id:'OPP-1011',lead:'Robert Pace',devs:['Mercury','Verdala','Dolphin Court'],units:['#CM2715','#CM4520','#CM1203'],stage:'Qualified',source:'Referral',budget:500,value:490,tags:['Investor','Repeat Client'],rep:'Maria',next:{d:'Aug 15',t:'Send comparison pack'},ago:'2 days'},
+  {id:'OPP-1012',lead:'Sarah Vella',devs:['Dolphin Court'],units:['#CM1201'],stage:'Contacted',source:'Google Ads',budget:350,value:310,tags:[],rep:'Matthew',next:{d:'Aug 19',t:'Book viewing'},ago:'5 days'},
+  {id:'OPP-1013',lead:'Andrew Micallef',devs:['Onyx Rise'],units:['#CM9705'],stage:'Closed Won',source:'Website',budget:500,value:520,tags:['Cash Buyer'],rep:'Sam',next:{d:'—',t:'Deal closed'},ago:'30 days',closed:{step:1,bank:'BOV',deed:'Sep 12',comm:10.4,paid:false}},
+  {id:'OPP-1014',lead:'Kim Farrugia',devs:['Mercury'],units:['#CM2710'],stage:'Reservation',source:'Meta Lead Form',budget:350,value:340,tags:['Foreign Buyer'],rep:'Lucy',next:{d:'Aug 14',t:'Collect deposit'},ago:'1 day'},
+  {id:'OPP-1015',lead:'Chris Bonnici',devs:['Verdala'],units:['#CM4515'],stage:'New Lead',source:'Referral',budget:400,value:390,tags:[],rep:'Sarah',next:{d:'Aug 13',t:'First contact call'},ago:'Today'},
+  {id:'OPP-1016',lead:'Ivan Grech',devs:['La Lex'],units:['#CM9820'],stage:'Viewing Booked',source:'Portal',budget:300,value:300,tags:['Urgent'],rep:'Maria',next:{d:'Aug 16',t:'Confirm viewing time'},ago:'2 days'},
+  {id:'OPP-1017',lead:'Josef Cassar',devs:['Verdala'],units:['#CM4502'],stage:'Closed Won',source:'Referral',budget:400,value:415,tags:[],rep:'Maria',next:{d:'—',t:'Deal closed'},ago:'18 days',closed:{step:2,bank:'APS',deed:'Aug 28',comm:8.3,paid:false}},
+  {id:'OPP-1018',lead:'Amy Sciberras',devs:['Mercury'],units:['#CM2708'],stage:'Closed Won',source:'Portal',budget:300,value:295,tags:['Cash Buyer'],rep:'Lucy',next:{d:'—',t:'Deal closed'},ago:'45 days',closed:{step:5,bank:'—',deed:'Jul 30',comm:5.9,paid:true}},
+  {id:'OPP-1019',lead:'Paul Debono',devs:['La Lex'],units:['#CM9611'],stage:'Closed Won',source:'Walk-in',budget:450,value:440,tags:[],rep:'Matthew',next:{d:'—',t:'Deal closed'},ago:'52 days',closed:{step:1,bank:'HSBC',deed:'Oct 2',comm:8.8,paid:false,stalled:true}},
 ];
-function projCell(p){return `<span class="proj"><span class="proj-ic" style="background:${PROJ_IC[p]||'#657A32'}">◈</span>${p}</span>`;}
-function renderRows(){
-  document.getElementById('pipe-rows').innerHTML = rows.map(r=>`
-    <tr onclick="openOpp()">
-      <td class="cell-id">${r[0]}</td>
-      <td><span class="contact"><span class="avatar-sm" style="background:${color(r[1])}">${initials(r[1])}</span>${r[1]}</span></td>
-      <td>${projCell(r[2])}</td>
-      <td class="cell-id">${r[3]}</td>
-      <td><span class="pill ${r[5]}">${r[4]}</span></td>
-      <td>${r[6]}</td>
-      <td class="cell-strong">${r[7]}</td>
-    </tr>`).join('');
+
+// Pre-commit stages show client budget (~estimate); from Negotiating on, the real offer/unit value.
+const COMMIT_STAGES = ['Negotiating','Reservation','Closed Won'];
+function money(o){
+  const commit = COMMIT_STAGES.includes(o.stage);
+  return commit ? {label:'Offer', amt:o.value, approx:false} : {label:'Budget', amt:o.budget, approx:true};
 }
 
-const board = [
-  {name:'New Lead',cards:[{p:'La Lex',id:'OPP-1027',c:'Robert Pace',u:'#CM9813',d:'2026-06-28',price:'490k',rep:'Matthew'},{p:'Verdala',id:'OPP-1028',c:'Robert Pace',u:'#CM9813',d:'2026-06-28',price:'490k',rep:'Maria'}]},
-  {name:'Qualified',cards:[{p:'Mercury',id:'OPP-1028',c:'Robert Pace',u:'#CM9813',d:'2026-06-28',price:'490k',rep:'Lucy'}]},
-  {name:'Contacted',cards:[]},
-  {name:'Viewing Booked',cards:[{p:'Onyx Rise',id:'OPP-1027',c:'Robert Pace',u:'#CM9813',d:'2026-06-28',price:'490k',rep:'Sarah'},{p:'Verdala',id:'OPP-1028',c:'Robert Pace',u:'#CM9813',d:'2026-06-28',price:'490k',rep:'Maria'}]},
-  {name:'Negotiating',cards:[{p:'La Lex',id:'OPP-1028',c:'Robert Pace',u:'#CM9813',d:'2026-06-28',price:'490k',rep:'Matthew'}]},
-];
-function renderBoard(){
-  document.getElementById('board-cols').innerHTML = board.map(col=>`
-    <div class="col">
-      <div class="col-head"><div class="col-title">${col.name}</div><div class="col-count">${col.cards.length} opportunities</div></div>
-      ${col.cards.map(c=>`
-        <div class="card" onclick="openOpp()">
-          <div class="card-proj"><span class="proj-ic" style="background:${PROJ_IC[c.p]||'#657A32'}">◈</span>${c.p}</div>
-          <div class="card-row"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="2" width="10" height="10" rx="2"/></svg>${c.id}</div>
-          <div class="card-row"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="5" r="2.4"/><path d="M2.5 12c0-2.4 2-3.8 4.5-3.8s4.5 1.4 4.5 3.8"/></svg>${c.c}</div>
-          <div class="card-row"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="3" width="10" height="8" rx="1"/></svg>${c.u}</div>
-          <div class="card-row"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="3" width="10" height="9" rx="1.5"/><path d="M2 6h10"/></svg>${c.d}</div>
-          <div class="card-row"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 2v10M4 4h4.5a1.5 1.5 0 010 3H4M4 7h5"/></svg>€ ${c.price}</div>
-          <div class="card-foot"><span class="avatar-sm" style="background:${color(c.rep)}">${initials(c.rep)}</span>${c.rep}<span class="ago">3 days</span></div>
-        </div>`).join('')}
-    </div>`).join('');
+// ---------- Pipeline filter/search/segment state ----------
+const pipeF = {seg:'all', dev:null, rep:null, source:null, budgetMax:null, tags:[], q:''};
+const FILTER_OPTS = {
+  dev: [...new Set(OPPS.flatMap(o=>o.devs))].sort(),
+  rep: [...new Set(OPPS.map(o=>o.rep))].sort(),
+  source: [...new Set(OPPS.map(o=>o.source))].sort(),
+  budget: [300,400,500],
+  tag: [...new Set(OPPS.flatMap(o=>o.tags))].sort(),
+};
+
+function filteredOpps(){
+  return OPPS.filter(o=>{
+    if(!SEG_STAGES[pipeF.seg].includes(o.stage)) return false;
+    if(pipeF.dev && !o.devs.includes(pipeF.dev)) return false;
+    if(pipeF.rep && o.rep!==pipeF.rep) return false;
+    if(pipeF.source && o.source!==pipeF.source) return false;
+    if(pipeF.budgetMax && money(o).amt>pipeF.budgetMax) return false;
+    if(pipeF.tags.length && !pipeF.tags.every(t=>o.tags.includes(t))) return false;
+    if(pipeF.q){
+      const hay=(o.lead+' '+o.devs.join(' ')+' '+o.id+' '+o.units.join(' ')).toLowerCase();
+      if(!hay.includes(pipeF.q.toLowerCase())) return false;
+    }
+    return true;
+  });
 }
+function unitLabel(o){return o.units.length>1?o.units.length+' units':o.units[0];}
+function devChipsHtml(devs){
+  const rest=devs.slice(1);
+  return `<div class="dev-chips">
+    <span class="dev-chip"><span class="dot" style="background:${PROJ_IC[devs[0]]||'#657A32'}"></span>${devs[0]}</span>
+    ${rest.length?`<span class="dev-more" title="${rest.join(', ')}">+${rest.length}</span>`:''}
+  </div>`;
+}
+function tagChipsHtml(tags){
+  if(!tags.length) return '';
+  return `<div class="card-tags">${tags.map(t=>`<span class="tag-chip">${t}</span>`).join('')}</div>`;
+}
+function projCell(devs){return `<span class="proj"><span class="proj-ic" style="background:${PROJ_IC[devs[0]]||'#657A32'}">◈</span>${devs[0]}${devs.length>1?` <span class="dev-more" title="${devs.slice(1).join(', ')}">+${devs.length-1}</span>`:''}</span>`;}
+
+function renderRows(){
+  const list=filteredOpps();
+  document.getElementById('pipe-rows').innerHTML = list.map(o=>`
+    <tr onclick="openOpp('${o.id}')">
+      <td class="cell-id">${o.id}</td>
+      <td><span class="contact"><span class="avatar-sm neutral">${initials(o.lead)}</span>${o.lead}</span></td>
+      <td>${projCell(o.devs)}</td>
+      <td class="cell-id">${unitLabel(o)}</td>
+      <td><span class="pill ${STAGE_PILL[o.stage]}">${o.stage}</span></td>
+      <td>${o.source}</td>
+      <td class="cell-strong">${money(o).approx?'~':''}€${money(o).amt}k <span class="money-lbl">${money(o).label}</span></td>
+    </tr>`).join('');
+  const foot=document.getElementById('pipe-count');
+  if(foot) foot.textContent = `Showing ${list.length} of ${OPPS.length} entries`;
+}
+
+function renderBoard(){
+  const list=filteredOpps();
+  document.getElementById('board-cols').innerHTML = STAGES.map(stage=>{
+    const cards=list.filter(o=>o.stage===stage);
+    const totalValue=cards.reduce((sum,o)=>sum+money(o).amt,0);
+    const approxCol=cards.length>0&&cards.every(o=>money(o).approx);
+    return `
+    <div class="col" data-stage="${stage}" ondragover="colDragOver(event)" ondragleave="colDragLeave(event)" ondrop="colDrop(event,'${stage}')">
+      <div class="col-head"><div class="col-title-row"><span class="col-title">${stage}</span><span class="col-value">${approxCol?'~':''}€${totalValue}k</span></div><div class="col-count">${cards.length} opportunities</div></div>
+      ${cards.map(o=>`
+        <div class="card" draggable="true" ondragstart="cardDragStart(event,'${o.id}')" ondragend="cardDragEnd(event)" onclick="openOpp('${o.id}')">
+          <div class="card-head">${o.lead}</div>
+          <div class="card-row"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 2v10M4 4h4.5a1.5 1.5 0 010 3H4M4 7h5"/></svg>${money(o).approx?'~':''}€${money(o).amt}k<span class="money-lbl">${money(o).label}</span></div>
+          <div class="card-row"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="3" width="10" height="8" rx="1"/></svg>${unitLabel(o)}</div>
+          <div class="card-row trunc" title="${o.next.t}"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="3" width="10" height="9" rx="1.5"/><path d="M2 6h10"/></svg>${o.next.d} · ${o.next.t}</div>
+          <div class="card-row"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 7l5-4 5 4M4 6.5v5.5h6V6.5"/></svg>${o.source}</div>
+          ${tagChipsHtml(o.tags)}
+          <div class="card-foot">
+            ${devChipsHtml(o.devs)}
+            <div class="rep-mini"><span class="avatar-sm neutral">${initials(o.rep)}</span><span class="rep-name">${o.rep}</span><span class="ago">${o.ago}</span></div>
+          </div>
+        </div>`).join('') || `<div class="col-empty">No opportunities</div>`}
+    </div>`;
+  }).join('');
+}
+
+// ---------- Drag & drop between stages ----------
+let dragOppId=null;
+function cardDragStart(e,id){dragOppId=id;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',id);e.currentTarget.classList.add('dragging');}
+function cardDragEnd(e){e.currentTarget.classList.remove('dragging');}
+function colDragOver(e){e.preventDefault();e.currentTarget.classList.add('drag-over');}
+function colDragLeave(e){e.currentTarget.classList.remove('drag-over');}
+function colDrop(e,stage){
+  e.preventDefault();e.currentTarget.classList.remove('drag-over');
+  const id=dragOppId||e.dataTransfer.getData('text/plain');
+  const o=OPPS.find(x=>x.id===id); dragOppId=null;
+  if(!o||o.stage===stage) return;
+  o.stage=stage;
+  if(stage==='Closed Won'&&!o.closed) o.closed={step:0,bank:'TBC',deed:'TBC',comm:Math.round(o.value*0.02*10)/10,paid:false};
+  pipeRenderAll();
+  showToast(`${o.lead} moved to ${stage}`);
+}
+
+// ---------- Filters ----------
+function toggleFilterMenu(e){
+  e.stopPropagation();
+  const m=document.getElementById('filter-menu');
+  const open=m.style.display==='block';
+  if(open){m.style.display='none';return;}
+  m.innerHTML = `
+    <div class="fm-group"><div class="fm-label">Development</div><div class="fm-opts">${FILTER_OPTS.dev.map(v=>`<button class="fm-opt ${pipeF.dev===v?'on':''}" onclick="setFilter('dev','${v}')">${v}</button>`).join('')}</div></div>
+    <div class="fm-group"><div class="fm-label">Rep</div><div class="fm-opts">${FILTER_OPTS.rep.map(v=>`<button class="fm-opt ${pipeF.rep===v?'on':''}" onclick="setFilter('rep','${v}')">${v}</button>`).join('')}</div></div>
+    <div class="fm-group"><div class="fm-label">Source</div><div class="fm-opts">${FILTER_OPTS.source.map(v=>`<button class="fm-opt ${pipeF.source===v?'on':''}" onclick="setFilter('source','${v}')">${v}</button>`).join('')}</div></div>
+    <div class="fm-group"><div class="fm-label">Max budget</div><div class="fm-opts">${FILTER_OPTS.budget.map(v=>`<button class="fm-opt ${pipeF.budgetMax===v?'on':''}" onclick="setFilter('budgetMax',${v})">≤ €${v}k</button>`).join('')}</div></div>
+    <div class="fm-group"><div class="fm-label">Tag</div><div class="fm-opts">${FILTER_OPTS.tag.map(v=>`<button class="fm-opt ${pipeF.tags.includes(v)?'on':''}" onclick="setFilter('tags','${v}')">${v}</button>`).join('')}</div></div>`;
+  m.style.display='block';
+}
+document.addEventListener('click',e=>{
+  const m=document.getElementById('filter-menu');
+  if(m && m.style.display==='block' && !m.contains(e.target) && !e.target.closest('.fchip-add')) m.style.display='none';
+});
+function setFilter(type,val){
+  if(type==='tags'){
+    const i=pipeF.tags.indexOf(val);
+    if(i>-1) pipeF.tags.splice(i,1); else pipeF.tags.push(val);
+  } else {
+    pipeF[type] = pipeF[type]===val ? null : val;
+  }
+  toggleFilterMenu({stopPropagation(){}});
+  pipeRenderAll();
+}
+function clearFilter(type,val){
+  if(type==='tags'){ pipeF.tags=pipeF.tags.filter(t=>t!==val); }
+  else { pipeF[type]=null; }
+  pipeRenderAll();
+}
+function clearAllFilters(){
+  pipeF.dev=null;pipeF.rep=null;pipeF.source=null;pipeF.budgetMax=null;pipeF.tags=[];
+  pipeRenderAll();
+}
+function renderActiveFilters(){
+  const chips=[];
+  if(pipeF.dev) chips.push({label:'Development',val:pipeF.dev,clear:"clearFilter('dev')"});
+  if(pipeF.rep) chips.push({label:'Rep',val:pipeF.rep,clear:"clearFilter('rep')"});
+  if(pipeF.source) chips.push({label:'Source',val:pipeF.source,clear:"clearFilter('source')"});
+  if(pipeF.budgetMax) chips.push({label:'Budget',val:'≤ €'+pipeF.budgetMax+'k',clear:"clearFilter('budgetMax')"});
+  pipeF.tags.forEach(t=>chips.push({label:'Tag',val:t,clear:`clearFilter('tags','${t}')`}));
+  const html = chips.map(c=>`<span class="fchip">${c.label}: <b>${c.val}</b><span class="x" onclick="${c.clear}">✕</span></span>`).join('');
+  document.getElementById('active-filters').innerHTML = html + (chips.length?`<span class="fclear" onclick="clearAllFilters()">Clear all</span>`:'');
+}
+
+// ---------- Search ----------
+function togglePipeSearch(){
+  const w=document.getElementById('pipe-search-wrap');
+  const show = w.style.display==='none';
+  w.style.display = show?'flex':'none';
+  if(show) document.getElementById('pipe-search').focus();
+  else { document.getElementById('pipe-search').value=''; setPipeSearch(''); }
+}
+function setPipeSearch(v){ pipeF.q=v; pipeRenderAll(); }
+
+// ---------- Segment tabs ----------
+function setPipeSeg(seg,el){
+  pipeF.seg=seg;
+  document.querySelectorAll('#p-pipeline .tabs .tab').forEach(t=>t.classList.remove('on'));
+  if(el) el.classList.add('on');
+  const closed=seg==='closed';
+  document.getElementById('pipe-closed').style.display=closed?'block':'none';
+  const fr=document.querySelector('#p-pipeline .filter-row'); if(fr) fr.style.display=closed?'none':'flex';
+  const vt=document.getElementById('vt-board').parentElement; if(vt) vt.style.display=closed?'none':'flex';
+  if(closed){
+    document.getElementById('pipe-table').style.display='none';
+    document.getElementById('pipe-board').style.display='none';
+    renderClosed();
+  } else {
+    setPipeView(pipeView);
+    pipeRenderAll();
+  }
+}
+
+function pipeRenderAll(){ renderRows(); renderBoard(); renderActiveFilters(); renderClosed(); }
+
+// ---------- Closed tab (post-sale tracker) ----------
+const CLOSED_STEPS=['POS signed','Bank approval','Notary searches','Final deed','Commission paid'];
+function stepperHtml(step){
+  let h='';
+  CLOSED_STEPS.forEach((s,i)=>{
+    if(i>0) h+=`<span class="sbar ${i<step?'done':''}"></span>`;
+    h+=`<span class="sdot ${i<step?'done':i===step?'cur':''}" title="${s}"></span>`;
+  });
+  return `<div class="step-track">${h}</div>`;
+}
+function closedStepLabel(o){
+  const c=o.closed;
+  if(c.step>=5) return `<b>Complete</b> — commission collected`;
+  let txt=`<b>${CLOSED_STEPS[c.step]}</b>`;
+  if(c.step===1) txt+=` — waiting on ${c.bank}`;
+  if(c.stalled) txt+=` <span class="stall">· stalled ${o.ago}</span>`;
+  return txt;
+}
+function renderClosed(){
+  const el=document.getElementById('pipe-closed'); if(el===null) return;
+  const deals=OPPS.filter(o=>o.stage==='Closed Won'&&o.closed);
+  const pend=deals.filter(d=>!d.closed.paid).reduce((s,d)=>s+d.closed.comm,0);
+  const bank=deals.filter(d=>d.closed.step===1).length;
+  const deeds=deals.filter(d=>d.closed.step<4&&/Aug/.test(d.closed.deed)).length;
+  const rows=deals.map(o=>`
+    <div class="closed-row" onclick="openOpp('${o.id}')">
+      <div class="cr-who"><div class="cr-name">${o.lead}</div><div class="cr-sub">${o.units[0]} · ${o.devs[0]}</div></div>
+      <div class="stepper">${stepperHtml(o.closed.step)}<div class="step-label">${closedStepLabel(o)}</div></div>
+      <div class="cr-date"><div class="v">${o.closed.deed}</div><div class="l">Expected deed</div></div>
+      <div class="cr-money"><div class="v">€${o.value}k</div><div class="c">€${o.closed.comm}k comm. <span class="pill ${o.closed.paid?'p-won':'p-paused'}">${o.closed.paid?'Paid':'Pending'}</span></div></div>
+    </div>`).join('');
+  el.innerHTML=`
+    <div class="closed-sum">
+      <div class="csum"><div class="v">€${pend.toFixed(1)}k</div><div class="l">Commissions pending</div></div>
+      <div class="csum"><div class="v">${bank}</div><div class="l">Awaiting bank approval</div></div>
+      <div class="csum"><div class="v">${deeds}</div><div class="l">Deeds expected this month</div></div>
+    </div>
+    ${rows||'<div class="col-empty">No closed deals yet</div>'}`;
+}
+
 
 const bids = [
   ['24 Jun','Matthew Borg','€280,000','Maisonette','7% below asking - client testing flexibility'],
@@ -791,21 +1245,489 @@ function renderBids(){
     </div>`).join('');
 }
 
-const chats = [
-  ['Chat Title placeholder','Clive Dimech','1 day ago'],
-  ['Chat Title placeholder','','1 day ago'],
-  ['Chat Title placeholder','Maria Farrugia','1 day ago'],
-  ['Chat Title placeholder','','1 day ago'],
-  ['Chat Title placeholder','','1 day ago'],
-];
-function renderChats(){
-  document.getElementById('chat-rows').innerHTML = chats.map(c=>`
-    <tr>
-      <td class="cell-strong">${c[0]}</td>
-      <td>${c[1]?`<span class="contact"><span class="avatar-sm" style="background:${color(c[1])}">${initials(c[1])}</span>${c[1]}</span>`:'<span style="color:var(--muted)">-</span>'}</td>
-      <td style="color:var(--on-variant)">${c[2]}</td>
-    </tr>`).join('');
+const chats = []; // legacy placeholder — replaced by chatStore below
+function renderChats(){}
+
+// ============================================================
+// CHAT — data layer, AI engine, render functions
+// ============================================================
+const CHAT_LS = 'briclyChats';
+let chatStore = [];
+let chatSortAZ = false;
+let chatScope = 'all';     // history filter
+let activeChatId = null;   // currently open thread
+let drawerChatId = null;   // ask-panel's live chat
+
+function chatLoad(){
+  try{ const s=localStorage.getItem(CHAT_LS); if(s) chatStore=JSON.parse(s); }catch(e){}
+  if(!chatStore.length) chatStore = chatSeed();
 }
+function chatSave(){ try{localStorage.setItem(CHAT_LS,JSON.stringify(chatStore));}catch(e){} }
+function chatById(id){ return chatStore.find(c=>c.id===id); }
+
+function chatSeed(){
+  const n=Date.now();
+  return [
+    {id:'cs1',title:'Dolphin Court — this week\'s activity',scope:'personal',sharedBy:'',updatedAt:n-3600000,messages:[
+      {role:'user',text:'Summarize what happened with Dolphin Court this week'},
+      {role:'ai',html:`<div class="thought"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 1.5"/></svg>Thought for 3 seconds</div>
+<p class="lead">Here's the activity across <span class="tag">Dolphin Court</span> this week:</p>
+<p><strong>Key movements:</strong></p>
+<ul>
+<li>Luke Attard (OPP-1038) moved from Viewing Booked → Reservation — €350k on unit #CM9802, Meta Lead Form.</li>
+<li>Sam Zammit (OPP-1034) is Negotiating on Mercury Towers — offer at €350k via Website.</li>
+</ul>
+<p><strong>Needs attention:</strong></p>
+<ul>
+<li>Maria Farrugia (OPP-1042) and Andrew Cauchi (OPP-1021) are both Paused — follow-up before they go cold.</li>
+<li>Shannon Cassar (OPP-1009) gone Cold on Verdala Terraces — a personalised render pack could re-open things.</li>
+</ul>`,
+       actions:[{label:'Open Pipeline',fn:"go('pipeline')",cls:'primary'},{label:'Draft a follow-up',fn:"chatInjectAndSend('Draft follow-up for Maria Farrugia')"}],ts:n-3500000}
+    ]},
+    {id:'cs2',title:'Mike Gatt — follow-up draft',scope:'personal',sharedBy:'',updatedAt:n-86400000,messages:[
+      {role:'user',text:'Draft a follow-up message for Mike Gatt'},
+      {role:'ai',html:`<p class="lead">Here's a follow-up draft for <span class="tag">Mike Gatt (OPP-1042)</span>:</p>
+<div class="draft-card"><div class="draft-lbl">Draft message</div><textarea id="draft-cs2">Hi Mike,\n\nJust wanted to check in after our last conversation about the La Lex maisonette. Unit #CM9802 is still available and I have some updated details that may be relevant.\n\nWould you be free for a quick call this week?\n\nBest,\nSam</textarea></div>`,
+       actions:[{label:'Copy draft',fn:"chatCopyDraft('draft-cs2')"},{label:'Mark as sent',fn:"showToast('Follow-up marked as sent ✓')"},{label:'Open opportunity',fn:"openOpp()",cls:'primary'}],ts:n-86300000}
+    ]},
+    {id:'cs3',title:'Q3 pipeline roadmap',scope:'personal',sharedBy:'',updatedAt:n-172800000,messages:[
+      {role:'user',text:'Create a pipeline roadmap for Q3'},
+      {role:'ai',html:`<div class="thought"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 1.5"/></svg>Thought for 4 seconds</div>
+<p class="lead">Q3 roadmap based on your current 10 active opportunities:</p>
+<p><strong>Aug 1–15:</strong> Close negotiations — Ben Zammit (Mercury, €370k) and Julia Micallef (Onyx Rise, €350k). Both at offer stage.</p>
+<p><strong>Aug 15–31:</strong> Re-engage Paused leads — Daniela Spiteri (Verdala) and Nathan Schembri (La Lex). Personalised render packs recommended.</p>
+<p><strong>September:</strong> Convert Viewing Booked leads (Daniel Vella, Maria Borg) to negotiation. Target 2 new reservations.</p>
+<p><strong>October:</strong> Pipeline review, Q3 gap close, Q4 kick-off.</p>`,
+       actions:[{label:'Open Pipeline',fn:"go('pipeline')",cls:'primary'},{label:'Add reminder',fn:"showToast('Q3 roadmap reminder added ✓')"}],ts:n-172700000}
+    ]},
+    {id:'cs4',title:'At-risk deals — follow up needed',scope:'shared',sharedBy:'Clive Dimech',updatedAt:n-259200000,messages:[
+      {role:'user',text:'Show me deals that are at risk and need a follow up'},
+      {role:'ai',html:`<p class="lead">Found <strong>3 opportunities</strong> needing attention:</p>
+<ul>
+<li><strong>Daniela Spiteri (OPP-1047)</strong> — Paused on Verdala, 14 days since last contact. Referral source.</li>
+<li><strong>Nathan Schembri (OPP-1040)</strong> — Paused on La Lex, 21 days. Walk-in lead.</li>
+<li><strong>Emma Farrugia (OPP-1045)</strong> — Cold on Verdala. Agency partner. High churn risk.</li>
+</ul>
+<p>Recommended: WhatsApp check-in for Daniela and Nathan; personalised re-engagement email for Emma.</p>`,
+       actions:[{label:'Open Pipeline',fn:"go('pipeline')",cls:'primary'},{label:'Draft for Daniela',fn:"chatInjectAndSend('Draft follow-up for Daniela Spiteri')"}],ts:n-259100000}
+    ]},
+    {id:'cs5',title:'Commission forecast this month',scope:'personal',sharedBy:'',updatedAt:n-432000000,messages:[
+      {role:'user',text:"What's my commission forecast for this month?"},
+      {role:'ai',html:`<p class="lead">Evidence-weighted commission forecast:</p>
+<p><strong>Committed:</strong> €4,200 — OPP-1042 (Hold, strong buyer signals)</p>
+<p><strong>Probable:</strong> €6,800 — OPP-1027, OPP-1032 (both Negotiating)</p>
+<p><strong>Weighted total:</strong> €11,000 vs €12,000 target — €1,800 behind pace with 12 selling days left.</p>
+<p>Closing Ben Zammit (OPP-1027, €370k) covers the gap 1.4×.</p>`,
+       actions:[{label:'Open Pipeline',fn:"go('pipeline')",cls:'primary'}],ts:n-431900000}
+    ]}
+  ];
+}
+
+// --- HTML escape ---
+function xesc(s){ if(!s)return''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// --- Time helper ---
+function relTime(ts){
+  const d=Date.now()-ts;
+  if(d<3600000) return Math.max(1,Math.floor(d/60000))+'m ago';
+  if(d<86400000) return Math.floor(d/3600000)+'h ago';
+  return Math.floor(d/86400000)+'d ago';
+}
+
+// --- Chat lifecycle ---
+function chatNew(){
+  const id='c'+Date.now();
+  chatStore.unshift({id,title:'New chat',scope:'personal',sharedBy:'',updatedAt:Date.now(),messages:[]});
+  chatSave();
+  openChat(id);
+}
+
+function openChat(id){
+  activeChatId=id;
+  const chat=chatById(id); if(!chat)return;
+  const landing=document.getElementById('chatLanding');
+  const thread=document.getElementById('chatThread');
+  if(landing) landing.style.display='none';
+  if(thread){ thread.style.display='flex'; }
+  const titleEl=document.getElementById('ctTitle');
+  if(titleEl) titleEl.textContent=chat.title;
+  document.getElementById('crumb').innerHTML=`<a onclick="chatNavClick()">Chat</a><span class="sep">/</span><span class="cur">${xesc(chat.title)}</span>`;
+  renderThread(id);
+}
+
+function chatGoLanding(scrollToHistory){
+  activeChatId=null;
+  const landing=document.getElementById('chatLanding');
+  const thread=document.getElementById('chatThread');
+  if(landing) landing.style.display='';
+  if(thread) thread.style.display='none';
+  document.getElementById('crumb').innerHTML='<span class="cur">Chat</span>';
+  // Reset bar visibility and scroll position
+  const bar=document.getElementById('chatHistBar');
+  if(bar) bar.classList.remove('gone');
+  renderHistory();
+  if(scrollToHistory){
+    setTimeout(()=>{ chatScrollToHistory(); },60);
+  }
+}
+function chatScrollToHistory(){
+  const c=document.getElementById('content');
+  const s=document.getElementById('histSection');
+  if(!c||!s)return;
+  c.scrollTo({top:c.scrollTop+s.getBoundingClientRect().top-c.getBoundingClientRect().top-16,behavior:'smooth'});
+}
+function chatUpdateHistBar(){
+  const bar=document.getElementById('chatHistBar'); if(!bar)return;
+  const sect=document.getElementById('histSection'); if(!sect)return;
+  // Hide once the history heading clears the upper half of the viewport
+  const topInView=sect.getBoundingClientRect().top;
+  const vh=window.innerHeight||document.documentElement.clientHeight;
+  bar.classList.toggle('gone', topInView < vh*0.6);
+}
+
+function chatNavClick(){ go('newchat'); chatGoLanding(); }
+
+// --- Thread send ---
+function chatSend(text){
+  text=(text||'').trim(); if(!text)return;
+  const id='c'+Date.now();
+  chatStore.unshift({id,title:chatAutoTitle(text),scope:'personal',sharedBy:'',updatedAt:Date.now(),messages:[]});
+  chatSave();
+  activeChatId=id;
+  go('newchat');
+  openChat(id);
+  _chatAppendAndRespond(id,text);
+}
+
+function chatReply(){
+  const input=document.getElementById('threadInput');
+  if(!input||!activeChatId)return;
+  const text=input.value.trim(); if(!text)return;
+  input.value='';
+  _chatAppendAndRespond(activeChatId,text);
+}
+
+function chatInjectAndSend(text){
+  // Send a follow-up message into the current active chat
+  if(activeChatId){ _chatAppendAndRespond(activeChatId,text); }
+  else { chatSend(text); }
+}
+
+function _chatAppendAndRespond(id,text){
+  const chat=chatById(id); if(!chat)return;
+  // Auto-title from first user message
+  if(chat.messages.length===0) chat.title=chatAutoTitle(text);
+  chat.messages.push({role:'user',text,ts:Date.now()});
+  chat.updatedAt=Date.now();
+  chatSave();
+  // Update title display
+  const titleEl=document.getElementById('ctTitle');
+  if(titleEl) titleEl.textContent=chat.title;
+  document.getElementById('crumb').innerHTML=`<a onclick="chatNavClick()">Chat</a><span class="sep">/</span><span class="cur">${xesc(chat.title)}</span>`;
+  const li=document.getElementById('landingInput');
+  if(li) li.value='';
+  renderThread(id,true);
+  setTimeout(()=>{
+    const resp=aiRespond(text);
+    chat.messages.push({role:'ai',html:resp.html,actions:resp.actions,ts:Date.now()});
+    chat.updatedAt=Date.now();
+    chatSave();
+    renderThread(id);
+  },1200);
+}
+
+function chatAutoTitle(text){
+  const t=text.replace(/[^\w\s'\-]/g,'').trim();
+  return t.length>50?t.slice(0,48)+'…':t||'New chat';
+}
+
+function renderThread(id,thinking){
+  const chat=chatById(id); if(!chat)return;
+  const body=document.getElementById('ctBody'); if(!body)return;
+  let html='<div class="ct-inner">';
+  for(const m of chat.messages){
+    if(m.role==='user'){
+      html+=`<div class="msg-user"><div class="bubble">${xesc(m.text)}</div></div>`;
+    } else {
+      const acts=m.actions?`<div class="msg-acts">${m.actions.map(a=>`<button class="msg-act ${a.cls||''}" onclick="${a.fn}">${xesc(a.label)}</button>`).join('')}</div>`:'';
+      html+=`<div class="msg-ai-row"><div class="ai-ic"><svg width="13" height="13" viewBox="0 0 14 14" fill="currentColor"><path d="M7 0l1.5 4.5L13 6 8.5 7.5 7 12 5.5 7.5 1 6l4.5-1.5L7 0z"/></svg></div><div class="ai-body">${m.html}${acts}</div></div>`;
+    }
+  }
+  if(thinking){
+    html+=`<div class="msg-ai-row" id="aiThink"><div class="ai-ic"><svg width="13" height="13" viewBox="0 0 14 14" fill="currentColor"><path d="M7 0l1.5 4.5L13 6 8.5 7.5 7 12 5.5 7.5 1 6l4.5-1.5L7 0z"/></svg></div><div class="ai-body"><div class="thinking"><span></span><span></span><span></span></div></div></div>`;
+  }
+  html+='</div>';
+  body.innerHTML=html;
+  setTimeout(()=>{body.scrollTop=body.scrollHeight;},10);
+}
+
+function chatRenameActive(el){
+  el.contentEditable='false';
+  const chat=chatById(activeChatId); if(!chat)return;
+  const t=el.textContent.trim()||'Untitled';
+  chat.title=t; chat.updatedAt=Date.now(); chatSave();
+  document.getElementById('crumb').innerHTML=`<a onclick="chatNavClick()">Chat</a><span class="sep">/</span><span class="cur">${xesc(t)}</span>`;
+}
+
+// --- History controls ---
+function histFilterScope(scope,el){
+  chatScope=scope;
+  document.querySelectorAll('#histTabs .tab').forEach(t=>t.classList.remove('on'));
+  if(el) el.classList.add('on');
+  renderHistory();
+}
+function histToggleSort(){
+  chatSortAZ=!chatSortAZ;
+  const btn=document.getElementById('histSortBtn');
+  if(btn) btn.style.color=chatSortAZ?'var(--primary)':'';
+  renderHistory();
+}
+function renderHistory(){
+  const list=document.getElementById('histList'); if(!list)return;
+  const q=(document.getElementById('histSearch')?.value||'').toLowerCase();
+  let items=chatStore.filter(c=>{
+    if(chatScope==='personal'&&c.scope!=='personal')return false;
+    if(chatScope==='shared'&&c.scope!=='shared')return false;
+    if(q&&!c.title.toLowerCase().includes(q))return false;
+    return true;
+  });
+  if(chatSortAZ) items=[...items].sort((a,b)=>a.title.localeCompare(b.title));
+  const now=Date.now();
+  const groups={Today:[],Yesterday:[],Earlier:[]};
+  items.forEach(c=>{
+    const age=now-c.updatedAt;
+    if(age<86400000) groups.Today.push(c);
+    else if(age<172800000) groups.Yesterday.push(c);
+    else groups.Earlier.push(c);
+  });
+  let html='';
+  for(const[g,list2]of Object.entries(groups)){
+    if(!list2.length)continue;
+    html+=`<div class="hist-group-lbl">${g}</div>`;
+    html+=list2.map(c=>`
+      <div class="hist-row" onclick="openChat('${c.id}')">
+        <div class="hist-row-ic"><svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 3h10M2 7h6M2 11h4"/></svg></div>
+        <div class="hist-row-body">
+          <div class="hist-row-title">${xesc(c.title)}${c.scope==='shared'?`<span class="hist-scope-tag"><svg width="10" height="10" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="5" cy="5" r="2.5"/><circle cx="9" cy="5" r="2.5"/><path d="M1 12c0-2 1.8-3.5 4-3.5"/><path d="M9 8.5c2.2 0 4 1.5 4 3.5"/></svg>${xesc(c.sharedBy)}</span>`:''}</div>
+          <div class="hist-row-meta">${relTime(c.updatedAt)} · ${c.messages.length} message${c.messages.length!==1?'s':''}</div>
+        </div>
+        <div class="hist-row-acts">
+          <button title="Rename" onclick="event.stopPropagation();histRename('${c.id}')"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M10 2l2 2-7 7H3v-2L10 2z"/></svg></button>
+          <button title="Delete" onclick="event.stopPropagation();histDelete('${c.id}')"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M3 5h8M5 5V3h4v2M6 8v3M8 8v3"/></svg></button>
+        </div>
+      </div>`).join('');
+  }
+  if(!html) html=`<div class="empty" style="height:100px"><svg width="24" height="24" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1"><path d="M2 3h10M2 7h6M2 11h4"/></svg><span>No chats found</span></div>`;
+  list.innerHTML=html;
+}
+function histRename(id){
+  const chat=chatById(id); if(!chat)return;
+  const t=prompt('Rename:',chat.title); if(!t||!t.trim())return;
+  chat.title=t.trim(); chat.updatedAt=Date.now(); chatSave(); renderHistory();
+}
+function histDelete(id){
+  if(!confirm('Delete this chat?'))return;
+  chatStore=chatStore.filter(c=>c.id!==id); chatSave(); renderHistory();
+}
+
+// --- Copy draft helper ---
+function chatCopyDraft(elId){
+  const el=document.getElementById(elId); if(!el)return;
+  const text=el.tagName==='TEXTAREA'?el.value:el.textContent;
+  navigator.clipboard.writeText(text).then(()=>showToast('Draft copied ✓')).catch(()=>showToast('Draft copied ✓'));
+}
+
+// ============================================================
+// AI ENGINE — keyword intent matcher, 7 intents + fallback
+// ============================================================
+function aiRespond(text){
+  const t=text.toLowerCase();
+  const THINK=`<div class="thought"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 1.5"/></svg>Thought for 2 seconds</div>`;
+
+  // Weekly summary
+  if(/summar|week(ly)?|overview|this week/.test(t)){
+    return{html:`${THINK}<p class="lead">Here's your deal summary for the week:</p>
+<p><strong>Pipeline health:</strong> 10 active opportunities across 4 developments, weighted forecast €11,000 vs €12,000 target.</p>
+<ul>
+<li><strong>Moving forward:</strong> Luke Attard → Reservation on La Lex #CM9802 (€350k), Ben Zammit negotiating Mercury (€370k).</li>
+<li><strong>Needs attention:</strong> 2 Paused leads — Daniela Spiteri (14 days) and Nathan Schembri (21 days since contact).</li>
+<li><strong>At risk:</strong> Emma Farrugia Cold on Verdala — recommend re-engagement render pack.</li>
+</ul>`,
+    actions:[{label:'Open Pipeline',fn:"go('pipeline')",cls:'primary'},{label:'Draft follow-ups',fn:"chatInjectAndSend('Draft follow-up for Daniela Spiteri')"}]};
+  }
+
+  // Follow-up / at-risk
+  if(/follow.?up|at.?risk|need attention|cold|paused/.test(t)){
+    return{html:`${THINK}<p class="lead">Found <strong>3 opportunities</strong> needing a follow-up:</p>
+<ul>
+<li><strong>Daniela Spiteri (OPP-1047)</strong> — Paused on Verdala, 14 days since last contact. Referral source.</li>
+<li><strong>Nathan Schembri (OPP-1040)</strong> — Paused on La Lex, 21 days. Walk-in lead.</li>
+<li><strong>Emma Farrugia (OPP-1045)</strong> — Cold on Verdala. Agency partner. High churn risk.</li>
+</ul>
+<p>A WhatsApp check-in works best for Daniela and Nathan; a personalised render pack for Emma.</p>`,
+    actions:[{label:'Open Pipeline',fn:"go('pipeline')",cls:'primary'},{label:'Draft for Daniela',fn:"chatInjectAndSend('Draft follow-up for Daniela Spiteri')"}]};
+  }
+
+  // Draft message
+  if(/draft|message|email|whatsapp|write/.test(t)){
+    let name='Mike Gatt',opp='OPP-1042';
+    if(/daniela|spiteri/.test(t)){name='Daniela Spiteri';opp='OPP-1047';}
+    else if(/nathan|schembri/.test(t)){name='Nathan Schembri';opp='OPP-1040';}
+    else if(/ben|zammit/.test(t)){name='Ben Zammit';opp='OPP-1027';}
+    else if(/julia|micallef/.test(t)){name='Julia Micallef';opp='OPP-1032';}
+    else if(/emma|farrugia/.test(t)){name='Emma Farrugia';opp='OPP-1045';}
+    const dId='draft-'+Date.now();
+    return{html:`<p class="lead">Draft follow-up for <span class="tag">${xesc(name)} (${opp})</span>:</p>
+<div class="draft-card"><div class="draft-lbl">Draft message</div><textarea id="${dId}">Hi ${xesc(name.split(' ')[0])},\n\nI wanted to check in after our last conversation. We have some exciting updates on the development that I think you'll find relevant.\n\nWould you be available for a quick call this week?\n\nBest,\nSam</textarea></div>`,
+    actions:[{label:'Copy draft',fn:`chatCopyDraft('${dId}')`},{label:'Mark as sent',fn:"showToast('Follow-up marked as sent ✓')"},{label:'Open opportunity',fn:"openOpp()",cls:'primary'}]};
+  }
+
+  // Task / reminder
+  if(/task|remind|add|schedule|set a/.test(t)){
+    return{html:`<p class="lead">Done — noted that down.</p>
+<p>Reminder: <strong>${xesc(text)}</strong></p>
+<p style="font-size:12.5px;color:var(--muted)">You'll see this in your Calendar and next morning briefing.</p>`,
+    actions:[{label:'View Calendar',fn:"go('calendar')",cls:'primary'}]};
+  }
+
+  // Roadmap / Q3 / Q4
+  if(/roadmap|q3|q4|plan|strateg/.test(t)){
+    return{html:`<div class="thought"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 1.5"/></svg>Thought for 4 seconds</div>
+<p class="lead">Q3 roadmap based on your 10 active opportunities:</p>
+<p><strong>Aug 1–15:</strong> Close negotiations — Ben Zammit (Mercury, €370k) and Julia Micallef (Onyx Rise, €350k).</p>
+<p><strong>Aug 15–31:</strong> Re-engage Paused leads — Daniela Spiteri and Nathan Schembri. Personalised render packs.</p>
+<p><strong>September:</strong> Convert Viewing Booked leads (Daniel Vella, Maria Borg) to negotiation. Target 2 new reservations.</p>
+<p><strong>October:</strong> Pipeline review, Q3 gap close, Q4 planning kick-off.</p>`,
+    actions:[{label:'Open Pipeline',fn:"go('pipeline')",cls:'primary'},{label:'Add to Calendar',fn:"go('calendar')"},{label:'Save reminder',fn:"showToast('Q3 roadmap reminder saved ✓')"}]};
+  }
+
+  // Commission / forecast
+  if(/commission|forecast|target|earn|month/.test(t)){
+    return{html:`<p class="lead">Commission forecast for this month:</p>
+<p><strong>Committed:</strong> €4,200 — OPP-1042 (Hold, strong buyer signals)</p>
+<p><strong>Probable:</strong> €6,800 — OPP-1027, OPP-1032 (both Negotiating)</p>
+<p><strong>Weighted total:</strong> €11,000 vs €12,000 target — €1,800 behind pace, 12 selling days left.</p>
+<p>Closing Ben Zammit (OPP-1027, €370k) covers the gap 1.4×.</p>`,
+    actions:[{label:'Open Pipeline',fn:"go('pipeline')",cls:'primary'}]};
+  }
+
+  // Dolphin Court
+  if(/dolphin/.test(t)){
+    return{html:`<div class="thought"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 1.5"/></svg>Thought for 3 seconds</div>
+<p class="lead">Here's the activity across <span class="tag">Dolphin Court</span> this week:</p>
+<p><strong>Key movements:</strong></p>
+<ul>
+<li>Luke Attard (OPP-1038) moved Viewing Booked → Reservation — €350k on #CM9802, Meta Lead Form.</li>
+<li>Sam Zammit (OPP-1034) Negotiating on Mercury Towers — €350k via Website.</li>
+</ul>
+<p><strong>Needs attention:</strong></p>
+<ul>
+<li>Maria Farrugia (OPP-1042) and Andrew Cauchi (OPP-1021) both Paused — follow up before they go cold.</li>
+<li>Shannon Cassar (OPP-1009) gone Cold on Verdala — render pack recommended.</li>
+</ul>`,
+    actions:[{label:'Open Pipeline',fn:"go('pipeline')",cls:'primary'},{label:'Draft follow-up',fn:"chatInjectAndSend('Draft follow-up for Maria Farrugia')"}]};
+  }
+
+  // Fallback
+  return{html:`<p class="lead">Here's what I can help with across your pipeline:</p>
+<ul>
+<li>Summarize deal activity and flag what needs attention</li>
+<li>Draft follow-up messages for specific clients</li>
+<li>Build a roadmap or forecast against your targets</li>
+<li>Create tasks and reminders in your Calendar</li>
+</ul>
+<p style="font-size:12.5px;color:var(--muted)">Try: <em>"Summarize my weekly deals"</em> or <em>"Draft a follow-up for Mike Gatt"</em></p>`,
+  actions:[{label:'Open Pipeline',fn:"go('pipeline')",cls:'primary'}]};
+}
+
+// --- Toast ---
+function showToast(msg){
+  let t=document.getElementById('briclyToast');
+  if(!t){t=document.createElement('div');t.id='briclyToast';t.className='toast';document.body.appendChild(t);}
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._tid); t._tid=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// --- Ask drawer (rewired to shared store + engine) ---
+function openAsk(){
+  document.getElementById('askPanel').classList.add('open');
+  document.getElementById('scrim').classList.add('on');
+  setTimeout(()=>document.getElementById('apInput').focus(),100);
+}
+function closeAsk(){
+  document.getElementById('askPanel').classList.remove('open');
+  document.getElementById('scrim').classList.remove('on');
+}
+function apSend(){
+  const ta=document.getElementById('apInput');
+  const text=(ta.value||'').trim(); if(!text)return;
+  ta.value='';
+  // Start or continue drawer chat
+  if(!drawerChatId||!chatById(drawerChatId)){
+    drawerChatId='cd'+Date.now();
+    chatStore.unshift({id:drawerChatId,title:chatAutoTitle(text),scope:'personal',sharedBy:'',updatedAt:Date.now(),messages:[]});
+    const titleEl=document.getElementById('apTitle');
+    if(titleEl) titleEl.textContent=chatAutoTitle(text);
+  }
+  const chat=chatById(drawerChatId);
+  chat.messages.push({role:'user',text,ts:Date.now()});
+  chat.updatedAt=Date.now(); chatSave();
+  document.getElementById('apSuggests').style.display='none';
+  _apAppendUser(text);
+  const thinkDiv=_apAppendThink();
+  setTimeout(()=>{
+    const resp=aiRespond(text);
+    chat.messages.push({role:'ai',html:resp.html,actions:resp.actions,ts:Date.now()});
+    chat.updatedAt=Date.now(); chatSave();
+    thinkDiv.remove();
+    _apAppendAI(resp);
+  },1200);
+}
+function apChipSend(text){
+  document.getElementById('apInput').value=text;
+  apSend();
+}
+function _apAppendUser(text){
+  const body=document.getElementById('apBody');
+  const d=document.createElement('div');
+  d.className='msg-user-ap'; d.style='text-align:right;margin-bottom:10px';
+  d.innerHTML=`<span style="display:inline-block;background:var(--primary);color:var(--on-primary);padding:7px 12px;border-radius:12px 12px 3px 12px;font-size:13px;max-width:86%;word-break:break-word">${xesc(text)}</span>`;
+  body.insertBefore(d,document.getElementById('apSuggests'));
+  body.scrollTop=body.scrollHeight;
+}
+function _apAppendThink(){
+  const body=document.getElementById('apBody');
+  const d=document.createElement('div'); d.className='msg';
+  d.innerHTML='<div class="thinking"><span></span><span></span><span></span></div>';
+  body.insertBefore(d,document.getElementById('apSuggests'));
+  body.scrollTop=body.scrollHeight;
+  return d;
+}
+function _apAppendAI(resp){
+  const body=document.getElementById('apBody');
+  const d=document.createElement('div'); d.className='msg';
+  const acts=resp.actions?`<div class="msg-acts">${resp.actions.map(a=>`<button class="msg-act ${a.cls||''}" onclick="${a.fn}">${xesc(a.label)}</button>`).join('')}</div>`:'';
+  d.innerHTML=resp.html+acts;
+  body.insertBefore(d,document.getElementById('apSuggests'));
+  body.scrollTop=body.scrollHeight;
+}
+function apExpand(){
+  // Promote drawer chat to full page
+  closeAsk();
+  go('newchat');
+  if(drawerChatId&&chatById(drawerChatId)){
+    openChat(drawerChatId);
+  } else {
+    chatGoLanding();
+  }
+}
+function apHistory(){
+  closeAsk();
+  chatNavClick();
+  setTimeout(()=>{ const s=document.getElementById('histSection'); if(s)s.scrollIntoView({behavior:'smooth'}); },120);
+}
+// legacy alias — kept for any old inline calls
+function askSample(){ apSend(); }
 
 // ============================================================
 // TODAY — the letter. Seven slots, two components, three verbs.
@@ -858,9 +1780,9 @@ const PERSONAS = {
     ],
     announced:[{id:'ra1',text:'Moved Daniel Vella to Viewing Booked — confirmed in yesterday\'s 16:20 call'}],
     day:[
-      {t:'09:30',w:'Viewing — Maria Borg, Onyx Rise penthouse',p:'Prep ready at 09:20 · room set · buyer pack attached'},
-      {t:'11:00',w:'Call — Mike Gatt, hold next steps',p:'Talking points ready · payment plan answer queued'},
-      {t:'14:00',w:'Negotiation — Ben Zammit, Mercury #CM2701',p:'Prep ready at 13:50 · his last three objections summarised'},
+      {t:'09:30',w:'Viewing — Maria Borg, Onyx Rise penthouse',p:'Prep ready at 09:20 · room set · buyer pack attached',room:{kick:'Meeting prep · 09:30',title:'Viewing — Maria Borg, Onyx Rise penthouse',from:'Cole · prep summary',kv:[['Contact','Maria Borg · +356 9988 2104'],['Unit','Onyx Rise #CM9703 · €350k'],['Stage','Viewing booked · asked re terrace'],['Prep','Ready 09:20 · buyer pack attached']],summary:'Maria has viewed twice online and asked about the terrace both times. She replied this morning wanting to talk price — bring two options but don\'t name a number before she sees the space. Her financing is pre-approved to €360k.',points:['Lead with the terrace — it\'s her hook.','Floor is €338k (manager-approved); anchor at asking first.','If she commits this week, there\'s room to move.','Book the reservation follow-up before she leaves.'],openOpp:true}},
+      {t:'11:00',w:'Call — Mike Gatt, hold next steps',p:'Talking points ready · payment plan answer queued',room:{kick:'Call prep · 11:00',title:'Call — Mike Gatt, hold next steps',from:'Cole · prep summary',kv:[['Contact','Mike Gatt · +356 9912 3456'],['Unit','Dolphin Court #CM9802 · €280k'],['Stage','Hold · 3 days · POS pending'],['Prep','Talking points ready']],summary:'Mike asked about the payment plan last night and opened the brochure twice. The hold expires in four days. The goal of this call: confirm he\'s comfortable with 10/20/70 and set the POS signing date.',points:['Answer the payment-plan question first — it\'s why he called.','€28k deposit secures it; confirm the funds are ready.','Propose a POS date this week before the hold lapses.','Two other enquiries on the unit — mention gently for urgency.'],openOpp:true}},
+      {t:'14:00',w:'Negotiation — Ben Zammit, Mercury #CM2701',p:'Prep ready at 13:50 · his last three objections summarised',room:{kick:'Negotiation prep · 14:00',title:'Negotiation — Ben Zammit, Mercury #CM2701',from:'Cole · prep summary',kv:[['Contact','Ben Zammit · Google Ads lead'],['Unit','Mercury #CM2701 · €370k'],['Stage','Negotiating · closes your gap'],['Prep','Ready 13:50 · objections summarised']],summary:'This is the deal that closes your month\'s pace gap. Ben\'s last three objections were all about the completion date, not price. The January completion is now confirmed in writing — lead with that.',points:['Open with the confirmed January completion — kills his main objection.','Hold firm at €370k; comparable #CM2704 closed at €372k.','Don\'t leave without a yes or a concrete next step.','If he stalls, offer the payment plan as the unlock, not a discount.'],openOpp:true}},
     ],
     focus:[
       {n:1,t:`Don't leave Ben's 14:00 without an answer on the €370k.`,k:'It alone closes your pace gap — Pace · −€1,800',pop:'Highest expected value today: close probability 60%, commission impact €2,590 vs gap €1,800.'},
@@ -888,9 +1810,9 @@ const PERSONAS = {
     ],
     announced:[],
     day:[
-      {t:'10:00',w:'1:1 — Katia',p:'Coaching brief attached: viewing→reservation at 18%, objection patterns analysed'},
-      {t:'12:00',w:'Forecast review',p:'Deck assembled · evidence-weighted numbers, no manual pulls'},
-      {t:'15:30',w:'Pricing call — Verdala phase 2',p:'Demand curves and comparables ready'},
+      {t:'10:00',w:'1:1 — Katia',p:'Coaching brief attached: viewing→reservation at 18%, objection patterns analysed',room:{kick:'1:1 prep · 10:00',title:'1:1 — Katia',from:'Cole · coaching brief',kv:[['Focus','Penthouse objection coaching'],['Metric','Viewing→reservation 18% · team 31%'],['Brief','6 lost viewings analysed'],['Duration','30 min']],summary:'Katia\'s penthouse conversion dropped to 18% over three weeks — six lost viewings, all the same objection cluster: outdoor space vs price. She isn\'t losing on price, she\'s losing on framing. Today\'s session is about the script, not the pipeline.',points:['Review the two penthouse viewings from this week together.','Reframe: sell the roof terrace as the price justification.','Role-play the "it\'s too expensive" objection once.','Give her the penthouse lead routed this morning as practice.']}},
+      {t:'12:00',w:'Forecast review',p:'Deck assembled · evidence-weighted numbers, no manual pulls',room:{kick:'Review prep · 12:00',title:'Forecast review',from:'Cole · summary',kv:[['Forecast','€2.9M weighted · target €3.4M'],['Gap','3 units — two 2-beds + maisonette'],['Deck','Assembled · no manual pulls'],['Driver','6 two-beds decide the month']],summary:'The month comes down to the two-beds: six negotiating deals carry 71% of the remaining gap. Everything else is on track. The deck is evidence-weighted and ready — nothing to pull by hand.',points:['Walk the six two-bed deals first — they are the month.','Flag the overnight speed-to-lead breach (one 40-min miss).','Verdala #CM4506 counter is out at €345k, awaiting owner sign-off.','Lead flow runs 20% short next week — raise with marketing today.']}},
+      {t:'15:30',w:'Pricing call — Verdala phase 2',p:'Demand curves and comparables ready',room:{kick:'Call prep · 15:30',title:'Pricing call — Verdala phase 2',from:'Cole · summary',kv:[['Scope','Phase 2 release pricing'],['Demand','2-bed enquiries strongest since launch'],['Comparable','#CM4508 closed €345k'],['Prep','Demand curves + comparables ready']],summary:'Phase 2 pricing hinges on two-bed demand depth, which is the strongest since launch. The data supports a modest uplift on release, but hold the maisonettes flat — they\'re moving slower.',points:['Two-beds can carry a release uplift — demand is 3:1.','Keep maisonettes flat; 94-day ages showing.','Align the floor with the owner\'s +2% decision if it lands.','Set the release date against current absorption pace.']}},
     ],
     focus:[
       {n:1,t:'Sit with Katia on penthouse objections — her viewing→reservation dropped to 18%.',k:'Conversion · team avg is 31%',pop:'Six lost penthouse viewings in 3 weeks, same objection cluster: outdoor space vs price.'},
@@ -917,9 +1839,9 @@ const PERSONAS = {
     ],
     announced:[],
     day:[
-      {t:'10:30',w:'Weekly review',p:'Assembled overnight · channel deltas and creative fatigue flags only'},
-      {t:'13:00',w:'Launch checklist — one-bed investor campaign',p:'Studio drafts attached · 3 variants ready for sign-off'},
-      {t:'16:00',w:'Handoff SLA check with sales',p:'Current: 12 of 14 leads inside 15 min'},
+      {t:'10:30',w:'Weekly review',p:'Assembled overnight · channel deltas and creative fatigue flags only',room:{kick:'Review prep · 10:30',title:'Weekly review',from:'Cole · summary',kv:[['CPR','€1,140 · target €1,250'],['CPL','Down 8% w/w'],['Flag','Dolphin Court hero fatiguing at 6.1'],['Deck','Assembled overnight']],summary:'Spend is pacing to plan and CPR is under target — a healthy week. The one issue is creative fatigue on the Dolphin Court hero set, plus a demand-mix skew toward one-beds that the new campaign will correct.',points:['Lead with CPR under target — the week is green.','Sign off the hero refresh before fatigue bites CPL.','Approve the one-bed investor campaign to fix the mix.','Budget shift Meta→Google is queued for your confirm.']}},
+      {t:'13:00',w:'Launch checklist — one-bed investor campaign',p:'Studio drafts attached · 3 variants ready for sign-off',room:{kick:'Launch prep · 13:00',title:'Launch checklist — one-bed investor campaign',from:'Cole · summary',kv:[['Goal','Correct demand-mix, defend CPR'],['Assets','3 Studio drafts ready'],['Channel','Google Search + Meta'],['Guardrail','CPL cap €38']],summary:'The one-bed investor campaign is the week\'s highest-return move: one-bed demand exceeds inventory 3:1, and redirecting it holds blended CPR through month end. Three creative variants are drafted and ready for sign-off.',points:['Approve the three creative variants.','Confirm the €38 CPL guardrail on launch.','Set Google Search as primary, Meta as retarget.','Brief sales on the incoming investor-profile leads.']}},
+      {t:'16:00',w:'Handoff SLA check with sales',p:'Current: 12 of 14 leads inside 15 min',room:{kick:'Check prep · 16:00',title:'Handoff SLA check with sales',from:'Cole · summary',kv:[['SLA','12 of 14 inside 15 min'],['Breach','One 40-min miss overnight'],['Owner','Shared metric with sales'],['Trend','Improving w/w']],summary:'Handoff SLA is healthy at 12 of 14 within 15 minutes. One overnight breach — a Meta lead sat 40 minutes unclaimed. Worth a quick word with the sales manager on overnight routing coverage.',points:['Flag the single 40-min overnight breach.','Confirm overnight routing coverage with the manager.','Lead volume runs 20% short of next week\'s target.','Agree a qualification definition to sharpen source reporting.']}},
     ],
     focus:[
       {n:1,t:'Get the one-bed investor campaign live — the mix corrects and CPR holds.',k:'Cost per reservation · demand-mix fit',pop:'One-bed demand exceeds inventory 3:1; redirecting it defends blended CPR through month end.'},
@@ -947,9 +1869,9 @@ const PERSONAS = {
     ],
     announced:[],
     day:[
-      {t:'11:00',w:'Bank call — facility review',p:'Threshold status attached: 6 units out, 5 weeks at current pace'},
-      {t:'14:30',w:'Site meeting — Dolphin Court phase 2',p:'Progress photos and programme variance in your pack'},
-      {t:'17:00',w:'Monthly review',p:'Assembled · velocity, cash, realisation — one page'},
+      {t:'11:00',w:'Bank call — facility review',p:'Threshold status attached: 6 units out, 5 weeks at current pace',room:{kick:'Call prep · 11:00',title:'Bank call — facility review',from:'Cole · summary',kv:[['Threshold','6 units away · ~5 weeks'],['Velocity','2.1 units/wk · plan 1.8'],['Pack','Threshold status attached'],['Position','Ahead of the absorption plan']],summary:'You go into this call ahead of plan: velocity is 2.1 units/week against 1.8 planned, and the financing threshold is six units away — roughly five weeks. That strengthens the facility conversation. The pack leads with the threshold status.',points:['Lead with velocity ahead of plan — negotiate from strength.','Threshold: 47 units by October triggers the facility.','Cash: €4.1M collected, €620k due, €38k overdue (being chased).','Ask about improved terms given the ahead-of-plan absorption.']}},
+      {t:'14:30',w:'Site meeting — Dolphin Court phase 2',p:'Progress photos and programme variance in your pack',room:{kick:'Meeting prep · 14:30',title:'Site meeting — Dolphin Court phase 2',from:'Cole · summary',kv:[['Scope','Phase 2 programme + progress'],['Pack','Progress photos + variance'],['Status','On programme'],['Feeds','The release pricing call']],summary:'Phase 2 is on programme. The pack has this week\'s progress photos and any variance against the build schedule. The key downstream decision is the phase 2 release date, which the manager\'s pricing call will price.',points:['Confirm the phase 2 completion programme holds.','Note any variance to raise with the bank on financing.','Set a provisional release date for pricing.','Two-bed demand supports pricing the release up.']}},
+      {t:'17:00',w:'Monthly review',p:'Assembled · velocity, cash, realisation — one page',room:{kick:'Review prep · 17:00',title:'Monthly review',from:'Cole · summary',kv:[['Velocity','Ahead of plan'],['Cash','€4.1M in · €658k out/overdue'],['Realisation','+1.2% on last 4 closings'],['Format','One page, assembled']],summary:'The month in one page: velocity ahead of plan, price realisation up 1.2% on the last four closings, and cash the one thing to watch — €38k overdue plus €620k due against a €600k quarterly facility need. Everything ties back to the threshold.',points:['Velocity and realisation both ahead — headline is positive.','Cash is the watch item: €658k against a €600k need.','The +2% two-bed decision lands +€74k if approved.','Threshold five weeks out — the quarter is about protecting pace.']}},
     ],
     focus:[
       {n:1,t:'The threshold is five weeks away at this pace; the two-bed velocity is the month.',k:'Velocity · threshold distance',pop:'6 units to the financing trigger. Two-beds are 8 of the last 10 closings.'},
@@ -989,7 +1911,7 @@ function renderLetter(){
   if(!open.length&&!(P.announced||[]).length)h+=`<div class="zero">Nothing needs your signature. Clean desk.</div>`;
   // Your day
   h+=`<div class="slot-label">Your day</div>`;
-  P.day.forEach(d=>{h+=`<div class="dayline"><span class="dt">${d.t}</span><div><div class="dw">${d.w}</div><div class="dprom"><span class="pk">✓</span> ${d.p}</div></div></div>`;});
+  P.day.forEach((d,i)=>{h+=`<div class="dayline" onclick="openDayRoom(${i})"><span class="dt">${d.t}</span><div class="dbody"><div class="dw">${d.w}</div><div class="dprom"><span class="pk">✓</span> ${d.p}</div></div><span class="dchev"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2l4 4-4 4"/></svg></span></div>`;});
   // Focus
   h+=`<div class="slot-label"><span class="ydot"></span>Focus</div>`;
   P.focus.forEach((f,i)=>{
@@ -1067,6 +1989,24 @@ function openActionRoom(id){
     `<button class="btn-ghost" onclick="closeRoom()">Later</button><button class="btn-primary" onclick="decideAction('${id}')">${a.room.primary}</button>`);
   openRoomShell();
   const row=document.getElementById('row-'+id);if(row)row.classList.add('live');
+}
+function openDayRoom(i){
+  const r=PERSONAS[curPersona].day[i]&&PERSONAS[curPersona].day[i].room;
+  if(!r)return;
+  roomCtx={type:'day',i};
+  const foot=r.openOpp
+    ?`<button class="btn-ghost" onclick="closeRoom()">Close</button><button class="btn-primary" onclick="closeRoom();openOpp()">Open opportunity</button>`
+    :`<button class="btn-primary" style="flex:1;justify-content:center" onclick="closeRoom()">Got it</button>`;
+  document.getElementById('room').innerHTML=`<div class="room-head"><span class="kick">${r.kick}</span><button class="icon-btn" onclick="closeRoom()" title="Close"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3l8 8M11 3l-8 8"/></svg></button></div>
+  <div class="room-body">
+    <div class="room-title">${r.title}</div>
+    <div class="room-kv">${r.kv.map(([k,v])=>`<div class="kv"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('')}</div>
+    <div class="rdraft"><div class="from">${r.from||'Cole · prep summary'}</div>${r.summary}</div>
+    ${r.points?`<div class="slot-label" style="margin:2px 0 8px">Talking points</div><ul class="rpoints">${r.points.map(p=>`<li>${p}</li>`).join('')}</ul>`:''}
+    ${r.note?`<div class="rnote">${r.note}</div>`:''}
+  </div>
+  <div class="room-foot">${foot}</div>`;
+  openRoomShell();
 }
 function decideAction(id){
   const a=PERSONAS[curPersona].needsYou.find(x=>x.id===id);
@@ -1150,7 +2090,7 @@ function focusPop(e,i){
 }
 
 // ---------- Routing ----------
-const CRUMB = {today:'Today',newchat:'Chat history',dashboard:'Dashboard',pipeline:'Pipeline',properties:'Properties',developments:'Developments',contacts:'Contacts',calendar:'Calendar',reports:'Reports',settings:'Settings',opp:'Mike Gatt'};
+const CRUMB = {today:'Today',newchat:'Chat',dashboard:'Dashboard',pipeline:'Opportunities',properties:'Units',developments:'Developments',contacts:'Contacts',calendar:'Calendar',reports:'Reports',settings:'Settings',opp:'Mike Gatt'};
 function go(page){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.getElementById('p-'+page).classList.add('on');
@@ -1158,15 +2098,30 @@ function go(page){
   document.getElementById('crumb').innerHTML = '<span class="cur">'+(CRUMB[page]||page)+'</span>';
   document.getElementById('content').scrollTop=0;
 }
-function openOpp(){
+function openOpp(id){
+  const o = OPPS.find(x=>x.id===id) || OPPS[0];
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.getElementById('p-opp').classList.add('on');
   document.querySelectorAll('.ni').forEach(n=>n.classList.toggle('on',n.dataset.page==='pipeline'));
-  document.getElementById('crumb').innerHTML='<a onclick="go(\'pipeline\')">Pipeline</a><span class="sep">/</span><span class="cur">Mike Gatt</span>';
+  document.getElementById('crumb').innerHTML=`<a onclick="go('pipeline')">Pipeline</a><span class="sep">/</span><span class="cur">${xesc(o.lead)}</span>`;
+  populateOppDetail(o);
   oppTab('overview',document.querySelector('#p-opp .tab'));
   document.getElementById('content').scrollTop=0;
 }
+function populateOppDetail(o){
+  document.getElementById('opp-title').textContent = o.lead;
+  document.getElementById('opp-sub').textContent = `${o.devs.join(' · ')} · ${unitLabel(o)} · ${o.stage}`;
+  document.getElementById('opp-status-label').textContent = o.stage;
+  document.getElementById('opp-source').textContent = o.source;
+  document.getElementById('opp-nextstep').textContent = o.next.t;
+  document.getElementById('opp-contact-name').textContent = o.lead;
+  document.getElementById('opp-contact-email').textContent = o.lead.toLowerCase().replace(/\s+/g,'.')+'@email.com';
+  document.getElementById('opp-units').innerHTML = o.devs.map((d,i)=>`
+    <div class="mini-tr"><span class="cell-id">${o.units[i]||o.units[0]}</span><span class="proj"><span class="proj-ic" style="background:${PROJ_IC[d]||'#657A32'}">◈</span>${d}</span><span>Apartment</span><span>€${o.value},000</span><span class="pill ${STAGE_PILL[o.stage]}">${o.stage}</span></div>`).join('');
+}
+let pipeView='board';
 function setPipeView(v){
+  pipeView=v;
   document.getElementById('pipe-table').style.display = v==='table'?'block':'none';
   document.getElementById('pipe-board').style.display = v==='board'?'block':'none';
   document.getElementById('vt-table').classList.toggle('on',v==='table');
@@ -1178,36 +2133,54 @@ function oppTab(tab,el){
   ['overview','notes','deals','bids'].forEach(t=>{document.getElementById('ot-'+t).style.display = t===tab?'block':'none';});
 }
 
-// ---------- Ask panel ----------
-function openAsk(){document.getElementById('askPanel').classList.add('open');document.getElementById('scrim').classList.add('on');}
-function closeAsk(){document.getElementById('askPanel').classList.remove('open');document.getElementById('scrim').classList.remove('on');}
-function askSample(){
-  document.getElementById('apSuggests').style.display='none';
-  const body=document.getElementById('apBody');
-  if(document.getElementById('ap-answer'))return;
-  const div=document.createElement('div');div.className='msg';div.id='ap-answer';
-  div.innerHTML=`
-    <div class="meta">2:03 PM, 15 Nov</div>
-    <div class="thought"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 1.5"/></svg>Thought for 3 seconds</div>
-    <p class="lead">Sure. Here's the activity across <span class="tag">Dolphin Court</span> this week:</p>
-    <p><strong>Key movements:</strong></p>
-    <ul>
-      <li>Luke Attard (OPP-1038) moved from Viewing Booked to Reservation — €350k offer on unit #CM9802, sourced from a Meta Lead Form.</li>
-      <li>Sam Zammit (OPP-1034) is Negotiating on Mercury Towers — came in via Website, offer on the table at €350k.</li>
-    </ul>
-    <p><strong>Needs attention:</strong></p>
-    <ul>
-      <li>Maria Farrugia (OPP-1042) and Andrew Cauchi (OPP-1021) are both Paused on Dolphin Court. Worth a follow-up before they go cold.</li>
-      <li>Shannon Cassar (OPP-1009) has gone Cold on Verdala Terraces — a personalised render pack could re-open the conversation.</li>
-    </ul>`;
-  body.insertBefore(div,document.getElementById('apSuggests'));
+// ---------- New opportunity drawer ----------
+function openNewOpp(){
+  document.getElementById('oppFormBody').innerHTML = `
+    <div class="od-field"><label>Lead name</label><input id="nf-lead" placeholder="e.g. Ana Bugeja"></div>
+    <div class="od-field"><label>Development(s)</label><div class="chk-row" id="nf-devs">${FILTER_OPTS.dev.map(d=>`<button type="button" class="fm-opt" data-dev="${d}" onclick="this.classList.toggle('on')">${d}</button>`).join('')}</div></div>
+    <div class="od-field"><label>Unit</label><input id="nf-unit" placeholder="e.g. #CM9010"></div>
+    <div class="od-field"><label>Deal value (€k)</label><input id="nf-value" type="number" placeholder="350"></div>
+    <div class="od-field"><label>Stage</label><select id="nf-stage">${STAGES.map(s=>`<option>${s}</option>`).join('')}</select></div>
+    <div class="od-field"><label>Lead source</label><select id="nf-source">${FILTER_OPTS.source.map(s=>`<option>${s}</option>`).join('')}</select></div>
+    <div class="od-field"><label>Assigned rep</label><select id="nf-rep">${FILTER_OPTS.rep.map(r=>`<option>${r}</option>`).join('')}</select></div>
+    <div class="od-field"><label>Tags</label><div class="chk-row" id="nf-tags">${FILTER_OPTS.tag.map(t=>`<button type="button" class="fm-opt" data-tag="${t}" onclick="this.classList.toggle('on')">${t}</button>`).join('')}</div></div>`;
+  document.getElementById('oppDrawer').classList.add('open');
+  document.getElementById('oppScrim').classList.add('on');
+  setTimeout(()=>document.getElementById('nf-lead').focus(),100);
 }
+function closeNewOpp(){
+  document.getElementById('oppDrawer').classList.remove('open');
+  document.getElementById('oppScrim').classList.remove('on');
+}
+function submitNewOpp(){
+  const lead=document.getElementById('nf-lead').value.trim();
+  if(!lead){ showToast('Lead name is required'); return; }
+  const devs=[...document.querySelectorAll('#nf-devs .fm-opt.on')].map(b=>b.dataset.dev);
+  const tags=[...document.querySelectorAll('#nf-tags .fm-opt.on')].map(b=>b.dataset.tag);
+  const unit=document.getElementById('nf-unit').value.trim() || '#TBC';
+  const value=parseInt(document.getElementById('nf-value').value,10) || 300;
+  const o={
+    id:'OPP-'+(1000+OPPS.length+17),
+    lead, devs: devs.length?devs:[FILTER_OPTS.dev[0]], units:[unit],
+    stage:document.getElementById('nf-stage').value,
+    source:document.getElementById('nf-source').value,
+    budget:Math.ceil(value/50)*50, value, tags, rep:document.getElementById('nf-rep').value,
+    next:{d:'—',t:'New opportunity — plan first contact'}, ago:'Today',
+  };
+  OPPS.push(o);
+  closeNewOpp();
+  pipeRenderAll();
+  showToast(`${lead} added to ${o.stage}`);
+}
+
+// ask panel functions are defined above in the CHAT section
 
 // ---------- Theme ----------
 function toggleTheme(){const h=document.documentElement;h.dataset.theme=h.dataset.theme==='dark'?'light':'dark';}
 
 // ---------- init ----------
-renderRows();renderBoard();renderBids();renderChats();renderLetter();
+chatLoad(); pipeRenderAll(); renderBids();renderLetter();
+document.getElementById('content').addEventListener('scroll',chatUpdateHistBar,{passive:true});
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){closeAsk();closeEv();if(roomCtx)closeRoom();return;}
   if(roomCtx&&roomCtx.type==='sweep'&&sw.i<SWEEP.length){
