@@ -19,6 +19,7 @@
   --outline:#E5E4E1; --outline-variant:#EBEAE9;
   --primary:#657A32; --primary-high:#52671F; --primary-low:#B6C78D; --on-primary:#FAF9F7;
   --error:#EB5759;
+  --y-ink:#8a6a12; --y-bg:rgba(214,171,60,.18); --y-line:rgba(214,171,60,.42);
   --font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   --sh-xs:0 1px 2px 0 rgba(0,0,0,0.05);
   --sh-sm:0 1px 2px -1px rgba(0,0,0,.1),0 1px 3px 0 rgba(0,0,0,.1);
@@ -33,6 +34,7 @@ html[data-theme="dark"]{
   --on-surface:#E8E8DC; --on-variant:#A1A1A1; --muted:#7c7a72;
   --outline:#2E2E2A; --outline-variant:#2E2E2C;
   --primary:#7F944D; --primary-high:#B1C87B; --on-primary:#191919;
+  --y-ink:#d9b85c; --y-bg:rgba(217,184,92,.13); --y-line:rgba(217,184,92,.32);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--font);background:var(--bg);color:var(--on-surface);font-size:14px;line-height:1.5;height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased}
@@ -59,7 +61,8 @@ button{font-family:inherit}
 .user{display:flex;align-items:center;gap:9px;padding:5px 6px;border-radius:8px;cursor:pointer;transition:.12s}
 .user:hover{background:var(--sc-lowest)}
 .avatar{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--on-primary);flex:none;background:linear-gradient(135deg,var(--primary),var(--primary-high))}
-.user .uname{font-size:13px;font-weight:500;letter-spacing:-0.1px}
+.user .uname{font-size:13px;font-weight:500;letter-spacing:-0.1px;line-height:1.25}
+.user .urole{font-size:10.5px;color:var(--muted);line-height:1.2}
 .user>svg{width:11px;height:11px;color:var(--muted);margin-left:auto}
 
 /* ---------- Main / topbar ---------- */
@@ -202,20 +205,131 @@ button{font-family:inherit}
 .storage-bar{height:6px;border-radius:3px;background:var(--sc-high);overflow:hidden;margin:8px 0 4px}
 .storage-bar>span{display:block;height:100%;background:#8aa653;width:5%}
 
-/* ---------- Home ---------- */
-.home{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:0 24px}
-.home h1{font-size:26px;font-weight:500;letter-spacing:-0.3px;margin-bottom:22px}
-.composer{width:100%;max-width:640px;background:var(--surface);border:1px solid var(--outline);border-radius:var(--r-xl);padding:16px;box-shadow:var(--sh-sm)}
-.composer textarea{width:100%;border:none;outline:none;resize:none;font-family:inherit;font-size:14px;color:var(--on-surface);background:transparent;min-height:46px}
-.composer textarea::placeholder{color:var(--muted)}
-.composer-foot{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+/* ---------- Today (the letter) ---------- */
+#p-today{position:relative}
+#p-today.on{display:flex;flex-direction:column;height:100%}
+.t-demo{position:absolute;top:14px;right:18px;display:flex;gap:8px;align-items:center;z-index:5}
+.t-demo .hint{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.seg{display:flex;border:1px solid var(--outline);border-radius:100px;background:var(--surface);padding:2px}
+.seg button{border:none;background:transparent;font-family:inherit;font-size:11.5px;color:var(--on-variant);padding:4px 11px;border-radius:100px;cursor:pointer;transition:.12s}
+.seg button.on{background:var(--sc-high);color:var(--on-surface);font-weight:500}
+.heat-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:100px;border:1px solid var(--y-line);background:var(--y-bg);color:var(--y-ink);font-size:11.5px;font-weight:500;cursor:pointer;font-family:inherit}
+.letter-scroll{flex:1;overflow-y:auto;padding:44px 24px 12px;transition:padding-right .28s cubic-bezier(.4,0,.2,1)}
+#p-today.engaged .letter-scroll,#p-today.engaged .cmdbar-wrap{padding-right:452px}
+.letter{max-width:600px;margin:0 auto}
+.l-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:16px}
+.l-date{font-size:12px;color:var(--muted);letter-spacing:.02em;font-family:"SF Mono",ui-monospace,Menlo,monospace;flex:none}
+.ledger{display:inline-flex;align-items:center;gap:8px;border:1px solid transparent;background:transparent;cursor:pointer;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:12px;color:var(--muted);padding:4px 10px 4px 4px;border-radius:100px;font-variant-numeric:tabular-nums;transition:.15s}
+.ledger:hover{border-color:var(--outline);background:var(--surface)}
+.litem{display:inline-flex;align-items:baseline}
+.ledger .lv{color:var(--on-variant);transition:.15s}
+.ledger:hover .lv{color:var(--on-surface)}
+.ledger .llabel{max-width:0;overflow:hidden;white-space:nowrap;opacity:0;color:var(--muted);margin-left:0;transition:max-width .25s cubic-bezier(.4,0,.2,1),opacity .2s,margin-left .25s}
+.ledger:hover .llabel{max-width:240px;opacity:1;margin-left:6px}
+.lsep{opacity:.35;margin:0 1px}
+.ledger .ldot{width:6px;height:6px;border-radius:50%;background:#d6ab3c;flex:none;margin-left:2px}
+.l-greet{font-size:24px;font-weight:600;letter-spacing:-.4px;margin-bottom:20px}
+.l-brief{font-size:15px;line-height:1.75;color:var(--on-surface);margin:0 0 6px}
+.y{background:var(--y-bg);border-radius:4px;padding:0 3px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.ev{border-bottom:1px dashed var(--sc-highest);cursor:pointer}
+.ev:hover{border-bottom-color:var(--on-variant)}
+.slot-label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:28px 0 10px;display:flex;align-items:center;gap:7px}
+.slot-label .ydot{width:6px;height:6px;border-radius:2px;background:var(--y-ink);opacity:.75}
+.arow{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--outline);background:var(--surface);border-radius:10px;margin-bottom:8px;cursor:pointer;transition:.15s}
+.arow:hover{border-color:var(--sc-highest);box-shadow:var(--sh-xs)}
+.arow .aw{flex:1;min-width:0}
+.arow .a1{font-size:14px;font-weight:500}
+.arow .a2{font-size:12.5px;color:var(--muted);margin-top:1px}
+.arow .achan{margin-top:7px}
+.chan{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--on-variant);background:var(--sc-lowest);border:1px solid var(--outline);border-radius:100px;padding:2px 9px 2px 7px;white-space:nowrap}
+.chan svg{width:11px;height:11px;flex:none}
+.chan .chto{color:var(--muted)}
+.chan-whatsapp{color:#3a7d44;border-color:rgba(58,125,68,.28);background:rgba(58,125,68,.09)}
+.chan-whatsapp .chto{color:rgba(58,125,68,.7)}
+.arow .alater{flex:none;font-size:11px;color:var(--muted);opacity:0;transition:.15s}
+.arow:hover .alater{opacity:1}
+.arow .averb{flex:none;padding:5px 13px;border-radius:7px;border:1px solid var(--outline);background:var(--sc-lowest);font-size:12.5px;font-weight:500;color:var(--on-surface);transition:.15s}
+.arow:hover .averb{background:var(--primary);border-color:var(--primary-high);color:var(--on-primary)}
+.arow.live{position:relative;z-index:60;border-color:var(--primary-low);box-shadow:var(--sh-md)}
+.announce{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;background:var(--sc-lowest);border:1px dashed var(--outline);margin-bottom:8px;font-size:13px;color:var(--on-variant)}
+.announce .ck{color:var(--primary);flex:none;display:flex}
+.announce .undo{margin-left:auto;font-size:12px;color:var(--on-variant);text-decoration:underline;cursor:pointer;flex:none}
+.announce .undo:hover{color:var(--on-surface)}
+.zero{padding:12px 2px;font-size:13.5px;color:var(--muted);font-style:italic}
+.dayline{display:flex;gap:14px;padding:10px 2px;border-bottom:1px solid var(--outline-variant)}
+.dayline:last-of-type{border-bottom:none}
+.dayline .dt{width:48px;flex:none;color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums;padding-top:1px}
+.dayline .dw{flex:1;font-size:14px}
+.dayline .dprom{font-size:12.5px;color:var(--muted);margin-top:1px}
+.dayline .dprom .pk{color:var(--primary)}
+.fb{display:flex;gap:12px;padding:12px 14px;border-radius:10px;cursor:pointer;margin-bottom:6px;border:1px solid transparent;transition:.15s;align-items:flex-start}
+.fb:hover{background:var(--sc-lowest);border-color:var(--outline)}
+.fb .fn{flex:none;width:20px;height:20px;border-radius:6px;background:var(--y-bg);color:var(--y-ink);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.fb .fw{flex:1}
+.fb .f1{font-size:14.5px;font-weight:500;line-height:1.45}
+.fb .f2{font-size:12.5px;color:var(--muted);margin-top:2px}
+.fb .chev{margin-left:auto;color:var(--muted);opacity:0;transition:.15s;flex:none;align-self:center}
+.fb:hover .chev{opacity:1}
+.l-end{margin:34px 0 10px;padding-top:18px;border-top:1px solid var(--outline);font-size:14px;color:var(--on-variant);text-align:center}
+.heatline{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;background:var(--y-bg);border:1px solid var(--y-line);font-size:13.5px;margin-bottom:20px;cursor:pointer;animation:heatIn .3s ease}
+.heatline .hz{color:var(--y-ink);flex:none;display:flex}
+.heatline:hover{box-shadow:var(--sh-xs)}
+@keyframes heatIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.cmdbar-wrap{flex:none;padding:10px 24px 18px;display:flex;justify-content:center;transition:padding-right .28s cubic-bezier(.4,0,.2,1)}
+.cmdbar{display:flex;align-items:center;gap:10px;width:100%;max-width:600px;background:var(--surface);border:1px solid var(--outline);border-radius:100px;padding:8px 9px 8px 16px;box-shadow:var(--sh-sm)}
+.cmdbar input{flex:1;border:none;outline:none;background:transparent;font-family:inherit;font-size:13.5px;color:var(--on-surface)}
+.cmdbar input::placeholder{color:var(--muted)}
+.cmdbar .kbd{flex:none}
+.cmd-mic{width:30px;height:30px;border-radius:50%;background:var(--y-bg);color:var(--y-ink);display:flex;align-items:center;justify-content:center;border:1px solid var(--y-line);cursor:pointer;flex:none}
+
+/* ---------- Room (right pane) ---------- */
+.dimscrim{position:fixed;inset:0;background:rgba(20,20,19,.32);opacity:0;pointer-events:none;transition:.25s;z-index:52}
+.dimscrim.on{opacity:1;pointer-events:auto}
+.room{position:fixed;top:0;right:0;bottom:0;width:428px;background:var(--surface);border-left:1px solid var(--outline);transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);z-index:55;box-shadow:var(--sh-xl);display:flex;flex-direction:column}
+.room.open{transform:none}
+.room-head{height:52px;flex:none;display:flex;align-items:center;gap:10px;padding:0 16px;border-bottom:1px solid var(--outline)}
+.room-head .kick{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600}
+.room-head .icon-btn{margin-left:auto;width:28px;height:28px;border:none}
+.room-body{flex:1;overflow-y:auto;padding:20px}
+.room-title{font-size:17px;font-weight:600;letter-spacing:-.2px;margin-bottom:16px;line-height:1.35}
+.room-kv{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;margin-bottom:18px}
+.rdraft{background:var(--sc-lowest);border:1px solid var(--outline);border-radius:10px;padding:14px;font-size:13.5px;line-height:1.65;margin-bottom:14px}
+.rdraft .from{font-size:11px;color:var(--muted);margin-bottom:7px;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.rnote{font-size:12.5px;color:var(--on-variant);line-height:1.6;margin-bottom:14px}
+.room-chan{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:var(--sc-lowest);border:1px solid var(--outline);margin-bottom:14px}
+.room-chan .rc-ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex:none;background:var(--surface);border:1px solid var(--outline);color:var(--on-variant)}
+.room-chan.wa .rc-ic{background:rgba(58,125,68,.1);border-color:rgba(58,125,68,.28);color:#3a7d44}
+.room-chan .rc-t{line-height:1.4;min-width:0}
+.room-chan .rc-t b{font-weight:600;font-size:13px}
+.room-chan .rc-t .rc-to{color:var(--muted);font-size:11.5px;font-family:"SF Mono",ui-monospace,Menlo,monospace}
+.room-chan .rc-edit{margin-left:auto;flex:none;font-size:11.5px;color:var(--on-variant);border:1px solid var(--outline);background:var(--surface);border-radius:7px;padding:4px 9px;cursor:pointer}
+.room-chan .rc-edit:hover{background:var(--sc-lowest)}
+.tgt{padding:12px 2px;border-bottom:1px solid var(--outline-variant)}
+.tgt:last-of-type{border-bottom:none}
+.tgt .tk{font-size:12px;color:var(--muted);margin-bottom:2px}
+.tgt .tv{font-size:14.5px;font-weight:500}
+.tgt .tsrc{font-size:11.5px;color:var(--muted);margin-top:3px}
+.room-foot{flex:none;padding:14px 16px;border-top:1px solid var(--outline);display:flex;gap:8px}
+.room-foot .btn-primary{flex:1;justify-content:center}
+.sw-prog{display:flex;align-items:center;gap:6px;margin-bottom:16px}
+.sw-dot{width:8px;height:8px;border-radius:50%;background:var(--sc-high);transition:.15s}
+.sw-dot.done{background:var(--primary)}
+.sw-dot.skip{background:var(--sc-highest)}
+.sw-dot.cur{background:var(--y-ink);transform:scale(1.2)}
+.sw-meta{font-size:12px;color:var(--muted);margin-left:auto}
+.sw-done{text-align:center;padding:40px 10px}
+.sw-done .big{font-size:17px;font-weight:600;margin:12px 0 6px}
+.sw-done .sm{font-size:13px;color:var(--on-variant)}
+
+/* ---------- Evidence popover ---------- */
+.evpop{position:fixed;z-index:70;width:280px;background:var(--surface);border:1px solid var(--outline);border-radius:10px;box-shadow:var(--sh-lg);padding:12px 14px;display:none}
+.evpop.on{display:block}
+.evpop .eq{font-size:12.5px;color:var(--on-surface);line-height:1.55;margin-bottom:6px}
+.evpop .es{color:var(--muted);font-size:11.5px}
+
 .scope{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:7px;background:var(--sc-lowest);border:1px solid var(--outline);font-size:12px;color:var(--on-variant);cursor:pointer}
 .send{padding:6px 14px;border-radius:7px;border:none;background:var(--primary-low);color:var(--primary-high);font-size:12.5px;font-weight:600;cursor:pointer}
 .send:hover{background:var(--primary);color:var(--on-primary)}
-.chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:16px}
-.chip{display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:100px;border:1px solid var(--outline);background:var(--surface);font-size:12.5px;color:var(--on-variant);cursor:pointer;transition:.12s}
-.chip:hover{background:var(--sc-lowest);color:var(--on-surface)}
-.chip svg{width:13px;height:13px;color:var(--muted)}
 
 /* ---------- Chat history ---------- */
 .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:70%;color:var(--muted);gap:6px}
@@ -264,7 +378,7 @@ button{font-family:inherit}
     </div>
     <nav class="nav">
       <div class="nav-label">Manage</div>
-      <div class="ni on" data-page="home" onclick="go('home')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1.5 6L7 1.5 12.5 6v6.5a1 1 0 01-1 1h-3v-4h-3v4h-3a1 1 0 01-1-1V6z"/></svg>Home</div>
+      <div class="ni on" data-page="today" onclick="go('today')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="3"/><path d="M7 1v1.4M7 11.6V13M13 7h-1.4M2.4 7H1M11.2 2.8l-.9.9M3.7 10.3l-.9.9M11.2 11.2l-.9-.9M3.7 3.7l-.9-.9"/></svg>Today</div>
       <div class="ni" data-page="newchat" onclick="go('newchat')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 4.5v5M4.5 7h5"/></svg>New Chat</div>
       <div class="ni" data-page="dashboard" onclick="go('dashboard')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 7l3-2"/></svg>Dashboard</div>
       <div class="ni" data-page="pipeline" onclick="go('pipeline')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M1.5 12.5V8M7 12.5V3M12.5 12.5V6"/></svg>Pipeline</div>
@@ -278,7 +392,8 @@ button{font-family:inherit}
     </nav>
     <div class="sb-foot">
       <div class="user">
-        <div class="avatar">SU</div><div class="uname">Sam</div>
+        <div class="avatar" id="uAv">SU</div>
+        <div><div class="uname" id="uName">Sam</div><div class="urole" id="uRole">Sales Rep</div></div>
         <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 4.5L6 7.5 9 4.5"/></svg>
       </div>
     </div>
@@ -289,7 +404,7 @@ button{font-family:inherit}
     <div class="topbar">
       <div class="tb-left">
         <button class="tb-toggle" onclick="document.getElementById('sidebar').classList.toggle('collapsed')" title="Toggle sidebar"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="2.5" width="13" height="11" rx="2"/><path d="M6 2.5v11"/></svg></button>
-        <div class="crumb" id="crumb"><span class="cur">Home</span></div>
+        <div class="crumb" id="crumb"><span class="cur">Today</span></div>
       </div>
       <div class="tb-search" onclick="this.querySelector('input').focus()">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg>
@@ -302,22 +417,26 @@ button{font-family:inherit}
     </div>
 
     <div class="content" id="content">
-      <!-- ===== HOME ===== -->
-      <section class="page on" id="p-home">
-        <div class="home">
-          <h1>What can I help with?</h1>
-          <div class="composer">
-            <textarea placeholder="Ask me anything..."></textarea>
-            <div class="composer-foot">
-              <button class="scope">All pages <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 4.5L6 7.5 9 4.5"/></svg></button>
-              <button class="send">Ask Bricly</button>
-            </div>
+      <!-- ===== TODAY (the letter) ===== -->
+      <section class="page on" id="p-today">
+        <div class="t-demo">
+          <span class="hint">Demo</span>
+          <div class="seg" id="personaSeg">
+            <button class="on" onclick="setPersona('rep',this)">Rep</button>
+            <button onclick="setPersona('manager',this)">Manager</button>
+            <button onclick="setPersona('marketing',this)">Marketing</button>
+            <button onclick="setPersona('owner',this)">Owner</button>
           </div>
-          <div class="chips">
-            <button class="chip" onclick="go('pipeline')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="2" width="10" height="10" rx="2"/><path d="M2 5.5h10"/></svg>Recap today</button>
-            <button class="chip" onclick="go('pipeline')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 12V8M7 12V3M12 12V6"/></svg>Pipeline Health</button>
-            <button class="chip"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 2"/></svg>Generate roadmap</button>
-            <button class="chip"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="2" width="10" height="10" rx="2"/><path d="M4.5 7l2 2 3-4"/></svg>Create todo's</button>
+          <button class="heat-btn" onclick="triggerHeat()">⚡ Heat</button>
+        </div>
+        <div class="letter-scroll" id="letterScroll">
+          <div class="letter" id="letter"></div>
+        </div>
+        <div class="cmdbar-wrap">
+          <div class="cmdbar">
+            <input placeholder="Ask or say anything…" onkeydown="if(event.key==='Enter'){this.blur();openAsk();askSample()}">
+            <span class="kbd">⌘K</span><span class="kbd">hold space</span>
+            <button class="cmd-mic" title="Hold to talk"><svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="5" y="1.5" width="4" height="7" rx="2"/><path d="M3 7a4 4 0 008 0M7 11v2"/></svg></button>
           </div>
         </div>
       </section>
@@ -570,6 +689,9 @@ button{font-family:inherit}
 
 <!-- ============ ASK PANEL ============ -->
 <div class="scrim" id="scrim" onclick="closeAsk()"></div>
+<div class="dimscrim" id="dimscrim" onclick="closeRoom()"></div>
+<aside class="room" id="room"></aside>
+<div class="evpop" id="evpop"></div>
 <aside class="ask-panel" id="askPanel">
   <div class="ap-head">
     <span class="t">New Chat</span>
@@ -689,8 +811,351 @@ function renderChats(){
     </tr>`).join('');
 }
 
+// ============================================================
+// TODAY — the letter. Seven slots, two components, three verbs.
+// ============================================================
+const EV = {
+  'rep-comm':{q:'Commission model × evidence-weighted pipeline, closes expected this month.',s:'Query · commissions.forecast · 06:10'},
+  'rep-wp':{q:'Sum of open deals × stage probability, evidence-weighted by buyer signals.',s:'Query · pipeline.weighted · 06:10'},
+  'rep-signal':{q:'Mike opened the Dolphin Court brochure twice, 23:41 and 23:52.',s:'Source · tracked link, buyer thread'},
+  'rep-pace':{q:'€1,800 behind straight-line pace to your €12,000 month, 12 selling days left.',s:'Query · pace vs target · 06:10'},
+  'rep-gap':{q:'€370k at negotiating; commission on close covers the pace gap 1.4×.',s:'Query · gap-closing deals · 06:10'},
+  'mgr-fc':{q:'Evidence-weighted forecast: committed + probable, discounted by signal strength.',s:'Query · forecast.month · 06:05'},
+  'mgr-sla':{q:'2 of 14 leads this week breached the 15-minute first-touch SLA.',s:'Query · speed-to-lead · live'},
+  'mgr-gap':{q:'Gap to month: 3 units — two two-beds and a maisonette at current mix.',s:'Query · gap in units · 06:05'},
+  'mkt-cpr':{q:'Blended spend ÷ reservations, trailing 30 days.',s:'Query · cost-per-reservation · 06:00'},
+  'mkt-cpl':{q:'CPL down 8% w/w; Meta improved, Google flat.',s:'Query · CPL trend · 06:00'},
+  'own-sold':{q:'41 of 58 units reserved or sold across Dolphin Court.',s:'Query · absorption · 06:00'},
+  'own-vel':{q:'2.1 units/week vs 1.8 planned; threshold needs 47 units by October.',s:'Query · velocity vs plan · 06:00'},
+  'own-cash':{q:'Collected €4.1M · due €620k · overdue €38k (one stage payment, 12 days).',s:'Query · cash position · 06:00'},
+};
+
+const SWEEP = [
+  {who:'Rachel Attard',worth:'€350k',unit:'La Lex #CM9402 · Cold',last:'Last touch 21 days ago — viewed, then silence',judge:'She objected to the ground-floor light. #CM9406 (top floor) just released.',draft:'Hi Rachel, a top-floor unit with the layout you liked has just come free at La Lex. Same price band, much brighter. Want first look before it lists?'},
+  {who:'Nathan Schembri',worth:'€380k',unit:'La Lex #CM9602 · Paused',last:'Paused 14 days — waiting on bank valuation',judge:'Valuation window has passed; a nudge now reads as service, not pressure.',draft:'Hi Nathan, checking in — did the valuation land? If the numbers moved, there\'s flexibility on the payment schedule worth a quick call.'},
+  {who:'Daniela Spiteri',worth:'€420k',unit:'Verdala #CM4509 · Paused',last:'12 days quiet after second viewing',judge:'Second viewings that go quiet usually mean a competing option. Name it.',draft:'Hi Daniela, no pressure — if you\'re weighing Verdala against something else, happy to do a straight side-by-side on price and spec. Ten minutes.'},
+  {who:'Emma Farrugia',worth:'€280k',unit:'Verdala #CM4510 · Cold',last:'18 days — agency partner lead, one viewing',judge:'Partner leads decay fastest. One personal touch re-anchors the relationship.',draft:'Hi Emma, Sam here from Bricly — wanted to reach out directly. The maisonette you saw is still available and there\'s a new render pack I think you\'d like.'},
+  {who:'Robert Pace',worth:'€490k',unit:'Mercury #CM9813 · Qualified',last:'10 days since qualification call',judge:'He asked about completion dates twice. New construction update is the hook.',draft:'Hi Robert, the January completion date you asked about is now confirmed in writing. Want me to hold a viewing slot this week?'},
+  {who:'Julia Micallef',worth:'€350k',unit:'Onyx Rise #CM9702 · Negotiating',last:'9 days quiet mid-negotiation',judge:'Silence mid-negotiation is a decision forming. Give her a reason to close it with you.',draft:'Hi Julia, where did you land after our last conversation? If the €350k is the sticking point, I have one idea worth hearing before you decide.'},
+  {who:'Maria Borg',worth:'€350k',unit:'Onyx Rise #CM9703 · Viewing booked',last:'Booked 11 days ago, never confirmed',judge:'Unconfirmed viewings no-show 70% of the time. Reconfirm with something new.',draft:'Hi Maria, looking forward to Thursday — I\'ve added the penthouse to your route since the terrace came up. Still good for 15:00?'},
+  {who:'Ben Grech',worth:'€310k',unit:'Mercury #CM2705 · Contacted',last:'16 days — one call, no follow-through',judge:'He mentioned a budget ceiling of €300k. The price adjustment changes his math.',draft:'Hi Ben, when we spoke you mentioned €300k as the line. One Mercury unit just adjusted to €298k — thought of you first.'},
+  {who:'Sarah Vella',worth:'€265k',unit:'La Lex #CM9410 · Cold',last:'24 days — opened every email, replied to none',judge:'She reads everything. Switch channel: a voice note lands differently.',draft:'Hi Sarah, tried you here instead of email — the one-bed you shortlisted has two other viewings this week. Say the word and I\'ll hold Saturday for you.'},
+  {who:'David Camilleri',worth:'€405k',unit:'Verdala #CM4502 · Qualified',last:'13 days — payment plan sent, never opened',judge:'The plan sat unopened. Resend as three bullet points in the message body.',draft:'Hi David, the payment plan in plain terms: 10% now, 20% at contract, 70% on completion. On €405k that\'s €40.5k to secure it. Questions?'},
+];
+
+const PERSONAS = {
+  rep:{
+    role:'Sales Rep',name:'Sam',av:'SU',greet:'Good morning, Sam.',
+    headline:{big:'€8,400',bigEv:'rep-comm',bigLabel:'commission forecast · target €12,000',sub:'€1.24M weighted pipeline behind it',subEv:'rep-wp'},
+    ledger:[{v:'€8.4k',l:'commission · of €12k',ev:'rep-comm'},{v:'€1.24M',l:'weighted pipeline',ev:'rep-wp'}],
+    targets:{kick:'Your month · targets',title:'What today is measured against.',rows:[
+      {k:'Commission — monthly',v:'€8,400 booked · target €12,000',src:'70% to goal · 12 selling days left'},
+      {k:'Weighted pipeline',v:'€1.24M · healthy above €1.0M',src:'Sum of open deals × stage probability'},
+      {k:'Pace to target',v:'€1,800 behind straight-line',src:'The gap today\'s Focus is built to close'},
+      {k:'Decaying deals',v:'10 quiet · €31k commission at risk',src:'No contact in 10+ days'},
+    ]},
+    brief:`Two buyers moved overnight — <span class="ev" data-ev="rep-signal">Mike Gatt opened the Dolphin Court brochure twice</span> and Julia asked about payment terms. You have three meetings today; prep is ready for all of them. <span class="y ev" data-ev="rep-pace">Pace is €1,800 behind with twelve days left.</span> <span class="ev" data-ev="rep-gap">Ben Zammit's €370k is the deal that closes the gap.</span>`,
+    needsYou:[
+      {id:'r1',what:'Reply to Mike Gatt — payment plan question',why:'Asked at 23:41 · answer drafted from the approved 10/20/70 terms',verb:'Send',room:{kick:'Drafted message',title:'Mike Gatt asked about the payment plan last night.',kv:[['Deal','Dolphin Court #CM9802 · €280k'],['Stage','Hold · 3 days'],['Signal','Brochure opened twice, 23:41'],['Drafted from','Approved payment terms']],from:'Ella · draft reply',draft:'Hi Mike, great question — the plan is 10% on reservation, 20% at contract signing, and 70% on completion. On #CM9802 that\'s €28,000 to hold it. I can walk you through it at Thursday\'s viewing, or sooner if you like.',note:'Nothing goes without your tap.',chan:{via:'WhatsApp',to:'+356 9912 3456',action:'Sends via WhatsApp to Mike Gatt'},primary:'Send via WhatsApp',announce:'Sent to Mike Gatt via WhatsApp — payment plan reply'},chan:{via:'WhatsApp',to:'+356 9912 3456'}},
+      {id:'r2',what:'Julia Micallef has gone quiet — nudge drafted',why:'9 days silent mid-negotiation · €350k on the table',verb:'Send',room:{kick:'Overdue touch',title:'Julia went quiet nine days ago, mid-negotiation.',kv:[['Deal','Onyx Rise #CM9702 · €350k'],['Stage','Negotiating · 32 days'],['Last contact','Your call, 3 Aug'],['Risk','Decay — deals this stage go cold at day 14']],from:'Ella · draft nudge',draft:'Hi Julia, where did you land after our last conversation? If the €350k is the sticking point, I have one idea worth hearing before you decide anything.',note:'Cole suggests keeping it short — she responds to direct.',chan:{via:'WhatsApp',to:'+356 7745 1180',action:'Sends via WhatsApp to Julia Micallef'},primary:'Send via WhatsApp',announce:'Sent to Julia Micallef via WhatsApp — re-engagement nudge'},chan:{via:'WhatsApp',to:'+356 7745 1180'}},
+      {id:'r3',what:'Verdala price list for Nathan — held on condition',why:'Waiting on manager floor confirmation · sends automatically once confirmed',verb:'Review',room:{kick:'Conditional send',title:'Held: Verdala price list for Nathan Schembri.',kv:[['Condition','Manager confirms floor price'],['Status','Asked Maria at 07:15 · pending'],['Then','Sends automatically with your note'],['Deal','La Lex #CM9602 · €380k']],from:'Ella · queued message',draft:'Hi Nathan, updated Verdala pricing attached as promised. The unit we discussed is holding its price band — happy to talk numbers whenever suits.',note:'You can release it now without the condition, or leave it held.',chan:{via:'Email',to:'nathan.schembri@gmail.com · attaches Verdala-pricing.pdf',action:'Sends by email to Nathan Schembri'},primary:'Release now',announce:'Released to Nathan Schembri by email — price list'},chan:{via:'Email',to:'nathan.schembri@gmail.com'}},
+    ],
+    announced:[{id:'ra1',text:'Moved Daniel Vella to Viewing Booked — confirmed in yesterday\'s 16:20 call'}],
+    day:[
+      {t:'09:30',w:'Viewing — Maria Borg, Onyx Rise penthouse',p:'Prep ready at 09:20 · room set · buyer pack attached'},
+      {t:'11:00',w:'Call — Mike Gatt, hold next steps',p:'Talking points ready · payment plan answer queued'},
+      {t:'14:00',w:'Negotiation — Ben Zammit, Mercury #CM2701',p:'Prep ready at 13:50 · his last three objections summarised'},
+    ],
+    focus:[
+      {n:1,t:`Don't leave Ben's 14:00 without an answer on the €370k.`,k:'It alone closes your pace gap — Pace · −€1,800',pop:'Highest expected value today: close probability 60%, commission impact €2,590 vs gap €1,800.'},
+      {n:2,t:'Call Maria Borg before her 09:30 — she asked twice about the terrace.',k:'A hold today protects weighted pipeline · €350k',pop:'Terrace mentioned twice in her thread. Holds requested pre-viewing convert 2.1× better.'},
+      {n:3,t:'Your afternoon is clear. Ten deals have gone quiet, €31k of commission between them. Work through them? About forty minutes.',k:'Decay · sweep session',sweep:true},
+    ],
+    end:`That's everything. Go sell.`,
+    heat:{line:'Maria Borg just replied — she wants to talk price on the penthouse before her viewing.',room:{kick:'Heat · live',title:'Maria Borg is ready to talk price.',kv:[['Deal','Onyx Rise #CM9703 · asking €350k'],['Signal','Replied 2 min ago, asked "what\'s the best you can do"'],['Floor','€338k · manager-approved'],['Her viewing','Today 09:30']],from:'Ella · suggested reply',draft:'Hi Maria, glad you asked — there\'s some room if we can commit this week. Let\'s look at the numbers together at 09:30; I\'ll bring two options.',note:'Cole: don\'t name a number in writing before the viewing.',chan:{via:'WhatsApp',to:'+356 9988 2104',action:'Sends via WhatsApp to Maria Borg'},primary:'Send via WhatsApp',announce:'Replied to Maria Borg via WhatsApp — price conversation opened'}},
+  },
+  manager:{
+    role:'Sales Manager',name:'Maria',av:'MB',greet:'Good morning, Maria.',
+    headline:{big:'€2.9M',bigEv:'mgr-fc',bigLabel:'evidence-weighted forecast · month target €3.4M',sub:'Speed-to-lead: 12 of 14 inside SLA this week',subEv:'mgr-sla'},
+    ledger:[{v:'€2.9M',l:'forecast · of €3.4M',ev:'mgr-fc'},{v:'12/14',l:'speed-to-lead SLA',ev:'mgr-sla'}],
+    targets:{kick:'The month · targets',title:'What the team is measured against.',rows:[
+      {k:'Forecast — month',v:'€2.9M weighted · target €3.4M',src:'Gap of 3 units at current mix'},
+      {k:'Speed-to-lead SLA',v:'12 of 14 inside 15 min',src:'One 40-min breach overnight'},
+      {k:'Viewing → reservation',v:'Team 31% · Katia 18%',src:'Coaching case for today\'s 1:1'},
+      {k:'Discount discipline',v:'Avg 1.1% under list',src:'Within the 2% floor policy'},
+    ]},
+    brief:`<span class="ev" data-ev="mgr-gap">The gap is three units — two two-beds and a maisonette at the current mix.</span> Two approvals are waiting, the oldest since yesterday 14:00. <span class="y">One SLA breach overnight: a Meta lead sat 40 minutes unclaimed.</span> Sam is ahead of pace; Katia's conversion needs your eyes.`,
+    needsYou:[
+      {id:'m1',what:'Hold approval — Dolphin Court #CM9802, Mike Gatt',why:'Waiting 19h · full package assembled: offer, deposit, buyer history',verb:'Decide',room:{kick:'Approval package',title:'Hold request: Dolphin Court #CM9802.',kv:[['Buyer','Mike Gatt · Meta Lead Form'],['Offer','€280,000 · at asking'],['Deposit','€28,000 confirmed available'],['Rep note','Visited twice, motivated, end-of-month deadline'],['Unit demand','2 other active enquiries'],['Requested','Yesterday 14:00 · 19h ago']],from:'Cole · assessment',draft:'Clean hold. Offer at asking, deposit verified, competing interest strengthens rather than blocks — a 7-day hold creates urgency for the other two enquiries. Recommend approve with standard 7-day term.',note:'Approving notifies Sam and starts the POS clock.',chan:{via:'In-app',to:'Notifies Sam Urpani in Bricly + WhatsApp ping',action:'Approves in Bricly',fixed:true},primary:'Approve hold',announce:'Approved — hold on #CM9802 for Mike Gatt, 7 days'},chan:{via:'In-app',to:'Notifies Sam Urpani'}},
+      {id:'m2',what:'Route 4 overnight Meta leads — split suggested',why:'Balanced by load and conversion fit · one requires Maltese speaker',verb:'Confirm',room:{kick:'Lead routing',title:'Four new leads, suggested routing ready.',kv:[['Lead 1','Two-bed budget €300k → Sam (pace fit)'],['Lead 2','Penthouse enquiry → Katia (coaching case)'],['Lead 3','Maltese-speaking → Luca'],['Lead 4','Investor, 2 units → Sam']],from:'Cole · routing logic',draft:'Split weighted by current load, language, and per-rep conversion by unit type. Katia gets the penthouse deliberately — paired with today\'s coaching session on penthouse objections.',note:'Confirming assigns instantly and starts each SLA clock.',chan:{via:'In-app',to:'Assigns in Bricly · pings each rep\'s WhatsApp',action:'Assigns in Bricly',fixed:true},primary:'Confirm routing',announce:'Routed 4 leads — Sam ×2, Katia, Luca'},chan:{via:'In-app',to:'Assigns to 3 reps'}},
+      {id:'m3',what:'Below-floor ask: €338k on a €350k two-bed',why:'Escalated by Luca · 3.4% under floor · buyer has finance approved',verb:'Review',room:{kick:'Escalation',title:'Below-floor ask needs your call.',kv:[['Unit','Verdala #CM4506 · floor €350k'],['Ask','€338,000 · −3.4%'],['Buyer strength','Finance approved, no chain'],['Unit age','On market 94 days'],['Comparable','#CM4508 closed at €345k last month']],from:'Cole · assessment',draft:'The 94-day age and approved finance argue for flexibility, but €345k is defensible against the comparable. Recommend counter at €345k rather than accept — historical acceptance rate on first counters this size: 64%.',note:'Countering sends through Luca with your name on the floor.',chan:{via:'WhatsApp',to:'Via Luca Camilleri → buyer',action:'Counter relayed by Luca on WhatsApp'},primary:'Counter €345k',announce:'Countered at €345k via Luca — Verdala #CM4506'},chan:{via:'WhatsApp',to:'Via Luca → buyer'}},
+    ],
+    announced:[],
+    day:[
+      {t:'10:00',w:'1:1 — Katia',p:'Coaching brief attached: viewing→reservation at 18%, objection patterns analysed'},
+      {t:'12:00',w:'Forecast review',p:'Deck assembled · evidence-weighted numbers, no manual pulls'},
+      {t:'15:30',w:'Pricing call — Verdala phase 2',p:'Demand curves and comparables ready'},
+    ],
+    focus:[
+      {n:1,t:'Sit with Katia on penthouse objections — her viewing→reservation dropped to 18%.',k:'Conversion · team avg is 31%',pop:'Six lost penthouse viewings in 3 weeks, same objection cluster: outdoor space vs price.'},
+      {n:2,t:'The month is the two-beds: six negotiating deals decide it before Friday\'s price review.',k:'Forecast trust · gap −3 units',pop:'Two-beds carry 71% of the remaining gap at current close rates.'},
+      {n:3,t:'Lead flow runs 20% short of next week\'s viewing target — brief marketing today, not Friday.',k:'Speed-to-lead · supply side',pop:'At current CPL and conversion, the shortfall costs ~2 viewings next week.'},
+    ],
+    end:`That's the desk cleared. The month is still yours to shape.`,
+    heat:{line:'Luca\'s buyer on Verdala #CM4506 just accepted your counter framework — he needs the floor confirmed in the next hour.',room:{kick:'Heat · live',title:'Verdala counter accepted in principle.',kv:[['Unit','Verdala #CM4506'],['Agreed','€345,000 · at your counter'],['Needs','Floor confirmation to issue paperwork'],['Window','Buyer flies out tonight']],from:'Cole · assessment',draft:'Confirm the €345k floor and Luca issues the reservation agreement within the hour. All approvals in the package are pre-checked.',note:'',chan:{via:'In-app',to:'Confirms in Bricly · Luca issues paperwork',action:'Confirms floor in Bricly',fixed:true},primary:'Confirm floor',announce:'Floor confirmed at €345k — Verdala #CM4506'}},
+  },
+  marketing:{
+    role:'Marketing Manager',name:'Elena',av:'EG',greet:'Good morning, Elena.',
+    headline:{big:'€1,140',bigEv:'mkt-cpr',bigLabel:'blended cost per reservation · target €1,250',sub:'CPL trending down 8% week over week',subEv:'mkt-cpl'},
+    ledger:[{v:'€1,140',l:'cost / reservation · of €1,250',ev:'mkt-cpr'},{v:'↓8%',l:'CPL week / week',ev:'mkt-cpl'}],
+    targets:{kick:'The week · targets',title:'What spend is measured against.',rows:[
+      {k:'Cost per reservation',v:'€1,140 · target €1,250',src:'Blended across all channels, 30-day'},
+      {k:'CPL trend',v:'Down 8% w/w',src:'Meta improved, Google flat'},
+      {k:'Budget pacing',v:'97% of budget · 9 days left',src:'On track, no overspend risk'},
+      {k:'Handoff SLA to sales',v:'12 of 14 inside 15 min',src:'Shared metric with the sales desk'},
+    ]},
+    brief:`Spend is pacing at 97% of budget with nine days left — on track. Meta moved: <span class="y">lead quality up since the two-bed creative swap, CPL down €4.</span> The Dolphin Court hero set is fatiguing at frequency 6.1. Demand is skewing one-bed while inventory says two-bed.`,
+    needsYou:[
+      {id:'k1',what:'Budget shift: €400/day Meta → Google Search',why:'Projected effect: +3 qualified leads/week at equal CPL · spend never moves alone',verb:'Confirm',room:{kick:'Budget shift',title:'Recommended: move €400/day from Meta to Google.',kv:[['From','Meta prospecting · saturating'],['To','Google Search · "two bed malta" up 40%'],['Projected','+3 qualified leads/week'],['Risk','Low — reversible in one click'],['Guardrail','CPL cap €38 holds on both']],from:'Cole · reasoning',draft:'Meta frequency passed 6 on the core audience — marginal CPL is rising. Search demand for two-beds spiked 40% this month and maps directly to the inventory skew. The shift corrects demand-mix at neutral cost.',note:'Spend moves only on your confirm.',chan:{via:'In-app',to:'Executes via Meta & Google Ads APIs',action:'Applies to live campaigns',fixed:true},primary:'Confirm shift',announce:'Shifted €400/day Meta → Google Search'},chan:{via:'In-app',to:'Meta & Google Ads'}},
+      {id:'k2',what:'Guardrail breach: pause "Penthouse views" ad set',why:'CPL hit €87 — 2.3× the guardrail · paused pending your call',verb:'Pause',room:{kick:'Guardrail breach',title:'"Penthouse views" broke the CPL guardrail.',kv:[['CPL','€87 · guardrail €38'],['Spend today','€214 before catch'],['Cause','Audience overlap with the new hero set'],['Option B','Narrow audience instead of pause']],from:'Cole · recommendation',draft:'Pause, don\'t narrow: the overlap self-corrects once the hero refresh ships this week. Narrowing now fragments learning on both sets.',note:'',chan:{via:'In-app',to:'Pauses the set in Meta Ads Manager',action:'Pauses in Meta Ads',fixed:true},primary:'Pause ad set',announce:'Paused "Penthouse views" — guardrail breach'},chan:{via:'In-app',to:'Meta Ads'}},
+    ],
+    announced:[],
+    day:[
+      {t:'10:30',w:'Weekly review',p:'Assembled overnight · channel deltas and creative fatigue flags only'},
+      {t:'13:00',w:'Launch checklist — one-bed investor campaign',p:'Studio drafts attached · 3 variants ready for sign-off'},
+      {t:'16:00',w:'Handoff SLA check with sales',p:'Current: 12 of 14 leads inside 15 min'},
+    ],
+    focus:[
+      {n:1,t:'Get the one-bed investor campaign live — the mix corrects and CPR holds.',k:'Cost per reservation · demand-mix fit',pop:'One-bed demand exceeds inventory 3:1; redirecting it defends blended CPR through month end.'},
+      {n:2,t:'Sign off the Dolphin Court hero refresh before fatigue drags CPL back up.',k:'CPL trend · frequency 6.1',pop:'Every point of frequency past 5 has cost ~€2 CPL historically on this account.'},
+    ],
+    end:`That's the week held to plan. Nothing else needs you today.`,
+    heat:{line:'The one-bed investor ad set just tripled its CTR in the last hour — Google is favouring it. Scale window open.',room:{kick:'Heat · live',title:'Scale window: one-bed investor set.',kv:[['CTR','3.4% · was 1.1%'],['CPL now','€22 · guardrail €38'],['Suggested','+€200/day for 48h, then review'],['Auto-revert','If CPL passes €30']],from:'Cole · recommendation',draft:'Momentum windows like this close in 24–48h. The auto-revert guardrail caps the downside at ~€60.',note:'',chan:{via:'In-app',to:'Raises budget via Google Ads API',action:'Scales in Google Ads',fixed:true},primary:'Scale +€200/day',announce:'Scaled one-bed investor set +€200/day, 48h window'}},
+  },
+  owner:{
+    role:'Owner',name:'Joseph',av:'JB',greet:'Good morning, Joseph.',
+    headline:{big:'71% sold',bigEv:'own-sold',bigLabel:'Dolphin Court · velocity 2.1 units/week vs 1.8 planned',sub:'Financing threshold: 6 units away · ~5 weeks at this pace',subEv:'own-vel'},
+    ledger:[{v:'71%',l:'sold',ev:'own-sold'},{v:'2.1/wk',l:'velocity · plan 1.8',ev:'own-vel'},{v:'€38k',l:'overdue',ev:'own-cash'}],
+    targets:{kick:'The project · targets',title:'What Dolphin Court is measured against.',rows:[
+      {k:'Units sold',v:'41 of 58 · 71%',src:'Sell-out projects to late November'},
+      {k:'Velocity vs plan',v:'2.1 units/wk · plan 1.8',src:'Three weeks ahead of the absorption model'},
+      {k:'Financing threshold',v:'6 units away · ~5 weeks',src:'47 units by October triggers the facility'},
+      {k:'Cash position',v:'€4.1M in · €620k due · €38k overdue',src:'One stage payment 12 days late'},
+      {k:'Price realisation',v:'+1.2% on last 4 closings',src:'Two-bed repricing holding'},
+    ]},
+    brief:`Sell-out projects to late November, three weeks inside plan. <span class="ev" data-ev="own-cash">Cash: €4.1M collected, €620k due this month, €38k overdue.</span> <span class="y">Price realisation moved up 1.2% on the last four closings</span> — the two-bed repricing is holding.`,
+    needsYou:[
+      {id:'o1',what:'Price decision: +2% on the remaining two-beds',why:'Demand evidence attached · 11 units left, 3 enquiries per unit',verb:'Decide',room:{kick:'Price decision',title:'The two-beds can carry +2%.',kv:[['Remaining','11 two-bed units'],['Demand','3.1 active enquiries per unit'],['Last 4 closings','At or above asking'],['Velocity risk','Model says −0.2 units/week, inside plan'],['Effect','+€74k on remaining inventory']],from:'Cole · assessment',draft:'Demand depth supports the increase: enquiry-to-unit ratio is the strongest since launch and the last four closings cleared asking. Velocity gives back 0.2 units/week and stays above the threshold pace.',note:'Applies to unreserved units only. Existing holds keep their price.',chan:{via:'In-app',to:'Updates listing prices · notifies the sales team',action:'Updates prices in Bricly',fixed:true},primary:'Approve +2%',announce:'Approved +2% on remaining two-beds'},chan:{via:'In-app',to:'Updates listing prices'}},
+      {id:'o2',what:'Chase the €38k overdue stage payment — letter drafted',why:'12 days overdue · buyer responsive, likely administrative',verb:'Send',room:{kick:'Overdue payment',title:'€38k stage payment, twelve days overdue.',kv:[['Buyer','Unit #CM4501 · second stage'],['History','First payment on time'],['Signal','Notary confirmed no dispute'],['Tone','Firm-courteous, deadline named']],from:'Ella · drafted chase',draft:'Dear Mr Grima, our records show the second stage payment of €38,000 fell due on 31 July. As the contract deadline approaches we kindly ask for settlement by 18 August, or a call this week if there is anything to resolve. Regards, Dolphin Court Developments.',note:'',chan:{via:'Email',to:'r.grima@email.com · cc notary@fenechlegal.mt',action:'Sends by email, cc the notary'},primary:'Send chase',announce:'Sent — €38k payment chase by email, deadline 18 Aug'},chan:{via:'Email',to:'r.grima@email.com · cc notary'}},
+      {id:'o3',what:'Below-floor sign-off: final approval on #CM4506 at €345k',why:'Manager countered and buyer accepted · needs your signature above €5k variance',verb:'Sign',room:{kick:'Final sign-off',title:'#CM4506 at €345k — final signature.',kv:[['Floor','€350k · variance −€5k'],['Manager','Countered from €338k ask, buyer accepted'],['Unit age','94 days on market'],['Net effect','Inside realisation plan for the phase']],from:'Cole · summary',draft:'The counter recovered €7k of the original ask gap. Against 94 days of carry, closing at €345k beats holding at list by the model\'s carry-cost estimate within 6 weeks.',note:'',chan:{via:'E-sign',to:'DocuSign to buyer + notary · your signature',action:'Signs and routes via DocuSign'},primary:'Sign approval',announce:'Signed — #CM4506 approved at €345k'},chan:{via:'E-sign',to:'DocuSign to buyer + notary'}},
+    ],
+    announced:[],
+    day:[
+      {t:'11:00',w:'Bank call — facility review',p:'Threshold status attached: 6 units out, 5 weeks at current pace'},
+      {t:'14:30',w:'Site meeting — Dolphin Court phase 2',p:'Progress photos and programme variance in your pack'},
+      {t:'17:00',w:'Monthly review',p:'Assembled · velocity, cash, realisation — one page'},
+    ],
+    focus:[
+      {n:1,t:'The threshold is five weeks away at this pace; the two-bed velocity is the month.',k:'Velocity · threshold distance',pop:'6 units to the financing trigger. Two-beds are 8 of the last 10 closings.'},
+      {n:2,t:'Cash defence: the €38k chase and the €620k due this month decide the quarter\'s draw-down.',k:'Cash · collection',pop:'Overdue + due = €658k against a €600k quarterly facility requirement.'},
+    ],
+    end:`That's the whole picture. Nothing else needs your eyes today.`,
+    heat:{line:'The bank moved your 11:00 to 10:15 — threshold pack is already updated and attached.',room:{kick:'Heat · live',title:'Bank call moved up to 10:15.',kv:[['Was','11:00 · now 10:15'],['Pack','Updated 07:58 with this morning\'s numbers'],['Key line','6 units to threshold, 5 weeks at pace'],['Suggested','Confirm and block prep at 10:00']],from:'Ella · scheduling',draft:'Calendar updated on confirm. The threshold summary leads the pack — velocity is ahead of plan, which strengthens the facility conversation.',note:'',chan:{via:'In-app',to:'Updates your calendar · no message sent',action:'Confirms in your calendar',fixed:true},primary:'Confirm 10:15',announce:'Confirmed — bank call at 10:15'}},
+  },
+};
+
+let curPersona='rep';
+const tstate={}; // per-persona: {done:{id:announceText}, undone:Set, sweepResult:null, heatOn:false, heatDone:false}
+function ts(){if(!tstate[curPersona])tstate[curPersona]={done:{},order:[],sweepResult:null,heatOn:false,heatDone:false};return tstate[curPersona];}
+
+function renderLetter(){
+  const P=PERSONAS[curPersona],S=ts();
+  const date=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+  let h='';
+  if(S.heatOn&&!S.heatDone)h+=`<div class="heatline" onclick="openHeatRoom()"><span class="hz"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><path d="M8 1L3 8h3l-1 5 6-7.5H7.5L8 1z"/></svg></span><span>${P.heat.line}</span></div>`;
+  h+=`<div class="l-head"><span class="l-date">${date}</span>`+
+     `<button class="ledger" onclick="openTargets()" title="Your targets">`+
+       P.ledger.map(x=>`<span class="litem"><span class="lv ev" data-ev="${x.ev}">${x.v}</span><span class="llabel">${x.l}</span></span>`).join('<span class="lsep">·</span>')+
+       `<span class="ldot"></span></button></div>`;
+  h+=`<div class="l-greet">${P.greet}</div>`;
+  h+=`<p class="l-brief">${P.brief}${S.sweepResult?` <span class="y">${S.sweepResult}</span>`:''}</p>`;
+  // Needs you
+  h+=`<div class="slot-label">Needs you</div>`;
+  const open=P.needsYou.filter(a=>!S.done[a.id]);
+  P.needsYou.forEach(a=>{
+    if(S.done[a.id]){
+      h+=`<div class="announce" id="ann-${a.id}"><span class="ck"><svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2.5 7.5l3 3 6-7"/></svg></span><span>${S.done[a.id]}</span><span class="undo" onclick="undoAction('${a.id}')">Undo</span></div>`;
+    }else{
+      h+=`<div class="arow" id="row-${a.id}" onclick="openActionRoom('${a.id}')"><div class="aw"><div class="a1">${a.what}</div><div class="a2">${a.why}</div>${a.chan?`<div class="achan">${chanChip(a.chan)}</div>`:''}</div><span class="alater">L · later</span><span class="averb">${a.verb}</span></div>`;
+    }
+  });
+  (P.announced||[]).forEach(a=>{h+=`<div class="announce"><span class="ck"><svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2.5 7.5l3 3 6-7"/></svg></span><span>${a.text}</span><span class="undo">Undo</span></div>`;});
+  if(!open.length&&!(P.announced||[]).length)h+=`<div class="zero">Nothing needs your signature. Clean desk.</div>`;
+  // Your day
+  h+=`<div class="slot-label">Your day</div>`;
+  P.day.forEach(d=>{h+=`<div class="dayline"><span class="dt">${d.t}</span><div><div class="dw">${d.w}</div><div class="dprom"><span class="pk">✓</span> ${d.p}</div></div></div>`;});
+  // Focus
+  h+=`<div class="slot-label"><span class="ydot"></span>Focus</div>`;
+  P.focus.forEach((f,i)=>{
+    if(f.sweep&&S.sweepResult)return;
+    h+=`<div class="fb" onclick="${f.sweep?'openSweep()':`focusPop(event,${i})`}"><span class="fn">${f.n}</span><div class="fw"><div class="f1">${f.t}</div><div class="f2">${f.k}</div></div><span class="chev"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2l4 4-4 4"/></svg></span></div>`;
+  });
+  h+=`<div class="l-end">${P.end}</div>`;
+  document.getElementById('letter').innerHTML=h;
+}
+
+function setPersona(p,btn){
+  curPersona=p;closeRoom();closeEv();
+  document.querySelectorAll('#personaSeg button').forEach(b=>b.classList.toggle('on',b===btn));
+  const P=PERSONAS[p];
+  document.getElementById('uAv').textContent=P.av;
+  document.getElementById('uName').textContent=P.name;
+  document.getElementById('uRole').textContent=P.role;
+  renderLetter();
+  document.getElementById('letterScroll').scrollTop=0;
+}
+
+// ----- Room (engaged state: letter docks left, room opens right, rest dims)
+let roomCtx=null; // {type:'action'|'heat'|'sweep', id}
+function openRoomShell(){
+  document.getElementById('p-today').classList.add('engaged');
+  document.getElementById('dimscrim').classList.add('on');
+  document.getElementById('room').classList.add('open');
+}
+function closeRoom(){
+  document.getElementById('p-today').classList.remove('engaged');
+  document.getElementById('dimscrim').classList.remove('on');
+  document.getElementById('room').classList.remove('open');
+  document.querySelectorAll('.arow.live').forEach(r=>r.classList.remove('live'));
+  roomCtx=null;
+}
+// ----- Channel (comm) helpers
+const CHAN_IC={
+  WhatsApp:'<svg viewBox="0 0 14 14" fill="currentColor"><path d="M7 .8A6 6 0 001.7 9.7L.8 13l3.4-.9A6 6 0 107 .8zm3.3 8.4c-.14.4-.82.77-1.13.8-.3.03-.58.14-1.95-.4-1.65-.65-2.7-2.34-2.78-2.45-.08-.1-.66-.88-.66-1.67 0-.8.42-1.19.57-1.35a.6.6 0 01.43-.2h.3c.1 0 .24-.04.37.28l.5 1.2c.05.1.08.22.01.35l-.19.3c-.09.1-.19.23-.08.42.1.2.47.77 1 1.25.7.62 1.28.81 1.47.9.19.1.3.08.42-.05l.6-.7c.12-.16.25-.13.42-.07l1.16.55c.17.08.28.12.32.19.04.07.04.4-.1.8z"/></svg>',
+  Email:'<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="2.5" width="11" height="9" rx="1.5"/><path d="M2 3.5L7 7.5 12 3.5"/></svg>',
+  'In-app':'<svg viewBox="0 0 14 14" fill="currentColor"><path d="M8 1L3 8h3l-1 5 6-7.5H7.5L8 1z"/></svg>',
+  'E-sign':'<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 11c2-1 2.5-6 4-6s1 4 2.5 4 1.5-2.5 3.5-2.5"/><path d="M1.5 12.5h11"/></svg>',
+};
+function chanChip(c){
+  if(!c)return'';
+  const cls='chan-'+c.via.toLowerCase().replace(/[^a-z]/g,'');
+  return `<span class="chan ${cls}">${CHAN_IC[c.via]||CHAN_IC['In-app']}${c.via}${c.to?` · <span class="chto">${c.to}</span>`:''}</span>`;
+}
+function chanBar(c){
+  const wa=c.via==='WhatsApp'?' wa':'';
+  return `<div class="room-chan${wa}"><span class="rc-ic">${CHAN_IC[c.via]||CHAN_IC['In-app']}</span><div class="rc-t"><b>${c.action||('Sends via '+c.via)}</b>${c.to?`<div class="rc-to">${c.to}</div>`:''}</div>${c.fixed?'':`<button class="rc-edit" onclick="event.stopPropagation()">Change</button>`}</div>`;
+}
+
+// ----- Targets room (KPIs anchored, not a dashboard)
+function openTargets(){
+  const P=PERSONAS[curPersona];roomCtx={type:'targets'};
+  document.getElementById('room').innerHTML=`<div class="room-head"><span class="kick">${P.targets.kick}</span><button class="icon-btn" onclick="closeRoom()" title="Close"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3l8 8M11 3l-8 8"/></svg></button></div>
+  <div class="room-body"><div class="room-title">${P.targets.title}</div>${P.targets.rows.map(r=>`<div class="tgt"><div class="tk">${r.k}</div><div class="tv">${r.v}</div><div class="tsrc">${r.src}</div></div>`).join('')}<div class="rnote" style="margin-top:16px">These anchor today's Focus. Every number is tap-to-trace.</div></div>`;
+  openRoomShell();
+}
+
+function roomHTML(r,footHTML){
+  return `<div class="room-head"><span class="kick">${r.kick}</span><button class="icon-btn" onclick="closeRoom()" title="Close"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3l8 8M11 3l-8 8"/></svg></button></div>
+  <div class="room-body">
+    <div class="room-title">${r.title}</div>
+    <div class="room-kv">${r.kv.map(([k,v])=>`<div class="kv"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('')}</div>
+    <div class="rdraft"><div class="from">${r.from}</div>${r.draft}</div>
+    ${r.note?`<div class="rnote">${r.note}</div>`:''}
+    ${r.chan?chanBar(r.chan):''}
+  </div>
+  <div class="room-foot">${footHTML}</div>`;
+}
+function openActionRoom(id){
+  const a=PERSONAS[curPersona].needsYou.find(x=>x.id===id);if(!a)return;
+  roomCtx={type:'action',id};
+  document.getElementById('room').innerHTML=roomHTML(a.room,
+    `<button class="btn-ghost" onclick="closeRoom()">Later</button><button class="btn-primary" onclick="decideAction('${id}')">${a.room.primary}</button>`);
+  openRoomShell();
+  const row=document.getElementById('row-'+id);if(row)row.classList.add('live');
+}
+function decideAction(id){
+  const a=PERSONAS[curPersona].needsYou.find(x=>x.id===id);
+  ts().done[id]=a.room.announce;
+  closeRoom();renderLetter();
+}
+function undoAction(id){delete ts().done[id];renderLetter();}
+function openHeatRoom(){
+  const P=PERSONAS[curPersona];roomCtx={type:'heat'};
+  document.getElementById('room').innerHTML=roomHTML(P.heat.room,
+    `<button class="btn-ghost" onclick="closeRoom()">Later</button><button class="btn-primary" onclick="decideHeat()">${P.heat.room.primary}</button>`);
+  openRoomShell();
+}
+function decideHeat(){
+  const S=ts();S.heatDone=true;S.heatOn=false;
+  const P=PERSONAS[curPersona];
+  P.announced=P.announced||[];P.announced.unshift({id:'heat',text:P.heat.room.announce});
+  closeRoom();renderLetter();
+}
+function triggerHeat(){const S=ts();S.heatOn=true;S.heatDone=false;renderLetter();document.getElementById('letterScroll').scrollTop=0;}
+
+// ----- Sweep room: ranked queue, one item at a time, individual signatures
+let sw={i:0,sent:0,skipped:0,results:[]};
+function openSweep(){
+  sw={i:0,sent:0,skipped:0,results:new Array(SWEEP.length).fill(null)};
+  roomCtx={type:'sweep'};renderSweep();openRoomShell();
+}
+function renderSweep(){
+  const room=document.getElementById('room');
+  if(sw.i>=SWEEP.length){
+    const backVal='€'+(sw.sent*3.1).toFixed(0)+'k';
+    room.innerHTML=`<div class="room-head"><span class="kick">Sweep · quiet deals</span><button class="icon-btn" onclick="finishSweep()" title="Close"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3l8 8M11 3l-8 8"/></svg></button></div>
+    <div class="room-body"><div class="sw-done">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-7"/></svg>
+      <div class="big">${sw.sent} sent, ${sw.skipped} skipped.</div>
+      <div class="sm">${backVal} of commission back in motion. Skipped items rescheduled themselves.</div>
+    </div></div>
+    <div class="room-foot"><button class="btn-primary" onclick="finishSweep()">Back to the letter</button></div>`;
+    return;
+  }
+  const it=SWEEP[sw.i];
+  room.innerHTML=`<div class="room-head"><span class="kick">Sweep · quiet deals</span><button class="icon-btn" onclick="pauseSweep()" title="Pause"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3l8 8M11 3l-8 8"/></svg></button></div>
+  <div class="room-body">
+    <div class="sw-prog">${SWEEP.map((_,j)=>`<span class="sw-dot ${sw.results[j]==='sent'?'done':sw.results[j]==='skip'?'skip':j===sw.i?'cur':''}"></span>`).join('')}<span class="sw-meta">${sw.i+1} of ${SWEEP.length}</span></div>
+    <div class="room-title">${it.who} · ${it.worth}</div>
+    <div class="room-kv"><div class="kv"><div class="k">Unit · state</div><div class="v">${it.unit}</div></div><div class="kv"><div class="k">Last contact</div><div class="v">${it.last}</div></div></div>
+    <div class="rnote"><strong style="color:var(--on-surface)">Cole:</strong> ${it.judge}</div>
+    <div class="rdraft"><div class="from">Ella · prepared move</div>${it.draft}</div>
+    <div class="rnote" style="margin:0">Enter · send &nbsp;&nbsp; L · skip &nbsp;&nbsp; Esc · pause</div>
+  </div>
+  <div class="room-foot"><button class="btn-ghost" onclick="sweepSkip()">Skip · L</button><button class="btn-primary" onclick="sweepSend()">Send · ⏎</button></div>`;
+}
+function sweepSend(){sw.results[sw.i]='sent';sw.sent++;sw.i++;renderSweep();}
+function sweepSkip(){sw.results[sw.i]='skip';sw.skipped++;sw.i++;renderSweep();}
+function pauseSweep(){closeRoom();}
+function finishSweep(){
+  ts().sweepResult=`Sweep done: ${sw.sent} sent, ${sw.skipped} skipped — €${(sw.sent*3.1).toFixed(0)}k back in motion.`;
+  closeRoom();renderLetter();
+}
+
+// ----- Evidence on tap
+function closeEv(){document.getElementById('evpop').classList.remove('on');}
+function showEv(target,q,s){
+  const pop=document.getElementById('evpop');
+  pop.innerHTML=`<div class="eq">${q}</div><div class="es">${s}</div>`;
+  pop.classList.add('on');
+  const r=target.getBoundingClientRect();
+  let x=Math.min(r.left,window.innerWidth-300),y=r.bottom+8;
+  if(y+120>window.innerHeight)y=r.top-pop.offsetHeight-8;
+  pop.style.left=Math.max(12,x)+'px';pop.style.top=y+'px';
+}
+document.addEventListener('click',e=>{
+  const ev=e.target.closest('.ev');
+  if(ev&&EV[ev.dataset.ev]){e.stopPropagation();showEv(ev,EV[ev.dataset.ev].q,EV[ev.dataset.ev].s);return;}
+  if(!e.target.closest('.evpop'))closeEv();
+});
+function focusPop(e,i){
+  const f=PERSONAS[curPersona].focus[i];
+  showEv(e.currentTarget,f.pop||f.t,'Why this ranks · impact ÷ effort, weighted by urgency');
+  e.stopPropagation();
+}
+
 // ---------- Routing ----------
-const CRUMB = {home:'Home',newchat:'Chat history',dashboard:'Dashboard',pipeline:'Pipeline',properties:'Properties',developments:'Developments',contacts:'Contacts',calendar:'Calendar',reports:'Reports',settings:'Settings',opp:'Mike Gatt'};
+const CRUMB = {today:'Today',newchat:'Chat history',dashboard:'Dashboard',pipeline:'Pipeline',properties:'Properties',developments:'Developments',contacts:'Contacts',calendar:'Calendar',reports:'Reports',settings:'Settings',opp:'Mike Gatt'};
 function go(page){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.getElementById('p-'+page).classList.add('on');
@@ -747,8 +1212,14 @@ function askSample(){
 function toggleTheme(){const h=document.documentElement;h.dataset.theme=h.dataset.theme==='dark'?'light':'dark';}
 
 // ---------- init ----------
-renderRows();renderBoard();renderBids();renderChats();
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAsk();});
+renderRows();renderBoard();renderBids();renderChats();renderLetter();
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeAsk();closeEv();if(roomCtx)closeRoom();return;}
+  if(roomCtx&&roomCtx.type==='sweep'&&sw.i<SWEEP.length){
+    if(e.key==='Enter'){e.preventDefault();sweepSend();}
+    else if(e.key==='l'||e.key==='L'){sweepSkip();}
+  }
+});
 </script>
 </body>
 </html>
