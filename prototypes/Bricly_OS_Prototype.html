@@ -198,6 +198,54 @@ button{font-family:inherit}
 .cr-money{width:150px;flex:none;text-align:right}
 .cr-money .v{font-size:13px;font-weight:600}
 .cr-money .c{font-size:12px;color:var(--on-variant);display:flex;align-items:center;gap:6px;justify-content:flex-end;margin-top:2px}
+/* Deal progress card on opportunity detail */
+.ct-meta{font-size:12px;color:var(--on-variant);display:flex;align-items:center;gap:6px}
+.ct-meta b{font-weight:600}
+.ct-labels{position:relative;height:16px;margin-top:9px}
+.ct-labels span{position:absolute;top:0;font-size:11px;color:var(--muted);white-space:nowrap;transform:translateX(-50%)}
+.ct-labels span:first-child{transform:none}
+.ct-labels span:last-child{transform:translateX(-100%)}
+.ct-labels span.done{color:var(--on-variant)}
+.ct-labels span.cur{color:var(--primary);font-weight:600}
+/* Opportunity detail v2 */
+.qa-bar{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.qa-btn{display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:100px;border:1px solid var(--outline);background:var(--surface);font-size:12.5px;font-weight:500;color:var(--on-surface);cursor:pointer;transition:.12s}
+.qa-btn:hover{border-color:var(--sc-highest);background:var(--sc-lowest)}
+.qa-btn svg{width:13px;height:13px;color:var(--muted)}
+.ot-gate{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:22px;padding:11px 14px;background:var(--sc-lowest);border:1px solid var(--outline-variant);border-radius:10px}
+.ot-gate .g-txt{font-size:12.5px;color:var(--on-variant)}
+.ot-gate .g-txt b{color:var(--on-surface);font-weight:600}
+.comm-tabs{border-bottom:1px solid var(--outline);margin:10px 0 14px}
+.comm-thread{display:flex;flex-direction:column;gap:10px;max-height:320px;overflow:auto;padding-right:4px}
+.msg{max-width:78%;padding:9px 12px;border-radius:12px;font-size:12.5px;line-height:1.5}
+.msg.in{align-self:flex-start;background:var(--sc-lowest);border:1px solid var(--outline-variant);border-bottom-left-radius:4px}
+.msg.out{align-self:flex-end;background:color-mix(in srgb,var(--primary) 10%,var(--surface));border-bottom-right-radius:4px}
+.msg-sub{font-weight:600;margin-bottom:2px}
+.msg-meta{font-size:10.5px;color:var(--muted);margin-top:4px;text-align:right}
+.msg.in .msg-meta{text-align:left}
+.comm-compose{display:flex;gap:8px;margin-top:12px;align-items:stretch}
+.comm-compose textarea{flex:1;border:1px solid var(--outline);border-radius:10px;padding:9px 12px;font:inherit;font-size:12.5px;resize:none;background:var(--surface);color:var(--on-surface);outline:none}
+.comm-compose textarea:focus{border-color:var(--primary)}
+.cc-btns{display:flex;flex-direction:column;gap:6px;justify-content:flex-end}
+.ai-chip{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;padding:5px 10px;border-radius:100px;border:1px solid var(--outline);background:var(--sc-lowest);color:var(--on-variant);cursor:pointer;transition:.12s}
+.ai-chip:hover{border-color:var(--primary);color:var(--primary)}
+.auto-row{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--outline-variant);font-size:12.5px;color:var(--on-variant)}
+.auto-row:last-child{border:none;padding-bottom:2px}
+.auto-row .ic{width:22px;height:22px;border-radius:50%;background:var(--sc-lowest);border:1px solid var(--outline-variant);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);flex:none}
+.auto-row .at{font-size:11px;color:var(--muted);margin-top:1px}
+.share-it{display:flex;flex-direction:column;gap:2px;padding:11px 0;border-bottom:1px solid var(--outline-variant)}
+.share-it:last-child{border:none;padding-bottom:0}
+.sh-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sh-n{font-size:12.5px;font-weight:600}
+.sh-d{font-size:11.5px;color:var(--muted)}
+.sh-eng{font-size:11.5px;color:var(--primary);font-weight:500;margin-top:2px}
+.sh-act{display:flex;gap:6px}
+.sh-btn{font-size:11px;padding:3px 9px;border-radius:100px;border:1px solid var(--outline);background:var(--surface);cursor:pointer;color:var(--on-variant);transition:.12s}
+.sh-btn:hover{border-color:var(--sc-highest)}
+.cico-row{display:flex;gap:8px;margin-top:12px}
+.cico{width:30px;height:30px;border-radius:50%;border:1px solid var(--outline);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--on-variant);transition:.12s}
+.cico:hover{border-color:var(--primary);color:var(--primary)}
+.cico svg{width:13px;height:13px}
 
 /* ---------- Pipeline filters ---------- */
 .filter-row{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin-bottom:14px;position:relative}
@@ -221,6 +269,41 @@ button{font-family:inherit}
 .pipe-search-wrap input{border:none;outline:none;background:transparent;font-family:inherit;font-size:12.5px;color:var(--on-surface);width:150px}
 .pipe-search-wrap input::placeholder{color:var(--muted)}
 .pipe-search-wrap svg{color:var(--muted);flex:none}
+
+/* ---------- Contacts ---------- */
+.ct-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.ct-stat{background:var(--surface);border:1px solid var(--outline);border-radius:var(--r-lg);padding:13px 16px;cursor:pointer;transition:.12s}
+.ct-stat:hover{border-color:var(--sc-highest);box-shadow:var(--sh-sm)}
+.ct-stat.on{border-color:var(--primary);background:color-mix(in srgb,var(--primary) 5%,var(--surface))}
+.ct-stat .v{font-size:18px;font-weight:600;letter-spacing:-.2px}
+.ct-stat .l{font-size:12px;color:var(--muted);margin-top:1px}
+.p-tlead{background:rgba(90,125,140,.14);color:#41616e}
+.p-tbuyer{background:rgba(101,122,50,.15);color:#52671F}
+.p-tvendor{background:rgba(106,90,156,.13);color:#584a85}
+.p-tsupplier{background:rgba(181,138,58,.15);color:#8d6715}
+.p-tpartner{background:rgba(63,125,90,.14);color:#33684b}
+.ct-check{width:15px;height:15px;border-radius:4px;border:1.5px solid var(--sc-highest);background:var(--surface);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:.12s;color:transparent;flex:none}
+.ct-check.on,.ct-check.part{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+tr:hover .ct-check{border-color:var(--muted)}
+tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
+.ct-sub{font-size:11.5px;color:var(--muted);margin-top:1px}
+.ct-sort{padding:6px 10px;border-radius:8px;border:1px solid var(--outline);background:var(--surface);font-family:inherit;font-size:12.5px;color:var(--on-surface);cursor:pointer}
+.cd{font-size:10px;font-weight:600;padding:2px 6px;border-radius:5px;background:var(--sc-high);color:var(--muted)}
+.cd.ok{background:rgba(101,122,50,.15);color:#52671F}
+.ct-bulkbar{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(90px);display:flex;align-items:center;gap:2px;background:var(--surface);border:1px solid var(--outline);border-radius:14px;box-shadow:var(--sh-xl);padding:7px 10px;z-index:50;transition:transform .2s,opacity .2s;opacity:0;pointer-events:none}
+.ct-bulkbar.on{transform:translateX(-50%);opacity:1;pointer-events:auto}
+.bb-count{font-size:12.5px;font-weight:600;padding:0 8px;white-space:nowrap}
+.bb-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-radius:8px;border:none;background:transparent;font-family:inherit;font-size:12.5px;color:var(--on-surface);cursor:pointer;white-space:nowrap;transition:.12s}
+.bb-btn:hover{background:var(--sc-lowest)}
+.bb-btn:disabled{opacity:.35;cursor:default}
+.bb-btn:disabled:hover{background:transparent}
+.bb-sep{width:1px;height:18px;background:var(--outline);margin:0 5px}
+.bb-menu{position:absolute;bottom:calc(100% + 8px);background:var(--surface);border:1px solid var(--outline);border-radius:10px;box-shadow:var(--sh-lg);padding:6px;min-width:150px;max-height:260px;overflow-y:auto;z-index:51}
+.bb-mi{display:block;width:100%;text-align:left;padding:7px 10px;border-radius:7px;border:none;background:transparent;font-family:inherit;font-size:12.5px;color:var(--on-surface);cursor:pointer}
+.bb-mi:hover{background:var(--sc-lowest)}
+.ct-deal{display:inline-flex;align-items:center;gap:6px}
+.ct-deal .pill{cursor:pointer}
+.ct-deal .pill:hover{filter:brightness(.95)}
 
 /* ---------- Side drawer (New Opportunity) ---------- */
 .opp-drawer{position:fixed;top:0;right:0;bottom:0;width:400px;background:var(--surface);border-left:1px solid var(--outline);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .22s cubic-bezier(.4,0,.2,1);z-index:56;box-shadow:var(--sh-xl)}
@@ -260,6 +343,98 @@ button{font-family:inherit}
 .btn-back{display:inline-flex;align-items:center;gap:6px;padding:5px 4px;margin-bottom:14px;border:none;background:transparent;color:var(--on-variant);font-size:12.5px;font-weight:500;cursor:pointer;border-radius:7px;transition:.12s}
 .btn-back:hover{color:var(--on-surface);background:var(--sc-lowest)}
 .btn-back svg{width:13px;height:13px;flex:none}
+
+/* ---------- Buyer journey / stage-aware opportunity ---------- */
+.oj-hero{position:relative;padding:20px 22px 16px}
+.oj-bar{display:flex;align-items:stretch;gap:10px;margin-bottom:16px}
+.oj-phase{flex:5;min-width:0;padding:8px 10px}
+.oj-phase.deal{flex:7;background:var(--sc-lowest);border:1px solid var(--outline-variant);border-radius:12px}
+.oj-phase-l{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.oj-stages{display:flex;align-items:flex-start}
+.oj-st{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;position:relative;min-width:0}
+.oj-st::before{content:'';position:absolute;top:6px;right:50%;width:100%;height:2px;background:var(--sc-highest)}
+.oj-st:first-child::before{display:none}
+.oj-st.done::before,.oj-st.cur::before{background:var(--primary)}
+.oj-dot{width:13px;height:13px;border-radius:50%;background:var(--surface);border:2.5px solid var(--sc-highest);position:relative;z-index:1;box-sizing:border-box}
+.oj-st.done .oj-dot{background:var(--primary);border-color:var(--primary)}
+.oj-st.cur .oj-dot{border-color:var(--primary)}
+.oj-lb{font-size:10.5px;color:var(--muted);text-align:center;line-height:1.25;max-width:72px}
+.oj-st.done .oj-lb{color:var(--on-variant)}
+.oj-st.cur .oj-lb{color:var(--on-surface);font-weight:600}
+.oj-st:hover .oj-lb{color:var(--on-surface)}
+.oj-gate{align-self:center;text-align:center;width:54px;flex:none;color:var(--muted)}
+.oj-gate span{font-size:12px;line-height:1;display:block}
+.oj-gate em{font-size:9px;font-style:normal;text-transform:uppercase;letter-spacing:.05em;display:block;margin-top:3px;line-height:1.3}
+.oj-gate.passed{color:var(--primary)}
+.oj-phase{transition:opacity .25s}
+.oj-phase.dimmed{opacity:.4;filter:grayscale(.35)}
+.oj-phase.dimmed:hover{opacity:.85;filter:none}
+.oj-hero.deal-live{background:color-mix(in srgb,var(--primary) 4%,var(--surface));border-color:color-mix(in srgb,var(--primary) 22%,var(--outline-variant))}
+.oj-hero.deal-live .oj-phase.deal{background:color-mix(in srgb,var(--primary) 7%,var(--surface));border-color:color-mix(in srgb,var(--primary) 28%,var(--outline-variant))}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:400;overflow:hidden}
+.confetti i{position:absolute;display:block;opacity:0;animation:cfall 2s cubic-bezier(.15,.55,.45,1) forwards}
+@keyframes cfall{0%{opacity:1;transform:translate(0,0) rotate(0)}12%{transform:translate(calc(var(--dx)*.35),calc(var(--dy)*-.4)) rotate(calc(var(--rz)*.3))}75%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--rz))}}
+.now-strip{display:grid;grid-template-columns:1.1fr 1.4fr 1fr 1.2fr auto;gap:18px;align-items:center;border-top:1px solid var(--outline-variant);padding-top:14px}
+.now-cell .k{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.now-cell .v{font-size:13.5px;font-weight:600;line-height:1.35}
+.now-cell .d{font-size:12px;color:var(--muted);margin-top:1px}
+.now-cell.deal-info{border-right:1px solid var(--outline-variant);padding-right:18px}
+.now-cell .v.warn{color:#8d6715}
+.now-cell .v.bad,.now-cell .d.bad{color:#c23b3e}
+.oj-pop{position:absolute;width:260px;background:var(--surface);border:1px solid var(--outline);border-radius:12px;box-shadow:var(--sh-lg);padding:14px;z-index:30}
+.ojp-h{font-size:13px;font-weight:600;margin-bottom:6px}
+.ojp-h span{font-weight:400;color:var(--muted);font-size:11.5px}
+.ojp-g{font-size:12px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--outline-variant)}
+.ff-chips{display:flex;gap:5px;flex-wrap:wrap}
+.ff-chip{padding:3px 9px;border-radius:100px;border:1px solid var(--outline);background:transparent;color:var(--on-variant);font-size:11.5px;cursor:pointer;transition:.12s}
+.ff-chip:hover{background:var(--sc-lowest)}
+.ff-chip.on{background:var(--sc-high);border-color:transparent;color:var(--on-surface);font-weight:500}
+.opp-comp{border:1px solid var(--outline);border-radius:12px;padding:10px;margin-bottom:14px;background:var(--sc-lowest)}
+.opp-comp textarea{width:100%;border:none;background:transparent;resize:none;font-family:inherit;font-size:13px;color:var(--on-surface);outline:none;margin:8px 0 2px}
+.oc-ch{display:flex;gap:5px}
+.oc-foot{display:flex;justify-content:flex-end}
+.fi{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid var(--outline-variant)}
+.fi:last-child{border:none}
+.fi-ic{width:26px;height:26px;border-radius:8px;flex:none;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;color:#fff}
+.fi-b{flex:1;min-width:0}
+.fi-head{font-size:12px;color:var(--muted);margin-bottom:3px;display:flex;gap:5px;align-items:baseline}
+.fi-head b{color:var(--on-surface);font-weight:600}
+.fi-head .t{margin-left:auto;flex:none}
+.fi-sub{font-size:12.5px;font-weight:600;margin-bottom:2px}
+.fi-tx{font-size:13px;color:var(--on-variant);line-height:1.5}
+.fi.out .fi-tx{color:var(--on-surface)}
+.fi.sys{justify-content:space-between;font-size:12px;color:var(--muted);padding:8px 0}
+.lu-row{display:grid;grid-template-columns:76px 1fr auto;gap:8px;align-items:center;font-size:13px;padding:9px 0;border-bottom:1px solid var(--outline-variant)}
+.lu-row:last-child{border:none}
+.block-card{background:rgba(168,118,17,.07);border-color:rgba(168,118,17,.25)}
+.kd-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:6px}
+.kd{background:var(--sc-lowest);border:1px solid var(--outline-variant);border-radius:10px;padding:12px 14px}
+.kd .k{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.kd .v{font-size:14.5px;font-weight:600}
+.kd .in{font-size:11.5px;color:var(--muted);margin-top:2px}
+.kd.warn .in{color:#8d6715;font-weight:500}
+.kd.bad{border-color:rgba(235,87,89,.4)}
+.kd.bad .in{color:#c23b3e;font-weight:500}
+.dr-sec{margin-top:20px}
+.dr-sec h4{font-size:13px;font-weight:600}
+.dr-owed{font-size:12.5px;font-weight:600;color:#8d6715}
+.pay-row{display:flex;align-items:center;gap:10px;font-size:13px;padding:10px 0;border-bottom:1px solid var(--outline-variant)}
+.pay-row:last-child{border:none}
+.pay-row .pl{flex:1;min-width:0}
+.pay-row .pd{color:var(--muted);font-size:12px;width:130px;flex:none}
+.pay-row .pa{font-weight:600;width:90px;text-align:right;flex:none}
+.pay-row .pill{width:76px;justify-content:center;flex:none}
+.ps-dot{width:8px;height:8px;border-radius:50%;background:var(--sc-highest);flex:none}
+.pay-row.paid .ps-dot{background:var(--primary)}
+.pay-row.overdue .ps-dot{background:#EB5759}
+.p-bad{background:rgba(235,87,89,.13);color:#c23b3e}
+.doc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:4px 24px;margin-top:6px}
+.doc-g{font-size:10.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:8px 0 2px}
+.bid-acc{margin-top:20px;border-top:1px solid var(--outline-variant);padding-top:12px}
+.bid-acc summary{font-size:13px;font-weight:600;cursor:pointer;color:var(--on-variant)}
+.bid-acc[open] summary{margin-bottom:6px}
+.oj-lock{text-align:center;padding:44px 20px;color:var(--muted);font-size:13px}
+.card-row.overdue,.card-row.overdue svg{color:#c23b3e}
 
 /* notes/tasks */
 .note{padding:12px 0;border-bottom:1px solid var(--outline-variant)}
@@ -346,10 +521,32 @@ button{font-family:inherit}
 .dayline .dprom .pk{color:var(--primary)}
 .dayline .dchev{margin-left:auto;flex:none;align-self:center;color:var(--muted);opacity:0;transition:.15s}
 .dayline:hover .dchev{opacity:1}
+/* calendar event chip inside a dayline */
+.dayline .devt{display:inline-flex;align-items:center;gap:6px;margin:3px 0 1px;padding:3px 10px 3px 8px;border:1px solid var(--outline);background:var(--surface);border-radius:100px;font-size:12px;font-weight:500;font-family:var(--font);color:var(--on-surface);cursor:pointer;box-shadow:var(--sh-xs);transition:.13s}
+.dayline .devt:hover{border-color:var(--primary-low);background:var(--sc-lowest)}
+.dayline .devt svg{color:var(--primary);flex:none}
+.dayline .devt .dloc{color:var(--muted);font-weight:400}
+.dayline .devt .dmv{font-size:10.5px;color:var(--y-ink);background:var(--y-bg);border-radius:100px;padding:1px 7px}
+.slotrow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.slotpill{padding:7px 14px;border-radius:100px;border:1px solid var(--outline);background:var(--surface);font-size:13px;font-family:var(--font);color:var(--on-surface);cursor:pointer;transition:.13s}
+.slotpill:hover{border-color:var(--primary-low)}
+.slotpill.on{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+.btn-primary.dis{opacity:.45;pointer-events:none}
 .rpoints{margin:2px 0 14px;padding:0;list-style:none}
 .rpoints li{font-size:13px;color:var(--on-surface);line-height:1.55;padding:7px 0 7px 18px;position:relative;border-bottom:1px solid var(--outline-variant)}
 .rpoints li:last-child{border-bottom:none}
 .rpoints li:before{content:'';position:absolute;left:3px;top:13px;width:5px;height:5px;border-radius:50%;background:var(--primary-low)}
+.room-cal{display:flex;gap:12px;align-items:center;padding:11px 12px;border:1px solid var(--outline);border-radius:12px;background:var(--sc-lowest);margin-bottom:16px;cursor:pointer;transition:.13s}
+.room-cal:hover{background:var(--surface);box-shadow:var(--sh-xs)}
+.room-cal .rc-date{width:44px;height:46px;flex:none;border-radius:9px;background:var(--surface);border:1px solid var(--outline);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.room-cal .rc-mon{font-size:9px;font-weight:600;letter-spacing:.08em;color:var(--error);text-transform:uppercase}
+.room-cal .rc-day{font-size:19px;font-weight:600;margin-top:2px}
+.room-cal .rc-info{flex:1;min-width:0}
+.room-cal .rc-time{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums;margin-bottom:2px}
+.room-cal .rc-title{font-size:14px;font-weight:600;letter-spacing:-.1px;line-height:1.3}
+.room-cal .rc-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.room-cal .rc-view{flex:none;align-self:center;display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--on-variant);white-space:nowrap}
+.room-cal .rc-view svg{width:12px;height:12px;color:var(--muted)}
 .fb{display:flex;gap:12px;padding:12px 14px;border-radius:10px;cursor:pointer;margin-bottom:6px;border:1px solid transparent;transition:.15s;align-items:flex-start}
 .fb:hover{background:var(--sc-lowest);border-color:var(--outline)}
 .fb .fn{flex:none;width:20px;height:20px;border-radius:6px;background:var(--y-bg);color:var(--y-ink);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;margin-top:1px}
@@ -666,174 +863,9 @@ button{font-family:inherit}
 
       <!-- ===== OPPORTUNITY DETAIL ===== -->
       <section class="page" id="p-opp">
-        <div class="wrap">
+        <div class="wrap" style="max-width:1120px">
           <button class="btn-back" onclick="go('pipeline')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8.5 3L4 7l4.5 4"/></svg>Back to Pipeline</button>
-          <div class="row-between" style="align-items:flex-start;margin-bottom:16px">
-            <div>
-              <div class="page-title" id="opp-title">Mike Gatt</div>
-              <div class="page-sub" id="opp-sub">Dolphin Court · #CM9802 · Negotiating</div>
-            </div>
-            <button class="status-sel"><span class="dot"></span><span id="opp-status-label">Negotiating</span> <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 4.5L6 7.5 9 4.5"/></svg></button>
-          </div>
-          <div class="tabs" style="margin-bottom:18px">
-            <button class="tab on" onclick="oppTab('overview',this)">Overview</button>
-            <button class="tab" onclick="oppTab('notes',this)">Notes &amp; Tasks</button>
-            <button class="tab" onclick="oppTab('deals',this)">Deals &amp; Contracts</button>
-            <button class="tab" onclick="oppTab('bids',this)">Bid History</button>
-          </div>
-
-          <!-- Overview -->
-          <div class="opp-tab on" id="ot-overview">
-            <div class="opp-grid">
-              <div>
-                <div class="dcard">
-                  <h3>Opportunity overview</h3>
-                  <div class="kv-grid">
-                    <div class="kv"><div class="k">Lifecycle</div><div class="v">Active</div></div>
-                    <div class="kv"><div class="k">Lead Source</div><div class="v" id="opp-source">Meta Lead Form</div></div>
-                    <div class="kv"><div class="k">Next Step</div><div class="v" id="opp-nextstep">Hold approval and POS prep</div></div>
-                    <div class="kv"><div class="k">Days in Stage</div><div class="v">3</div></div>
-                    <div class="kv"><div class="k">Payment Plan</div><div class="v">10/20/70</div></div>
-                    <div class="kv"><div class="k">Deposit</div><div class="v">€28,000</div></div>
-                  </div>
-                </div>
-                <div class="dcard">
-                  <h3>Linked units</h3>
-                  <div class="mini-th"><span>Unit</span><span>Development</span><span>Type</span><span>Price</span><span>Stage</span></div>
-                  <div id="opp-units"></div>
-                  <div style="font-size:12px;color:var(--muted);margin-top:10px">Showing linked units for this opportunity</div>
-                </div>
-                <div class="dcard">
-                  <h3>Offer &amp; payment terms</h3>
-                  <div class="kv-grid" style="grid-template-columns:repeat(3,1fr)">
-                    <div class="kv"><div class="k">Offer</div><div class="v">€280,000</div></div>
-                    <div class="kv"><div class="k">Price Exception</div><div class="v">Not required</div></div>
-                    <div class="kv"><div class="k">Payment Terms</div><div class="v">10/20/70</div></div>
-                  </div>
-                </div>
-                <div class="dcard timeline">
-                  <h3>Activity timeline</h3>
-                  <div class="tl"><div class="tl-dot">◷</div><div><div class="tl-t">July 10 · Meeting Name</div><div class="tl-d">Hold request submitted with client note</div></div></div>
-                  <div class="tl"><div class="tl-dot">◷</div><div><div class="tl-t">July 10 · Meeting Name</div><div class="tl-d">Hold request submitted with client note</div></div></div>
-                  <div class="tl"><div class="tl-dot">◷</div><div><div class="tl-t">July 10 · Meeting Name</div><div class="tl-d">Hold request submitted with client note</div></div></div>
-                </div>
-              </div>
-              <div>
-                <div class="dcard">
-                  <div class="rep">
-                    <div style="flex:1"><div class="side-h" style="margin-bottom:2px">Contact profile</div></div>
-                  </div>
-                  <div class="rep">
-                    <div class="avatar">SU</div>
-                    <div><div class="side-kv" style="margin:0"><div class="k">Assigned Rep</div><div class="v">Sam Urpani</div></div></div>
-                  </div>
-                  <div class="side-kv"><div class="k">Name</div><div class="v" id="opp-contact-name">Mike Gatt</div></div>
-                  <div class="side-kv"><div class="k">Email</div><div class="v" id="opp-contact-email">mike.gatt@email.com</div></div>
-                  <div class="side-kv" style="margin:0"><div class="k">Phone</div><div class="v">+356 9912 3456</div></div>
-                </div>
-                <div class="dcard">
-                  <div class="side-h">Approval gates</div>
-                  <div class="side-kv"><div class="k">Price Exception</div><div class="v">No</div></div>
-                  <div class="side-kv"><div class="k">Hold Approval</div><div class="v">Waiting manager approval</div></div>
-                  <div class="side-kv" style="margin:0"><div class="k">Reservation Approval</div><div class="v">Not requested</div></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Notes & Tasks -->
-          <div class="opp-tab" id="ot-notes" style="display:none">
-            <div class="opp-grid">
-              <div>
-                <div class="dcard">
-                  <div class="row-between" style="margin-bottom:6px"><h3 style="margin:0">Notes</h3><button class="btn-ghost" style="padding:4px 10px">+ Add</button></div>
-                  <div class="note"><div class="note-head"><span class="avatar-sm" style="background:#657A32">LC</span><span class="who">Luca Camilleri</span><span class="when">Today 10:24</span></div><div class="note-body">Hold request submitted. Client is very motivated - visited twice, shortlisted #CM9802 (maisonette with terrace) and #CM9803 (penthouse). Need to secure before end of month.</div></div>
-                  <div class="note"><div class="note-head"><span class="avatar-sm" style="background:#8aa653">LC</span><span class="who">Luca Camilleri</span><span class="when">Today 10:24</span></div><div class="note-body">Hold request submitted. Client is very motivated - visited twice, shortlisted #CM9802 and #CM9803.</div></div>
-                  <div class="note" style="border:none"><div class="note-head"><span class="avatar-sm" style="background:#b58a3a">LC</span><span class="who">Luca Camilleri</span><span class="when">Today 10:24</span></div><div class="note-body">Need to secure before end of month.</div></div>
-                </div>
-                <div class="dcard">
-                  <div class="row-between" style="margin-bottom:10px"><h3 style="margin:0">Reminders</h3><button class="btn-ghost" style="padding:4px 10px">+ Add</button></div>
-                  <div class="mini-th" style="grid-template-columns:1fr 120px"><span>Description</span><span>Due On</span></div>
-                  <div class="mini-tr" style="grid-template-columns:1fr 120px"><span>Follow up on finance confirmation</span><span>Today</span></div>
-                  <div class="mini-tr" style="grid-template-columns:1fr 120px"><span>Send updated floor plans for #CM9803</span><span>Tomorrow</span></div>
-                  <div class="mini-tr" style="grid-template-columns:1fr 120px;border:none"><span>Check if legal team received KYC</span><span>28th Jun</span></div>
-                </div>
-              </div>
-              <div>
-                <div class="dcard">
-                  <div class="row-between" style="margin-bottom:4px"><h3 style="margin:0">Tasks</h3><button class="btn-ghost" style="padding:4px 10px">+ Add</button></div>
-                  <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted)"><span>1 of 3 complete</span><span>33%</span></div>
-                  <div class="progress"><span style="width:33%"></span></div>
-                  <div class="task"><div class="check done"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.5 6.5l2.5 2.5 4.5-5"/></svg></div><div><div class="tt">Book second viewing</div><div class="td">Due yesterday</div></div><span class="badge-prio prio-high">High</span></div>
-                  <div class="task"><div class="check"></div><div><div class="tt">Share personalised buyer pack</div><div class="td">Due yesterday</div></div><span class="badge-prio prio-low">Low</span></div>
-                  <div class="task" style="border:none"><div class="check"></div><div><div class="tt">Submit hold request to manager</div><div class="td">Due Today</div></div><span class="badge-prio prio-high">High</span></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Deals & Contracts -->
-          <div class="opp-tab" id="ot-deals" style="display:none">
-            <div class="opp-grid">
-              <div>
-                <div class="dcard">
-                  <h3>Documents</h3>
-                  <div class="uploader">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.3"><path d="M12 16V4M8 8l4-4 4 4"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
-                    <div class="big">Click to upload or drag &amp; drop contract &amp; deal files here</div>
-                    <div class="small">KYC, POS, contracts, payment receipts - max 25 MB each</div>
-                  </div>
-                  <div class="subtabs">
-                    <div class="subtab on">All Files</div><div class="subtab">KYC</div><div class="subtab">POS</div><div class="subtab">Contract</div><div class="subtab">Payments</div>
-                  </div>
-                  <div class="mini-th" style="grid-template-columns:1fr 90px 90px 40px"><span>Name</span><span>Size</span><span>Status</span><span></span></div>
-                  <div class="mini-tr" style="grid-template-columns:1fr 90px 90px 40px"><span>Mike-gatt-Id.pdf</span><span class="fsz">1.2 MB</span><span class="pill p-avail">KYC</span><span>⤓</span></div>
-                  <div class="mini-tr" style="grid-template-columns:1fr 90px 90px 40px;border:none"><span>Mike-gatt-passport.pdf</span><span class="fsz">3 MB</span><span class="pill p-avail">KYC</span><span>⤓</span></div>
-                </div>
-              </div>
-              <div>
-                <div class="dcard">
-                  <div class="side-h">Document checklist</div>
-                  <div class="task"><div class="check done"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.5 6.5l2.5 2.5 4.5-5"/></svg></div><div class="tt">Passport / ID</div></div>
-                  <div class="task"><div class="check done"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.5 6.5l2.5 2.5 4.5-5"/></svg></div><div class="tt">Proof of address</div></div>
-                  <div class="task"><div class="check"></div><div class="tt">Source of funds declaration</div></div>
-                  <div class="task"><div class="check"></div><div class="tt">Promise of Sale (POS)</div></div>
-                  <div class="task" style="border:none"><div class="check"></div><div class="tt">Deposit receipt</div></div>
-                </div>
-                <div class="dcard">
-                  <div class="side-h">Storage used</div>
-                  <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--on-variant)"><span>Total</span><span>24 MB</span></div>
-                  <div class="storage-bar"><span></span></div>
-                  <div class="small" style="font-size:12px;color:var(--muted)">of 500 MB deal limit</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Bid History -->
-          <div class="opp-tab" id="ot-bids" style="display:none">
-            <div class="dcard">
-              <h3>Linked units</h3>
-              <div class="mini-th" style="grid-template-columns:70px 1fr 90px 100px 1fr 90px"><span>Date</span><span>By</span><span>Amount</span><span>Type</span><span>Notes</span><span>Result</span></div>
-              <div id="bid-rows"></div>
-            </div>
-            <div class="opp-grid">
-              <div class="dcard">
-                <div class="side-h">Negotiation summary</div>
-                <div class="side-kv"><div class="k">Opening Offer</div><div class="v">€260,000</div></div>
-                <div class="side-kv"><div class="k">Accepted At</div><div class="v">€280,000</div></div>
-                <div class="side-kv"><div class="k">Rounds</div><div class="v">4</div></div>
-                <div class="side-kv" style="margin:0"><div class="k">Movement</div><div class="v">+€20,000</div></div>
-              </div>
-              <div class="dcard timeline">
-                <div class="side-h">Price Movement</div>
-                <div class="tl"><div class="tl-dot">◷</div><div><div class="tl-t">July 10 · €280,000</div><div class="tl-d">Increased by €10,000</div></div></div>
-                <div class="tl"><div class="tl-dot">◷</div><div><div class="tl-t">July 10 · Meeting Name</div><div class="tl-d">Hold request submitted with client note</div></div></div>
-                <div class="tl"><div class="tl-dot">◷</div><div><div class="tl-t">July 10 · Meeting Name</div><div class="tl-d">Hold request submitted with client note</div></div></div>
-                <div class="tl"><div class="tl-dot">◷</div><div><div class="tl-t">July 10 · Meeting Name</div><div class="tl-d">Hold request submitted with client note</div></div></div>
-              </div>
-            </div>
-          </div>
+          <div id="opp-root"></div>
         </div>
       </section>
 
@@ -908,7 +940,53 @@ button{font-family:inherit}
       <section class="page" id="p-dashboard"><div class="placeholder-empty">Dashboard</div></section>
       <section class="page" id="p-properties"><div class="placeholder-empty">Properties</div></section>
       <section class="page" id="p-developments"><div class="placeholder-empty">Developments</div></section>
-      <section class="page" id="p-contacts"><div class="placeholder-empty">Contacts</div></section>
+      <!-- ===== CONTACTS ===== -->
+      <section class="page" id="p-contacts">
+        <div class="wrap">
+          <div class="row-between" style="margin-bottom:16px;align-items:flex-start">
+            <div><div class="page-title">Contacts</div><div class="page-sub" id="ct-sub">All the people around your deals — buyers, vendors, suppliers and partners</div></div>
+            <div class="toolbar">
+              <button class="btn-ghost" onclick="ctExport()">Export CSV</button>
+              <button class="btn-primary" onclick="ctOpenNew()">New contact</button>
+            </div>
+          </div>
+          <div class="ct-stats" id="ct-stats"></div>
+          <div class="row-between" style="margin-bottom:14px">
+            <div class="tabs" id="ct-tabs"></div>
+            <div class="toolbar">
+              <div class="pipe-search-wrap">
+                <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg>
+                <input id="ct-search" placeholder="Search name, email, phone, company" oninput="ctSetSearch(this.value)">
+              </div>
+              <select class="ct-sort" id="ct-sort" onchange="ctSetSort(this.value)">
+                <option value="last">Last activity</option>
+                <option value="name">Name A–Z</option>
+                <option value="budget">Budget high–low</option>
+              </select>
+            </div>
+          </div>
+          <div class="filter-row" id="ct-filter-row">
+            <button class="fchip-add" onclick="ctToggleFilterMenu(event)">+ Filter</button>
+            <div id="ct-active-filters" style="display:contents"></div>
+            <div class="filter-menu" id="ct-filter-menu" style="display:none"></div>
+          </div>
+          <table class="table">
+            <thead><tr>
+              <th style="width:30px;padding-right:0"><span class="ct-check" id="ct-selall" onclick="ctSelAll()"></span></th>
+              <th>Contact</th><th>Type</th><th>Status</th><th>Phone / Email</th><th>Source</th><th>Budget</th><th>Rep</th><th>Deal</th><th>Last activity</th>
+            </tr></thead>
+            <tbody id="ct-rows"></tbody>
+          </table>
+          <div class="table-foot"><span id="ct-count"></span></div>
+        </div>
+      </section>
+      <!-- ===== CONTACT DETAIL ===== -->
+      <section class="page" id="p-contact">
+        <div class="wrap" style="max-width:1120px">
+          <button class="btn-back" onclick="go('contacts')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8.5 3L4 7l4.5 4"/></svg>Back to Contacts</button>
+          <div id="ct-root"></div>
+        </div>
+      </section>
       <section class="page" id="p-calendar"><div class="placeholder-empty">Calendar</div></section>
       <section class="page" id="p-reports"><div class="placeholder-empty">Reports</div></section>
       <section class="page" id="p-settings"><div class="placeholder-empty">Settings</div></section>
@@ -961,6 +1039,21 @@ button{font-family:inherit}
   </div>
 </aside>
 
+<!-- ============ CONTACT PEEK + DRAWER + BULK BAR ============ -->
+<div class="scrim" id="ctPeekScrim" onclick="closeCtPeek()"></div>
+<aside class="opp-drawer" id="ctPeek" style="width:430px">
+  <div class="od-head"><span>Contact preview</span><button class="x" onclick="closeCtPeek()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3l8 8M11 3l-8 8"/></svg></button></div>
+  <div class="od-body" id="ctPeekBody"></div>
+  <div class="od-foot" id="ctPeekFoot"></div>
+</aside>
+<div class="scrim" id="ctDrawerScrim" onclick="closeCtDrawer()"></div>
+<aside class="opp-drawer" id="ctDrawer">
+  <div class="od-head"><span id="ctDrawerTitle">New contact</span><button class="x" onclick="closeCtDrawer()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3l8 8M11 3l-8 8"/></svg></button></div>
+  <div class="od-body" id="ctDrawerBody"></div>
+  <div class="od-foot" id="ctDrawerFoot"></div>
+</aside>
+<div class="ct-bulkbar" id="ct-bulkbar"></div>
+
 <script>
 
 // ---------- Data ----------
@@ -982,7 +1075,7 @@ const SEG_STAGES = {
 // budget = client's stated budget (estimate); value = offer/unit price once a unit is chosen.
 const OPPS = [
   {id:'OPP-1001',lead:'Mike Gatt',devs:['Dolphin Court'],units:['#CM9802'],stage:'Negotiating',source:'Meta Lead Form',budget:300,value:280,tags:['Urgent'],rep:'Sam',next:{d:'Aug 13',t:'Hold approval follow-up'},ago:'Today'},
-  {id:'OPP-1002',lead:'Luca Camilleri',devs:['La Lex'],units:['#CM9803'],stage:'Reservation',source:'Walk-in',budget:350,value:350,tags:['Cash Buyer'],rep:'Matthew',next:{d:'Aug 14',t:'Send POS draft'},ago:'1 day'},
+  {id:'OPP-1002',lead:'Luca Camilleri',devs:['La Lex'],units:['#CM9803'],stage:'Reservation',source:'Walk-in',budget:350,value:350,tags:['Cash Buyer'],rep:'Matthew',next:{d:'Aug 9',t:'Chase overdue stage payment'},ago:'1 day'},
   {id:'OPP-1003',lead:'Ben Zammit',devs:['Mercury'],units:['#CM2701'],stage:'Negotiating',source:'Google Ads',budget:400,value:370,tags:['Investor'],rep:'Lucy',next:{d:'Aug 15',t:'Counter-offer review'},ago:'2 days'},
   {id:'OPP-1004',lead:'Daniel Vella',devs:['Mercury'],units:['#CM2702'],stage:'Viewing Booked',source:'Referral',budget:450,value:450,tags:[],rep:'Sarah',next:{d:'Aug 16',t:'Second viewing'},ago:'3 days'},
   {id:'OPP-1005',lead:'Daniela Spiteri',devs:['Verdala'],units:['#CM4509'],stage:'Contacted',source:'Website',budget:450,value:420,tags:['Foreign Buyer'],rep:'Maria',next:{d:'Aug 20',t:'Re-engagement call'},ago:'14 days'},
@@ -1007,6 +1100,118 @@ const COMMIT_STAGES = ['Negotiating','Reservation','Closed Won'];
 function money(o){
   const commit = COMMIT_STAGES.includes(o.stage);
   return commit ? {label:'Offer', amt:o.value, approx:false} : {label:'Budget', amt:o.budget, approx:true};
+}
+
+// ---------- Buyer journey model: Phase A (Selling) → offer accepted → Phase B (Deal) ----------
+const JOURNEY = [
+  {key:'lead',label:'New Lead',phase:'A',cta:'Make first contact',req:['Contact details captured','Lead source recorded'],guide:'Speed wins — first response within the hour.'},
+  {key:'qualified',label:'Qualified',phase:'A',cta:'Book a viewing',req:['Budget confirmed','Timeline confirmed','Finance status known'],guide:'Confirm budget, timeline and finance before booking.'},
+  {key:'viewing_booked',label:'Viewing Booked',phase:'A',dateLabel:'Viewing',cta:'Confirm viewing',req:['Appointment set','Units to show selected','Reminder sent'],guide:'Confirm the day before; have 2–3 units ready to show.'},
+  {key:'viewing_held',label:'Viewing Held',phase:'A',cta:'Send follow-up pack',req:['Feedback captured','Units shortlisted'],guide:'Follow up within 24h while interest is hot.'},
+  {key:'negotiating',label:'Negotiating',phase:'A',dateLabel:'Offer expiry',cta:'Log offer round',req:['Offer on the table','Counter position agreed'],guide:'Anchor at asking; trade payment terms before price.'},
+  {key:'hold',label:'Hold',phase:'B',dateLabel:'Hold expires',cta:'Chase hold approval',req:['Manager approval','Unit taken off market'],guide:'Holds expire in 14 days — push for reservation early.'},
+  {key:'reservation',label:'Reservation',phase:'B',dateLabel:'POS target',cta:'Collect deposit',req:['Reservation form signed','Deposit received'],guide:'Deposit secures the unit; book the notary now.'},
+  {key:'kyc',label:'KYC',phase:'B',cta:'Request outstanding docs',req:['Passport / ID','Proof of address','Source of funds'],guide:'No POS without complete KYC — chase docs early.'},
+  {key:'pos',label:'POS Signed',phase:'B',dateLabel:'Final deed deadline',cta:'Schedule notary',req:['POS signed at notary','Payment plan agreed','1% duty paid'],guide:'Konvenju sets the final deed deadline — track it.'},
+  {key:'payments',label:'Payments',phase:'B',dateLabel:'Next payment',cta:'Send payment reminder',req:['All milestones invoiced','Receipts filed'],guide:'Chase before due dates; receipts filed same day.'},
+  {key:'deed',label:'Final Deed',phase:'B',dateLabel:'Deed date',cta:'Prepare completion pack',req:['Balance settled','Bank sanction letter','Deed appointment booked'],guide:'Confirm bank sanction and balance a week ahead.'},
+  {key:'handover',label:'Handover',phase:'B',dateLabel:'Delivery',cta:'Book handover walkthrough',req:['Snag list closed','Keys & certificates delivered'],guide:'Close snags before key handover; collect review.'},
+];
+const STAGE2J = {'New Lead':'lead','Qualified':'qualified','Contacted':'qualified','Viewing Booked':'viewing_booked','Negotiating':'negotiating','Reservation':'reservation','Closed Won':'handover'};
+const CH_META = {wa:{label:'WhatsApp',ab:'W',color:'#3f7d5a'},sms:{label:'SMS',ab:'S',color:'#5a7d8c'},em:{label:'Email',ab:'E',color:'#6a5a9c'},note:{label:'Note',ab:'N',color:'#b58a3a'}};
+
+// Rich per-opportunity journey data — three demo personas cover Phase A / early B / late B.
+const EXT = {
+  'OPP-1001':{ // Mike Gatt — early Phase B: hold with countdown + approval blocker
+    jstage:'hold', done:['Unit taken off market'],
+    next:{label:'Chase manager hold approval',due:'Due today',overdue:false},
+    date:{label:'Hold expires',value:'Sat 16 Aug',in:'in 4 days',tone:'warn'},
+    blocker:'Hold approval — with Maria since Sun 10 Aug',
+    offer:{amt:280000,status:'Accepted — pending hold approval',plan:'10/20/70',deposit:28000},
+    buyer:{email:'mike.gatt@email.com',phone:'+356 9912 3456',type:'Owner-occupier'},
+    comms:[
+      {ch:'sys',t:'Today 10:24',text:'Hold request submitted to Maria (manager)'},
+      {ch:'wa',dir:'in',who:'Mike Gatt',t:'Today 10:12',text:'Great news on the terrace. If we can lock €280k with the 10/20/70 plan, I\u2019m ready to move this week.'},
+      {ch:'wa',dir:'out',who:'You',t:'Today 10:08',text:'Spoke to the developer — €280,000 works if we sign the POS within 3 weeks. Sending the hold request now.'},
+      {ch:'sys',t:'Yesterday 17:05',text:'Offer €280,000 accepted — pending hold approval'},
+      {ch:'em',dir:'in',who:'Mike Gatt',t:'Yesterday 16:40',sub:'Re: Dolphin Court #CM9802 — updated floor plan',text:'Thanks Sam, the layout works for us. The second bedroom is smaller than we hoped but the terrace makes up for it.'},
+      {ch:'note',dir:'out',who:'Maria Borg',t:'Mon 10 Aug',text:'Internal: client was also enquiring about Mercury units — keep momentum high.'},
+      {ch:'sms',dir:'out',who:'You',t:'Sat 8 Aug',text:'Reminder: viewing tomorrow 10:00 at Dolphin Court sales suite. See you there!'},
+    ],
+    keyDates:[{label:'Hold expires',value:'Sat 16 Aug',in:'in 4 days',tone:'warn'},{label:'POS target',value:'29 Aug',in:'in 17 days'},{label:'Delivery (est.)',value:'Q2 2027'}],
+    payments:[
+      {label:'Reservation deposit (10%)',amt:28000,due:'On reservation',status:'upcoming'},
+      {label:'On POS — konvenju (20%)',amt:56000,due:'At signing',status:'upcoming'},
+      {label:'Final on deed (70%)',amt:196000,due:'On final deed',status:'upcoming'},
+    ],
+    docs:[
+      {g:'KYC',label:'Passport / ID',done:true},{g:'KYC',label:'Proof of address',done:false},{g:'KYC',label:'Source of funds',done:false},
+      {g:'Contract',label:'Reservation form',done:false},{g:'Contract',label:'POS draft',done:false},
+    ],
+    bids:[
+      {d:'24 Jun',by:'Mike Gatt',amt:'€260,000',type:'Initial offer',res:'Countered'},
+      {d:'26 Jun',by:'You',amt:'€275,000',type:'Counter-offer',res:'Countered'},
+      {d:'Yesterday',by:'Mike Gatt',amt:'€280,000',type:'Final offer',res:'Accepted'},
+    ],
+  },
+  'OPP-1002':{ // Luca Camilleri — late Phase B: payment milestones with an overdue instalment
+    jstage:'payments', done:['All milestones invoiced'],
+    next:{label:'Chase stage payment — €70,000 overdue',due:'Overdue by 3 days',overdue:true},
+    date:{label:'Next payment',value:'was due 9 Aug',in:'3 days overdue',tone:'bad'},
+    blocker:null,
+    offer:{amt:350000,status:'POS signed 12 Jul at Dr. Aquilina',plan:'20/20/60',deposit:70000},
+    buyer:{email:'luca.camilleri@email.com',phone:'+356 7921 8844',type:'Cash buyer'},
+    comms:[
+      {ch:'wa',dir:'in',who:'Luca Camilleri',t:'Today 09:02',text:'Sorry for the delay — funds clear Friday, I\u2019ll send the transfer confirmation right away.'},
+      {ch:'em',dir:'out',who:'You',t:'Yesterday 15:30',sub:'Payment reminder — La Lex #CM9803 shell-complete instalment',text:'Hi Luca, a gentle reminder that the €70,000 shell-complete instalment was due 9 Aug. Details and IBAN attached.'},
+      {ch:'sys',t:'Sat 9 Aug',text:'Payment milestone missed — shell complete (€70,000)'},
+      {ch:'sys',t:'12 Jul',text:'POS signed at Dr. Aquilina — both parties present'},
+      {ch:'em',dir:'in',who:'Luca Camilleri',t:'14 Jun',sub:'Deposit transfer confirmation',text:'Deposit of €70,000 sent today via bank transfer, reference LC-9803.'},
+      {ch:'note',dir:'out',who:'You',t:'10 Jun',text:'Internal: cash buyer, no bank involved — deed can move quickly once construction milestones hit.'},
+    ],
+    keyDates:[{label:'Payment due',value:'9 Aug',in:'3 days overdue',tone:'bad'},{label:'Final deed',value:'28 Nov',in:'in 108 days'},{label:'Delivery',value:'Mar 2027'}],
+    payments:[
+      {label:'Reservation deposit (20%)',amt:70000,due:'Paid 14 Jun',status:'paid'},
+      {label:'On POS — konvenju (20%)',amt:70000,due:'Paid 12 Jul',status:'paid'},
+      {label:'Shell complete (20%)',amt:70000,due:'Due 9 Aug',status:'overdue'},
+      {label:'Final on deed (40%)',amt:140000,due:'On deed — 28 Nov',status:'upcoming'},
+    ],
+    docs:[
+      {g:'KYC',label:'Passport / ID',done:true},{g:'KYC',label:'Proof of address',done:true},{g:'KYC',label:'Source of funds',done:true},
+      {g:'Contract',label:'Promise of Sale (POS)',done:true},{g:'Contract',label:'Deed draft',done:false},{g:'Payments',label:'Receipts on file',done:true},
+    ],
+    bids:[
+      {d:'2 Jun',by:'Luca Camilleri',amt:'€335,000',type:'Initial offer',res:'Countered'},
+      {d:'5 Jun',by:'Luca Camilleri',amt:'€350,000',type:'Revised offer',res:'Accepted'},
+    ],
+  },
+  'OPP-1004':{ // Daniel Vella — Phase A: viewing booked, no deal UI at all
+    jstage:'viewing_booked', done:['Appointment set','Units to show selected'],
+    next:{label:'Confirm Saturday viewing & send directions',due:'Due tomorrow',overdue:false},
+    date:{label:'Viewing',value:'Sat 16 Aug, 10:00',in:'in 4 days'},
+    blocker:null, offer:null,
+    buyer:{email:'daniel.vella@email.com',phone:'+356 7700 2318',type:'First-time buyer'},
+    comms:[
+      {ch:'wa',dir:'in',who:'Daniel Vella',t:'Today 08:45',text:'Saturday 10:00 works. Can my wife join? She\u2019s keen to see the kitchen finishes.'},
+      {ch:'wa',dir:'out',who:'You',t:'Yesterday 18:20',text:'Hi Daniel — shall we lock Saturday 10:00 for Mercury Towers? I\u2019ll have #CM2702 and one more 2-bed ready to view.'},
+      {ch:'em',dir:'out',who:'You',t:'Yesterday 17:55',sub:'Mercury Towers — brochure & floor plans',text:'Great speaking earlier. Attached: brochure, floor plans for #CM2702, and the payment plan options we discussed.'},
+      {ch:'sys',t:'Yesterday 17:40',text:'Viewing booked — Sat 16 Aug 10:00, Mercury Towers sales suite'},
+      {ch:'sms',dir:'out',who:'You',t:'Mon 10 Aug',text:'Hi Daniel, Sam from Bricly here re: your Mercury Towers enquiry — when suits for a quick call?'},
+    ],
+    keyDates:null, payments:null, docs:null, bids:null,
+  },
+};
+function getExt(o){
+  if(EXT[o.id]) return EXT[o.id];
+  return EXT[o.id]={ // generic fallback derived from board stage
+    jstage:STAGE2J[o.stage]||'lead', done:[], blocker:null,
+    next:{label:o.next.t,due:o.next.d==='—'?'':'Due '+o.next.d,overdue:false},
+    date:null,
+    offer:COMMIT_STAGES.includes(o.stage)?{amt:o.value*1000,status:'Offer on the table',plan:'10/20/70',deposit:o.value*100}:null,
+    buyer:null,
+    comms:[{ch:'sys',t:o.ago,text:'Opportunity created from '+o.source}],
+    keyDates:null,payments:null,docs:null,bids:null,
+  };
 }
 
 // ---------- Pipeline filter/search/segment state ----------
@@ -1078,7 +1283,8 @@ function renderBoard(){
           <div class="card-head">${o.lead}</div>
           <div class="card-row"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 2v10M4 4h4.5a1.5 1.5 0 010 3H4M4 7h5"/></svg>${money(o).approx?'~':''}€${money(o).amt}k<span class="money-lbl">${money(o).label}</span></div>
           <div class="card-row"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="3" width="10" height="8" rx="1"/></svg>${unitLabel(o)}</div>
-          <div class="card-row trunc" title="${o.next.t}"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="3" width="10" height="9" rx="1.5"/><path d="M2 6h10"/></svg>${o.next.d} · ${o.next.t}</div>
+          <div class="card-row trunc ${EXT[o.id]&&EXT[o.id].next&&EXT[o.id].next.overdue?'overdue':''}" title="${o.next.t}"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="3" width="10" height="9" rx="1.5"/><path d="M2 6h10"/></svg>${o.next.d} · ${o.next.t}</div>
+          ${EXT[o.id]&&EXT[o.id].date?`<div class="card-row ${EXT[o.id].date.tone==='bad'?'overdue':''}"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 2"/></svg>${EXT[o.id].date.label} · ${EXT[o.id].date.in||EXT[o.id].date.value}</div>`:''}
           <div class="card-row"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 7l5-4 5 4M4 6.5v5.5h6V6.5"/></svg>${o.source}</div>
           ${tagChipsHtml(o.tags)}
           <div class="card-foot">
@@ -1227,23 +1433,7 @@ function renderClosed(){
 }
 
 
-const bids = [
-  ['24 Jun','Matthew Borg','€280,000','Maisonette','7% below asking - client testing flexibility'],
-  ['24 Jun','Martina Zammit','€280,000','Maisonette','7% below asking - client testing flexibility'],
-  ['24 Jun','Emma Farrugia','€280,000','Maisonette','7% below asking - client testing flexibility'],
-  ['24 Jun','Rachel Attard','€280,000','Maisonette','7% below asking - client testing flexibility'],
-  ['24 Jun','Sarah Zammit','€280,000','Maisonette','7% below asking - client testing flexibility'],
-];
-function renderBids(){
-  document.getElementById('bid-rows').innerHTML = bids.map((b,i)=>`
-    <div class="mini-tr" style="grid-template-columns:70px 1fr 90px 100px 1fr 90px;${i===bids.length-1?'border:none':''}">
-      <span class="cell-id">${b[0]}</span>
-      <span class="contact"><span class="avatar-sm" style="background:${color(b[1])}">${initials(b[1])}</span>${b[1]}</span>
-      <span>${b[2]}</span><span>${b[3]}</span>
-      <span style="color:var(--on-variant);font-size:12px">${b[4]}</span>
-      <span class="pill p-avail">Available</span>
-    </div>`).join('');
-}
+// bid history now lives per-opportunity in the Deal Room (EXT[id].bids)
 
 const chats = []; // legacy placeholder — replaced by chatStore below
 function renderChats(){}
@@ -1780,9 +1970,9 @@ const PERSONAS = {
     ],
     announced:[{id:'ra1',text:'Moved Daniel Vella to Viewing Booked — confirmed in yesterday\'s 16:20 call'}],
     day:[
-      {t:'09:30',w:'Viewing — Maria Borg, Onyx Rise penthouse',p:'Prep ready at 09:20 · room set · buyer pack attached',room:{kick:'Meeting prep · 09:30',title:'Viewing — Maria Borg, Onyx Rise penthouse',from:'Cole · prep summary',kv:[['Contact','Maria Borg · +356 9988 2104'],['Unit','Onyx Rise #CM9703 · €350k'],['Stage','Viewing booked · asked re terrace'],['Prep','Ready 09:20 · buyer pack attached']],summary:'Maria has viewed twice online and asked about the terrace both times. She replied this morning wanting to talk price — bring two options but don\'t name a number before she sees the space. Her financing is pre-approved to €360k.',points:['Lead with the terrace — it\'s her hook.','Floor is €338k (manager-approved); anchor at asking first.','If she commits this week, there\'s room to move.','Book the reservation follow-up before she leaves.'],openOpp:true}},
-      {t:'11:00',w:'Call — Mike Gatt, hold next steps',p:'Talking points ready · payment plan answer queued',room:{kick:'Call prep · 11:00',title:'Call — Mike Gatt, hold next steps',from:'Cole · prep summary',kv:[['Contact','Mike Gatt · +356 9912 3456'],['Unit','Dolphin Court #CM9802 · €280k'],['Stage','Hold · 3 days · POS pending'],['Prep','Talking points ready']],summary:'Mike asked about the payment plan last night and opened the brochure twice. The hold expires in four days. The goal of this call: confirm he\'s comfortable with 10/20/70 and set the POS signing date.',points:['Answer the payment-plan question first — it\'s why he called.','€28k deposit secures it; confirm the funds are ready.','Propose a POS date this week before the hold lapses.','Two other enquiries on the unit — mention gently for urgency.'],openOpp:true}},
-      {t:'14:00',w:'Negotiation — Ben Zammit, Mercury #CM2701',p:'Prep ready at 13:50 · his last three objections summarised',room:{kick:'Negotiation prep · 14:00',title:'Negotiation — Ben Zammit, Mercury #CM2701',from:'Cole · prep summary',kv:[['Contact','Ben Zammit · Google Ads lead'],['Unit','Mercury #CM2701 · €370k'],['Stage','Negotiating · closes your gap'],['Prep','Ready 13:50 · objections summarised']],summary:'This is the deal that closes your month\'s pace gap. Ben\'s last three objections were all about the completion date, not price. The January completion is now confirmed in writing — lead with that.',points:['Open with the confirmed January completion — kills his main objection.','Hold firm at €370k; comparable #CM2704 closed at €372k.','Don\'t leave without a yes or a concrete next step.','If he stalls, offer the payment plan as the unlock, not a discount.'],openOpp:true}},
+      {t:'09:30',w:'Viewing — Maria Borg, Onyx Rise penthouse',p:'Prep ready at 09:20 · room set · buyer pack attached',cal:{end:'10:15',loc:'Onyx Rise sales suite, Sliema',with:'Maria Borg'},room:{kick:'Meeting prep · 09:30',title:'Viewing — Maria Borg, Onyx Rise penthouse',from:'Cole · prep summary',kv:[['Contact','Maria Borg · +356 9988 2104'],['Unit','Onyx Rise #CM9703 · €350k'],['Stage','Viewing booked · asked re terrace'],['Prep','Ready 09:20 · buyer pack attached']],summary:'Maria has viewed twice online and asked about the terrace both times. She replied this morning wanting to talk price — bring two options but don\'t name a number before she sees the space. Her financing is pre-approved to €360k.',points:['Lead with the terrace — it\'s her hook.','Floor is €338k (manager-approved); anchor at asking first.','If she commits this week, there\'s room to move.','Book the reservation follow-up before she leaves.'],openOpp:true}},
+      {t:'11:00',w:'Call — Mike Gatt, hold next steps',p:'Talking points ready · payment plan answer queued',cal:{end:'11:30',loc:'Phone call',with:'Mike Gatt'},room:{kick:'Call prep · 11:00',title:'Call — Mike Gatt, hold next steps',from:'Cole · prep summary',kv:[['Contact','Mike Gatt · +356 9912 3456'],['Unit','Dolphin Court #CM9802 · €280k'],['Stage','Hold · 3 days · POS pending'],['Prep','Talking points ready']],summary:'Mike asked about the payment plan last night and opened the brochure twice. The hold expires in four days. The goal of this call: confirm he\'s comfortable with 10/20/70 and set the POS signing date.',points:['Answer the payment-plan question first — it\'s why he called.','€28k deposit secures it; confirm the funds are ready.','Propose a POS date this week before the hold lapses.','Two other enquiries on the unit — mention gently for urgency.'],openOpp:true}},
+      {t:'14:00',w:'Negotiation — Ben Zammit, Mercury #CM2701',p:'Prep ready at 13:50 · his last three objections summarised',cal:{end:'15:00',loc:'Mercury Towers sales office',with:'Ben Zammit'},room:{kick:'Negotiation prep · 14:00',title:'Negotiation — Ben Zammit, Mercury #CM2701',from:'Cole · prep summary',kv:[['Contact','Ben Zammit · Google Ads lead'],['Unit','Mercury #CM2701 · €370k'],['Stage','Negotiating · closes your gap'],['Prep','Ready 13:50 · objections summarised']],summary:'This is the deal that closes your month\'s pace gap. Ben\'s last three objections were all about the completion date, not price. The January completion is now confirmed in writing — lead with that.',points:['Open with the confirmed January completion — kills his main objection.','Hold firm at €370k; comparable #CM2704 closed at €372k.','Don\'t leave without a yes or a concrete next step.','If he stalls, offer the payment plan as the unlock, not a discount.'],openOpp:true}},
     ],
     focus:[
       {n:1,t:`Don't leave Ben's 14:00 without an answer on the €370k.`,k:'It alone closes your pace gap — Pace · −€1,800',pop:'Highest expected value today: close probability 60%, commission impact €2,590 vs gap €1,800.'},
@@ -1810,9 +2000,9 @@ const PERSONAS = {
     ],
     announced:[],
     day:[
-      {t:'10:00',w:'1:1 — Katia',p:'Coaching brief attached: viewing→reservation at 18%, objection patterns analysed',room:{kick:'1:1 prep · 10:00',title:'1:1 — Katia',from:'Cole · coaching brief',kv:[['Focus','Penthouse objection coaching'],['Metric','Viewing→reservation 18% · team 31%'],['Brief','6 lost viewings analysed'],['Duration','30 min']],summary:'Katia\'s penthouse conversion dropped to 18% over three weeks — six lost viewings, all the same objection cluster: outdoor space vs price. She isn\'t losing on price, she\'s losing on framing. Today\'s session is about the script, not the pipeline.',points:['Review the two penthouse viewings from this week together.','Reframe: sell the roof terrace as the price justification.','Role-play the "it\'s too expensive" objection once.','Give her the penthouse lead routed this morning as practice.']}},
-      {t:'12:00',w:'Forecast review',p:'Deck assembled · evidence-weighted numbers, no manual pulls',room:{kick:'Review prep · 12:00',title:'Forecast review',from:'Cole · summary',kv:[['Forecast','€2.9M weighted · target €3.4M'],['Gap','3 units — two 2-beds + maisonette'],['Deck','Assembled · no manual pulls'],['Driver','6 two-beds decide the month']],summary:'The month comes down to the two-beds: six negotiating deals carry 71% of the remaining gap. Everything else is on track. The deck is evidence-weighted and ready — nothing to pull by hand.',points:['Walk the six two-bed deals first — they are the month.','Flag the overnight speed-to-lead breach (one 40-min miss).','Verdala #CM4506 counter is out at €345k, awaiting owner sign-off.','Lead flow runs 20% short next week — raise with marketing today.']}},
-      {t:'15:30',w:'Pricing call — Verdala phase 2',p:'Demand curves and comparables ready',room:{kick:'Call prep · 15:30',title:'Pricing call — Verdala phase 2',from:'Cole · summary',kv:[['Scope','Phase 2 release pricing'],['Demand','2-bed enquiries strongest since launch'],['Comparable','#CM4508 closed €345k'],['Prep','Demand curves + comparables ready']],summary:'Phase 2 pricing hinges on two-bed demand depth, which is the strongest since launch. The data supports a modest uplift on release, but hold the maisonettes flat — they\'re moving slower.',points:['Two-beds can carry a release uplift — demand is 3:1.','Keep maisonettes flat; 94-day ages showing.','Align the floor with the owner\'s +2% decision if it lands.','Set the release date against current absorption pace.']}},
+      {t:'10:00',w:'1:1 — Katia',p:'Coaching brief attached: viewing→reservation at 18%, objection patterns analysed',cal:{end:'10:30',loc:'Meeting room 2 · HQ',with:'Katia Farrugia'},room:{kick:'1:1 prep · 10:00',title:'1:1 — Katia',from:'Cole · coaching brief',kv:[['Focus','Penthouse objection coaching'],['Metric','Viewing→reservation 18% · team 31%'],['Brief','6 lost viewings analysed'],['Duration','30 min']],summary:'Katia\'s penthouse conversion dropped to 18% over three weeks — six lost viewings, all the same objection cluster: outdoor space vs price. She isn\'t losing on price, she\'s losing on framing. Today\'s session is about the script, not the pipeline.',points:['Review the two penthouse viewings from this week together.','Reframe: sell the roof terrace as the price justification.','Role-play the "it\'s too expensive" objection once.','Give her the penthouse lead routed this morning as practice.']}},
+      {t:'12:00',w:'Forecast review',p:'Deck assembled · evidence-weighted numbers, no manual pulls',cal:{end:'13:00',loc:'Boardroom · HQ',with:'Sales team'},room:{kick:'Review prep · 12:00',title:'Forecast review',from:'Cole · summary',kv:[['Forecast','€2.9M weighted · target €3.4M'],['Gap','3 units — two 2-beds + maisonette'],['Deck','Assembled · no manual pulls'],['Driver','6 two-beds decide the month']],summary:'The month comes down to the two-beds: six negotiating deals carry 71% of the remaining gap. Everything else is on track. The deck is evidence-weighted and ready — nothing to pull by hand.',points:['Walk the six two-bed deals first — they are the month.','Flag the overnight speed-to-lead breach (one 40-min miss).','Verdala #CM4506 counter is out at €345k, awaiting owner sign-off.','Lead flow runs 20% short next week — raise with marketing today.']}},
+      {t:'15:30',w:'Pricing call — Verdala phase 2',p:'Demand curves and comparables ready',cal:{end:'16:15',loc:'Video call',with:'Joseph + commercial lead'},room:{kick:'Call prep · 15:30',title:'Pricing call — Verdala phase 2',from:'Cole · summary',kv:[['Scope','Phase 2 release pricing'],['Demand','2-bed enquiries strongest since launch'],['Comparable','#CM4508 closed €345k'],['Prep','Demand curves + comparables ready']],summary:'Phase 2 pricing hinges on two-bed demand depth, which is the strongest since launch. The data supports a modest uplift on release, but hold the maisonettes flat — they\'re moving slower.',points:['Two-beds can carry a release uplift — demand is 3:1.','Keep maisonettes flat; 94-day ages showing.','Align the floor with the owner\'s +2% decision if it lands.','Set the release date against current absorption pace.']}},
     ],
     focus:[
       {n:1,t:'Sit with Katia on penthouse objections — her viewing→reservation dropped to 18%.',k:'Conversion · team avg is 31%',pop:'Six lost penthouse viewings in 3 weeks, same objection cluster: outdoor space vs price.'},
@@ -1839,9 +2029,9 @@ const PERSONAS = {
     ],
     announced:[],
     day:[
-      {t:'10:30',w:'Weekly review',p:'Assembled overnight · channel deltas and creative fatigue flags only',room:{kick:'Review prep · 10:30',title:'Weekly review',from:'Cole · summary',kv:[['CPR','€1,140 · target €1,250'],['CPL','Down 8% w/w'],['Flag','Dolphin Court hero fatiguing at 6.1'],['Deck','Assembled overnight']],summary:'Spend is pacing to plan and CPR is under target — a healthy week. The one issue is creative fatigue on the Dolphin Court hero set, plus a demand-mix skew toward one-beds that the new campaign will correct.',points:['Lead with CPR under target — the week is green.','Sign off the hero refresh before fatigue bites CPL.','Approve the one-bed investor campaign to fix the mix.','Budget shift Meta→Google is queued for your confirm.']}},
-      {t:'13:00',w:'Launch checklist — one-bed investor campaign',p:'Studio drafts attached · 3 variants ready for sign-off',room:{kick:'Launch prep · 13:00',title:'Launch checklist — one-bed investor campaign',from:'Cole · summary',kv:[['Goal','Correct demand-mix, defend CPR'],['Assets','3 Studio drafts ready'],['Channel','Google Search + Meta'],['Guardrail','CPL cap €38']],summary:'The one-bed investor campaign is the week\'s highest-return move: one-bed demand exceeds inventory 3:1, and redirecting it holds blended CPR through month end. Three creative variants are drafted and ready for sign-off.',points:['Approve the three creative variants.','Confirm the €38 CPL guardrail on launch.','Set Google Search as primary, Meta as retarget.','Brief sales on the incoming investor-profile leads.']}},
-      {t:'16:00',w:'Handoff SLA check with sales',p:'Current: 12 of 14 leads inside 15 min',room:{kick:'Check prep · 16:00',title:'Handoff SLA check with sales',from:'Cole · summary',kv:[['SLA','12 of 14 inside 15 min'],['Breach','One 40-min miss overnight'],['Owner','Shared metric with sales'],['Trend','Improving w/w']],summary:'Handoff SLA is healthy at 12 of 14 within 15 minutes. One overnight breach — a Meta lead sat 40 minutes unclaimed. Worth a quick word with the sales manager on overnight routing coverage.',points:['Flag the single 40-min overnight breach.','Confirm overnight routing coverage with the manager.','Lead volume runs 20% short of next week\'s target.','Agree a qualification definition to sharpen source reporting.']}},
+      {t:'10:30',w:'Weekly review',p:'Assembled overnight · channel deltas and creative fatigue flags only',cal:{end:'11:15',loc:'Video call',with:'Growth team'},room:{kick:'Review prep · 10:30',title:'Weekly review',from:'Cole · summary',kv:[['CPR','€1,140 · target €1,250'],['CPL','Down 8% w/w'],['Flag','Dolphin Court hero fatiguing at 6.1'],['Deck','Assembled overnight']],summary:'Spend is pacing to plan and CPR is under target — a healthy week. The one issue is creative fatigue on the Dolphin Court hero set, plus a demand-mix skew toward one-beds that the new campaign will correct.',points:['Lead with CPR under target — the week is green.','Sign off the hero refresh before fatigue bites CPL.','Approve the one-bed investor campaign to fix the mix.','Budget shift Meta→Google is queued for your confirm.']}},
+      {t:'13:00',w:'Launch checklist — one-bed investor campaign',p:'Studio drafts attached · 3 variants ready for sign-off',cal:{end:'13:45',loc:'Studio room · HQ',with:'Studio team'},room:{kick:'Launch prep · 13:00',title:'Launch checklist — one-bed investor campaign',from:'Cole · summary',kv:[['Goal','Correct demand-mix, defend CPR'],['Assets','3 Studio drafts ready'],['Channel','Google Search + Meta'],['Guardrail','CPL cap €38']],summary:'The one-bed investor campaign is the week\'s highest-return move: one-bed demand exceeds inventory 3:1, and redirecting it holds blended CPR through month end. Three creative variants are drafted and ready for sign-off.',points:['Approve the three creative variants.','Confirm the €38 CPL guardrail on launch.','Set Google Search as primary, Meta as retarget.','Brief sales on the incoming investor-profile leads.']}},
+      {t:'16:00',w:'Handoff SLA check with sales',p:'Current: 12 of 14 leads inside 15 min',cal:{end:'16:20',loc:'Video call',with:'Maria · sales manager'},room:{kick:'Check prep · 16:00',title:'Handoff SLA check with sales',from:'Cole · summary',kv:[['SLA','12 of 14 inside 15 min'],['Breach','One 40-min miss overnight'],['Owner','Shared metric with sales'],['Trend','Improving w/w']],summary:'Handoff SLA is healthy at 12 of 14 within 15 minutes. One overnight breach — a Meta lead sat 40 minutes unclaimed. Worth a quick word with the sales manager on overnight routing coverage.',points:['Flag the single 40-min overnight breach.','Confirm overnight routing coverage with the manager.','Lead volume runs 20% short of next week\'s target.','Agree a qualification definition to sharpen source reporting.']}},
     ],
     focus:[
       {n:1,t:'Get the one-bed investor campaign live — the mix corrects and CPR holds.',k:'Cost per reservation · demand-mix fit',pop:'One-bed demand exceeds inventory 3:1; redirecting it defends blended CPR through month end.'},
@@ -1869,9 +2059,9 @@ const PERSONAS = {
     ],
     announced:[],
     day:[
-      {t:'11:00',w:'Bank call — facility review',p:'Threshold status attached: 6 units out, 5 weeks at current pace',room:{kick:'Call prep · 11:00',title:'Bank call — facility review',from:'Cole · summary',kv:[['Threshold','6 units away · ~5 weeks'],['Velocity','2.1 units/wk · plan 1.8'],['Pack','Threshold status attached'],['Position','Ahead of the absorption plan']],summary:'You go into this call ahead of plan: velocity is 2.1 units/week against 1.8 planned, and the financing threshold is six units away — roughly five weeks. That strengthens the facility conversation. The pack leads with the threshold status.',points:['Lead with velocity ahead of plan — negotiate from strength.','Threshold: 47 units by October triggers the facility.','Cash: €4.1M collected, €620k due, €38k overdue (being chased).','Ask about improved terms given the ahead-of-plan absorption.']}},
-      {t:'14:30',w:'Site meeting — Dolphin Court phase 2',p:'Progress photos and programme variance in your pack',room:{kick:'Meeting prep · 14:30',title:'Site meeting — Dolphin Court phase 2',from:'Cole · summary',kv:[['Scope','Phase 2 programme + progress'],['Pack','Progress photos + variance'],['Status','On programme'],['Feeds','The release pricing call']],summary:'Phase 2 is on programme. The pack has this week\'s progress photos and any variance against the build schedule. The key downstream decision is the phase 2 release date, which the manager\'s pricing call will price.',points:['Confirm the phase 2 completion programme holds.','Note any variance to raise with the bank on financing.','Set a provisional release date for pricing.','Two-bed demand supports pricing the release up.']}},
-      {t:'17:00',w:'Monthly review',p:'Assembled · velocity, cash, realisation — one page',room:{kick:'Review prep · 17:00',title:'Monthly review',from:'Cole · summary',kv:[['Velocity','Ahead of plan'],['Cash','€4.1M in · €658k out/overdue'],['Realisation','+1.2% on last 4 closings'],['Format','One page, assembled']],summary:'The month in one page: velocity ahead of plan, price realisation up 1.2% on the last four closings, and cash the one thing to watch — €38k overdue plus €620k due against a €600k quarterly facility need. Everything ties back to the threshold.',points:['Velocity and realisation both ahead — headline is positive.','Cash is the watch item: €658k against a €600k need.','The +2% two-bed decision lands +€74k if approved.','Threshold five weeks out — the quarter is about protecting pace.']}},
+      {t:'11:00',w:'Bank call — facility review',p:'Threshold status attached: 6 units out, 5 weeks at current pace',cal:{end:'11:45',loc:'Video call · BOV',with:'BOV facility team'},room:{kick:'Call prep · 11:00',title:'Bank call — facility review',from:'Cole · summary',kv:[['Threshold','6 units away · ~5 weeks'],['Velocity','2.1 units/wk · plan 1.8'],['Pack','Threshold status attached'],['Position','Ahead of the absorption plan']],summary:'You go into this call ahead of plan: velocity is 2.1 units/week against 1.8 planned, and the financing threshold is six units away — roughly five weeks. That strengthens the facility conversation. The pack leads with the threshold status.',points:['Lead with velocity ahead of plan — negotiate from strength.','Threshold: 47 units by October triggers the facility.','Cash: €4.1M collected, €620k due, €38k overdue (being chased).','Ask about improved terms given the ahead-of-plan absorption.']}},
+      {t:'14:30',w:'Site meeting — Dolphin Court phase 2',p:'Progress photos and programme variance in your pack',cal:{end:'15:30',loc:'Dolphin Court site office',with:'Architect + project manager'},room:{kick:'Meeting prep · 14:30',title:'Site meeting — Dolphin Court phase 2',from:'Cole · summary',kv:[['Scope','Phase 2 programme + progress'],['Pack','Progress photos + variance'],['Status','On programme'],['Feeds','The release pricing call']],summary:'Phase 2 is on programme. The pack has this week\'s progress photos and any variance against the build schedule. The key downstream decision is the phase 2 release date, which the manager\'s pricing call will price.',points:['Confirm the phase 2 completion programme holds.','Note any variance to raise with the bank on financing.','Set a provisional release date for pricing.','Two-bed demand supports pricing the release up.']}},
+      {t:'17:00',w:'Monthly review',p:'Assembled · velocity, cash, realisation — one page',cal:{end:'17:45',loc:'Boardroom · HQ',with:'Leadership team'},room:{kick:'Review prep · 17:00',title:'Monthly review',from:'Cole · summary',kv:[['Velocity','Ahead of plan'],['Cash','€4.1M in · €658k out/overdue'],['Realisation','+1.2% on last 4 closings'],['Format','One page, assembled']],summary:'The month in one page: velocity ahead of plan, price realisation up 1.2% on the last four closings, and cash the one thing to watch — €38k overdue plus €620k due against a €600k quarterly facility need. Everything ties back to the threshold.',points:['Velocity and realisation both ahead — headline is positive.','Cash is the watch item: €658k against a €600k need.','The +2% two-bed decision lands +€74k if approved.','Threshold five weeks out — the quarter is about protecting pace.']}},
     ],
     focus:[
       {n:1,t:'The threshold is five weeks away at this pace; the two-bed velocity is the month.',k:'Velocity · threshold distance',pop:'6 units to the financing trigger. Two-beds are 8 of the last 10 closings.'},
@@ -1911,7 +2101,10 @@ function renderLetter(){
   if(!open.length&&!(P.announced||[]).length)h+=`<div class="zero">Nothing needs your signature. Clean desk.</div>`;
   // Your day
   h+=`<div class="slot-label">Your day</div>`;
-  P.day.forEach((d,i)=>{h+=`<div class="dayline" onclick="openDayRoom(${i})"><span class="dt">${d.t}</span><div class="dbody"><div class="dw">${d.w}</div><div class="dprom"><span class="pk">✓</span> ${d.p}</div></div><span class="dchev"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2l4 4-4 4"/></svg></span></div>`;});
+  P.day.forEach((d,i)=>{
+    if(d.movedOut){h+=`<div class="announce"><span class="ck"><svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2.5 7.5l3 3 6-7"/></svg></span><span>${d.w} — moved to ${d.movedOut}. Attendees notified.</span><span class="undo" onclick="undoCalMove(${i})">Undo</span></div>`;return;}
+    h+=`<div class="dayline" onclick="openDayRoom(${i})"><span class="dt">${d.t}</span><div class="dbody"><div class="dw">${d.w}</div>${d.cal?`<button class="devt" onclick="event.stopPropagation();openCalEvent(${i})" title="Open calendar event"><svg width="11" height="11" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="2.5" width="11" height="10" rx="1.5"/><path d="M1.5 5.5h11M4.5 1v2.5M9.5 1v2.5"/></svg>${d.t}–${d.cal.end}<span class="dloc">· ${d.cal.loc}</span>${d.moved?`<span class="dmv">${d.moved}</span>`:''}</button>`:''}<div class="dprom"><span class="pk">✓</span> ${d.p}</div></div><span class="dchev"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2l4 4-4 4"/></svg></span></div>`;
+  });
   // Focus
   h+=`<div class="slot-label"><span class="ydot"></span>Focus</div>`;
   P.focus.forEach((f,i)=>{
@@ -1990,16 +2183,68 @@ function openActionRoom(id){
   openRoomShell();
   const row=document.getElementById('row-'+id);if(row)row.classList.add('live');
 }
+// ----- Calendar event room (reschedule from Your day)
+let calPick=null;
+const calM=t=>{const[h,m]=t.split(':').map(Number);return h*60+m;};
+const calT=m=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+function calSlots(d){return[
+  {label:'Today '+calT(calM(d.t)+90),t:calT(calM(d.t)+90)},
+  {label:'Today '+calT(calM(d.t)+180),t:calT(calM(d.t)+180)},
+  {label:'Tomorrow '+d.t,t:d.t,tomorrow:true},
+];}
+function openCalEvent(i){
+  const d=PERSONAS[curPersona].day[i];if(!d||!d.cal)return;
+  roomCtx={type:'cal',i};calPick=null;renderCalRoom(i);openRoomShell();
+}
+function renderCalRoom(i){
+  const d=PERSONAS[curPersona].day[i],slots=calSlots(d);
+  document.getElementById('room').innerHTML=`<div class="room-head"><span class="kick">Calendar · today</span><button class="icon-btn" onclick="closeRoom()" title="Close"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3l8 8M11 3l-8 8"/></svg></button></div>
+  <div class="room-body">
+    <div class="room-title">${d.w}</div>
+    <div class="room-kv">
+      <div class="kv"><div class="k">When</div><div class="v">Today ${d.t}–${d.cal.end}</div></div>
+      <div class="kv"><div class="k">Where</div><div class="v">${d.cal.loc}</div></div>
+      <div class="kv"><div class="k">With</div><div class="v">${d.cal.with}</div></div>
+      <div class="kv"><div class="k">Prep</div><div class="v">${d.p}</div></div>
+    </div>
+    <div class="slot-label" style="margin:2px 0 8px">Move to</div>
+    <div class="slotrow">${slots.map((s,j)=>`<button class="slotpill${calPick===j?' on':''}" onclick="calPick=${calPick===j?'null':j};renderCalRoom(${i})">${s.label}</button>`).join('')}</div>
+    <div class="rnote">Moving it updates the calendar, notifies ${d.cal.with}, and re-runs prep for the new time.</div>
+  </div>
+  <div class="room-foot"><button class="btn-ghost" onclick="closeRoom()">Keep ${d.t}</button><button class="btn-primary${calPick==null?' dis':''}" onclick="confirmCalMove(${i})">Move event</button></div>`;
+}
+function confirmCalMove(i){
+  if(calPick==null)return;
+  const P=PERSONAS[curPersona],d=P.day[i],s=calSlots(d)[calPick];
+  d._undo={t:d.t,end:d.cal.end};
+  if(s.tomorrow){d.movedOut='tomorrow '+d.t;}
+  else{d.cal.end=calT(calM(d.cal.end)+(calM(s.t)-calM(d.t)));d.moved='was '+d.t;d.t=s.t;P.day.sort((a,b)=>a.t.localeCompare(b.t));}
+  calPick=null;closeRoom();renderLetter();
+}
+function undoCalMove(i){
+  const P=PERSONAS[curPersona],d=P.day[i];if(!d||!d._undo)return;
+  d.t=d._undo.t;d.cal.end=d._undo.end;delete d._undo;delete d.moved;delete d.movedOut;
+  P.day.sort((a,b)=>a.t.localeCompare(b.t));closeRoom();renderLetter();
+}
 function openDayRoom(i){
-  const r=PERSONAS[curPersona].day[i]&&PERSONAS[curPersona].day[i].room;
+  const d=PERSONAS[curPersona].day[i];
+  const r=d&&d.room;
   if(!r)return;
   roomCtx={type:'day',i};
+  const now=new Date();
+  const mon=now.toLocaleDateString('en-GB',{month:'short'}).toUpperCase();
+  const dayNum=now.getDate();
+  const end=addMinutes(d.t,45);
   const foot=r.openOpp
     ?`<button class="btn-ghost" onclick="closeRoom()">Close</button><button class="btn-primary" onclick="closeRoom();openOpp()">Open opportunity</button>`
     :`<button class="btn-primary" style="flex:1;justify-content:center" onclick="closeRoom()">Got it</button>`;
   document.getElementById('room').innerHTML=`<div class="room-head"><span class="kick">${r.kick}</span><button class="icon-btn" onclick="closeRoom()" title="Close"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3l8 8M11 3l-8 8"/></svg></button></div>
   <div class="room-body">
-    <div class="room-title">${r.title}</div>
+    <div class="room-cal" onclick="closeRoom();go('calendar')" title="View in calendar">
+      <div class="rc-date"><span class="rc-mon">${mon}</span><span class="rc-day">${dayNum}</span></div>
+      <div class="rc-info"><div class="rc-time">${d.t} – ${end} · Today</div><div class="rc-title">${d.w}</div><div class="rc-sub">${d.p}</div></div>
+      <span class="rc-view">View in calendar<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2l4 4-4 4"/></svg></span>
+    </div>
     <div class="room-kv">${r.kv.map(([k,v])=>`<div class="kv"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('')}</div>
     <div class="rdraft"><div class="from">${r.from||'Cole · prep summary'}</div>${r.summary}</div>
     ${r.points?`<div class="slot-label" style="margin:2px 0 8px">Talking points</div><ul class="rpoints">${r.points.map(p=>`<li>${p}</li>`).join('')}</ul>`:''}
@@ -2008,6 +2253,7 @@ function openDayRoom(i){
   <div class="room-foot">${foot}</div>`;
   openRoomShell();
 }
+function addMinutes(t,m){const[h,mn]=t.split(':').map(Number);const tot=h*60+mn+m;return `${String(Math.floor(tot/60)%24).padStart(2,'0')}:${String(tot%60).padStart(2,'0')}`;}
 function decideAction(id){
   const a=PERSONAS[curPersona].needsYou.find(x=>x.id===id);
   ts().done[id]=a.room.announce;
@@ -2096,28 +2342,317 @@ function go(page){
   document.getElementById('p-'+page).classList.add('on');
   document.querySelectorAll('.ni').forEach(n=>n.classList.toggle('on',n.dataset.page===page));
   document.getElementById('crumb').innerHTML = '<span class="cur">'+(CRUMB[page]||page)+'</span>';
+  if(typeof ctOnNav==='function') ctOnNav(page);
   document.getElementById('content').scrollTop=0;
 }
 function openOpp(id){
-  const o = OPPS.find(x=>x.id===id) || OPPS[0];
+  oppCur = OPPS.find(x=>x.id===id) || OPPS[0];
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.getElementById('p-opp').classList.add('on');
   document.querySelectorAll('.ni').forEach(n=>n.classList.toggle('on',n.dataset.page==='pipeline'));
-  document.getElementById('crumb').innerHTML=`<a onclick="go('pipeline')">Pipeline</a><span class="sep">/</span><span class="cur">${xesc(o.lead)}</span>`;
-  populateOppDetail(o);
-  oppTab('overview',document.querySelector('#p-opp .tab'));
+  document.getElementById('crumb').innerHTML=`<a onclick="go('pipeline')">Pipeline</a><span class="sep">/</span><span class="cur">${xesc(oppCur.lead)}</span>`;
+  oppFeedF='all'; oppTabB='activity';
+  renderOpp();
   document.getElementById('content').scrollTop=0;
 }
-function populateOppDetail(o){
-  document.getElementById('opp-title').textContent = o.lead;
-  document.getElementById('opp-sub').textContent = `${o.devs.join(' · ')} · ${unitLabel(o)} · ${o.stage}`;
-  document.getElementById('opp-status-label').textContent = o.stage;
-  document.getElementById('opp-source').textContent = o.source;
-  document.getElementById('opp-nextstep').textContent = o.next.t;
-  document.getElementById('opp-contact-name').textContent = o.lead;
-  document.getElementById('opp-contact-email').textContent = o.lead.toLowerCase().replace(/\s+/g,'.')+'@email.com';
-  document.getElementById('opp-units').innerHTML = o.devs.map((d,i)=>`
-    <div class="mini-tr"><span class="cell-id">${o.units[i]||o.units[0]}</span><span class="proj"><span class="proj-ic" style="background:${PROJ_IC[d]||'#657A32'}">◈</span>${d}</span><span>Apartment</span><span>€${o.value},000</span><span class="pill ${STAGE_PILL[o.stage]}">${o.stage}</span></div>`).join('');
+
+// ---------- Stage-aware opportunity view ----------
+let oppCur=null, oppLayout='single', oppFeedF='all', oppComposeCh='wa', oppTabB='activity';
+const CHECK_SVG='<svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.5 6.5l2.5 2.5 4.5-5"/></svg>';
+function jIdx(k){return JOURNEY.findIndex(j=>j.key===k);}
+function fmtEur(n){return '€'+n.toLocaleString('en-US');}
+
+function renderOpp(){
+  if(!oppCur) oppCur=OPPS[0];
+  const o=oppCur, x=getExt(o), ji=jIdx(x.jstage);
+  document.getElementById('opp-root').innerHTML =
+    oppHeadHtml(o,JOURNEY[ji]) + heroHtml(o,x,ji) +
+    (oppLayout==='single' ? singleHtml(o,x,ji) : tabsLayoutHtml(o,x,ji));
+}
+function oppSetLayout(v){oppLayout=v;renderOpp();}
+function oppSetTab(t){oppTabB=t;renderOpp();}
+function oppFeed(k){oppFeedF=k;renderOpp();}
+function oppCh(k){const ta=document.getElementById('opp-comp');const v=ta?ta.value:'';oppComposeCh=k;renderOpp();const t2=document.getElementById('opp-comp');if(t2){t2.value=v;t2.focus();}}
+function oppSend(){
+  const ta=document.getElementById('opp-comp'); const v=ta&&ta.value.trim(); if(!v) return;
+  getExt(oppCur).comms.unshift({ch:oppComposeCh,dir:'out',who:'You',t:'Just now',text:v});
+  renderOpp(); showToast('Sent via '+CH_META[oppComposeCh].label);
+}
+
+function oppHeadHtml(o,j){
+  return `<div class="row-between" style="align-items:flex-start;margin-bottom:14px">
+    <div>
+      <div class="page-title">${o.lead}</div>
+      <div class="page-sub">${o.devs.join(' · ')} · ${unitLabel(o)} · ${o.id}</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="seg"><button class="${oppLayout==='single'?'on':''}" onclick="oppSetLayout('single')">Single page</button><button class="${oppLayout==='tabs'?'on':''}" onclick="oppSetLayout('tabs')">Tabs</button></div>
+      <button class="status-sel"><span class="dot"></span>${j.label} <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 4.5L6 7.5 9 4.5"/></svg></button>
+    </div>
+  </div>
+  <div class="qa-bar">
+    <button class="qa-btn" onclick="qaMessage()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 3h10v7H6l-3 2.5V3z"/></svg>Message</button>
+    <button class="qa-btn" onclick="qaLog()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 3.5v7M3.5 7h7"/></svg>Log activity</button>
+    <button class="qa-btn" onclick="qaBrochure()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2.5" y="2" width="9" height="10" rx="1.5"/><path d="M5 5h4M5 7.5h4"/></svg>Send brochure</button>
+    <button class="qa-btn" onclick="qaPresent()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="3" width="10" height="7" rx="1"/><path d="M7 10v2M5 12h4"/></svg>Present</button>
+    <button class="qa-btn" onclick="qaViewing()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="2.5" width="10" height="9.5" rx="1.5"/><path d="M2 5.5h10M5 2.5V1M9 2.5V1"/></svg>Book viewing</button>
+  </div>`;
+}
+
+function heroHtml(o,x,ji){
+  const j=JOURNEY[ji];
+  const seg=p=>JOURNEY.filter(s=>s.phase===p).map(s=>{
+    const si=jIdx(s.key), cls=si<ji?'done':si===ji?'cur':'todo';
+    return `<div class="oj-st ${cls}" onclick="ojPop(event,'${s.key}')"><span class="oj-dot"></span><span class="oj-lb">${s.label}</span></div>`;
+  }).join('');
+  const bad=x.next&&x.next.overdue, dTone=x.date&&x.date.tone, inDeal=j.phase==='B', m=money(o);
+  return `<div class="dcard oj-hero ${inDeal?'deal-live':''}" id="oj-hero">
+    <div class="oj-bar">
+      <div class="oj-phase ${inDeal?'dimmed':''}"><div class="oj-phase-l">Selling</div><div class="oj-stages">${seg('A')}</div></div>
+      <div class="oj-gate ${ji>=jIdx('hold')?'passed':''}" title="Offer accepted — deal opens"><span>◆</span><em>Offer<br>accepted</em></div>
+      <div class="oj-phase deal"><div class="oj-phase-l">Deal</div><div class="oj-stages">${seg('B')}</div></div>
+    </div>
+    <div class="now-strip">
+      <div class="now-cell deal-info">
+        <div class="k">${m.label}</div>
+        <div class="v">${m.approx?'~':''}€${m.amt}k</div>
+        <div class="d"><span class="proj-ic" style="background:${PROJ_IC[o.devs[0]]||'#657A32'};display:inline-flex;width:12px;height:12px;border-radius:3px;font-size:8px;align-items:center;justify-content:center;color:#fff;margin-right:4px;vertical-align:-2px">◈</span>${o.devs[0]} · ${unitLabel(o)}</div>
+      </div>
+      <div class="now-cell">
+        <div class="k">Next action</div>
+        <div class="v ${bad?'bad':''}">${x.next?x.next.label:'—'}</div>
+        ${x.next&&x.next.due?`<div class="d ${bad?'bad':''}">${x.next.due}</div>`:''}
+      </div>
+      <div class="now-cell">
+        <div class="k">${x.date?x.date.label:'Key date'}</div>
+        <div class="v ${dTone==='bad'?'bad':dTone==='warn'?'warn':''}">${x.date?x.date.value:'—'}</div>
+        ${x.date&&x.date.in?`<div class="d ${dTone==='bad'?'bad':''}">${x.date.in}</div>`:''}
+      </div>
+      <div class="now-cell">
+        <div class="k">Blocker</div>
+        ${x.blocker?`<div class="v warn">${x.blocker}</div>`:'<div class="v" style="color:var(--muted);font-weight:400">None</div>'}
+      </div>
+      <button class="btn-primary" onclick="ojAdvance()">${j.cta}</button>
+    </div>
+  </div>`;
+}
+
+function ojPop(e,key){
+  e.stopPropagation();
+  const host=document.getElementById('oj-hero');
+  let pop=document.getElementById('oj-pop');
+  if(pop&&pop.dataset.key===key){pop.remove();return;}
+  if(pop)pop.remove();
+  const j=JOURNEY.find(s=>s.key===key), x=getExt(oppCur);
+  const ji=jIdx(x.jstage), si=jIdx(key);
+  const items=j.req.map(r=>{
+    const done=si<ji||(si===ji&&(x.done||[]).includes(r));
+    return `<div class="task" style="padding:7px 0;border:none"><div class="check ${done?'done':''}">${done?CHECK_SVG:''}</div><div class="tt" style="${done?'':'color:var(--on-variant)'}">${r}</div></div>`;
+  }).join('');
+  pop=document.createElement('div');pop.id='oj-pop';pop.className='oj-pop';pop.dataset.key=key;
+  pop.innerHTML=`<div class="ojp-h">${j.label}${j.dateLabel?` <span>· key date: ${j.dateLabel}</span>`:''}</div>${items}${j.guide?`<div class="ojp-g">${j.guide}</div>`:''}`;
+  host.appendChild(pop);
+  const r=e.currentTarget.getBoundingClientRect(), hr=host.getBoundingClientRect();
+  pop.style.left=Math.max(8,Math.min(hr.width-276,r.left-hr.left+r.width/2-130))+'px';
+  pop.style.top=(r.bottom-hr.top+8)+'px';
+}
+document.addEventListener('click',e=>{const p=document.getElementById('oj-pop');if(p&&!p.contains(e.target)&&!e.target.closest('.oj-st'))p.remove();});
+
+function singleHtml(o,x,ji){
+  return `<div class="opp-grid"><div>${feedCard(o,x)}</div><div>${railHtml(o,x,ji)}</div></div>${dealRoomHtml(o,x,ji)}`;
+}
+function tabsLayoutHtml(o,x,ji){
+  const phaseB=JOURNEY[ji].phase==='B', t=oppTabB;
+  return `<div class="tabs" style="margin-bottom:18px">
+      <button class="tab ${t==='activity'?'on':''}" onclick="oppSetTab('activity')">Activity</button>
+      <button class="tab ${t==='deal'?'on':''}" onclick="oppSetTab('deal')">Deal Room</button>
+      <button class="tab ${t==='details'?'on':''}" onclick="oppSetTab('details')">Details</button>
+    </div>
+    ${t==='activity'?`<div class="opp-grid"><div>${feedCard(o,x)}</div><div>${railHtml(o,x,ji)}</div></div>`:''}
+    ${t==='deal'?(phaseB?dealRoomHtml(o,x,ji):'<div class="dcard oj-lock">The Deal Room unlocks once an offer is accepted.<br>Contract dates, payment schedule and documents will live here.</div>'):''}
+    ${t==='details'?detailsHtml(o,x,ji):''}`;
+}
+
+function feedCard(o,x){
+  const chips=[['all','All'],['wa','WhatsApp'],['sms','SMS'],['em','Email'],['note','Notes'],['sys','System']];
+  const list=x.comms.filter(c=>oppFeedF==='all'||c.ch===oppFeedF);
+  return `<div class="dcard">
+    <div class="row-between" style="margin-bottom:12px"><h3 style="margin:0">Activity</h3>
+      <div class="ff-chips">${chips.map(([k,l])=>`<button class="ff-chip ${oppFeedF===k?'on':''}" onclick="oppFeed('${k}')">${l}</button>`).join('')}</div>
+    </div>
+    <div class="opp-comp">
+      <div class="oc-ch">${[['wa','WhatsApp'],['sms','SMS'],['em','Email'],['note','Note']].map(([k,l])=>`<button class="ff-chip ${oppComposeCh===k?'on':''}" onclick="oppCh('${k}')">${l}</button>`).join('')}</div>
+      <textarea id="opp-comp" rows="2" placeholder="Message ${o.lead.split(' ')[0]} on ${CH_META[oppComposeCh].label}…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();oppSend()}"></textarea>
+      <div class="oc-foot"><button class="ai-chip" style="margin-right:auto" onclick="oppDraft()">✦ AI draft</button><button class="btn-primary" style="padding:5px 12px;font-size:12px" onclick="oppSend()">Send</button></div>
+    </div>
+    <div class="feed">${list.map(feedItem).join('')||'<div class="col-empty">No activity in this channel yet</div>'}</div>
+  </div>`;
+}
+function feedItem(c){
+  if(c.ch==='sys') return `<div class="fi sys"><span>${c.text}</span><span class="t">${c.t}</span></div>`;
+  const m=CH_META[c.ch];
+  return `<div class="fi ${c.dir==='out'?'out':''}">
+    <span class="fi-ic" style="background:${m.color}">${m.ab}</span>
+    <div class="fi-b">
+      <div class="fi-head"><b>${c.who}</b> · ${m.label}${c.dir==='out'?' · sent':''}<span class="t">${c.t}</span></div>
+      ${c.sub?`<div class="fi-sub">${c.sub}</div>`:''}
+      <div class="fi-tx">${c.text}</div>
+    </div>
+  </div>`;
+}
+
+function railHtml(o,x,ji){
+  const b=x.buyer||{};
+  return `
+  <div class="dcard">
+    <div class="side-h">Contact</div>
+    <div class="rep"><div class="avatar">${initials(o.lead)}</div><div><div style="font-size:13.5px;font-weight:600">${o.lead}</div><div style="font-size:12px;color:var(--muted)">${b.type||'Buyer'}</div></div></div>
+    <div class="side-kv"><div class="k">Email</div><div class="v">${b.email||o.lead.toLowerCase().replace(/\s+/g,'.')+'@email.com'}</div></div>
+    <div class="side-kv"><div class="k">Phone</div><div class="v">${b.phone||'+356 9912 3456'}</div></div>
+    <div class="side-kv"><div class="k">Budget</div><div class="v">~€${o.budget}k</div></div>
+    <div class="side-kv" style="margin:0"><div class="k">Assigned rep</div><div class="v">${o.rep}</div></div>
+  </div>
+  <div class="dcard">
+    <div class="side-h">Linked units</div>
+    ${o.units.map((u,i)=>`<div class="lu-row"><span class="cell-id">${u}</span><span class="proj"><span class="proj-ic" style="background:${PROJ_IC[o.devs[i]||o.devs[0]]||'#657A32'}">◈</span>${o.devs[i]||o.devs[0]}</span><span style="font-weight:500">€${o.value}k</span></div>`).join('')}
+  </div>
+  ${ji>=jIdx('negotiating')&&x.offer?`<div class="dcard">
+    <div class="side-h">Offer</div>
+    <div style="font-size:20px;font-weight:600;letter-spacing:-0.3px;margin-bottom:2px">${fmtEur(x.offer.amt)}</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px">${x.offer.status}</div>
+    <div class="side-kv"><div class="k">Payment plan</div><div class="v">${x.offer.plan}</div></div>
+    <div class="side-kv" style="margin:0"><div class="k">Deposit</div><div class="v">${fmtEur(x.offer.deposit)}</div></div>
+  </div>`:''}
+  ${x.blocker?`<div class="dcard block-card">
+    <div class="side-h" style="margin-bottom:8px">Waiting on approval</div>
+    <div style="font-size:12.5px;color:var(--on-variant)">${x.blocker}</div>
+    <button class="btn-ghost" style="margin-top:12px" onclick="showToast('Reminder sent to manager')">Nudge manager</button>
+  </div>`:''}
+  <div class="dcard">
+    <div class="side-h">Shared with client</div>
+    ${ensureShared(o,x).map((s,i)=>`
+      <div class="share-it">
+        <div class="sh-top"><span class="sh-n">${s.n}</span>
+          <span class="sh-act">${s.eng?`<button class="sh-btn" onclick="shareCopy('${s.n}')">Copy link</button><button class="sh-btn" onclick="shareSend(${i})">Re-send</button>`:`<button class="sh-btn" onclick="qaPresent()">Start</button>`}</span></div>
+        <span class="sh-d">${s.d}</span>
+        ${s.eng?`<span class="sh-eng">${s.eng}</span>`:''}
+      </div>`).join('')}
+  </div>
+  <div class="dcard">
+    <div class="row-between" style="margin-bottom:6px"><div class="side-h" style="margin-bottom:0">Automations</div><button class="ff-chip" onclick="showToast('Automation rules — coming soon')">Rules</button></div>
+    ${ensureAutos(o,x).map(a=>`<div class="auto-row"><div class="ic">⚙</div><div><div>${a.txt}</div><div class="at">${a.t}</div></div></div>`).join('')}
+  </div>`;
+}
+
+function dealRoomHtml(o,x,ji){
+  if(JOURNEY[ji].phase!=='B') return '';
+  const kd=x.keyDates?`<div class="kd-strip">${x.keyDates.map(d=>`<div class="kd ${d.tone||''}"><div class="k">${d.label}</div><div class="v">${d.value}</div>${d.in?`<div class="in">${d.in}</div>`:''}</div>`).join('')}</div>`:'';
+  let pay='';
+  if(x.payments){
+    const total=x.payments.reduce((s,p)=>s+p.amt,0), paid=x.payments.filter(p=>p.status==='paid').reduce((s,p)=>s+p.amt,0);
+    pay=`<div class="dr-sec">
+      <div class="row-between"><h4>Payment schedule</h4><span class="dr-owed">${fmtEur(total-paid)} outstanding</span></div>
+      <div class="progress" style="margin:8px 0 10px"><span style="width:${Math.round(paid/total*100)}%"></span></div>
+      ${x.payments.map(p=>`<div class="pay-row ${p.status}"><span class="ps-dot"></span><span class="pl">${p.label}</span><span class="pd">${p.due}</span><span class="pa">${fmtEur(p.amt)}</span><span class="pill ${p.status==='paid'?'p-res':p.status==='overdue'?'p-bad':'p-avail'}">${p.status}</span></div>`).join('')}
+    </div>`;
+  }
+  let docs='';
+  if(x.docs){
+    const groups=[...new Set(x.docs.map(d=>d.g))];
+    docs=`<div class="dr-sec"><h4>Documents</h4><div class="doc-grid">${groups.map(g=>`<div><div class="doc-g">${g}</div>${x.docs.filter(d=>d.g===g).map(d=>`<div class="task" style="padding:7px 0;border:none"><div class="check ${d.done?'done':''}">${d.done?CHECK_SVG:''}</div><div class="tt" style="${d.done?'':'color:var(--on-variant)'}">${d.label}</div></div>`).join('')}</div>`).join('')}</div></div>`;
+  }
+  let bidsHtml='';
+  if(x.bids){
+    bidsHtml=`<details class="bid-acc"><summary>Bid history · ${x.bids.length} rounds</summary>
+      ${x.bids.map(bd=>`<div class="pay-row"><span class="pl"><b>${bd.by}</b> · ${bd.type}</span><span class="pd">${bd.d}</span><span class="pa">${bd.amt}</span><span class="pill ${bd.res==='Accepted'?'p-res':'p-avail'}">${bd.res}</span></div>`).join('')}
+    </details>`;
+  }
+  const closed=o.closed?`<div class="dr-sec"><h4 style="margin-bottom:10px">Completion</h4>${stepperHtml(o.closed.step)}<div class="step-label" style="margin-top:10px">${closedStepLabel(o)}</div></div>`:'';
+  return `<div class="dcard"><h3>Deal room</h3>${kd}${pay}${docs}${closed}${bidsHtml}</div>`;
+}
+
+function detailsHtml(o,x,ji){
+  return `<div class="opp-grid"><div>
+    <div class="dcard"><h3>Opportunity</h3><div class="kv-grid">
+      <div class="kv"><div class="k">Stage</div><div class="v">${JOURNEY[ji].label}</div></div>
+      <div class="kv"><div class="k">Lead source</div><div class="v">${o.source}</div></div>
+      <div class="kv"><div class="k">Last activity</div><div class="v">${o.ago}</div></div>
+      <div class="kv"><div class="k">Tags</div><div class="v">${o.tags.join(', ')||'—'}</div></div>
+      <div class="kv"><div class="k">Owner</div><div class="v">${o.rep}</div></div>
+      <div class="kv"><div class="k">ID</div><div class="v">${o.id}</div></div>
+    </div></div>
+  </div><div>${railHtml(o,x,ji)}</div></div>`;
+}
+
+// ---------- Quick actions, shared assets, automations, stage advance ----------
+function ensureShared(o,x){
+  if(!x.shared) x.shared=[
+    {n:'Personalised brochure',d:`${o.devs[0]} · ${o.units[0]}`,eng:'Opened 3× · 12 min on floor plans'},
+    {n:'Buyer microsite',d:'bricly.mt/'+o.lead.toLowerCase().replace(/\s+/g,'-'),eng:'Visited yesterday · saved 2 units'},
+    {n:'Present Mode session',d:'Not yet run',eng:null},
+  ];
+  return x.shared;
+}
+function ensureAutos(o,x){
+  if(!x.autos) x.autos=[
+    {t:'Today 08:00',txt:`In ${o.rep}'s morning digest — ${x.next?x.next.label.toLowerCase():'follow-up due'}`},
+    {t:'Yesterday',txt:'Follow-up sequence · step 2 email sent — opened 2×'},
+    {t:o.ago,txt:`Lead captured from ${o.source} · auto-assigned to ${o.rep}`},
+  ];
+  return x.autos;
+}
+function shareCopy(n){ showToast(n+' link copied'); }
+function shareSend(i){ showToast(ensureShared(oppCur,getExt(oppCur))[i].n+' re-sent via WhatsApp'); }
+function qaMessage(){ const t=document.getElementById('opp-comp'); if(t){t.scrollIntoView({behavior:'smooth',block:'center'});t.focus();} }
+function qaLog(){ getExt(oppCur).comms.unshift({ch:'note',dir:'out',who:'You',t:'Just now',text:'Logged: call with '+oppCur.lead.split(' ')[0]+' — outcome noted.'}); renderOpp(); showToast('Activity logged'); }
+function qaBrochure(){ const x=getExt(oppCur); ensureShared(oppCur,x)[0].eng='Sent just now · not yet opened'; x.comms.unshift({ch:'sys',t:'Just now',text:'Personalised brochure sent via WhatsApp'}); renderOpp(); showToast('Brochure sent to '+oppCur.lead.split(' ')[0]); }
+function qaPresent(){ const x=getExt(oppCur); const sh=ensureShared(oppCur,x)[2]; sh.d='Session ready · '+oppCur.devs[0]; sh.eng='Created just now'; renderOpp(); showToast('Present Mode session created'); }
+function qaViewing(){ getExt(oppCur).comms.unshift({ch:'sys',t:'Just now',text:'Viewing slot proposal sent — awaiting confirmation'}); renderOpp(); showToast('Viewing slots sent to '+oppCur.lead.split(' ')[0]); }
+function oppDraft(){
+  const o=oppCur, x=getExt(o), first=o.lead.split(' ')[0];
+  const t=document.getElementById('opp-comp'); if(!t) return;
+  t.value=`Hi ${first}, quick update on ${o.devs[0]} ${o.units[0]} — ${x.next?x.next.label.toLowerCase():'just checking in'}. Would tomorrow work for a quick call?`;
+  t.focus();
+}
+// Board-stage sync when the journey advances.
+const J2STAGE={lead:'New Lead',qualified:'Qualified',viewing_booked:'Viewing Booked',viewing_held:'Viewing Booked',negotiating:'Negotiating',hold:'Negotiating',reservation:'Reservation',kyc:'Reservation',pos:'Reservation',payments:'Reservation',deed:'Closed Won',handover:'Closed Won'};
+function ojAdvance(){
+  const o=oppCur, x=getExt(o), ji=jIdx(x.jstage);
+  if(ji>=JOURNEY.length-1){ showToast('Journey complete — deal handed over'); return; }
+  const nj=JOURNEY[ji+1], crossedGate=JOURNEY[ji].phase==='A'&&nj.phase==='B';
+  x.jstage=nj.key; x.done=[];
+  x.next={label:nj.req&&nj.req[0]?nj.req[0]:nj.cta,due:'',overdue:false};
+  if(nj.dateLabel&&x.date) x.date=null;
+  x.blocker=null;
+  x.comms.unshift({ch:'sys',t:'Just now',text:'Stage advanced to '+nj.label});
+  const bs=J2STAGE[nj.key];
+  if(bs&&o.stage!==bs){
+    o.stage=bs;
+    if(bs==='Closed Won'&&!o.closed) o.closed={step:0,bank:'TBC',deed:'TBC',comm:Math.round(o.value*0.02*10)/10,paid:false};
+  }
+  renderOpp(); pipeRenderAll();
+  if(crossedGate){ ojConfetti(); showToast('🎉 Offer accepted — deal room open'); }
+  else showToast(`${o.lead} → ${nj.label}`);
+}
+function ojConfetti(){
+  const host=document.getElementById('oj-hero'); if(!host) return;
+  const r=host.getBoundingClientRect();
+  const c=document.createElement('div'); c.className='confetti'; document.body.appendChild(c);
+  const cols=['#657A32','#8d6715','#c23b3e','#3f6ea5','#b98add','#e0a458'];
+  for(let i=0;i<80;i++){
+    const p=document.createElement('i');
+    p.style.left=(r.left+r.width*(0.2+Math.random()*0.6))+'px';
+    p.style.top=(r.top+r.height*0.35)+'px';
+    p.style.background=cols[i%cols.length];
+    p.style.setProperty('--dx',((Math.random()*2-1)*260).toFixed(0)+'px');
+    p.style.setProperty('--dy',(140+Math.random()*300).toFixed(0)+'px');
+    p.style.setProperty('--rz',(Math.random()*720-360).toFixed(0)+'deg');
+    p.style.animationDelay=(Math.random()*.3).toFixed(2)+'s';
+    const s=(5+Math.random()*5).toFixed(0)+'px'; p.style.width=s; p.style.height=s;
+    if(i%3===0) p.style.borderRadius='50%';
+    c.appendChild(p);
+  }
+  setTimeout(()=>c.remove(),2800);
 }
 let pipeView='board';
 function setPipeView(v){
@@ -2127,11 +2662,7 @@ function setPipeView(v){
   document.getElementById('vt-table').classList.toggle('on',v==='table');
   document.getElementById('vt-board').classList.toggle('on',v==='board');
 }
-function oppTab(tab,el){
-  document.querySelectorAll('#p-opp .tab').forEach(t=>t.classList.remove('on'));
-  if(el)el.classList.add('on');
-  ['overview','notes','deals','bids'].forEach(t=>{document.getElementById('ot-'+t).style.display = t===tab?'block':'none';});
-}
+function oppTab(tab,el){} // legacy no-op — replaced by renderOpp engine
 
 // ---------- New opportunity drawer ----------
 function openNewOpp(){
@@ -2175,11 +2706,459 @@ function submitNewOpp(){
 
 // ask panel functions are defined above in the CHAT section
 
+// ============================================================
+// CONTACTS — universal people list (leads, buyers, vendors, suppliers, partners)
+// ============================================================
+const CT_TYPE={lead:{l:'Lead',pill:'p-tlead'},buyer:{l:'Buyer',pill:'p-tbuyer'},vendor:{l:'Vendor',pill:'p-tvendor'},supplier:{l:'Supplier',pill:'p-tsupplier'},partner:{l:'Partner',pill:'p-tpartner'}};
+const CT_STATUS={lead:{l:'Lead',pill:'p-view'},active:{l:'Active',pill:'p-res'},contract:{l:'Contract',pill:'p-hold'},past:{l:'Past client',pill:'p-paused'},cold:{l:'Cold',pill:'p-cold'},dnc:{l:'Do not contact',pill:'p-bad'}};
+const CT_STAGE_STATUS={'New Lead':'lead','Qualified':'active','Contacted':'active','Viewing Booked':'active','Negotiating':'active','Reservation':'contract','Closed Won':'past'};
+const CT_STAGE_TIME={'New Lead':'Exploring','Qualified':'Within 6 months','Contacted':'Within 6 months','Viewing Booked':'Within 3 months','Negotiating':'Within 3 months','Reservation':'Committed','Closed Won':'Completed'};
+const CT_FOREIGN=['British','German','Italian','French','Swedish','Dutch'];
+function ctHash(s){let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;return h;}
+function ctSlug(n){return n.toLowerCase().replace(/[^a-z ]/g,'').trim().replace(/\s+/g,'.');}
+function ctAgoDays(ago){if(ago==='Today')return 0;const m=String(ago).match(/(\d+)/);return m?+m[1]:0;}
+
+// Every pipeline lead exists as a contact; details enriched from EXT where available.
+const CONTACTS = OPPS.map(o=>{
+  const h=ctHash(o.lead), b=EXT[o.id]&&EXT[o.id].buyer, foreign=o.tags.includes('Foreign Buyer');
+  return {
+    id:'CT-'+o.id.slice(4), name:o.lead,
+    type:o.stage==='New Lead'?'lead':'buyer',
+    btype:(b&&b.type)||(o.tags.includes('Investor')?'Investment buyer':o.tags.includes('First-Time Buyer')?'First-time buyer':'Owner-occupier'),
+    company:null, status:CT_STAGE_STATUS[o.stage],
+    email:(b&&b.email)||ctSlug(o.lead)+'@email.com',
+    phone:(b&&b.phone)||'+356 '+(7700+h%299)+' '+(1000+h%9000),
+    nat:foreign?CT_FOREIGN[h%CT_FOREIGN.length]:'Maltese',
+    lang:foreign?'English':'Maltese, English',
+    source:o.source, ref:o.source==='Referral'?['John Vella','Rita Muscat','Karl Azzopardi'][h%3]:null,
+    bmin:o.budget-50, bmax:o.budget,
+    interest:(o.units.length>1?o.units.length+' shortlisted units':o.units[0])+' · '+o.devs.join(', '),
+    ploc:o.devs.join(', '),
+    finance:o.tags.includes('Cash Buyer')?'Cash buyer':COMMIT_STAGES.includes(o.stage)?'Bank approved':'Arranging finance',
+    timeline:CT_STAGE_TIME[o.stage],
+    rep:o.rep, tags:o.tags.slice(), oppIds:[o.id],
+    consent:{wa:true,em:h%7!==1,sms:h%5!==1},
+    created:['3 Jun','18 May','2 Jul','21 Apr','9 Jul','14 Feb'][h%6],
+    last:o.ago==='Today'?'Today':o.ago+' ago', lastD:ctAgoDays(o.ago), notesList:[],
+  };
+});
+// The wider network — vendors, suppliers, partners and unlinked leads.
+CONTACTS.push(
+  {id:'CT-201',name:'Carmen Debattista',type:'vendor',btype:'Private seller',company:null,status:'active',email:'carmen.debattista@email.com',phone:'+356 7942 1108',nat:'Maltese',lang:'Maltese, English',source:'Walk-in',ref:null,bmin:null,bmax:null,interest:'Selling townhouse · Sliema',ploc:'Sliema',finance:null,timeline:'Listing live',rep:'Sarah',tags:['Exclusive listing'],oppIds:[],consent:{wa:true,em:true,sms:true},created:'2 Mar',last:'5 days ago',lastD:5,notesList:['Wants offers above €520k only.']},
+  {id:'CT-202',name:'George Mifsud',type:'vendor',btype:'Private seller',company:null,status:'active',email:'george.mifsud@email.com',phone:'+356 7811 3390',nat:'Maltese',lang:'Maltese, English',source:'Referral',ref:'Carmen Debattista',bmin:null,bmax:null,interest:'Selling plot · Mosta',ploc:'Mosta',finance:null,timeline:'Valuation stage',rep:'Chris',tags:[],oppIds:[],consent:{wa:true,em:true,sms:false},created:'19 Jul',last:'2 days ago',lastD:2,notesList:[]},
+  {id:'CT-203',name:'Marlene Cutajar',type:'vendor',btype:'Landlord portfolio',company:'MC Holdings',status:'past',email:'marlene@mcholdings.mt',phone:'+356 9980 2245',nat:'Maltese',lang:'Maltese, English',source:'Website',ref:null,bmin:null,bmax:null,interest:'Sold 3 units 2025 · may relist',ploc:'St Julian\u2019s',finance:null,timeline:'—',rep:'Sam',tags:['Repeat Client'],oppIds:[],consent:{wa:true,em:true,sms:true},created:'2024',last:'34 days ago',lastD:34,notesList:[]},
+  {id:'CT-204',name:'Steve Galea',type:'supplier',btype:'Photographer',company:'Lens & Light Studio',status:'active',email:'steve@lenslight.mt',phone:'+356 7702 5511',nat:'Maltese',lang:'English',source:'Network',ref:null,bmin:null,bmax:null,interest:'Unit + lifestyle shoots',ploc:'Islandwide',finance:null,timeline:'—',rep:'Lucy',tags:['Preferred supplier'],oppIds:[],consent:{wa:true,em:true,sms:false},created:'2023',last:'8 days ago',lastD:8,notesList:['Books out 2 weeks ahead in summer.']},
+  {id:'CT-205',name:'Amanda Portelli',type:'supplier',btype:'Home staging',company:'Casa Staging Co.',status:'active',email:'amanda@casastaging.mt',phone:'+356 7955 8822',nat:'Maltese',lang:'Maltese, English',source:'Referral',ref:'Steve Galea',bmin:null,bmax:null,interest:'Show-flat staging',ploc:'Islandwide',finance:null,timeline:'—',rep:'Sarah',tags:[],oppIds:[],consent:{wa:true,em:true,sms:true},created:'2024',last:'12 days ago',lastD:12,notesList:[]},
+  {id:'CT-206',name:'Karl Fenech',type:'supplier',btype:'Surveyor / EPC',company:'Fenech Surveys',status:'active',email:'karl@fenechsurveys.mt',phone:'+356 7833 4470',nat:'Maltese',lang:'Maltese, English',source:'Network',ref:null,bmin:null,bmax:null,interest:'Surveys, EPC certificates',ploc:'Islandwide',finance:null,timeline:'—',rep:'Matthew',tags:[],oppIds:[],consent:{wa:false,em:true,sms:false},created:'2022',last:'20 days ago',lastD:20,notesList:[]},
+  {id:'CT-207',name:'Dr. Joseph Aquilina',type:'partner',btype:'Notary',company:'Aquilina & Partners',status:'active',email:'j.aquilina@aqlaw.mt',phone:'+356 2122 4455',nat:'Maltese',lang:'Maltese, English, Italian',source:'Network',ref:null,bmin:null,bmax:null,interest:'POS + final deed signings',ploc:'Valletta',finance:null,timeline:'—',rep:'Sam',tags:['Notary'],oppIds:['OPP-1002'],consent:{wa:true,em:true,sms:false},created:'2019',last:'Today',lastD:0,notesList:['Handles all La Lex POS signings.']},
+  {id:'CT-208',name:'Dr. Elena Sammut',type:'partner',btype:'Legal partner',company:'Sammut Advocates',status:'active',email:'elena@sammutlaw.mt',phone:'+356 2138 9902',nat:'Maltese',lang:'Maltese, English',source:'Network',ref:null,bmin:null,bmax:null,interest:'Foreign-buyer AIP permits',ploc:'Valletta',finance:null,timeline:'—',rep:'Maria',tags:[],oppIds:[],consent:{wa:false,em:true,sms:false},created:'2021',last:'15 days ago',lastD:15,notesList:[]},
+  {id:'CT-209',name:'Paul Grech',type:'partner',btype:'Finance broker',company:'MoneyMate Brokers',status:'active',email:'paul@moneymate.mt',phone:'+356 7920 6633',nat:'Maltese',lang:'Maltese, English',source:'Referral',ref:'Dr. Joseph Aquilina',bmin:null,bmax:null,interest:'Buyer mortgage pre-approvals',ploc:'—',finance:null,timeline:'—',rep:'Lucy',tags:[],oppIds:[],consent:{wa:true,em:true,sms:true},created:'2023',last:'3 days ago',lastD:3,notesList:[]},
+  {id:'CT-210',name:'Christine Abela',type:'partner',btype:'Agency partner',company:'Abela Estates',status:'active',email:'christine@abelaestates.mt',phone:'+356 7788 1230',nat:'Maltese',lang:'Maltese, English',source:'Network',ref:null,bmin:null,bmax:null,interest:'Sends buyer referrals · 8 this year',ploc:'North harbour',finance:null,timeline:'—',rep:'Chris',tags:['Top referrer'],oppIds:['OPP-1006'],consent:{wa:true,em:true,sms:true},created:'2022',last:'1 day ago',lastD:1,notesList:['Commission split 50/50 on referred closings.']},
+  {id:'CT-211',name:'Tania Muscat',type:'lead',btype:'Owner-occupier',company:null,status:'cold',email:'tania.muscat@email.com',phone:'+356 7901 4482',nat:'Maltese',lang:'Maltese, English',source:'Portal',ref:null,bmin:250,bmax:300,interest:'2-bed apartment',ploc:'Birkirkara',finance:'Arranging finance',timeline:'Unknown',rep:'Chris',tags:[],oppIds:[],consent:{wa:true,em:true,sms:true},created:'28 Jun',last:'40 days ago',lastD:40,notesList:['Went quiet after first call — try a new angle.']},
+  {id:'CT-212',name:'Omar Haddad',type:'lead',btype:'Investment buyer',company:null,status:'dnc',email:'omar.haddad@email.com',phone:'+44 7911 220 431',nat:'British',lang:'English',source:'Meta Lead Form',ref:null,bmin:400,bmax:500,interest:'—',ploc:'—',finance:null,timeline:'—',rep:'Maria',tags:[],oppIds:[],consent:{wa:false,em:false,sms:false},created:'12 Jul',last:'25 days ago',lastD:25,notesList:['Opted out 18 Jul — do not message.']},
+  {id:'CT-213',name:'Claire Bugeja',type:'buyer',btype:'Owner-occupier',company:null,status:'past',email:'claire.bugeja@email.com',phone:'+356 7944 7810',nat:'Maltese',lang:'Maltese, English',source:'Referral',ref:'Christine Abela',bmin:300,bmax:350,interest:'Bought #CM4488 · Verdala (2024)',ploc:'Verdala',finance:'Completed',timeline:'Completed',rep:'Maria',tags:['Repeat Client'],oppIds:[],consent:{wa:true,em:true,sms:true},created:'2024',last:'60 days ago',lastD:60,notesList:['Anniversary follow-up due — potential investment buyer.']},
+);
+
+const ctState={tab:'all',q:'',f:{status:null,source:null,rep:null,budgetMax:null,tag:null,act:null},quick:null,sort:'last',sel:new Set()};
+const CT_OPTS={
+  source:[...new Set(CONTACTS.map(c=>c.source))].sort(),
+  rep:[...new Set(CONTACTS.map(c=>c.rep))].sort(),
+  tag:[...new Set(CONTACTS.flatMap(c=>c.tags))].sort(),
+  budget:[300,400,500],
+  act:[[7,'Last 7 days'],[30,'Last 30 days'],[90,'Last 90 days']],
+};
+function ctById(id){return CONTACTS.find(c=>c.id===id);}
+function ctConsentOk(c){return c.consent.wa&&c.consent.em&&c.consent.sms;}
+
+function filteredContacts(){
+  const f=ctState.f, q=ctState.q.toLowerCase();
+  let list=CONTACTS.filter(c=>{
+    if(ctState.tab!=='all'&&c.type!==ctState.tab) return false;
+    if(f.status&&c.status!==f.status) return false;
+    if(f.source&&c.source!==f.source) return false;
+    if(f.rep&&c.rep!==f.rep) return false;
+    if(f.budgetMax&&(!c.bmax||c.bmax>f.budgetMax)) return false;
+    if(f.tag&&!c.tags.includes(f.tag)) return false;
+    if(f.act&&c.lastD>f.act) return false;
+    if(ctState.quick==='new'&&!(c.status==='lead'&&c.lastD<=7)) return false;
+    if(ctState.quick==='follow'&&!((c.status==='active'||c.status==='lead')&&c.lastD>=14)) return false;
+    if(ctState.quick==='consent'&&ctConsentOk(c)) return false;
+    if(q){
+      const hay=(c.name+' '+c.email+' '+c.phone+' '+(c.company||'')+' '+c.btype).toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  if(ctState.sort==='name') list.sort((a,b)=>a.name.localeCompare(b.name));
+  else if(ctState.sort==='budget') list.sort((a,b)=>(b.bmax||0)-(a.bmax||0));
+  else list.sort((a,b)=>a.lastD-b.lastD);
+  return list;
+}
+
+function ctDealCell(c){
+  const opps=c.oppIds.map(id=>OPPS.find(o=>o.id===id)).filter(Boolean);
+  if(!opps.length) return '<span class="cell-id">—</span>';
+  const o=opps[0];
+  const role=c.type==='partner'?'linked · ':'';
+  return `<span class="ct-deal"><span class="pill ${STAGE_PILL[o.stage]}" onclick="event.stopPropagation();openOpp('${o.id}')" title="${role}${o.id}">${o.stage}</span>${opps.length>1?`<span class="dev-more">+${opps.length-1}</span>`:''}</span>`;
+}
+
+function renderContacts(){
+  const rowsEl=document.getElementById('ct-rows'); if(!rowsEl) return;
+  const list=filteredContacts();
+  // stats
+  const fresh=CONTACTS.filter(c=>c.status==='lead'&&c.lastD<=7).length;
+  const follow=CONTACTS.filter(c=>(c.status==='active'||c.status==='lead')&&c.lastD>=14).length;
+  const noCons=CONTACTS.filter(c=>!ctConsentOk(c)).length;
+  const stat=(k,v,l)=>`<div class="ct-stat ${ctState.quick===k?'on':''}" onclick="ctQuick('${k}')"><div class="v">${v}</div><div class="l">${l}</div></div>`;
+  document.getElementById('ct-stats').innerHTML =
+    stat('null',CONTACTS.length,'Total contacts')+stat('new',fresh,'New leads this week')+stat('follow',follow,'Need follow-up (14d+)')+stat('consent',noCons,'Missing consent');
+  // tabs
+  const tabs=[['all','All'],['lead','Leads'],['buyer','Buyers'],['vendor','Vendors'],['supplier','Suppliers'],['partner','Partners']];
+  document.getElementById('ct-tabs').innerHTML = tabs.map(([k,l])=>{
+    const n=k==='all'?CONTACTS.length:CONTACTS.filter(c=>c.type===k).length;
+    return `<button class="tab ${ctState.tab===k?'on':''}" onclick="ctSetTab('${k}')">${l} <span style="color:var(--muted);font-weight:400">${n}</span></button>`;
+  }).join('');
+  // rows
+  rowsEl.innerHTML = list.map(c=>{
+    const sel=ctState.sel.has(c.id);
+    return `<tr class="${sel?'ct-selrow':''}" onclick="openCtPeek('${c.id}')">
+      <td style="padding-right:0" onclick="event.stopPropagation()"><span class="ct-check ${sel?'on':''}" onclick="ctToggleSel('${c.id}')">${sel?CHECK_SVG:''}</span></td>
+      <td><span class="contact"><span class="avatar-sm" style="background:${color(c.name)}">${initials(c.name)}</span><span><div style="font-weight:500">${c.name}</div><div class="ct-sub">${c.btype}${c.company?' · '+c.company:''}</div></span></span></td>
+      <td><span class="pill ${CT_TYPE[c.type].pill}">${CT_TYPE[c.type].l}</span></td>
+      <td><span class="pill ${CT_STATUS[c.status].pill}">${CT_STATUS[c.status].l}</span></td>
+      <td><div style="font-size:12.5px">${c.phone}</div><div class="ct-sub">${c.email}</div></td>
+      <td>${c.source}</td>
+      <td class="cell-strong">${c.bmin?`€${c.bmin}–${c.bmax}k`:'—'}</td>
+      <td><span class="contact"><span class="avatar-sm neutral">${initials(c.rep)}</span>${c.rep}</span></td>
+      <td>${ctDealCell(c)}</td>
+      <td class="cell-id">${c.last}</td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="10"><div class="col-empty" style="padding:24px 8px">No contacts match — try clearing filters</div></td></tr>`;
+  document.getElementById('ct-count').textContent=`Showing ${list.length} of ${CONTACTS.length} contacts`;
+  // select-all state
+  const sa=document.getElementById('ct-selall');
+  const allSel=list.length&&list.every(c=>ctState.sel.has(c.id));
+  sa.className='ct-check'+(allSel?' on':ctState.sel.size?' part':'');
+  sa.innerHTML=allSel?CHECK_SVG:ctState.sel.size?'–':'';
+  renderCtFilters(); renderCtBulk();
+}
+
+function ctSetTab(t){ctState.tab=t;renderContacts();}
+function ctSetSearch(v){ctState.q=v;renderContacts();}
+function ctSetSort(v){ctState.sort=v;renderContacts();}
+function ctQuick(k){ctState.quick=ctState.quick===k||k==='null'?null:k;renderContacts();}
+
+// ---------- Contact filters ----------
+function ctToggleFilterMenu(e){
+  e.stopPropagation();
+  const m=document.getElementById('ct-filter-menu');
+  if(m.style.display==='block'){m.style.display='none';return;}
+  const f=ctState.f;
+  m.innerHTML=`
+    <div class="fm-group"><div class="fm-label">Status</div><div class="fm-opts">${Object.keys(CT_STATUS).map(s=>`<button class="fm-opt ${f.status===s?'on':''}" onclick="ctSetFilter('status','${s}')">${CT_STATUS[s].l}</button>`).join('')}</div></div>
+    <div class="fm-group"><div class="fm-label">Source</div><div class="fm-opts">${CT_OPTS.source.map(v=>`<button class="fm-opt ${f.source===v?'on':''}" onclick="ctSetFilter('source','${v}')">${v}</button>`).join('')}</div></div>
+    <div class="fm-group"><div class="fm-label">Rep</div><div class="fm-opts">${CT_OPTS.rep.map(v=>`<button class="fm-opt ${f.rep===v?'on':''}" onclick="ctSetFilter('rep','${v}')">${v}</button>`).join('')}</div></div>
+    <div class="fm-group"><div class="fm-label">Max budget</div><div class="fm-opts">${CT_OPTS.budget.map(v=>`<button class="fm-opt ${f.budgetMax===v?'on':''}" onclick="ctSetFilter('budgetMax',${v})">≤ €${v}k</button>`).join('')}</div></div>
+    <div class="fm-group"><div class="fm-label">Tag</div><div class="fm-opts">${CT_OPTS.tag.map(v=>`<button class="fm-opt ${f.tag===v?'on':''}" onclick="ctSetFilter('tag','${v}')">${v}</button>`).join('')}</div></div>
+    <div class="fm-group"><div class="fm-label">Last activity</div><div class="fm-opts">${CT_OPTS.act.map(([v,l])=>`<button class="fm-opt ${f.act===v?'on':''}" onclick="ctSetFilter('act',${v})">${l}</button>`).join('')}</div></div>`;
+  m.style.display='block';
+}
+function ctSetFilter(type,val){
+  ctState.f[type]=ctState.f[type]===val?null:val;
+  document.getElementById('ct-filter-menu').style.display='none';
+  renderContacts();
+}
+function ctClearFilter(type){ctState.f[type]=null;renderContacts();}
+function ctClearAll(){Object.keys(ctState.f).forEach(k=>ctState.f[k]=null);ctState.quick=null;renderContacts();}
+function renderCtFilters(){
+  const f=ctState.f, chips=[];
+  if(f.status) chips.push({l:'Status',v:CT_STATUS[f.status].l,c:"ctClearFilter('status')"});
+  if(f.source) chips.push({l:'Source',v:f.source,c:"ctClearFilter('source')"});
+  if(f.rep) chips.push({l:'Rep',v:f.rep,c:"ctClearFilter('rep')"});
+  if(f.budgetMax) chips.push({l:'Budget',v:'≤ €'+f.budgetMax+'k',c:"ctClearFilter('budgetMax')"});
+  if(f.tag) chips.push({l:'Tag',v:f.tag,c:"ctClearFilter('tag')"});
+  if(f.act) chips.push({l:'Activity',v:'≤ '+f.act+' days',c:"ctClearFilter('act')"});
+  document.getElementById('ct-active-filters').innerHTML =
+    chips.map(c=>`<span class="fchip">${c.l}: <b>${c.v}</b><span class="x" onclick="${c.c}">✕</span></span>`).join('')
+    +(chips.length?`<span class="fclear" onclick="ctClearAll()">Clear all</span>`:'');
+}
+document.addEventListener('click',e=>{
+  const m=document.getElementById('ct-filter-menu');
+  if(m&&m.style.display==='block'&&!m.contains(e.target)&&!e.target.closest('#ct-filter-row .fchip-add')) m.style.display='none';
+  const bm=document.querySelector('.bb-menu');
+  if(bm&&!bm.contains(e.target)&&!e.target.closest('.bb-btn')) bm.remove();
+});
+
+// ---------- Multi-select + bulk actions ----------
+function ctToggleSel(id){
+  if(ctState.sel.has(id)) ctState.sel.delete(id); else ctState.sel.add(id);
+  renderContacts();
+}
+function ctSelAll(){
+  const list=filteredContacts();
+  const allSel=list.length&&list.every(c=>ctState.sel.has(c.id));
+  if(allSel) list.forEach(c=>ctState.sel.delete(c.id));
+  else list.forEach(c=>ctState.sel.add(c.id));
+  renderContacts();
+}
+function ctClearSel(){ctState.sel.clear();renderContacts();}
+function renderCtBulk(){
+  const bar=document.getElementById('ct-bulkbar'); if(!bar) return;
+  const n=ctState.sel.size;
+  const onContacts=document.getElementById('p-contacts').classList.contains('on');
+  bar.classList.toggle('on',n>0&&onContacts);
+  if(!n||!onContacts){bar.innerHTML='';return;}
+  bar.innerHTML=`
+    <span class="bb-count">${n} selected</span><span class="bb-sep"></span>
+    <button class="bb-btn" onclick="ctBulkMenu('rep',event)">Assign rep ▾</button>
+    <button class="bb-btn" onclick="ctBulkMenu('status',event)">Status ▾</button>
+    <button class="bb-btn" onclick="ctBulkMenu('tag',event)">Tag ▾</button>
+    <button class="bb-btn" onclick="ctBulkMenu('msg',event)">Message ▾</button>
+    <span class="bb-sep"></span>
+    <button class="bb-btn" onclick="ctExport(true)">Export</button>
+    <button class="bb-btn" ${n===2?'':'disabled'} onclick="ctBulkMerge()" title="Select exactly 2 contacts to merge">Merge</button>
+    <button class="bb-btn" onclick="ctBulkArchive()">Do not contact</button>
+    <span class="bb-sep"></span>
+    <button class="bb-btn" title="Clear selection" onclick="ctClearSel()">✕</button>`;
+}
+function ctBulkMenu(kind,e){
+  e.stopPropagation();
+  const old=document.querySelector('.bb-menu'), was=old&&old.dataset.kind===kind;
+  if(old) old.remove(); if(was) return;
+  const opts= kind==='rep'?CT_OPTS.rep.map(r=>[r,`ctBulkApply('rep','${r}')`])
+    : kind==='status'?Object.keys(CT_STATUS).map(s=>[CT_STATUS[s].l,`ctBulkApply('status','${s}')`])
+    : kind==='tag'?(CT_OPTS.tag.length?CT_OPTS.tag:['Urgent']).map(t=>[t,`ctBulkApply('tag','${t}')`])
+    : [['WhatsApp',"ctBulkMessage('WhatsApp')"],['Email',"ctBulkMessage('Email')"],['SMS',"ctBulkMessage('SMS')"]];
+  const m=document.createElement('div'); m.className='bb-menu'; m.dataset.kind=kind;
+  m.innerHTML=opts.map(([l,fn])=>`<button class="bb-mi" onclick="${fn}">${l}</button>`).join('');
+  document.getElementById('ct-bulkbar').appendChild(m);
+  m.style.left=e.currentTarget.offsetLeft+'px';
+}
+function ctBulkApply(kind,val){
+  const n=ctState.sel.size;
+  ctState.sel.forEach(id=>{
+    const c=ctById(id); if(!c) return;
+    if(kind==='rep') c.rep=val;
+    else if(kind==='status') c.status=val;
+    else if(kind==='tag'&&!c.tags.includes(val)) c.tags.push(val);
+  });
+  const msg=kind==='rep'?`${n} contacts assigned to ${val}`:kind==='status'?`${n} contacts set to ${CT_STATUS[val].l}`:`Tag "${val}" added to ${n} contacts`;
+  renderContacts(); showToast(msg);
+}
+function ctBulkMessage(ch){
+  const bm=document.querySelector('.bb-menu'); if(bm) bm.remove();
+  const n=ctState.sel.size;
+  const names=[...ctState.sel].map(id=>ctById(id)).filter(Boolean);
+  const blocked=names.filter(c=>c.status==='dnc'||(ch==='WhatsApp'&&!c.consent.wa)||(ch==='Email'&&!c.consent.em)||(ch==='SMS'&&!c.consent.sms));
+  document.getElementById('ctDrawerTitle').textContent=`Message ${n} contacts · ${ch}`;
+  document.getElementById('ctDrawerBody').innerHTML=`
+    <div class="od-field"><label>To</label><div class="chk-row">${names.slice(0,6).map(c=>`<span class="tag-chip">${c.name}</span>`).join('')}${n>6?`<span class="tag-chip">+${n-6} more</span>`:''}</div></div>
+    ${blocked.length?`<div class="od-field" style="font-size:12px;color:#c23b3e">${blocked.length} contact${blocked.length>1?'s':''} skipped — no ${ch} consent</div>`:''}
+    <div class="od-field"><label>Message</label><textarea id="ct-msg" rows="5" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--outline);background:var(--sc-lowest);font-family:inherit;font-size:13px;color:var(--on-surface);resize:vertical" placeholder="Hi {{first name}}, …"></textarea></div>
+    <div class="od-field"><button class="ai-chip" onclick="document.getElementById('ct-msg').value='Hi {{first name}}, we\u2019ve just released new units that match what you\u2019re looking for — want me to send over the floor plans?'">✦ AI draft</button></div>`;
+  document.getElementById('ctDrawerFoot').innerHTML=`
+    <button class="btn-ghost" onclick="closeCtDrawer()">Cancel</button>
+    <button class="btn-primary" onclick="ctSendBulk('${ch}',${n-blocked.length})">Send to ${n-blocked.length}</button>`;
+  openCtDrawer();
+}
+function ctSendBulk(ch,n){
+  ctState.sel.forEach(id=>{const c=ctById(id);if(c){c.last='Today';c.lastD=0;}});
+  closeCtDrawer(); ctState.sel.clear(); renderContacts();
+  showToast(`Message sent to ${n} contacts via ${ch}`);
+}
+function ctBulkMerge(){
+  const [a,b]=[...ctState.sel].map(id=>ctById(id));
+  if(!a||!b) return;
+  a.oppIds=[...new Set([...a.oppIds,...b.oppIds])];
+  a.tags=[...new Set([...a.tags,...b.tags])];
+  CONTACTS.splice(CONTACTS.indexOf(b),1);
+  ctState.sel.clear(); renderContacts();
+  showToast(`Merged ${b.name} into ${a.name}`);
+}
+function ctBulkArchive(){
+  const n=ctState.sel.size;
+  ctState.sel.forEach(id=>{const c=ctById(id);if(c){c.status='dnc';c.consent={wa:false,em:false,sms:false};}});
+  ctState.sel.clear(); renderContacts();
+  showToast(`${n} contact${n>1?'s':''} marked do-not-contact`);
+}
+
+// ---------- CSV export ----------
+function ctExport(selOnly){
+  const rows = selOnly&&ctState.sel.size ? [...ctState.sel].map(id=>ctById(id)).filter(Boolean) : filteredContacts();
+  const head=['Name','Type','Subtype','Company','Status','Email','Phone','Nationality','Source','Budget min (k)','Budget max (k)','Rep','Tags','Linked opportunities','Last activity'];
+  const csv=[head.join(',')].concat(rows.map(c=>[c.name,CT_TYPE[c.type].l,c.btype,c.company||'',CT_STATUS[c.status].l,c.email,c.phone,c.nat,c.source,c.bmin||'',c.bmax||'',c.rep,c.tags.join('; '),c.oppIds.join('; '),c.last].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','))).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='bricly-contacts.csv'; a.click(); URL.revokeObjectURL(a.href);
+  showToast(`Exported ${rows.length} contacts to CSV`);
+}
+
+// ---------- Peek drawer ----------
+let ctPeekId=null;
+function ctConsentHtml(c){
+  return `<div style="display:flex;gap:5px">${[['wa','WhatsApp'],['em','Email'],['sms','SMS']].map(([k,l])=>`<span class="cd ${c.consent[k]?'ok':''}">${l} ${c.consent[k]?'✓':'✗'}</span>`).join('')}</div>`;
+}
+function ctDealsHtml(c,close){
+  const opps=c.oppIds.map(id=>OPPS.find(o=>o.id===id)).filter(Boolean);
+  if(!opps.length) return `<div style="font-size:12.5px;color:var(--muted)">No linked deals</div>`;
+  return opps.map(o=>`<div class="lu-row" style="cursor:pointer" onclick="${close?'closeCtPeek();':''}openOpp('${o.id}')">
+    <span class="cell-id">${o.id}</span><span class="pill ${STAGE_PILL[o.stage]}">${o.stage}</span><span style="font-weight:500">${money(o).approx?'~':''}€${money(o).amt}k</span>
+  </div>`).join('');
+}
+function openCtPeek(id){
+  const c=ctById(id); if(!c) return;
+  ctPeekId=id;
+  const kv=(k,v)=>v?`<div class="side-kv"><div class="k">${k}</div><div class="v">${v}</div></div>`:'';
+  document.getElementById('ctPeekBody').innerHTML=`
+    <div class="rep"><div class="avatar" style="width:38px;height:38px;font-size:13px;background:${color(c.name)}">${initials(c.name)}</div>
+      <div><div style="font-size:14.5px;font-weight:600">${c.name}</div><div style="font-size:12px;color:var(--muted)">${c.btype}${c.company?' · '+c.company:''}</div></div></div>
+    <div style="display:flex;gap:6px;margin-bottom:16px"><span class="pill ${CT_TYPE[c.type].pill}">${CT_TYPE[c.type].l}</span><span class="pill ${CT_STATUS[c.status].pill}">${CT_STATUS[c.status].l}</span></div>
+    ${kv('Phone',c.phone)}${kv('Email',c.email)}${kv('Nationality',c.nat)}${kv('Languages',c.lang)}${kv('Assigned rep',c.rep)}${kv('Source',c.source+(c.ref?' · '+c.ref:''))}
+    ${c.bmin||c.interest?`<div class="side-h" style="margin:18px 0 10px">Preferences</div>${kv('Budget',c.bmin?`€${c.bmin}–${c.bmax}k`:null)}${kv('Looking for',c.interest)}${kv('Location',c.ploc)}${kv('Finance',c.finance)}${kv('Timeline',c.timeline)}`:''}
+    <div class="side-h" style="margin:18px 0 10px">Deals</div>${ctDealsHtml(c,true)}
+    <div class="side-h" style="margin:18px 0 10px">Consent</div>${ctConsentHtml(c)}
+    ${c.tags.length?`<div class="side-h" style="margin:18px 0 8px">Tags</div><div class="card-tags" style="margin:0">${c.tags.map(t=>`<span class="tag-chip">${t}</span>`).join('')}</div>`:''}
+    ${c.notesList.length?`<div class="side-h" style="margin:18px 0 8px">Notes</div>${c.notesList.map(nt=>`<div style="font-size:12.5px;color:var(--on-variant);padding:6px 0;border-bottom:1px solid var(--outline-variant)">${nt}</div>`).join('')}`:''}`;
+  document.getElementById('ctPeekFoot').innerHTML=`
+    <button class="btn-ghost" onclick="showToast('Note logged on ${c.name.split(' ')[0]}')">Log note</button>
+    <button class="btn-ghost" onclick="showToast('WhatsApp opened — ${c.phone}')">WhatsApp</button>
+    <button class="btn-primary" onclick="openContact('${c.id}')">Open full record</button>`;
+  document.getElementById('ctPeek').classList.add('open');
+  document.getElementById('ctPeekScrim').classList.add('on');
+}
+function closeCtPeek(){
+  document.getElementById('ctPeek').classList.remove('open');
+  document.getElementById('ctPeekScrim').classList.remove('on');
+}
+
+// ---------- Contact detail page ----------
+let ctCur=null;
+function openContact(id){
+  ctCur=ctById(id); if(!ctCur) return;
+  closeCtPeek();
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.getElementById('p-contact').classList.add('on');
+  document.querySelectorAll('.ni').forEach(n=>n.classList.toggle('on',n.dataset.page==='contacts'));
+  document.getElementById('crumb').innerHTML=`<a onclick="go('contacts')">Contacts</a><span class="sep">/</span><span class="cur">${xesc(ctCur.name)}</span>`;
+  renderContact();
+  document.getElementById('content').scrollTop=0;
+}
+function ctFeedHtml(c){
+  const comms=c.oppIds.flatMap(id=>{const o=OPPS.find(x=>x.id===id);return o?getExt(o).comms:[];}).slice(0,8);
+  const base=comms.map(feedItem).join('');
+  const created=`<div class="fi sys"><span>Contact created from ${c.source}${c.ref?' — referred by '+c.ref:''}</span><span class="t">${c.created}</span></div>`;
+  return base+created;
+}
+function renderContact(){
+  const c=ctCur, kv=(k,v)=>v?`<div class="side-kv"><div class="k">${k}</div><div class="v">${v}</div></div>`:'';
+  document.getElementById('ct-root').innerHTML=`
+    <div class="row-between" style="align-items:flex-start;margin-bottom:14px">
+      <div class="rep" style="margin:0">
+        <div class="avatar" style="width:44px;height:44px;font-size:15px;background:${color(c.name)}">${initials(c.name)}</div>
+        <div><div class="page-title">${c.name}</div><div class="page-sub">${c.btype}${c.company?' · '+c.company:''} · ${c.id}</div></div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center"><span class="pill ${CT_TYPE[c.type].pill}">${CT_TYPE[c.type].l}</span><span class="pill ${CT_STATUS[c.status].pill}">${CT_STATUS[c.status].l}</span></div>
+    </div>
+    <div class="qa-bar">
+      <button class="qa-btn" onclick="showToast('WhatsApp opened — ${c.phone}')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 3h10v7H6l-3 2.5V3z"/></svg>Message</button>
+      <button class="qa-btn" onclick="ctLogNote()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 3.5v7M3.5 7h7"/></svg>Log activity</button>
+      <button class="qa-btn" onclick="showToast('Viewing slots sent to ${c.name.split(' ')[0]}')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="2.5" width="10" height="9.5" rx="1.5"/><path d="M2 5.5h10M5 2.5V1M9 2.5V1"/></svg>Book viewing</button>
+      <button class="qa-btn" onclick="ctNewOppFor()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="3" width="10" height="8" rx="1"/><path d="M7 5v4M5 7h4"/></svg>New opportunity</button>
+    </div>
+    <div class="opp-grid">
+      <div>
+        <div class="dcard"><h3>Activity</h3><div class="feed">${ctFeedHtml(c)}</div></div>
+        <div class="dcard"><h3>Notes</h3>
+          <div class="comm-compose" style="margin:0 0 12px"><textarea id="ct-note" rows="2" placeholder="Add a note about ${c.name.split(' ')[0]}…"></textarea>
+          <div class="cc-btns"><button class="btn-primary" style="padding:5px 12px;font-size:12px" onclick="ctAddNote()">Save</button></div></div>
+          <div id="ct-notes-list">${c.notesList.map(nt=>`<div class="fi sys"><span>${nt}</span></div>`).join('')||'<div class="col-empty">No notes yet</div>'}</div>
+        </div>
+      </div>
+      <div>
+        <div class="dcard"><div class="side-h">Details</div>
+          ${kv('Phone',c.phone)}${kv('Email',c.email)}${kv('Nationality',c.nat)}${kv('Languages',c.lang)}${kv('Assigned rep',c.rep)}${kv('Created',c.created)}
+        </div>
+        ${c.bmin||c.interest?`<div class="dcard"><div class="side-h">Preferences</div>
+          ${kv('Budget',c.bmin?`€${c.bmin}–${c.bmax}k`:null)}${kv('Looking for',c.interest)}${kv('Location',c.ploc)}${kv('Finance',c.finance)}${kv('Timeline',c.timeline)}
+        </div>`:''}
+        <div class="dcard"><div class="side-h">Deals</div>${ctDealsHtml(c,false)}</div>
+        <div class="dcard"><div class="side-h">Source & consent</div>
+          ${kv('Source',c.source)}${kv('Referred by',c.ref)}
+          <div class="side-kv" style="margin-bottom:0"><div class="k">Consent</div><div class="v">${ctConsentHtml(c)}</div></div>
+          ${c.status!=='dnc'?`<button class="btn-ghost" style="margin-top:12px" onclick="ctCur.status='dnc';ctCur.consent={wa:false,em:false,sms:false};renderContact();showToast('Marked do-not-contact')">Mark do-not-contact</button>`:''}
+        </div>
+        ${c.tags.length?`<div class="dcard"><div class="side-h">Tags</div><div class="card-tags" style="margin:0">${c.tags.map(t=>`<span class="tag-chip">${t}</span>`).join('')}</div></div>`:''}
+      </div>
+    </div>`;
+}
+function ctLogNote(){ctCur.notesList.unshift('Call with '+ctCur.name.split(' ')[0]+' — outcome noted.');renderContact();showToast('Activity logged');}
+function ctAddNote(){
+  const t=document.getElementById('ct-note'), v=t&&t.value.trim(); if(!v) return;
+  ctCur.notesList.unshift(v); renderContact(); showToast('Note saved');
+}
+function ctNewOppFor(){
+  openNewOpp();
+  setTimeout(()=>{const i=document.getElementById('nf-lead');if(i)i.value=ctCur.name;},120);
+}
+
+// ---------- New contact drawer ----------
+function openCtDrawer(){document.getElementById('ctDrawer').classList.add('open');document.getElementById('ctDrawerScrim').classList.add('on');}
+function closeCtDrawer(){document.getElementById('ctDrawer').classList.remove('open');document.getElementById('ctDrawerScrim').classList.remove('on');}
+function ctOpenNew(){
+  document.getElementById('ctDrawerTitle').textContent='New contact';
+  document.getElementById('ctDrawerBody').innerHTML=`
+    <div class="od-field"><label>Full name</label><input id="cf-name" placeholder="e.g. Ana Bugeja"></div>
+    <div class="od-field"><label>Type</label><select id="cf-type">${Object.keys(CT_TYPE).map(k=>`<option value="${k}">${CT_TYPE[k].l}</option>`).join('')}</select></div>
+    <div class="od-field"><label>Subtype / role</label><input id="cf-btype" placeholder="e.g. First-time buyer, Notary, Photographer"></div>
+    <div class="od-field"><label>Phone</label><input id="cf-phone" placeholder="+356 79xx xxxx"></div>
+    <div class="od-field"><label>Email</label><input id="cf-email" placeholder="name@email.com"></div>
+    <div class="od-field"><label>Source</label><select id="cf-source">${CT_OPTS.source.map(s=>`<option>${s}</option>`).join('')}</select></div>
+    <div class="od-field"><label>Assigned rep</label><select id="cf-rep">${CT_OPTS.rep.map(r=>`<option>${r}</option>`).join('')}</select></div>
+    <div class="od-field"><label>Budget max (€k) — buyers only</label><input id="cf-bmax" type="number" placeholder="350"></div>`;
+  document.getElementById('ctDrawerFoot').innerHTML=`
+    <button class="btn-ghost" onclick="closeCtDrawer()">Cancel</button>
+    <button class="btn-primary" onclick="ctSubmitNew()">Create contact</button>`;
+  openCtDrawer();
+  setTimeout(()=>document.getElementById('cf-name').focus(),100);
+}
+function ctSubmitNew(){
+  const name=document.getElementById('cf-name').value.trim();
+  if(!name){showToast('Name is required');return;}
+  const type=document.getElementById('cf-type').value;
+  const bmax=parseInt(document.getElementById('cf-bmax').value,10)||null;
+  CONTACTS.unshift({
+    id:'CT-'+(300+CONTACTS.length), name, type,
+    btype:document.getElementById('cf-btype').value.trim()||CT_TYPE[type].l,
+    company:null, status:type==='lead'?'lead':'active',
+    email:document.getElementById('cf-email').value.trim()||ctSlug(name)+'@email.com',
+    phone:document.getElementById('cf-phone').value.trim()||'+356 7900 0000',
+    nat:'Maltese', lang:'Maltese, English',
+    source:document.getElementById('cf-source').value, ref:null,
+    bmin:bmax?bmax-50:null, bmax, interest:null, ploc:null, finance:null, timeline:null,
+    rep:document.getElementById('cf-rep').value, tags:[], oppIds:[],
+    consent:{wa:true,em:true,sms:true}, created:'Today', last:'Today', lastD:0, notesList:[],
+  });
+  closeCtDrawer(); renderContacts();
+  showToast(`${name} added to contacts`);
+}
+
+// ---------- Nav hook + init ----------
+function ctOnNav(page){
+  closeCtPeek();
+  if(page==='contacts') renderContacts();
+  else renderCtBulk(); // hides bulk bar off-page without losing selection
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeCtPeek();closeCtDrawer();const bm=document.querySelector('.bb-menu');if(bm)bm.remove();}
+});
+renderContacts();
+
 // ---------- Theme ----------
 function toggleTheme(){const h=document.documentElement;h.dataset.theme=h.dataset.theme==='dark'?'light':'dark';}
 
 // ---------- init ----------
-chatLoad(); pipeRenderAll(); renderBids();renderLetter();
+chatLoad(); pipeRenderAll(); renderLetter();
 document.getElementById('content').addEventListener('scroll',chatUpdateHistBar,{passive:true});
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){closeAsk();closeEv();if(roomCtx)closeRoom();return;}
