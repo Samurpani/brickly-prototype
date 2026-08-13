@@ -2163,14 +2163,7 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
     <b style="font-size:13.5px">Personalise</b><span class="page-sub" id="pz-sub"></span>
     <button class="btn-ghost" style="margin-left:auto" onclick="pzClose()">Close</button>
   </div>
-  <div class="tk-body"><div class="pz-grid">
-    <div class="pz-left">
-      <img id="pz-img" alt="" onerror="this.style.display='none'">
-      <div id="pz-tint" style="position:absolute;inset:0"></div>
-      <div class="sum" id="pz-sum"></div>
-    </div>
-    <div class="pz-right" id="pz-right"></div>
-  </div></div>
+  <div class="tk-body" style="display:block;overflow-y:auto"><div id="pz-body"></div></div>
   <div class="pz-foot" id="pz-foot"></div>
 </div>
 <div class="tk" id="pr">
@@ -5629,7 +5622,9 @@ function pzTotal(){
 }
 function pzOpen(unitId){
   closeUnPeek();
-  pzState={unit:unitId,fin:'oak',lay:'open',adds:[],opp:'',lead:''};
+  pzState={unit:unitId,fin:'oak',lay:'open',adds:[],opp:'',lead:'',
+    pack:[],activePack:-1,
+    furn:{sofa:{top:38,left:24},bed:{top:38,left:76},table:{top:80,left:24}}};
   const u=UN(unitId);
   document.getElementById('pz-sub').textContent=`${u.id} \u00b7 ${unBedsLabel(u)} ${u.type} \u00b7 ${u.dev}`;
   document.getElementById('pz').classList.add('on');
@@ -5639,49 +5634,150 @@ function pzClose(){document.getElementById('pz').classList.remove('on');pzState=
 function pzSet(k,v){pzState[k]=v;pzRender();}
 function pzToggleAdd(k){const a=pzState.adds,i=a.indexOf(k);i>=0?a.splice(i,1):a.push(k);pzRender();}
 function pzRender(){
-  const s=pzState,u=UN(s.unit);
+  const s=pzState,u=UN(s.unit),d=DEV(u.dev);
   const fin=PZ_FIN.find(f=>f.k===s.fin),lay=PZ_LAY.find(l=>l.k===s.lay);
-  const img=document.getElementById('pz-img');
-  img.style.display='block'; img.src=UN_ASSET+'render-'+s.fin+'.jpg';
-  document.getElementById('pz-tint').style.background=fin.tint;
   const addsN=PZ_ADD.filter(a=>s.adds.includes(a.k));
-  document.getElementById('pz-sum').innerHTML=`
-    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
-      <div><div style="font-size:13px;font-weight:600">${u.id} \u00b7 ${fin.n}</div>
-      <div style="font-size:11.5px;color:#6D6D62;margin-top:2px">${lay.n}${addsN.length?' + '+addsN.map(a=>a.n).join(', '):''}</div></div>
-      <div style="text-align:right"><div style="font-size:17px;font-weight:600">${fmtEur(pzTotal())}</div>
-      <div style="font-size:11px;color:#6D6D62">base ${fmtEur(u.price)}</div></div>
-    </div>`;
+  const total=pzTotal();
+  const furnIcons={sofa:'\ud83d\udecb\ufe0f',bed:'\ud83d\udecf\ufe0f',table:'\ud83c\udf7d\ufe0f'};
   const cands=OPPS.filter(o=>o.stage!=='Closed Won'&&(unIsMgr()||o.rep===UN_REP));
   const opt=(o,sel)=>`<option value="${o.id}" ${sel?'selected':''}>${o.lead} \u2014 ${o.id} (${o.stage})</option>`;
-  document.getElementById('pz-right').innerHTML=`
-    <div class="pz-sec"><h4>Interior finish</h4><div class="pz-opts">${PZ_FIN.map(f=>`
-      <div class="pz-opt ${s.fin===f.k?'on':''}" onclick="pzSet('fin','${f.k}')">
-        <div class="pz-sw" style="background:${f.sw}"></div>
-        <div class="n">${f.n}</div><div class="d">${f.d}</div><div class="pr">${f.add?'+ '+fmtEur(f.add):'Included'}</div>
-      </div>`).join('')}</div></div>
-    <div class="pz-sec"><h4>Layout</h4><div class="pz-opts">${PZ_LAY.map(l=>`
-      <div class="pz-opt ${s.lay===l.k?'on':''}" onclick="pzSet('lay','${l.k}')">
-        <div class="n">${l.n}</div><div class="d">${l.d}</div><div class="pr">${l.add?'+ '+fmtEur(l.add):'Included'}</div>
-      </div>`).join('')}</div></div>
-    <div class="pz-sec"><h4>Add-ons</h4><div class="pz-opts">${PZ_ADD.map(a=>`
-      <div class="pz-opt ${s.adds.includes(a.k)?'on':''}" onclick="pzToggleAdd('${a.k}')">
-        <div class="n">${a.n}</div><div class="d">${a.d}</div><div class="pr">+ ${fmtEur(a.add)}</div>
-      </div>`).join('')}</div></div>
-    <div class="pz-sec"><h4>Attach to</h4>
-      <div class="od-field" style="margin-bottom:10px"><select onchange="pzSet('opp',this.value)">
-        <option value="" ${!s.opp?'selected':''} disabled>Choose a deal\u2026</option>
-        ${cands.map(o=>opt(o,s.opp===o.id)).join('')}
-        <option value="new" ${s.opp==='new'?'selected':''}>+ New opportunity</option>
-      </select></div>
-      ${s.opp==='new'?`<div class="od-field"><label>Client name</label><input value="${s.lead||''}" placeholder="e.g. Ana Bugeja" oninput="pzState.lead=this.value"></div>`:''}
-    </div>`;
+  document.getElementById('pz-body').innerHTML=`<div class="pr-screen" style="padding-top:22px">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
+      <div>
+        <div class="pr-eyebrow">${d.name.toUpperCase()} \u00b7 FLOOR ${u.floor===0?'G':u.floor} \u00b7 ${u.id}</div>
+        <div class="pr-title" style="margin-bottom:8px">${u.beds===0?'Studio':u.beds+'-bed'} ${u.type}</div>
+        <div class="pr-u-chips">
+          <span class="tag-chip">${unBedsLabel(u)}</span>
+          <span class="tag-chip">${u.baths} bath</span>
+          <span class="tag-chip">${u.sqm} m\u00b2 internal</span>
+          ${u.ext?`<span class="tag-chip">${u.ext} m\u00b2 external</span>`:''}
+          <span class="tag-chip">Ready ${u.ready}</span>
+          ${u.views.map(v=>`<span class="tag-chip">+ ${v}</span>`).join('')}
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Your configuration</div>
+        <div style="font-size:22px;font-weight:700;letter-spacing:-.4px">${fmtEur(total)}</div>
+      </div>
+    </div>
+    <div class="pr-u-grid">
+      <div class="pr-u-card">
+        <div class="hd"><span>Interactive floor plan</span><span class="live">\u25cf Updates live</span></div>
+        <div class="pr-plan-wrap" id="pz-plan-wrap">
+          ${prPlanSVG(u,s)}
+          ${Object.keys(s.furn).map(k=>`<div class="pr-furn" id="pz-furn-${k}" style="top:${s.furn[k].top}%;left:${s.furn[k].left}%" onpointerdown="pzFurnDown(event,'${k}')" title="Drag to reposition">${furnIcons[k]||'\u25a3'}</div>`).join('')}
+        </div>
+        <div class="pr-plan-hint"><span>Drag furniture \u00b7 plan reflects your layout choice</span><span>${lay.n}</span></div>
+      </div>
+      <div class="pr-u-card">
+        <div class="hd"><span>Render preview</span><span class="live">\u25cf Live</span></div>
+        <div class="pr-render-wrap" id="pz-render-wrap">
+          <img src="${UN_ASSET}render-${s.fin}.jpg" alt="" onerror="this.style.display='none'">
+          <div style="position:absolute;inset:0;background:${fin.tint}"></div>
+        </div>
+        <div class="pr-render-cap">
+          <div><div class="n">${fin.n} \u00b7 ${lay.n}</div><div class="d">${addsN.length?addsN.map(a=>a.n).join(', '):'Base specification'}</div></div>
+          <button class="btn-primary" onclick="pzGenerateRender()">\u2726 Generate custom render</button>
+        </div>
+        <div style="padding:0 16px 6px;font-size:10.5px;color:var(--muted)">In this unit's pack \u00b7 ${s.pack.length} item${s.pack.length===1?'':'s'}</div>
+        <div class="pr-pack-strip">${s.pack.length?s.pack.map((p,i)=>{
+          const pf=PZ_FIN.find(f=>f.k===p.fin),pl=PZ_LAY.find(l=>l.k===p.lay);
+          return `<div class="pr-pack-th ${s.activePack===i?'on':''}" onclick="pzApplyPack(${i})" title="${pf.n} \u00b7 ${pl.n}"><img src="${UN_ASSET}render-${p.fin}.jpg" alt="" onerror="this.style.display='none'"></div>`;
+        }).join(''):'<div style="font-size:11px;color:var(--muted);padding:6px 0">No custom renders yet \u2014 style the unit and generate one.</div>'}</div>
+      </div>
+    </div>
+    <div class="pr-opts-row">
+      <div class="pr-u-card"><div class="hd"><span>Finish palette</span></div>
+        <div style="padding:12px">${PZ_FIN.map(f=>`
+          <div class="pr-orow ${s.fin===f.k?'on':''}" onclick="pzSet('fin','${f.k}')">
+            <div class="sw" style="background:${f.sw}"></div>
+            <div class="tx"><div class="n">${f.n}</div><div class="d">${f.d}</div></div>
+            <div class="pr">${f.add?'+ '+fmtEur(f.add):'Included'}</div>
+          </div>`).join('')}</div>
+      </div>
+      <div class="pr-u-card"><div class="hd"><span>Layout options</span></div>
+        <div style="padding:12px">${PZ_LAY.map(l=>`
+          <div class="pr-orow ${s.lay===l.k?'on':''}" onclick="pzSet('lay','${l.k}')">
+            <div class="tx"><div class="n">${l.n}</div><div class="d">${l.d}</div></div>
+            <div class="pr">${l.add?'+ '+fmtEur(l.add):'Included'}</div>
+          </div>`).join('')}</div>
+      </div>
+      <div class="pr-u-card"><div class="hd"><span>Upgrade packs</span></div>
+        <div style="padding:12px">${PZ_ADD.map(a=>`
+          <div class="pr-orow ${s.adds.includes(a.k)?'on':''}" onclick="pzToggleAdd('${a.k}')">
+            <div class="tx"><div class="n">${a.n}</div><div class="d">${a.d}</div></div>
+            <div class="pr">+ ${fmtEur(a.add)}</div>
+          </div>`).join('')}</div>
+      </div>
+      <div class="pr-u-card"><div class="hd"><span>Configuration summary</span></div>
+        <div style="padding:14px 16px">
+          <div class="pr-sumrow"><span>Base price</span><span>${fmtEur(u.price)}</span></div>
+          <div class="pr-sumrow"><span>${fin.n}</span><span>${fin.add?'+ '+fmtEur(fin.add):'Included'}</span></div>
+          <div class="pr-sumrow"><span>${lay.n}</span><span>${lay.add?'+ '+fmtEur(lay.add):'Included'}</span></div>
+          ${addsN.map(a=>`<div class="pr-sumrow"><span>${a.n}</span><span>+ ${fmtEur(a.add)}</span></div>`).join('')}
+          <div class="pr-sumrow tot"><span>Indicative total</span><span>${fmtEur(total)}</span></div>
+          <div style="font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:14px 0 8px">Attach to</div>
+          <div class="od-field" style="margin-bottom:10px"><select onchange="pzSet('opp',this.value)">
+            <option value="" ${!s.opp?'selected':''} disabled>Choose a deal\u2026</option>
+            ${cands.map(o=>opt(o,s.opp===o.id)).join('')}
+            <option value="new" ${s.opp==='new'?'selected':''}>+ New opportunity</option>
+          </select></div>
+          ${s.opp==='new'?`<div class="od-field"><label>Client name</label><input value="${s.lead||''}" placeholder="e.g. Ana Bugeja" oninput="pzState.lead=this.value"></div>`:''}
+        </div>
+      </div>
+    </div>
+  </div>`;
   document.getElementById('pz-foot').innerHTML=`
-    <div style="font-size:13px"><span style="color:var(--muted)">Configured price</span> <b style="font-size:15px;margin-left:6px">${fmtEur(pzTotal())}</b></div>
+    <div style="font-size:13px"><span style="color:var(--muted)">Configured price</span> <b style="font-size:15px;margin-left:6px">${fmtEur(total)}</b></div>
     <div style="margin-left:auto;display:flex;gap:8px">
       <button class="btn-ghost" onclick="pzClose()">Cancel</button>
       <button class="btn-primary" onclick="pzSend()">Attach & send brochure</button>
     </div>`;
+}
+function pzGenerateRender(){
+  const wrap=document.getElementById('pz-render-wrap');
+  if(!wrap)return;
+  const s=pzState;
+  const snap={fin:s.fin,lay:s.lay,adds:[...s.adds]};
+  const shim=document.createElement('div');
+  shim.className='pr-shimmer';
+  shim.innerHTML='<span>\u2726 Generating your render\u2026</span>';
+  wrap.appendChild(shim);
+  setTimeout(()=>{
+    if(!pzState)return;
+    pzState.pack.push(snap); pzState.activePack=pzState.pack.length-1;
+    pzRender();
+    showToast('Custom render added to this unit\u2019s pack');
+  },1500);
+}
+function pzApplyPack(i){
+  const s=pzState,p=s.pack[i];
+  if(!p)return;
+  s.fin=p.fin; s.lay=p.lay; s.adds=[...p.adds]; s.activePack=i;
+  pzRender();
+}
+let pzDrag=null;
+function pzFurnDown(e,key){
+  e.preventDefault();
+  const wrap=document.getElementById('pz-plan-wrap');
+  if(!wrap)return;
+  pzDrag={key,rect:wrap.getBoundingClientRect()};
+  document.addEventListener('pointermove',pzFurnMove);
+  document.addEventListener('pointerup',pzFurnUp);
+}
+function pzFurnMove(e){
+  if(!pzDrag)return;
+  const r=pzDrag.rect;
+  let left=((e.clientX-r.left)/r.width)*100, top=((e.clientY-r.top)/r.height)*100;
+  left=Math.max(4,Math.min(96,left)); top=Math.max(4,Math.min(96,top));
+  pzState.furn[pzDrag.key]={top,left};
+  const el=document.getElementById('pz-furn-'+pzDrag.key);
+  if(el){el.style.top=top+'%';el.style.left=left+'%';}
+}
+function pzFurnUp(){
+  pzDrag=null;
+  document.removeEventListener('pointermove',pzFurnMove);
+  document.removeEventListener('pointerup',pzFurnUp);
 }
 function pzSend(){
   const s=pzState,u=UN(s.unit);
