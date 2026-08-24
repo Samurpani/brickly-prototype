@@ -160,7 +160,7 @@ footer{color:var(--muted);font-size:12.5px;line-height:20px;border-top:1px solid
 <header class="top">
   <div class="eyebrow">Bricly · jobs &amp; flows · dev handoff</div>
   <h1>Bricly Jobs &amp; Flows</h1>
-  <p class="sub">Every job a Bricly customer performs, laid out along the five stages a developer moves through to sell out a development — Load, Launch, Perform, Sell, Close. Click any job to open its flow and where AI removes the work. Milestone chips follow the agreed build-paths plan.</p>
+  <p class="sub">Every job a Bricly customer performs, laid out along the five stages a developer moves through to sell out a development — Load, Launch, Perform, Sell, Close. Click any job for its concrete build flow: which screens, entities, pipeline stages, gates and WhatsApp intents it runs on, and where AI removes the work. Milestone chips follow the agreed build-paths plan.</p>
   <div class="meta">
     <span><b>Sources</b> bricly-jobs.md · Bricly-MVP.md · sales-knowledge-file-updates.md · flow docs · build-paths-2026-08-20</span>
     <span><b>Jobs</b> <span id="metacount">—</span></span>
@@ -198,10 +198,10 @@ footer{color:var(--muted);font-size:12.5px;line-height:20px;border-top:1px solid
       <text class="m" x="20" y="112">BRICLY · GO TO MARKET</text>
       <rect class="box core" x="20" y="122" width="176" height="150" rx="10"/>
       <text class="t" x="34" y="146">1 · Load</text>
-      <text class="s" x="34" y="166">Excel + Drive →</text>
-      <text class="s" x="34" y="182">one system of record</text>
-      <text class="s" x="34" y="204">availability, units,</text>
-      <text class="s" x="34" y="220">plans, prices, files</text>
+      <text class="s" x="34" y="166">workspace · team ·</text>
+      <text class="s" x="34" y="182">Excel → Unit records ·</text>
+      <text class="s" x="34" y="204">plans linked to units ·</text>
+      <text class="s" x="34" y="220">WhatsApp + gates on</text>
       <text class="m" x="34" y="258">CRM</text>
 
       <rect class="box core" x="212" y="122" width="176" height="150" rx="10"/>
@@ -321,12 +321,12 @@ footer{color:var(--muted);font-size:12.5px;line-height:20px;border-top:1px solid
 <script>
 /* ---- data: 5 stages + cross-cutting. Content verbatim-sourced from bricly-jobs.md ---- */
 const STAGES={
-  load:{n:'1',t:'Load',d:'The developer arrives with an Excel availability list and a Drive of project files. Bricly ingests and organises everything into one system of record. "Load" is the CRM-only entry point for customers who already have their marketing.'},
-  launch:{n:'2',t:'Launch',d:'Media and asset activation: brand, website, organic content, copy, ads, branded floor plans and renders. Launch always includes the CRM — nobody buys the launch without it. In v1 the Studio Wizard captures briefs and the team fulfils behind it.'},
-  perform:{n:'3',t:'Perform',d:'Get the units in front of buyers: ad campaigns, lead generation, qualification and appointment booking. Kept product-led and capped at ~25% of revenue — a way to feed the CRM, not to become an agency.'},
-  sell:{n:'4',t:'Sell',d:'The sales meeting, in person or online. Present Mode turns the availability list into a showroom: live customisation, renders, a post-meeting microsite. Every action auto-updates the CRM from voice, transcript or an uploaded contract — a CRM that facilitates the sale, not one that reports on it.'},
-  close:{n:'5',t:'Close',d:'Hold → reservation → promise of sale → contract → payments → handover. The deal is locked, paperwork is prepared, appointments booked, milestones tracked.'},
-  cross:{n:'∞',t:'Cross-cutting',d:'Visibility, reporting and retention that run across every stage, plus the external-agent surface and the post-sale buyer layer. Mostly manager/developer facing and mostly roadmap.'}
+  load:{n:'1',t:'Load',d:'Everything that has to exist before the team can sell: workspace, roles and the 14-stage pipeline provisioned; the availability Excel imported and mapped row-by-row to Unit records; floor plans linked to individual units; WhatsApp connected with the six command intents; live deals migrated. v1 is concierge-run against real product surfaces. Activation gate: team in the CRM + project live + units loaded + pipeline carrying real deals.'},
+  launch:{n:'2',t:'Launch',d:'Brand, website, renders, brochure and lead capture produced through the Studio Wizard — three screens: brief intake → status tracking → delivery gallery. The concierge team fulfils behind it in v1; automated generation is v1.1. Launch output feeds the hosted lead form and Present Mode directly.'},
+  perform:{n:'3',t:'Perform',d:'Demand into the pipeline. v1 ships two capture tiers: the hosted lead form per project (Tier 1) and manual/walk-in entry via the new-contact + new-opportunity drawers (Tier 4). Leads land straight on the board as New Lead opportunities — there is no separate leads inbox. Phone-number dedupe, source recording, round-robin routing and bell + WhatsApp notification are all v1. Ad webhooks and LLM-parsed inbound are v1.2.'},
+  sell:{n:'4',t:'Sell',d:'Phase A of the pipeline: New Lead → Qualified → Viewing Booked → Viewing Held → Negotiating. Every stage has a CTA card, a checklist and key dates on Opportunity Detail. The rep works it from WhatsApp — six parsed intents, preview-then-commit — and sells from Present Mode: Lobby → Showroom → Unit studio → Compare → Save &amp; send.'},
+  close:{n:'5',t:'Close',d:'Phase B. The offer-accepted gate dims Phase A and unlocks the Deal Room: Hold (14-day expiry) → Reservation → KYC → POS Signed → Payments → Final Deed → Closed Won. Every unit transition is approval-gated, propagates to every surface, and a Sold unit is removed from every other deal\'s shortlist with reps notified.'},
+  cross:{n:'∞',t:'Cross-cutting',d:'The visibility layer and the agent surface. v1 ships three dashboard variants (Rep / Manager / Developer), Reports with five tabs (Revenue &amp; Sales · Pipeline · Inventory · Agents · Forecast) and per-record activity feeds. The external-agent surface and post-sale buyer layer are roadmap.'}
 };
 const MILE={
   v1:['v1','v1'],stretch:['v1 stretch','stretch'],wizard:['v1 · concierge','wizard'],
@@ -336,19 +336,60 @@ const ROLECLS={Developer:'dev',Rep:'rep',Manager:'mgr',Marketing:'mkt',Ops:'ops'
 
 const JOBS=[
 /* ===== LOAD ===== */
-{id:'M2',t:'Keep inventory and availability accurate at all times',role:'Manager',stage:'load',mile:'v1',ai:['ingest','nudge'],short:5,prio:'H,H,H',
+{id:'L1',t:'Provision the workspace, team, roles and pipeline',role:'Ops',stage:'load',mile:'wizard',ai:[],prio:'H,H,H',note:'Onboarding flow, step 2',
+ trig:'New customer signed; concierge onboarding (weeks 1–2) begins with a pre-flight data collection.',
+ out:'Workspace active, Project created as the container, every team member has an account with the right role, and the default 14-stage pipeline is in place.',
+ con:'Without the developer\'s team doing any setup work themselves — v1 onboarding is concierge-run end to end.',
+ mot:'The activation gate for every customer is: team in the CRM + project live + units loaded + pipeline carrying real deals. Nothing else in the product matters until this holds.',
+ flow:[['Workspace created (Trial → Active); Project created as the container','Entities: Workspace, Project. Project states: Draft → Active.'],['Team accounts created with roles','sales_rep / sales_manager / developer_admin — roles drive the Team/Settings permissions matrix and which dashboard variant each user gets.'],['Default Pipeline instantiated — 14 hardcoded stages','10 forward + 4 branch; internal_keys locked, display labels renameable, custom stages addable but core stages can\'t be deleted or reordered.'],['Approval gates + notification prefs configured on the 1–2h onboarding call','Held = manager approval, 14-day default expiry · Reserved = approval + form + deposit · price-below-floor = exception · reverse transitions = manager-only with reason.']],
+ io:['Signed customer','Team roster','→ Workspace / Project / Pipeline'],
+ build:['Screens: Team / Settings','Entities: Workspace · Project · User · Pipeline · PipelineStage']},
+{id:'L2',t:'Import the availability Excel and map every row to a Unit',role:'Manager',stage:'load',mile:'v1',ai:['ingest'],short:5,prio:'H,H,H',note:'The brain-dump moment',
+ trig:'Developer hands over the unit schedule in whatever shape it exists — Excel, PDF, a photo of a printout.',
+ out:'Every row becomes a Unit record with number, type, beds, floor, sqm, price and one of five states: Available / Held / Reserved / Sold / Off_Market. All counters and boards derive from these records live.',
+ con:'Without anyone retyping the schedule — the Friday decision is brain-dump onboarding: export as-is and the AI maps it. Manual entry is the thing we eliminate.',
+ mot:'The Excel is the developer\'s current system of record. The import is the moment Bricly replaces it — the biggest onboarding friction and the best demo.',
+ flow:[['Schedule uploaded in any format','<b>Ingest:</b> AI normalises to the canonical CSV shape; concierge assists in v1.'],['Columns mapped to Unit fields','unit_no · type · beds · floor · sqm · price · status; unmapped columns land as multi-valued tags on the Unit.'],['Validation pass before commit','Duplicate unit numbers, missing prices and unknown statuses are flagged for a human decision — nothing silently imported wrong.'],['Unit records created; every surface reads from them','Units table stats, Development availability bars, Visual Search dots, Present Mode and Reports KPIs are all live-derived from the same records.']],
+ io:['Excel / PDF / photo','→ Unit records','→ Units table / availability bars'],
+ build:['Screens: Units · Developments','Entities: Unit · Project · WorkspaceTag']},
+{id:'L3',t:'Upload floor plans and link each plan to its individual unit',role:'Ops',stage:'load',mile:'v1',ai:['ingest'],prio:'H,H,H',
+ trig:'The Drive dump arrives: per-level floor plans, brochures, CADs, site studies.',
+ out:'Every Unit carries its own floor-plan file; the plan renders on Unit Detail, in the Units peek drawer, and in Present Mode\'s unit studio.',
+ con:'Without manually attaching hundreds of files unit by unit.',
+ mot:'Buyers ask "show me the plan" in every meeting. A unit without its linked plan is a unit the rep can\'t sell from the system.',
+ flow:[['Files bulk-uploaded as Documents','media_type discriminator classifies floor_plan vs brochure vs CAD (~9 v1 types).'],['AI matches plans to units','<b>Ingest:</b> filename, level and unit-number patterns matched against the imported Unit records — the brain-dump mapping agreed in the Friday meeting.'],['Unmatched files land in a fix-up queue','A human confirms low-confidence matches; nothing gets silently mislinked.'],['Plan renders everywhere the unit appears','Unit Detail quick actions (Present / Share / Personalise) use it directly.']],
+ io:['Drive dump','→ Document records','→ Unit Detail / Present Mode'],
+ build:['Screens: Unit Detail · Units peek drawer','Entities: Document · Unit']},
+{id:'L4',t:'Connect WhatsApp and switch on the team\'s command channel',role:'Manager',stage:'load',mile:'v1',ai:['ingest','write'],prio:'H,H,H',
+ trig:'Onboarding call. Reps live in WhatsApp and will not open a CRM.',
+ out:'A Bricly-provisioned Twilio number is connected, every rep is registered, and the six v1 intents are live: log_activity · request_hold · create_task · update_unit_status · get_brief · send_brochure.',
+ con:'Without the parser ever bypassing an approval gate — guarded intents route through ApprovalRequest exactly like every other surface.',
+ mot:'Conversational input is the whole bet: the CRM stays current only if updating it is as easy as texting.',
+ flow:[['Twilio number provisioned, webhook verified','Settings → Integrations → WhatsApp sub-page: Connection / Agents / Activity / Commands / Behaviour tabs.'],['Reps registered; voice notes enabled','Voice is in v1 per the Friday meeting — transcribe first, then parse the same as text.'],['Six intents toggled on','Guarded intents (request_hold, update_unit_status) fire ApprovalRequests; autonomous ones (log_activity, create_task) commit after the preview tap.'],['Notification fan-out set','Hardcoded v1 list: rep = own deals · manager = all gates · owner = every Sold.']],
+ io:['Twilio number','→ 6 WhatsApp intents','→ Notification prefs'],
+ build:['Screens: Settings → Integrations','Entities: User · Notification · ApprovalRequest']},
+{id:'L5',t:'Migrate live leads and deals into the pipeline',role:'Ops',stage:'load',mile:'wizard',ai:['ingest'],prio:'M,H,H',
+ trig:'The developer already has deals in flight — in a spreadsheet, an old CRM, or a WhatsApp group.',
+ out:'Every live buyer exists as Contact + Opportunity at the correct pipeline stage, assigned to the right rep, with the right units attached.',
+ con:'Without losing a live deal in transit, without duplicating buyers who exist in two lists.',
+ mot:'The team switches tools the day the board reflects reality. A pipeline missing live deals gets abandoned by Friday.',
+ flow:[['Existing leads/opps exported as-is','Concierge collects whatever exists; no format demanded.'],['Contacts created with phone-number dedupe','Phone uniqueness is a hard block — a match attaches to the existing Contact instead of duplicating.'],['Opportunities placed at their true stage with units[] attached','Stage checklists back-filled where known (e.g. deposit already received).'],['Activation check: pipeline carries real deals','First-week concierge shadow monitors live usage and fixes data as it happens.']],
+ io:['Old CRM / spreadsheets','→ Contacts + Opportunities','→ Live board'],
+ build:['Screens: Pipeline board · Contacts','Entities: Contact · Opportunity']},
+{id:'M2',t:'Keep inventory and availability accurate at all times',role:'Manager',stage:'load',mile:'v1',ai:['write','nudge'],prio:'H,H,H',
  trig:'Continuously, especially before external pushes (agency shares, marketing campaigns, investor updates).',
  out:'One source of truth showing available, held, reserved, sold, with current prices and details.',
  con:'Without manually reconciling rep updates from chat threads.',
  mot:'Every external asset, every agent quote, every developer report depends on this. When it\'s wrong, deals get double-sold or lost.',
- flow:[['Availability list + Drive imported at onboarding','<b>Ingest:</b> AI maps the Excel and floor-plan files onto Unit records — the brain-dump onboarding moment.'],['Units carry status, price, features, plans','Server is the single source of truth; every surface reads from it.'],['Reps change status conversationally during the day','<b>Write:</b> A1 applies updates; manager sees a live, reconciled board.'],['Manager scans board before any external push','<b>Nudge:</b> flags stale or conflicting records before they leak into collateral.']],
- io:['Excel availability list','Floor-plan files','WhatsApp updates','→ Board / Dashboards']},
+ flow:[['Every status change goes through the unit state machine','Forward (Available → Held → Reserved → Sold) is approval-gated; reverse is manager-only with a reason; manual override is manager-only and logged.'],['One change propagates everywhere at once','Status pill updates across Units table, availability bars, Visual Search dots, peek/detail and Present Mode; counters and Reports KPIs re-derive live.'],['A unit going Sold collapses competing deals','Removed from every other opportunity\'s units[]; affected reps notified with an alternative suggestion.'],['Immutable audit row per change','<b>Nudge:</b> stale or conflicting records flagged before an external push; bulk edit (e.g. price across a floor) is a single logged action.']],
+ io:['Status changes','→ Every surface','→ Activity audit rows'],
+ build:['Screens: Units · Developments · Approvals','Entities: Unit · ApprovalRequest · Activity · Notification']},
 {id:'O5',t:'Run availability and inventory admin when no sales manager exists',role:'Ops',stage:'load',mile:'later',ai:['ingest'],prio:'M,M,L',
  trig:'Smaller developer with no sales manager, ops absorbs some manager work.',
  out:'Availability list accurate, holds and reservations logged correctly, basic inventory hygiene maintained.',
  con:'Without ops stepping into sales decisions they\'re not authorised to make.',
  mot:'Inventory still needs an owner even when there\'s no manager.',
- flow:[['Ops loads and maintains the unit list','<b>Ingest:</b> same import pipeline as M2, no manager required.'],['Holds and reservations logged as they happen','Permissions keep ops out of pricing/approval decisions.'],['Board stays clean for the developer to read']],
+ flow:[['Ops loads and maintains the unit list','<b>Ingest:</b> same import pipeline as L2, no manager required.'],['Holds and reservations logged as they happen','Role permissions keep ops out of pricing/approval decisions.'],['Board stays clean for the developer to read']],
  io:['Excel availability list','→ Board']},
 
 /* ===== LAUNCH ===== */
@@ -357,15 +398,9 @@ const JOBS=[
  out:'Project is market-ready (brand, website, renders, brochure, lead capture) in weeks not months.',
  con:'Without coordinating five separate agencies, without recurring change-order fees every time the project evolves.',
  mot:'Get to revenue sooner. Pre-construction sales reduce financing exposure.',
- flow:[['Developer submits a brief through the Studio Wizard','Style direction, references, brand stage, timeline captured in one intake.'],['CADs + project data ingested','<b>Ingest (v1.1):</b> constraint model extracted from drawings; concierge in v1.'],['Brand, renders, website, brochure produced','<b>Generate (v1.1):</b> Studio generates; in v1 the team fulfils behind the Wizard.'],['Assets delivered back into the Wizard, lead capture live']],
- io:['CAD drawings','Brand brief','→ Studio Wizard gallery','→ Hosted lead form']},
-{id:'D2',t:'Convert more buyers per render pack by customising the experience',role:'Developer',stage:'launch',mile:'wizard',ai:['generate'],prio:'H,H,M',
- trig:'A buyer is interested but doesn\'t connect with the standard renders, layout, or finish.',
- out:'Marketing collateral and renders that adapt to the specific buyer in front of the rep, in real time.',
- con:'Without re-commissioning the render studio, without architectural compromises that break the constraint model.',
- mot:'Higher conversion on warm leads. Off-plan is hard to sell; personalisation closes the gap.',
- flow:[['Base render pack produced at launch','Wizard intake in v1; concierge fulfils.'],['Buyer-specific variants requested from CRM context','<b>Generate:</b> A3 produces variants respecting the constraint model.'],['Variant delivered against the Opportunity/Unit']],
- io:['Constraint model','Buyer preferences','→ Present / microsite']},
+ flow:[['Brief submitted on the Studio Wizard intake screen','Style direction, references, brand stage, timeline — one structured form replaces five agency briefings.'],['Wizard status screen tracks fulfilment','Concierge produces brand, renders, website, brochure behind it in v1; automated generation (constraint model from CADs) is v1.1.'],['Assets land in the delivery gallery','Versioned, approvable, reusable across CRM and Present Mode.'],['Hosted lead form goes live for the project','The capture endpoint (D1) ships as part of launch — the site converts from day one.']],
+ io:['CAD drawings','Brand brief','→ Studio Wizard gallery','→ Hosted lead form'],
+ build:['Screens: Studio Wizard (intake / status / gallery)','Entities: Project · Document']},
 {id:'ML1',t:'Brief and coordinate the launch agencies for a new development',role:'Marketing',stage:'launch',mile:'later',ai:['generate'],prio:'M,M,M',
  trig:'New project approved for launch, 8 to 12 weeks until go-live.',
  out:'Render studio, brand agency, web team, ad agency briefed with consistent context, deliverables tracked, revisions managed, launch hits the date.',
@@ -422,22 +457,25 @@ const JOBS=[
  out:'Direct-to-developer marketing infrastructure that pulls qualified buyers in without an agency in the middle.',
  con:'Without building an in-house marketing department, without losing the agency channel entirely.',
  mot:'Higher margin per unit on direct sales.',
- flow:[['Hosted lead form per project goes live','<b>Ingest (v1):</b> single capture endpoint; funnels land here regardless of channel.'],['Ads and landing pages drive to the form','GTM event fires back to the pixel for targeting.'],['Every lead lands as Contact + Opportunity','Capture is atomic — contact, opportunity, activity, notification fire together.']],
- io:['Ads / landing pages','Lead form','→ Pipeline']},
+ flow:[['Hosted lead form per project goes live — capture Tier 1','<b>Ingest (v1):</b> Form A (register interest): first/last name, phone + country code, email, buyer_type (investment / home / undecided), property_type_interest, optional budget_band. Form B adds 1–3 selected units. UTM/campaign, session and IP geo captured server-side.'],['Consultation booking on the thank-you page','Buyer picks a rep-owned slot from capacity-aware availability → Contact + Opportunity created straight at Viewing Booked with the Appointment attached.'],['GTM event fires back to the pixel','Paid channels optimise on real captures, not page views — agreed in the Friday meeting.'],['Capture is atomic','Contact (deduped on phone) + Opportunity at New Lead + source recorded (Website / Walk-in / Referral / Agency / Portal) + Activity + bell/WhatsApp notification fire together.']],
+ io:['Ads / landing pages','Lead form A/B','→ Contact + Opportunity + Appointment'],
+ build:['Screens: hosted form · Pipeline board','Entities: Contact · Opportunity · Appointment · Activity · Notification']},
 {id:'R2',t:'Triage inbound leads from ads and website without wasting time on bad ones',role:'Rep',stage:'perform',mile:'v1',ai:['ingest','nudge'],short:6,prio:'H,H,M',
  trig:'New lead drops in from a paid channel.',
  out:'Lead is auto-qualified or sorted in priority order before the rep sees it.',
  con:'Without manually calling 30 unqualified leads to find one buyer.',
  mot:'Reps work warm pipeline first by default. Cold leads need pre-filtering or they get ignored, wasting marketing spend.',
- flow:[['Lead captured from a paid channel'],['Enriched and scored against project fit','<b>Nudge (v1) / A2 (Phase 2):</b> priority-sorted before the rep sees it.'],['Surfaced to the rep warm-first']],
- io:['Inbound lead','→ Prioritised queue']},
+ flow:[['Lead lands as a New Lead opp on the board','No separate leads inbox in v1 — the card carries the "Make first contact" CTA and turns red when first touch is overdue.'],['Form data does the first sort','buyer_type, budget_band and the units selected on Form B separate tyre-kickers from buyers before any call is made.'],['v1 ordering is rules + nudges; scoring is Phase 2 (A2)','<b>Nudge:</b> the Rep dashboard ranks today\'s priorities via the follow-up cadence workflow (P5); enrichment + scoring agent comes later.']],
+ io:['Inbound lead','→ Prioritised board / Rep dashboard'],
+ build:['Screens: Pipeline board · Rep dashboard','Entities: Opportunity · Contact']},
 {id:'M7',t:'Allocate inbound leads to the right rep',role:'Manager',stage:'perform',mile:'v1',ai:['nudge'],prio:'M,H,M',
  trig:'New inbound lead arrives, multiple reps could take it.',
  out:'Lead assigned by capacity, performance, language match, project knowledge, or rotation rules.',
  con:'Without favouritism that demotivates the team, without overloading top performers, without leads languishing.',
  mot:'Lead allocation is a performance tool and a closing tool. Bad allocation kills both.',
- flow:[['Lead arrives in the pipeline'],['Assignment rules applied','<b>Nudge:</b> routes by capacity/language/rotation; manager can override.'],['Rep notified, SLA clock starts']],
- io:['Assignment rules','→ Rep queue']},
+ flow:[['Round-robin across active reps on the project','v1 routing rule; capacity / language / performance rules come later.'],['Manager reassigns in one tap','From the board or Contacts bulk actions; audit trail kept. The lead-allocation workflow (P10) bundles queue + reassignment moves.'],['Rep pinged on bell + WhatsApp','SLA clock starts — an overdue first touch turns the card red on the board and on the Manager dashboard.']],
+ io:['New opportunity','→ Assigned rep','→ Bell + WhatsApp ping'],
+ build:['Screens: Pipeline board · Manager dashboard','Entities: Opportunity · User · Notification']},
 {id:'ML6',t:'Own paid acquisition performance even when execution is outsourced',role:'Marketing',stage:'perform',mile:'later',ai:['nudge'],prio:'M,H,M',
  trig:'Project at launch, mid-campaign push, units stalling and needing a boost, monthly performance review.',
  out:'Ads live across Meta, Google, other channels, lead capture working, leads flowing into CRM, performance visible, agency held accountable.',
@@ -466,43 +504,57 @@ const JOBS=[
  out:'Agent parses the message, updates the right CRM records (unit status, opportunity stage, contact note, calendar entry), confirms back to the rep, escalates approval requests to the manager.',
  con:'Must handle ambiguity (which unit, which buyer), must not act on changes that need approval, must confirm before executing destructive actions.',
  mot:'Reps don\'t use CRMs. The CRM stays current only if input is conversational and frictionless.',
- flow:[['Rep sends a WhatsApp message or voice note','<b>Ingest (v1):</b> command parser handles 3–5 intents; WhatsApp voice notes included in v1.'],['Agent identifies record and intended change','Resolves which unit / which buyer from context.'],['Preview card shown, rep taps to confirm','<b>Write (v1):</b> preview-then-commit; escalates approvals to the manager.'],['Records updated everywhere, rep confirmed']],
- io:['WhatsApp message','Voice note','→ Unit / Opportunity / Activity']},
+ flow:[['Rep sends a WhatsApp message or voice note','<b>Ingest (v1):</b> Twilio webhook → parser. Voice notes transcribed first — in v1 per the Friday meeting. Example: "Just showed Mike Gatt the maisonette at Dolphin Court, wants a hold on CM9802, follow up Thursday" resolves to three intents.'],['Intent + entities extracted','Six v1 intents: log_activity · request_hold · create_task · update_unit_status · get_brief · send_brochure. Contact names, unit IDs (#CM prefix optional) and development names matched against live records; ambiguity gets exactly one clarifying question.'],['Preview card in the thread; rep taps Confirm / Edit','<b>Write (v1):</b> preview-then-commit. Guarded intents create an ApprovalRequest instead of mutating directly — the parser never bypasses a gate.'],['Records update everywhere; confirmation echoes back','Activity logged. get_brief returns the read-only digest: holds expiring vs the 14-day clock, tasks due today, next appointment.']],
+ io:['WhatsApp text / voice','→ 6 intents','→ Unit / Opportunity / Activity / ApprovalRequest'],
+ build:['Screens: WhatsApp thread · Approvals','Entities: Activity · ApprovalRequest · Unit · Opportunity · Appointment']},
 {id:'R1',t:'Work warm leads through to viewing without losing them to follow-up failure',role:'Rep',stage:'sell',mile:'v1',ai:['nudge','write'],short:3,prio:'H,H,H',
  trig:'Lead in pipeline, last contacted 3 to 7 days ago, not yet at viewing stage.',
  out:'Rep is prompted who to follow up with, message context pre-loaded, fires off the follow-up from whatever messaging interface the rep already lives in.',
  con:'Without opening the CRM, without filling forms, without missing the buyer ready to commit.',
  mot:'Don\'t lose the deal to the agency that follows up faster.',
- flow:[['SLA timer detects a lead going quiet','<b>Nudge (v1):</b> configurable per-org threshold surfaces the follow-up.'],['Context pre-loaded into the rep\'s channel'],['Rep fires the message; or the agent drafts it','<b>Write (v1):</b> drafts a personalised follow-up for approval (full A4 nurture agent is Phase 2).']],
- io:['Pipeline SLA','→ WhatsApp follow-up']},
+ flow:[['Every Phase A stage carries a CTA + checklist','New Lead "Make first contact" → Qualified "Book viewing" (budget / timeline / finance confirmed) → Viewing Booked "Confirm viewing" → Viewing Held "Send follow-up pack" → Negotiating "Log offer round" with an Offer-expiry key date.'],['Nudge fires when a deal goes quiet','<b>Nudge (v1, configurable per org):</b> the Rep dashboard ranks today\'s follow-ups (P5 cadence workflow); overdue cards turn red on the board; the Opportunity hero always shows Next action / Key date / Blocker.'],['Context pre-loaded into the rep\'s channel','<b>Write (v1):</b> drafted follow-up referencing the viewed units, approved with a tap. The full autonomous nurture agent (A4) is Phase 2.']],
+ io:['Pipeline SLA','→ Rep dashboard queue','→ WhatsApp follow-up'],
+ build:['Screens: Pipeline board · Opportunity Detail hero · Rep dashboard','Entities: Opportunity · Activity · Notification']},
 {id:'R3',t:'Update unit status, holds, reservations, sales conversationally',role:'Rep',stage:'sell',mile:'v1',ai:['ingest','write'],short:2,prio:'H,H,H',
  trig:'Status changes during or after a buyer meeting.',
  out:'Rep states the change in natural language through their preferred chat interface (messaging app, email, voice, AI agent), system updates everywhere.',
  con:'Without logging into the CRM, without filling forms, without delay between the verbal commitment and system reflection.',
  mot:'Reps live in conversation, not in software. Admin friction kills compliance. Single source of truth requires zero-friction conversational input.',
- flow:[['Rep states the change in natural language','<b>Ingest (v1):</b> WhatsApp command parser captures the intent.'],['Hold/reservation requests routed for approval','Fires an ApprovalRequest to the manager (M1).'],['Preview shown, committed on tap','<b>Write (v1):</b> preview-then-commit — confirmed for v1 in the Friday meeting.']],
- io:['WhatsApp / voice','→ Unit status','→ ApprovalRequest']},
+ flow:[['Rep states the change in WhatsApp','<b>Ingest (v1):</b> "Put a hold on CM9802 for Mike Gatt" → request_hold; "Mark CM1104 as sold" → update_unit_status.'],['Guarded transitions fire an ApprovalRequest','Available → Held and Held → Reserved need manager approval (M1); the parser never bypasses a gate.'],['Preview card → tap → commit','<b>Write (v1):</b> confirmed for v1 in the Friday meeting. On approval the unit transitions and the full propagation runs — every surface, cross-opp removal, notifications (see M2).']],
+ io:['WhatsApp / voice','→ request_hold / update_unit_status','→ ApprovalRequest → Unit status'],
+ build:['Screens: WhatsApp thread · Approvals · Units','Entities: Unit · ApprovalRequest · Activity']},
 {id:'R4',t:'Customise floor plans and renders live during the buyer meeting',role:'Rep',stage:'sell',mile:'stretch',ai:['generate'],prio:'H,H,M',
  trig:'Mid-meeting, buyer asks for a variant (different finish, layout change, different view).',
  out:'Rep generates a customised render or floor plan variant in real time, respecting architectural constraints, hands the buyer something tangible.',
  con:'Without breaking the constraint model, without commissioning the render studio, without making the buyer wait.',
  mot:'Close in the room. A buyer who leaves empty-handed is a two-week chase.',
- flow:[['Buyer asks for a variant in the meeting'],['Rep requests it from CRM context','v1: concierge produces in ~24h; stretch flow validates the thesis.'],['Variant generated to the constraint model','<b>Generate (v1.1):</b> A3 produces in-meeting, real time.']],
- io:['Constraint model','Buyer request','→ Present render']},
+ flow:[['Buyer asks for a variant mid-meeting','Inside Present Mode\'s unit-studio step — finish, layout or view change.'],['Rep requests it via the Personalise quick action on the unit','v1: concierge fulfils in ~24h through the Studio Wizard; this stretch flow validates in-meeting generation.'],['Variant generated to the constraint model','<b>Generate (v1.1):</b> A3 produces it in-meeting, real time, respecting architectural limits.']],
+ io:['Constraint model','Buyer request','→ Present render'],
+ build:['Screens: Present Mode · Unit Detail · Studio Wizard','Entities: Unit · Document']},
+{id:'D2',t:'Convert more buyers per render pack by customising the experience',role:'Developer',stage:'sell',mile:'wizard',ai:['generate'],prio:'H,H,M',
+ trig:'A buyer is interested but doesn\'t connect with the standard renders, layout, or finish.',
+ out:'Marketing collateral and renders that adapt to the specific buyer in front of the rep, in real time.',
+ con:'Without re-commissioning the render studio, without architectural compromises that break the constraint model.',
+ mot:'Higher conversion on warm leads. Off-plan is hard to sell; personalisation closes the gap.',
+ flow:[['Buyer context captured on the Opportunity','preference_profile on the Contact + the Present session shortlist say what this buyer actually cares about.'],['Variant requested from Unit Detail → Personalise','v1: concierge fulfils via the Studio Wizard in ~24h; in-meeting generation is the stretch (R4) and automated in v1.1 (A3).'],['Variant delivered against the Opportunity and Unit','Appears in Present Mode\'s unit studio and in the follow-up pack (R5) — the render pack works per buyer, not per project.']],
+ io:['Constraint model','Buyer preferences','→ Present / microsite'],
+ build:['Screens: Unit Detail · Present Mode · Studio Wizard','Entities: Opportunity · Unit · Document']},
 {id:'R5',t:'Send a personalised follow-up pack after the meeting',role:'Rep',stage:'sell',mile:'later',ai:['generate','write'],short:7,prio:'H,H,M',note:'Merges proposed R10.',
  trig:'Meeting ends, buyer interested but not reserved.',
  out:'Personalised brochure or one-pager with the variants the buyer cared about, lands in the buyer\'s preferred channel within minutes.',
  con:'Without the rep designing it, without sending the same generic PDF every other rep sends.',
  mot:'Stay differentiated from competing agencies, give the buyer something to show their partner or accountant, control the narrative outside the room.',
- flow:[['Present session saved to the Opportunity','Shortlist + finishes captured automatically.'],['Personalised pack + microsite generated','<b>Generate:</b> branded pack with the buyer\'s variants.'],['Sent to the buyer\'s channel in minutes','<b>Write:</b> A4 queues/sends with rep approval.']],
- io:['Present session','→ Buyer microsite / pack']},
+ flow:[['Present session saved to the Opportunity','Save &amp; send is step 5 of Present Mode (Lobby → Showroom → Unit studio → Compare → Save &amp; send) — shortlist, finishes and compare choices captured automatically.'],['Personalised pack + microsite generated','<b>Generate:</b> branded pack built from the buyer\'s actual shortlist and variants — not the generic PDF every other rep sends.'],['Sent on the buyer\'s channel within minutes','<b>Write:</b> send_brochure logs the Activity; ongoing nurture is the A4 agent (Phase 2).']],
+ io:['Present session','→ Buyer microsite / pack'],
+ build:['Screens: Present Mode (Save &amp; send) · Opportunity Detail','Entities: Opportunity · Document · Activity']},
 {id:'R9',t:'Match a buyer to the right unit across all live developments',role:'Rep',stage:'sell',mile:'v1',ai:['match'],prio:'M,H,M',
  trig:'Buyer comes in with criteria (budget, timeline, location, lifestyle) but no specific unit.',
  out:'Rep surfaces matching units across every live development, pivots if first-choice project doesn\'t fit.',
  con:'Without memorising inventory across five projects, without losing the buyer when one project misfires.',
  mot:'Higher hit rate by working full inventory, not one project.',
- flow:[['Buyer states criteria'],['Cross-project search returns matches','<b>Match (v1 search):</b> works full inventory, not one project.'],['Rep pivots live if the first choice misfires']],
- io:['Buyer criteria','All live inventory','→ Shortlist']},
+ flow:[['Buyer states criteria','Budget, beds, type, view, timeline — or just points at the building.'],['Cross-project search on the Units screen','<b>Match (v1 = filters + search):</b> Development / Beds / Type / Price / View filters + ⌘K across every live project; Visual Search hotspot dots answer "which unit is that one?".'],['Shortlist trayed and carried into Present Mode','Tray checkboxes → the Compare step; rep pivots live to another development if the first choice misfires.']],
+ io:['Buyer criteria','All live inventory','→ Shortlist → Present Mode'],
+ build:['Screens: Units · Developments (Visual Search) · Present Mode','Entities: Unit']},
 {id:'A4',t:'Follow-up and nurture agent',role:'Agent',stage:'sell',mile:'later',ai:['nudge','write'],acts:'Sales rep',prio:'M,H,M',
  trig:'Lead has gone X days without contact, milestone in the buyer journey hits, anniversary of last meeting, project milestone the buyer cares about.',
  out:'Agent drafts a personalised follow-up referencing the buyer\'s stated interests and the unit they viewed, queues it for rep approval or sends if pre-authorised, logs the activity.',
@@ -524,8 +576,9 @@ const JOBS=[
  out:'Manager sees the request with full context, approves or rejects, rep and buyer notified, unit status updated.',
  con:'Without being a bottleneck that loses deals, without approving things that compromise inventory, without losing requests in chat groups.',
  mot:'Inventory integrity. Two reps can\'t hold the same unit for two buyers.',
- flow:[['Rep files a hold/reservation/exception','Arrives as a structured ApprovalRequest (not a chat message).'],['Manager sees full context','<b>Nudge:</b> surfaces competing demand and inventory impact.'],['Approve/reject in one tap','<b>Write:</b> unit status updated, rep and buyer notified.']],
- io:['ApprovalRequest','→ Unit status','→ Notifications']},
+ flow:[['Request arrives as a structured ApprovalRequest','Types: hold · reservation · price_exception; queue_position scoped per (unit, type), so competing requests keep first-come order. Never a chat message.'],['Manager sees full context in the queue','<b>Nudge:</b> the approval-triage workflow (P9) surfaces competing demand, the 14-day hold expiry and inventory impact. v1 surface: Approvals queue + inline blocker cards on the Manager dashboard.'],['Approve / reject in one tap','<b>Write:</b> the unit transitions, propagation runs everywhere, rep + buyer notified. Reverse transitions stay manager-only with a logged reason.']],
+ io:['ApprovalRequest','→ Unit status','→ Notifications'],
+ build:['Screens: Approvals · Manager dashboard','Entities: ApprovalRequest · Unit · Notification · Activity']},
 {id:'M9',t:'Manage the hold request waitlist queue across the team',role:'Manager',stage:'close',mile:'prop',ai:['write','nudge'],prio:'M,M,M',
  trig:'One or more hold requests filed on the same Unit, queue exists.',
  out:'Manager sees the queue per unit with requester, buyer, timestamp, position, terms. Approves top of queue. Can manually re-order in exceptional cases with audit log.',
@@ -545,8 +598,9 @@ const JOBS=[
  out:'Reservation captured, hold on the unit, notary appointment booked, deposit terms shared, parties notified.',
  con:'Without coordinating five separate threads (manager, ops, notary, buyer, marketing).',
  mot:'Lock the deal before the buyer cools or finds a competing project.',
- flow:[['Buyer commits verbally'],['Reservation + hold captured conversationally','<b>Write:</b> A1 sets status; ops and notary auto-notified.'],['Deposit terms shared, appointment booked']],
- io:['Verbal commit','→ Reservation','→ Notary appointment']},
+ flow:[['Offer accepted — the gate fires','Phase A dims, the Deal Room unlocks on Opportunity Detail; the deal is now Phase B.'],['Hold → Reservation','Hold expires in 14 days ("Chase hold approval" CTA + key date). Reservation opens only with manager approval + signed reservation form + deposit recorded.'],['KYC checklist runs','Passport/ID · proof of address · source of funds — checklist popovers on the journey bar show exactly what\'s missing.'],['POS signed at the notary','"Schedule notary" CTA; the Konvenju sets the Final-deed deadline; 1% duty and the payment plan recorded on the deal.']],
+ io:['Verbal commit','→ Hold / Reservation / KYC / POS','→ Key dates'],
+ build:['Screens: Opportunity Detail (Deal Room) · Approvals · Calendar','Entities: Opportunity · ApprovalRequest · Appointment · Document · PaymentMilestone']},
 {id:'R7',t:'Hand a deal off to ops cleanly once past the rep\'s stage',role:'Rep',stage:'close',mile:'later',ai:['write'],prio:'M,M,L',
  trig:'Promise of sale signed, deal moves to payment plan and contract phase.',
  out:'Ops picks up with full context, no information lost, rep moves on.',
@@ -559,29 +613,33 @@ const JOBS=[
  out:'Correct contract template populated with deal-specific details, reviewed, ready for signing, stored against the opportunity.',
  con:'Without retyping buyer or unit details, without using the wrong template version, without contracts living in someone\'s inbox.',
  mot:'A missing or wrong contract delays signing. Delays kill deals.',
- flow:[['Deal reaches POS / contract stage','v1: POS-signed and Final-Contract-signed flags tracked.'],['Template populated from the deal record','<b>Generate:</b> details filled without retyping.'],['Uploaded contract auto-files to the deal','<b>Ingest:</b> drop a file, it finds the deal and stage.']],
- io:['Deal record','Uploaded contract','→ Opportunity file']},
+ flow:[['Deal reaches POS / final-contract stage','The Deal Room checklist drives what\'s needed at each stage; POS-signed and Final-Contract-signed are tracked flags in v1.'],['Template populated from the deal record','<b>Generate:</b> buyer, unit, price and payment plan filled without retyping.'],['Uploaded contract auto-files to the deal','<b>Ingest:</b> the Document is classified by media_type and attached to the right opportunity + checklist slot.']],
+ io:['Deal record','Uploaded contract','→ Opportunity file'],
+ build:['Screens: Opportunity Detail (Deal Room)','Entities: Document · Opportunity']},
 {id:'O2',t:'Schedule and manage appointments tied to the deal lifecycle',role:'Ops',stage:'close',mile:'v1',ai:['write'],prio:'M,M,M',
  trig:'Buyer needs a notary appointment, contract signing, payment milestone meeting, handover walkthrough.',
  out:'Appointment booked with the right parties, confirmed, reminders sent, calendars synced.',
  con:'Without back-and-forth across messaging threads, without missed appointments, without admin delays.',
  mot:'Every appointment that slips is a deal that cools.',
- flow:[['A lifecycle appointment is needed','v1: appointment record + Bricly-native calendar view.'],['Booked with the right parties','<b>Write:</b> A1 can create it conversationally.'],['Confirmed, reminders sent, calendars synced','Calendar + email sync included in v1.']],
- io:['Deal stage','→ Appointment','→ Calendar']},
+ flow:[['A lifecycle appointment is needed','Appointment types: viewing · follow_up · document_signing · virtual_tour · contract_signing · other.'],['Booked with the right parties','<b>Write:</b> A1 creates it conversationally from WhatsApp; otherwise the "+ New event" drawer on Calendar, linked to the opportunity.'],['Confirmed, reminders sent, calendars synced','The Calendar view is live-derived from day plans + every opp\'s next action; external calendar + email sync is in v1 per the Friday meeting.']],
+ io:['Deal stage','→ Appointment','→ Calendar'],
+ build:['Screens: Calendar · Opportunity Detail','Entities: Appointment · Notification']},
 {id:'O3',t:'Keep deal files organised and complete',role:'Ops',stage:'close',mile:'v1',ai:['ingest'],prio:'M,H,M',
  trig:'Deal progresses through stages, each requires specific documents (KYC, ID, proof of funds, signed reservation, contracts, receipts).',
  out:'Every deal has a complete, current file with all required documents, audit-ready, retrievable on demand.',
  con:'Without files scattered across email, drives and chat, without asking the rep to re-find documents, without compliance gaps.',
  mot:'When the bank, lawyer, auditor or developer asks for a file, ops produces it instantly.',
- flow:[['Stage requires specific documents','v1: document checklist + uploads against the opportunity.'],['Uploaded files auto-classified to the deal','<b>Ingest:</b> a dropped file finds its task, deal and slot.'],['Checklist shows what\'s missing, audit-ready']],
- io:['KYC / ID / contracts','→ Deal file / checklist']},
+ flow:[['Each Phase B stage demands documents','KYC: passport/ID · proof of address · source of funds; then reservation form, POS, receipts — checklist popovers show the gaps per stage.'],['Uploads auto-classify to the deal','<b>Ingest:</b> a dropped file finds its opportunity, stage and checklist slot via the media_type discriminator (~9 v1 types).'],['File is audit-ready on demand','Immutable Activity rows record every state change alongside the documents.']],
+ io:['KYC / ID / contracts','→ Deal file / checklist'],
+ build:['Screens: Opportunity Detail (Deal Room) · Activity','Entities: Document · Activity']},
 {id:'O4',t:'Track payment milestones and chase what\'s overdue',role:'Ops',stage:'close',mile:'v1',ai:['nudge'],prio:'M,H,M',
  trig:'Payment plan milestone approaches or passes (deposit, instalments, mid-construction, final balance).',
  out:'Overdue or upcoming payments visible, buyer reminded, rep notified, manager alerted if escalation needed, payment confirmed when received.',
  con:'Without manual spreadsheet tracking, without the rep chasing, without missed milestones that delay handover.',
  mot:'Cash flow. Off-plan developments depend on milestone payments coming in on time.',
- flow:[['6-stage milestone structure on the deal','v1: manual updates; structure in place.'],['Upcoming/overdue surfaced','<b>Nudge (Phase 2 auto-chase):</b> reminds buyer, alerts manager.'],['Payment confirmed when received']],
- io:['Payment plan','→ Milestone tracker']},
+ flow:[['Milestones structured on every deal','PaymentMilestone types: promise_of_sale_deposit · construction (array) · final_deed_balance. Key dates: Next payment, Deed date.'],['Upcoming / overdue surfaced','<b>Nudge:</b> "Send payment reminder" CTA at the Payments stage; manual status updates in v1, auto-chase is Phase 2.'],['Payment confirmed → receipts filed','Reports → Revenue &amp; Sales aggregates milestone payments for the developer.']],
+ io:['Payment plan','→ Milestone tracker'],
+ build:['Screens: Opportunity Detail · Reports (Revenue &amp; Sales)','Entities: PaymentMilestone · Notification']},
 
 /* ===== CROSS-CUTTING ===== */
 {id:'D4',t:'Know whether the sales team is actually working the leads I\'m paying for',role:'Developer',stage:'cross',mile:'v1',ai:['nudge'],prio:'H,H,M',
@@ -589,15 +647,17 @@ const JOBS=[
  out:'Live visibility into agent activity, lead status, pipeline by source, individual rep performance and commissions earned.',
  con:'Without micromanaging, without relying on weekly reports that are stale on arrival.',
  mot:'Protect marketing spend, hold the team accountable, surface top performers, replace under-performers.',
- flow:[['Activity logged automatically as reps work','<b>Nudge:</b> dashboards derived from real activity, not self-reports.'],['Manager visibility through v1 dashboards'],['Developer reads live status any time']],
- io:['Rep activity','→ Dashboards']},
+ flow:[['Activity logs itself as reps work','Every WhatsApp intent, stage move and gate decision writes an immutable Activity row — no self-reporting anywhere in the loop.'],['Developer dashboard variant aggregates the portfolio','Cross-project sell-through, revenue, payment-milestone aggregate — one of the three v1 dashboard variants.'],['Reports go deeper on demand','Five tabs: Revenue &amp; Sales · Pipeline · Inventory · Agents · Forecast, all live-derived.']],
+ io:['Rep activity','→ Developer dashboard / Reports'],
+ build:['Screens: Developer dashboard · Reports · Activity','Entities: Activity · Opportunity · Unit']},
 {id:'D5',t:'Forecast sell-out and report to investors and the bank with confidence',role:'Developer',stage:'cross',mile:'stretch',ai:['generate'],prio:'M,H,M',
  trig:'Board meeting, bank covenant review, investor update due.',
  out:'Live, defensible numbers on units sold, reserved, projected sell-out date, revenue to date.',
  con:'Without spending three days assembling a deck, without data scattered across spreadsheets and agency Dropboxes.',
  mot:'Credibility with capital, ability to release equity, ability to start the next project.',
- flow:[['Current-state dashboards (v1)','v1: dashboards only, no forecasting.'],['Forecast + report generated on demand','<b>Generate (Phase 2, A6):</b> sell-out forecast in the recipient\'s format.'],['Numbers caveated with confidence levels']],
- io:['Pipeline data','→ Board report']},
+ flow:[['Current-state dashboards + Reports (v1)','Live KPI rows; the Forecast tab (linear regression over live pipeline) is the v1-stretch piece.'],['Forecast + report generated on demand','<b>Generate (Phase 2, A6):</b> sell-out forecast in the recipient\'s format.'],['Numbers caveated with confidence levels']],
+ io:['Pipeline data','→ Reports (Forecast) / board report'],
+ build:['Screens: Reports (Forecast) · Developer dashboard','Entities: Opportunity · Unit · PaymentMilestone']},
 {id:'D6',t:'Use data from past projects to predict and de-risk future ones',role:'Developer',stage:'cross',mile:'later',ai:['match'],prio:'M,M,L',
  trig:'Planning the next development, deciding unit mix, pricing tiers, target buyer, marketing budget.',
  out:'Pattern data from previous projects (buyer types, price points, render and channel performance) informs new project strategy before launch.',
@@ -610,8 +670,9 @@ const JOBS=[
  out:'Visibility into rep activity, conversion rates by rep, deals stuck in stage by rep.',
  con:'Without micromanaging, without relying on rep self-reports.',
  mot:'Reps don\'t self-report honestly. Manager owns knowing who\'s performing.',
- flow:[['Activity captured as reps work conversationally'],['Conversion and stuck-deal views per rep','<b>Nudge:</b> surfaces who\'s stalling without micromanaging.'],['Feeds allocation and 1:1s']],
- io:['Rep activity','→ Manager dashboard']},
+ flow:[['Activity captured as reps work conversationally','Same Activity rows as D4 — the WhatsApp channel is the collection mechanism.'],['Manager dashboard shows the team live','<b>Nudge:</b> the team-performance workflow (P3) rolls up conversion by rep, deals stuck in stage, leads waiting allocation, deals at risk.'],['Reports → Agents tab feeds 1:1s','Per-rep conversion and cycle times without micromanaging.']],
+ io:['Rep activity','→ Manager dashboard / Reports (Agents)'],
+ build:['Screens: Manager dashboard · Reports (Agents)','Entities: Activity · Opportunity']},
 {id:'M5',t:'Keep the team motivated and accountable through visible performance',role:'Manager',stage:'cross',mile:'later',ai:['generate'],prio:'L,M,L',
  trig:'Daily and weekly, especially when morale or numbers dip.',
  out:'Leaderboards, visible commissions, deal celebrations, top performers surfaced, laggards visible.',
@@ -758,6 +819,7 @@ function jobCard(j){
   const aiTags=(j.ai||[]).map(a=>'<span class="ai-tag">'+a+'</span>').join('');
   const flow=j.flow.map(f=>'<div class="fs"><div>'+esc(f[0])+(f[1]?'<span class="ai">'+f[1]+'</span>':'')+'</div></div>').join('');
   const io=(j.io||[]).map(p=>'<span class="pill">'+esc(p)+'</span>').join('');
+  const build=j.build?'<div><div class="eyebrow" style="margin-bottom:6px">What to build</div><div class="io">'+j.build.map(p=>'<span class="pill" style="background:var(--accent-tint);border-color:var(--accent-lo)">'+p+'</span>').join('')+'</div></div>':'';
   const acts=j.acts?'<dt>Acts on behalf of</dt><dd>'+esc(j.acts)+'</dd>':'';
   const note=j.note?' <span class="chip v12">'+esc(j.note)+'</span>':'';
   return '<details class="job" data-id="'+j.id+'" data-role="'+j.role+'" data-mile="'+j.mile+'" data-short="'+(j.short?1:0)+'" data-text="'+esc((j.id+' '+j.t+' '+j.role+' '+(j.acts||'')+' '+j.trig+' '+j.out).toLowerCase())+'">'+
@@ -770,7 +832,7 @@ function jobCard(j){
     '<dt>Constraint</dt><dd>'+esc(j.con)+'</dd>'+
     '<dt>Underlying motivation</dt><dd>'+esc(j.mot)+'</dd></dl>'+
     '<div><div class="eyebrow" style="margin-bottom:6px">Flow &amp; where AI removes the work</div><div class="flowsteps">'+flow+'</div></div>'+
-    '<div class="io">'+io+'</div>'+
+    '<div class="io">'+io+'</div>'+build+
     '<div>'+prioBadge(j.prio)+'</div></div></details>';
 }
 
@@ -785,7 +847,7 @@ Object.keys(STAGES).forEach(function(key){
 document.getElementById('metacount').textContent=JOBS.length+' across 7 roles';
 
 /* shortlist table */
-const shortMoves={A1:'Parse WhatsApp/voice → preview → commit',R3:'Conversational status/hold updates',R1:'SLA nudge + drafted follow-up',D1:'Single capture endpoint, atomic lead creation',M2:'Brain-dump Excel/plans → mapped units',R2:'Enrich + score, warm-first queue',R5:'Auto-generate personalised pack from session',M1:'Structured approvals, one-tap commit'};
+const shortMoves={A1:'Parse WhatsApp/voice → 6 intents → preview → commit',R3:'request_hold / update_unit_status through the gates',R1:'Stage CTAs + cadence nudges + drafted follow-up',D1:'Hosted form A/B → atomic Contact+Opp, deduped, routed',L2:'Brain-dump Excel → mapped, validated Unit records',R2:'Board-native triage: form data + P5 ranking',R5:'Present session → personalised pack in minutes',M1:'Structured ApprovalRequests, P9 triage, one-tap commit'};
 const shortRows=JOBS.filter(j=>j.short).sort((a,b)=>a.short-b.short).map(j=>
   '<tr><td class="rank">'+j.short+'</td><td class="k">'+roleChip(j.role)+' '+j.id+' — '+esc(j.t)+'</td><td>'+esc(j.mot.split('.')[0])+'.</td><td>'+esc(shortMoves[j.id]||'')+'</td><td>'+chip(j.mile)+'</td></tr>').join('');
 document.getElementById('shortBody').innerHTML=shortRows;
