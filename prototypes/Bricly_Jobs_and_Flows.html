@@ -1,0 +1,844 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bricly Jobs &amp; Flows</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#FCFBF9;--surface:#FFFFFF;--c1:#F7F5F0;--c2:#EFECE6;--c3:#E3DFD8;
+  --text:#2E2D2C;--muted:#6D6D62;--line:#E5E4E1;
+  --accent:#657A32;--accent-hi:#52671F;--accent-lo:#B6C78D;--accent-tint:rgba(101,122,50,.12);
+  --err:#C9474A;--err-tint:rgba(235,87,89,.12);--warn:#9A6B12;--warn-tint:rgba(183,121,31,.14);--info:#3B6E8F;--info-tint:rgba(59,110,143,.12);
+  --purple:#6E5AA6;--purple-tint:rgba(110,90,166,.12);
+  --r:10px;--r-lg:14px;
+  --font:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;color-scheme:light}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:22px;-webkit-font-smoothing:antialiased}
+a{color:var(--accent-hi);text-decoration:none}a:hover{text-decoration:underline}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+h1,h2,h3,h4{margin:0;text-wrap:balance;font-weight:500}
+h1{font-size:28px;line-height:40px;letter-spacing:-.75px}
+h2{font-size:20px;line-height:28px;font-weight:600;letter-spacing:-.3px;display:flex;align-items:center;gap:10px}
+h3{font-size:16px;line-height:24px;font-weight:600}
+h4{font-size:13px;line-height:20px;font-weight:600}
+p{margin:0}
+.eyebrow{font-family:var(--mono);font-size:11px;line-height:16px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.mono{font-family:var(--mono);font-size:12.5px}
+.muted{color:var(--muted)}
+.page{max-width:1200px;margin:0 auto;padding:32px 24px 80px;display:grid;grid-template-columns:210px minmax(0,1fr);gap:40px}
+@media (max-width:900px){.page{grid-template-columns:minmax(0,1fr);gap:20px;padding:20px 16px 56px}}
+nav.side{position:sticky;top:24px;align-self:start;display:flex;flex-direction:column;gap:2px}
+@media (max-width:900px){nav.side{position:static;flex-direction:row;flex-wrap:wrap;gap:6px}}
+nav.side a{display:block;padding:6px 10px;color:var(--muted);font-size:13px;line-height:20px;border-left:2px solid transparent;border-radius:0 8px 8px 0;transition:background .15s,color .15s}
+nav.side a:hover{background:var(--c1);color:var(--text);text-decoration:none}
+nav.side a.active{border-left-color:var(--accent);background:var(--accent-tint);color:var(--accent-hi)}
+nav.side .eyebrow{padding:0 10px 8px}
+@media (max-width:900px){nav.side a{border-left:0;border-bottom:2px solid transparent;border-radius:8px 8px 0 0}nav.side a.active{border-bottom-color:var(--accent)}}
+main{display:flex;flex-direction:column;gap:48px;min-width:0}
+header.top{display:flex;flex-direction:column;gap:10px;padding-bottom:22px;border-bottom:1px solid var(--line)}
+.meta{display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--muted);font-size:13px;line-height:20px}
+.meta b{color:var(--text);font-weight:500}
+section.module{display:flex;flex-direction:column;gap:16px;scroll-margin-top:24px}
+.module-head{position:relative;padding-left:44px;display:flex;flex-direction:column;gap:4px}
+.modnum{position:absolute;left:0;top:2px;width:32px;height:32px;border-radius:9px;background:var(--accent-tint);color:var(--accent-hi);font-family:var(--mono);font-size:13px;font-weight:500;display:inline-flex;align-items:center;justify-content:center}
+.sub{color:var(--muted);font-size:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px 18px}
+.chip{display:inline-flex;align-items:center;padding:0 8px;border-radius:999px;font-family:var(--mono);font-size:11px;line-height:18px;letter-spacing:.02em;white-space:nowrap;border:1px solid transparent}
+.chip.v1{background:var(--accent-tint);color:var(--accent-hi)}
+.chip.stretch{background:var(--info-tint);color:var(--info)}
+.chip.v11{background:var(--info-tint);color:var(--info)}
+.chip.v12{background:var(--c2);color:var(--muted);border-color:var(--c3)}
+.chip.later{background:var(--warn-tint);color:var(--warn)}
+.chip.prop{background:var(--surface);color:var(--accent-hi);border-color:var(--accent-lo)}
+.chip.wizard{background:var(--purple-tint);color:var(--purple)}
+.rc{display:inline-flex;align-items:center;padding:0 8px;border-radius:999px;font-family:var(--mono);font-size:10.5px;line-height:18px;letter-spacing:.02em;white-space:nowrap;border:1px solid transparent}
+.rc.dev{background:var(--accent-tint);color:var(--accent-hi)}
+.rc.rep{background:var(--info-tint);color:var(--info)}
+.rc.mgr{background:var(--warn-tint);color:var(--warn)}
+.rc.mkt{background:var(--purple-tint);color:var(--purple)}
+.rc.ops{background:var(--c2);color:var(--text);border-color:var(--c3)}
+.rc.agent{background:#2E2D2C;color:#F7F5F0}
+.rc.buyer{background:var(--err-tint);color:var(--err)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:12.5px;color:var(--muted)}
+.legend .grp{display:inline-flex;align-items:center;gap:6px}
+ul.clean{margin:0;padding-left:16px;display:flex;flex-direction:column;gap:3px;font-size:13.5px;line-height:20px}
+ul.clean li::marker{color:var(--accent)}
+
+/* controls */
+.controls{position:sticky;top:0;z-index:5;background:var(--bg);border:1px solid var(--line);border-radius:var(--r-lg);padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.controls .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.controls input[type=search]{flex:1;min-width:180px;font-family:var(--font);font-size:13.5px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text)}
+.controls input[type=search]:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.seg{display:inline-flex;gap:4px;flex-wrap:wrap}
+.tog{font-family:var(--mono);font-size:11px;letter-spacing:.02em;padding:4px 9px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer}
+.tog[aria-pressed=true]{background:var(--accent-tint);color:var(--accent-hi);border-color:var(--accent-lo)}
+.tog:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.ctl-label{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:2px}
+#count{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+
+/* job grid */
+.jobs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:760px){.jobs{grid-template-columns:minmax(0,1fr)}}
+.job{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;display:flex;flex-direction:column}
+.job.hide{display:none}
+.job-sum{display:flex;flex-direction:column;gap:8px;padding:14px 16px;cursor:pointer;list-style:none}
+.job-sum::-webkit-details-marker{display:none}
+.job-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.job-id{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--accent-hi);background:var(--accent-tint);border-radius:6px;padding:2px 7px}
+.job-title{font-size:14.5px;font-weight:500;line-height:20px}
+.job-tags{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.ai-tag{font-family:var(--mono);font-size:10px;letter-spacing:.03em;text-transform:uppercase;color:var(--accent-hi);border:1px dashed var(--accent-lo);border-radius:5px;padding:1px 6px}
+.job-chevron{margin-left:auto;color:var(--muted);transition:transform .18s}
+details[open] .job-chevron{transform:rotate(90deg)}
+.job-detail{padding:0 16px 16px;display:flex;flex-direction:column;gap:14px;border-top:1px solid var(--line);margin-top:2px;padding-top:14px}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px}
+.kv dt{font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+.kv dt:first-child{margin-top:0}.kv dd{margin:0;font-size:13.5px;line-height:20px}
+.flowsteps{display:flex;flex-direction:column;gap:0;counter-reset:fs}
+.flowsteps .fs{display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;align-items:start;font-size:13px;line-height:19px;padding:5px 0}
+.flowsteps .fs+.fs{border-top:1px dashed var(--line)}
+.flowsteps .fs::before{counter-increment:fs;content:counter(fs);font-family:var(--mono);font-size:10px;color:var(--accent-hi);background:var(--accent-tint);border-radius:5px;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;margin-top:1px}
+.fs .ai{display:block;color:var(--muted);font-size:11.5px;line-height:17px;margin-top:1px}
+.fs .ai b{color:var(--accent-hi);font-weight:500}
+.io{display:flex;flex-wrap:wrap;gap:6px}
+.io .pill{font-family:var(--mono);font-size:10.5px;color:var(--text);background:var(--c1);border:1px solid var(--line);border-radius:6px;padding:2px 8px}
+.io .pill b{color:var(--muted);font-weight:400}
+.prio{display:inline-flex;gap:8px;font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+.prio b{color:var(--text);font-weight:500}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;vertical-align:1px;margin-right:4px}
+.dot.H{background:var(--err)}.dot.M{background:var(--warn)}.dot.L{background:var(--c3)}
+.empty{padding:20px;text-align:center;color:var(--muted);font-size:13.5px;display:none}
+
+/* journey flow */
+.flow{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:10px}
+.flow svg{display:block;min-width:900px;width:100%;height:auto;font-family:var(--font)}
+.flow .box{fill:var(--c1);stroke:var(--line)}
+.flow .box.core{fill:var(--accent-tint);stroke:var(--accent-lo)}
+.flow .box.out{fill:var(--surface);stroke:var(--c3);stroke-dasharray:4 3}
+.flow text{fill:var(--text);font-size:12.5px}
+.flow text.t{font-weight:600;font-size:13px}
+.flow text.s{fill:var(--muted);font-size:11px}
+.flow text.m{font-family:var(--mono);fill:var(--muted);font-size:10.5px;letter-spacing:.04em}
+.flow .arrow{stroke:var(--muted);stroke-width:1.4;fill:none;marker-end:url(#ah)}
+
+/* shortlist */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:13.5px;line-height:20px}
+th,td{text-align:left;vertical-align:top;padding:9px 14px;border-bottom:1px solid var(--line)}
+th{background:var(--c1);font-weight:500;font-size:12.5px;color:var(--muted)}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:var(--c1)}
+td.k{font-weight:500;white-space:nowrap}
+.rank{font-family:var(--mono);color:var(--accent-hi)}
+.stance{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 12px;align-items:start;font-size:13.5px;line-height:20px;border-left:3px solid var(--accent);padding-left:12px}
+.sdot{width:9px;height:9px;border-radius:50%;margin-top:6px;background:var(--accent)}
+footer{color:var(--muted);font-size:12.5px;line-height:20px;border-top:1px solid var(--line);padding-top:16px}
+</style>
+</head>
+<body>
+<div class="page">
+<nav class="side" aria-label="Sections">
+  <div class="eyebrow">Bricly</div>
+  <a href="#journey">The journey</a>
+  <a href="#load">1 · Load</a>
+  <a href="#launch">2 · Launch</a>
+  <a href="#perform">3 · Perform</a>
+  <a href="#sell">4 · Sell</a>
+  <a href="#close">5 · Close</a>
+  <a href="#cross">Cross-cutting</a>
+  <a href="#shortlist">First-pass to automate</a>
+</nav>
+
+<main>
+<header class="top">
+  <div class="eyebrow">Bricly · jobs &amp; flows · dev handoff</div>
+  <h1>Bricly Jobs &amp; Flows</h1>
+  <p class="sub">Every job a Bricly customer performs, laid out along the five stages a developer moves through to sell out a development — Load, Launch, Perform, Sell, Close. Click any job to open its flow and where AI removes the work. Milestone chips follow the agreed build-paths plan.</p>
+  <div class="meta">
+    <span><b>Sources</b> bricly-jobs.md · Bricly-MVP.md · sales-knowledge-file-updates.md · flow docs · build-paths-2026-08-20</span>
+    <span><b>Jobs</b> <span id="metacount">—</span></span>
+    <span><b>Updated</b> 2026-08-24</span>
+  </div>
+</header>
+
+<div class="card" style="border-color:var(--accent-lo);background:var(--accent-tint)">
+  <div class="eyebrow" style="margin-bottom:8px">Closed in the dev-team meeting · Fri 21 Aug</div>
+  <ul class="clean">
+    <li><b>AI-native from day one</b> — read (chat, brief, nudges) and write-with-preview are both in v1; MCP is optional, direct DB access is enough so it never blocks the AI.</li>
+    <li><b>v1 data-in:</b> hosted lead-form endpoint (+ GTM events), email, calendar, and WhatsApp including voice notes. Ads and existing-CRM migration come in later via adapters.</li>
+    <li><b>Onboarding by brain-dump</b> — export the Excel + Drive as-is and AI maps units and floor plans. Manual entry is the thing we eliminate.</li>
+    <li><b>Nudges are in the 3-month scope</b>, configurable per organisation. <b>M1 ships end of August</b>; go-live date to follow.</li>
+  </ul>
+</div>
+
+<!-- MODULE 0 -->
+<section class="module" id="journey">
+  <div class="module-head">
+    <div class="eyebrow">The mental model</div>
+    <h2>Where Bricly sits in the developer's journey</h2>
+    <p class="sub">Land, permits, pricing and drawings happen before us (future verticals, greyed). Bricly starts at go-to-market and runs five stages. The CRM is the system of record; Studio generates the media; Present is the agent-facing way to sell with it.</p>
+  </div>
+  <div class="flow" aria-label="Developer journey: pre-Bricly then Load, Launch, Perform, Sell, Close">
+    <svg viewBox="0 0 1000 300" role="img">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5 0 10z" fill="var(--muted)"/></marker></defs>
+      <text class="m" x="20" y="20">BEFORE BRICLY · FUTURE VERTICALS</text>
+      <rect class="box out" x="20" y="30" width="150" height="40" rx="8"/><text class="s" x="30" y="47">Acquire land</text><text class="s" x="30" y="62">appraisal</text>
+      <rect class="box out" x="180" y="30" width="150" height="40" rx="8"/><text class="s" x="190" y="47">Permits ·</text><text class="s" x="190" y="62">financing</text>
+      <rect class="box out" x="340" y="30" width="150" height="40" rx="8"/><text class="s" x="350" y="47">Price units ·</text><text class="s" x="350" y="62">business plan</text>
+      <rect class="box out" x="500" y="30" width="150" height="40" rx="8"/><text class="s" x="510" y="47">Architectural</text><text class="s" x="510" y="62">drawings</text>
+      <path class="arrow" d="M170 50 H180 M330 50 H340 M490 50 H500"/>
+
+      <text class="m" x="20" y="112">BRICLY · GO TO MARKET</text>
+      <rect class="box core" x="20" y="122" width="176" height="150" rx="10"/>
+      <text class="t" x="34" y="146">1 · Load</text>
+      <text class="s" x="34" y="166">Excel + Drive →</text>
+      <text class="s" x="34" y="182">one system of record</text>
+      <text class="s" x="34" y="204">availability, units,</text>
+      <text class="s" x="34" y="220">plans, prices, files</text>
+      <text class="m" x="34" y="258">CRM</text>
+
+      <rect class="box core" x="212" y="122" width="176" height="150" rx="10"/>
+      <text class="t" x="226" y="146">2 · Launch</text>
+      <text class="s" x="226" y="166">brand · website ·</text>
+      <text class="s" x="226" y="182">renders · content ·</text>
+      <text class="s" x="226" y="204">copy · ads · floor plans</text>
+      <text class="s" x="226" y="220">market-ready assets</text>
+      <text class="m" x="226" y="258">STUDIO + CRM</text>
+
+      <rect class="box core" x="404" y="122" width="176" height="150" rx="10"/>
+      <text class="t" x="418" y="146">3 · Perform</text>
+      <text class="s" x="418" y="166">ad campaigns ·</text>
+      <text class="s" x="418" y="182">lead gen · qualify ·</text>
+      <text class="s" x="418" y="204">book appointments</text>
+      <text class="s" x="418" y="220">≤25% of revenue</text>
+      <text class="m" x="418" y="258">PERFORMANCE</text>
+
+      <rect class="box core" x="596" y="122" width="176" height="150" rx="10"/>
+      <text class="t" x="610" y="146">4 · Sell</text>
+      <text class="s" x="610" y="166">live customisation ·</text>
+      <text class="s" x="610" y="182">showroom · renders ·</text>
+      <text class="s" x="610" y="204">post-meeting microsite</text>
+      <text class="s" x="610" y="220">auto-updates CRM</text>
+      <text class="m" x="610" y="258">PRESENT · STUDIO</text>
+
+      <rect class="box core" x="788" y="122" width="176" height="150" rx="10"/>
+      <text class="t" x="802" y="146">5 · Close</text>
+      <text class="s" x="802" y="166">hold · reservation ·</text>
+      <text class="s" x="802" y="182">promise of sale ·</text>
+      <text class="s" x="802" y="204">contract · payments ·</text>
+      <text class="s" x="802" y="220">handover</text>
+      <text class="m" x="802" y="258">CRM + OPS</text>
+
+      <path class="arrow" d="M196 197 H212 M388 197 H404 M580 197 H596 M772 197 H788"/>
+    </svg>
+  </div>
+  <div class="legend">
+    <span class="grp"><span class="rc dev">Developer</span></span>
+    <span class="grp"><span class="rc rep">Sales rep</span></span>
+    <span class="grp"><span class="rc mgr">Manager</span></span>
+    <span class="grp"><span class="rc mkt">Marketing</span></span>
+    <span class="grp"><span class="rc ops">Ops</span></span>
+    <span class="grp"><span class="rc agent">AI agent</span></span>
+    <span class="grp"><span class="rc buyer">Buyer</span></span>
+  </div>
+</section>
+
+<!-- CONTROLS -->
+<div class="controls" id="controls">
+  <div class="row">
+    <input type="search" id="search" placeholder="Search jobs, e.g. hold, follow-up, render, inventory…" aria-label="Search jobs">
+    <span id="count"></span>
+  </div>
+  <div class="row">
+    <span class="ctl-label">Role</span>
+    <div class="seg" id="roleSeg">
+      <button class="tog" data-role="Developer" aria-pressed="false">Developer</button>
+      <button class="tog" data-role="Rep" aria-pressed="false">Rep</button>
+      <button class="tog" data-role="Manager" aria-pressed="false">Manager</button>
+      <button class="tog" data-role="Marketing" aria-pressed="false">Marketing</button>
+      <button class="tog" data-role="Ops" aria-pressed="false">Ops</button>
+      <button class="tog" data-role="Agent" aria-pressed="false">Agent</button>
+      <button class="tog" data-role="Buyer" aria-pressed="false">Buyer</button>
+    </div>
+  </div>
+  <div class="row">
+    <span class="ctl-label">Milestone</span>
+    <div class="seg" id="mileSeg">
+      <button class="tog" data-mile="v1" aria-pressed="false">v1</button>
+      <button class="tog" data-mile="stretch" aria-pressed="false">v1 stretch</button>
+      <button class="tog" data-mile="wizard" aria-pressed="false">v1 concierge</button>
+      <button class="tog" data-mile="v11" aria-pressed="false">v1.1</button>
+      <button class="tog" data-mile="later" aria-pressed="false">Phase 2 / later</button>
+      <button class="tog" data-mile="prop" aria-pressed="false">proposed</button>
+    </div>
+    <span class="ctl-label" style="margin-left:8px">Shortlist</span>
+    <div class="seg"><button class="tog" id="shortTog" aria-pressed="false">First-pass only</button></div>
+  </div>
+</div>
+
+<section class="module" id="load" data-stage="load"></section>
+<section class="module" id="launch" data-stage="launch"></section>
+<section class="module" id="perform" data-stage="perform"></section>
+<section class="module" id="sell" data-stage="sell"></section>
+<section class="module" id="close" data-stage="close"></section>
+<section class="module" id="cross" data-stage="cross"></section>
+<p class="empty" id="empty">No jobs match these filters.</p>
+
+<!-- SHORTLIST -->
+<section class="module" id="shortlist">
+  <div class="module-head">
+    <span class="modnum">★</span><div class="eyebrow">Decide first</div>
+    <h2>First pass to automate</h2>
+    <p class="sub">The highest-pain, highest-value jobs that are feasible inside the v1 window — where AI removes the most admin per unit of build. Scores are a draft for the team to challenge.</p>
+  </div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>#</th><th>Job</th><th>Why it's first</th><th>AI move</th><th>Milestone</th></tr></thead>
+      <tbody id="shortBody"></tbody>
+    </table>
+  </div>
+  <div class="card">
+    <div class="stance">
+      <span class="sdot"></span><p><b>Onboarding ingestion is the wedge.</b> The "brain-dump your Excel + Drive and we organise it" moment is both the biggest onboarding friction and the best demo. It should be treated as a first-class v1 automation, not a CSV import.</p>
+      <span class="sdot"></span><p><b>Closed in the Friday meeting — AI writes are in v1.</b> Build-paths placed AI write-with-preview in v1.1; the meeting moved it into v1 with preview-then-commit. MCP is optional — direct database access is enough, so it never blocks the AI features.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Milestones: <b>v1</b> shipped M1–M3 (incl. AI read + write-with-preview, nudges, and email/calendar/WhatsApp-voice data-in, per the Fri 21 Aug meeting) · <b>v1 stretch</b> team picks 1–2 at end of M2 · <b>v1 concierge</b> Studio Wizard front-end, humans fulfil · <b>v1.1</b> automated Studio generation · <b>Phase 2 / later</b> roadmap · <b>proposed</b> from sales-knowledge updates, not yet locked. Priority is a draft (Pain / Value / Urgency) for the team to review before sequencing.</p>
+</footer>
+</main>
+</div>
+
+<script>
+/* ---- data: 5 stages + cross-cutting. Content verbatim-sourced from bricly-jobs.md ---- */
+const STAGES={
+  load:{n:'1',t:'Load',d:'The developer arrives with an Excel availability list and a Drive of project files. Bricly ingests and organises everything into one system of record. "Load" is the CRM-only entry point for customers who already have their marketing.'},
+  launch:{n:'2',t:'Launch',d:'Media and asset activation: brand, website, organic content, copy, ads, branded floor plans and renders. Launch always includes the CRM — nobody buys the launch without it. In v1 the Studio Wizard captures briefs and the team fulfils behind it.'},
+  perform:{n:'3',t:'Perform',d:'Get the units in front of buyers: ad campaigns, lead generation, qualification and appointment booking. Kept product-led and capped at ~25% of revenue — a way to feed the CRM, not to become an agency.'},
+  sell:{n:'4',t:'Sell',d:'The sales meeting, in person or online. Present Mode turns the availability list into a showroom: live customisation, renders, a post-meeting microsite. Every action auto-updates the CRM from voice, transcript or an uploaded contract — a CRM that facilitates the sale, not one that reports on it.'},
+  close:{n:'5',t:'Close',d:'Hold → reservation → promise of sale → contract → payments → handover. The deal is locked, paperwork is prepared, appointments booked, milestones tracked.'},
+  cross:{n:'∞',t:'Cross-cutting',d:'Visibility, reporting and retention that run across every stage, plus the external-agent surface and the post-sale buyer layer. Mostly manager/developer facing and mostly roadmap.'}
+};
+const MILE={
+  v1:['v1','v1'],stretch:['v1 stretch','stretch'],wizard:['v1 · concierge','wizard'],
+  v11:['v1.1','v11'],v12:['v1.2','v12'],later:['Phase 2 / later','later'],prop:['proposed','prop']
+};
+const ROLECLS={Developer:'dev',Rep:'rep',Manager:'mgr',Marketing:'mkt',Ops:'ops',Agent:'agent',Buyer:'buyer'};
+
+const JOBS=[
+/* ===== LOAD ===== */
+{id:'M2',t:'Keep inventory and availability accurate at all times',role:'Manager',stage:'load',mile:'v1',ai:['ingest','nudge'],short:5,prio:'H,H,H',
+ trig:'Continuously, especially before external pushes (agency shares, marketing campaigns, investor updates).',
+ out:'One source of truth showing available, held, reserved, sold, with current prices and details.',
+ con:'Without manually reconciling rep updates from chat threads.',
+ mot:'Every external asset, every agent quote, every developer report depends on this. When it\'s wrong, deals get double-sold or lost.',
+ flow:[['Availability list + Drive imported at onboarding','<b>Ingest:</b> AI maps the Excel and floor-plan files onto Unit records — the brain-dump onboarding moment.'],['Units carry status, price, features, plans','Server is the single source of truth; every surface reads from it.'],['Reps change status conversationally during the day','<b>Write:</b> A1 applies updates; manager sees a live, reconciled board.'],['Manager scans board before any external push','<b>Nudge:</b> flags stale or conflicting records before they leak into collateral.']],
+ io:['Excel availability list','Floor-plan files','WhatsApp updates','→ Board / Dashboards']},
+{id:'O5',t:'Run availability and inventory admin when no sales manager exists',role:'Ops',stage:'load',mile:'later',ai:['ingest'],prio:'M,M,L',
+ trig:'Smaller developer with no sales manager, ops absorbs some manager work.',
+ out:'Availability list accurate, holds and reservations logged correctly, basic inventory hygiene maintained.',
+ con:'Without ops stepping into sales decisions they\'re not authorised to make.',
+ mot:'Inventory still needs an owner even when there\'s no manager.',
+ flow:[['Ops loads and maintains the unit list','<b>Ingest:</b> same import pipeline as M2, no manager required.'],['Holds and reservations logged as they happen','Permissions keep ops out of pricing/approval decisions.'],['Board stays clean for the developer to read']],
+ io:['Excel availability list','→ Board']},
+
+/* ===== LAUNCH ===== */
+{id:'D3',t:'Launch a new project to market fast',role:'Developer',stage:'launch',mile:'wizard',ai:['generate','ingest'],prio:'H,H,H',
+ trig:'Permits come through, architectural drawings nearing completion.',
+ out:'Project is market-ready (brand, website, renders, brochure, lead capture) in weeks not months.',
+ con:'Without coordinating five separate agencies, without recurring change-order fees every time the project evolves.',
+ mot:'Get to revenue sooner. Pre-construction sales reduce financing exposure.',
+ flow:[['Developer submits a brief through the Studio Wizard','Style direction, references, brand stage, timeline captured in one intake.'],['CADs + project data ingested','<b>Ingest (v1.1):</b> constraint model extracted from drawings; concierge in v1.'],['Brand, renders, website, brochure produced','<b>Generate (v1.1):</b> Studio generates; in v1 the team fulfils behind the Wizard.'],['Assets delivered back into the Wizard, lead capture live']],
+ io:['CAD drawings','Brand brief','→ Studio Wizard gallery','→ Hosted lead form']},
+{id:'D2',t:'Convert more buyers per render pack by customising the experience',role:'Developer',stage:'launch',mile:'wizard',ai:['generate'],prio:'H,H,M',
+ trig:'A buyer is interested but doesn\'t connect with the standard renders, layout, or finish.',
+ out:'Marketing collateral and renders that adapt to the specific buyer in front of the rep, in real time.',
+ con:'Without re-commissioning the render studio, without architectural compromises that break the constraint model.',
+ mot:'Higher conversion on warm leads. Off-plan is hard to sell; personalisation closes the gap.',
+ flow:[['Base render pack produced at launch','Wizard intake in v1; concierge fulfils.'],['Buyer-specific variants requested from CRM context','<b>Generate:</b> A3 produces variants respecting the constraint model.'],['Variant delivered against the Opportunity/Unit']],
+ io:['Constraint model','Buyer preferences','→ Present / microsite']},
+{id:'ML1',t:'Brief and coordinate the launch agencies for a new development',role:'Marketing',stage:'launch',mile:'later',ai:['generate'],prio:'M,M,M',
+ trig:'New project approved for launch, 8 to 12 weeks until go-live.',
+ out:'Render studio, brand agency, web team, ad agency briefed with consistent context, deliverables tracked, revisions managed, launch hits the date.',
+ con:'Without rebriefing the same context to each agency, without missed handoffs, without deliverables that don\'t match each other.',
+ mot:'Hit the launch date. Late launch means late sales means delayed cash flow.',
+ flow:[['Single project brief created once','Shared context replaces five separate briefings.'],['Deliverables tracked to the launch date'],['Studio increasingly replaces external agencies','<b>Generate:</b> Studio pipeline collapses the agency coordination.']],
+ io:['Project brief','→ Launch tracker']},
+{id:'ML2',t:'Generate the always-on content the project needs week to week',role:'Marketing',stage:'launch',mile:'later',ai:['generate'],prio:'M,M,M',
+ trig:'Weekly social posting, milestone announcements, price changes, new unit releases, construction updates.',
+ out:'On-brand social posts, stories, email updates, web copy generated and published without going back to the agency.',
+ con:'Without designing it themselves badly, without multi-day agency turnaround, without going off-brand.',
+ mot:'Maintain channel presence between launches. Audiences go cold without consistent content.',
+ flow:[['Trigger event (milestone, price change, release)'],['On-brand asset generated','<b>Generate:</b> A3 drafts to brand; ML5 approves.'],['Published across channels']],
+ io:['Brand kit','Project events','→ Social / email / web']},
+{id:'ML3',t:'Update marketing collateral when project details change',role:'Marketing',stage:'launch',mile:'later',ai:['generate','nudge'],prio:'M,H,M',
+ trig:'Price change, unit sells, payment terms shift, finishes change, completion date moves.',
+ out:'Brochure, website, availability list, ads, social reflect the new reality without each being manually updated.',
+ con:'Without paying the agency for change orders, without old versions circulating, without buyers seeing inconsistent information.',
+ mot:'Inconsistent information kills credibility. Developer hates paying for revisions.',
+ flow:[['A detail changes on a Unit or Project'],['Sync fans the change across every asset','<b>Generate/sync:</b> A5 propagates and versions collateral.'],['Stale versions retired, audit trail kept']],
+ io:['Unit/price change','→ Brochure / web / ads']},
+{id:'ML4',t:'Equip the sales team with the right collateral for each buyer profile',role:'Marketing',stage:'launch',mile:'later',ai:['generate'],prio:'M,M,L',
+ trig:'Sales manager or rep needs a brochure, one-pager, deck, or social asset for a specific buyer or buyer type.',
+ out:'On-demand collateral tailored to buyer profile (investor, owner-occupier, expat, first-time buyer), in the right format and language.',
+ con:'Without designing one-offs per request, without sending generic PDFs.',
+ mot:'Sales conversion depends on the right collateral. Marketing is judged on whether sales hits the number.',
+ flow:[['Rep requests collateral for a buyer type'],['Profile-tailored asset generated','<b>Generate:</b> A3 renders to the persona and language.'],['Delivered to the rep in-context']],
+ io:['Buyer profile','→ Rep collateral library']},
+{id:'ML5',t:'Approve and gate-keep what goes out under the project brand',role:'Marketing',stage:'launch',mile:'later',ai:['nudge'],prio:'M,M,M',
+ trig:'Agency delivers a render, brochure, creative, web page, or ad.',
+ out:'Reviewed against brand, project facts, architectural accuracy, regulatory requirements, signed off or sent back.',
+ con:'Without being a bottleneck, without approving off-brand or factually wrong work, without escalating every decision to the developer.',
+ mot:'Reputation depends on what goes out. Mistakes get blamed on the marketing lead.',
+ flow:[['Asset enters the approval queue'],['Automatic brand/fact checks run','<b>Nudge:</b> flags off-brand colour, wrong price, missing disclaimer before human review.'],['Human approves or returns with notes']],
+ io:['Generated asset','→ Approved / rejected']},
+{id:'ML7',t:'Maintain the project\'s digital presence (website, listings, search)',role:'Marketing',stage:'launch',mile:'later',ai:['generate'],prio:'M,M,L',
+ trig:'Continuously, with spikes around launch and milestones.',
+ out:'Project website current, portal listings updated, search basics covered, contact and booking flow working.',
+ con:'Without rebuilding the website per project, without paying the web agency for every copy edit.',
+ mot:'The website is the conversion endpoint for direct demand. Broken or outdated kills the marketing spend.',
+ flow:[['Site hosted inside the system (not a separate agency build)'],['Content edits self-served','<b>Generate:</b> copy and listing updates without a web agency ticket.'],['Booking flow feeds the lead form endpoint']],
+ io:['Project data','→ Website / portals']},
+{id:'ML8',t:'Maintain brand consistency between project and parent developer brand',role:'Marketing',stage:'launch',mile:'later',ai:['nudge'],prio:'M,M,L',
+ trig:'New project being branded, agency delivers brand work, social or web going live, collateral being approved.',
+ out:'Each project sits cleanly under the parent developer brand; visual language, tone, quality align across all live projects.',
+ con:'Without making every project look identical, without manually checking every asset, without different agencies producing inconsistent outputs.',
+ mot:'The parent brand compounds. A buyer who liked Project A should recognise Project B. Brand equity drives repeat buyers and investor confidence.',
+ flow:[['Parent brand kit anchors every project'],['Assets checked against it','<b>Nudge:</b> consistency check across live projects.'],['Deviations flagged for ML5']],
+ io:['Parent brand kit','→ Consistent project brands']},
+
+/* ===== PERFORM ===== */
+{id:'D1',t:'Capture more buyer demand directly instead of through agencies',role:'Developer',stage:'perform',mile:'v1',ai:['ingest'],short:4,prio:'H,H,H',
+ trig:'Reviewing margin per unit, seeing 3 to 5% paid out on every agency-sourced sale.',
+ out:'Direct-to-developer marketing infrastructure that pulls qualified buyers in without an agency in the middle.',
+ con:'Without building an in-house marketing department, without losing the agency channel entirely.',
+ mot:'Higher margin per unit on direct sales.',
+ flow:[['Hosted lead form per project goes live','<b>Ingest (v1):</b> single capture endpoint; funnels land here regardless of channel.'],['Ads and landing pages drive to the form','GTM event fires back to the pixel for targeting.'],['Every lead lands as Contact + Opportunity','Capture is atomic — contact, opportunity, activity, notification fire together.']],
+ io:['Ads / landing pages','Lead form','→ Pipeline']},
+{id:'R2',t:'Triage inbound leads from ads and website without wasting time on bad ones',role:'Rep',stage:'perform',mile:'v1',ai:['ingest','nudge'],short:6,prio:'H,H,M',
+ trig:'New lead drops in from a paid channel.',
+ out:'Lead is auto-qualified or sorted in priority order before the rep sees it.',
+ con:'Without manually calling 30 unqualified leads to find one buyer.',
+ mot:'Reps work warm pipeline first by default. Cold leads need pre-filtering or they get ignored, wasting marketing spend.',
+ flow:[['Lead captured from a paid channel'],['Enriched and scored against project fit','<b>Nudge (v1) / A2 (Phase 2):</b> priority-sorted before the rep sees it.'],['Surfaced to the rep warm-first']],
+ io:['Inbound lead','→ Prioritised queue']},
+{id:'M7',t:'Allocate inbound leads to the right rep',role:'Manager',stage:'perform',mile:'v1',ai:['nudge'],prio:'M,H,M',
+ trig:'New inbound lead arrives, multiple reps could take it.',
+ out:'Lead assigned by capacity, performance, language match, project knowledge, or rotation rules.',
+ con:'Without favouritism that demotivates the team, without overloading top performers, without leads languishing.',
+ mot:'Lead allocation is a performance tool and a closing tool. Bad allocation kills both.',
+ flow:[['Lead arrives in the pipeline'],['Assignment rules applied','<b>Nudge:</b> routes by capacity/language/rotation; manager can override.'],['Rep notified, SLA clock starts']],
+ io:['Assignment rules','→ Rep queue']},
+{id:'ML6',t:'Own paid acquisition performance even when execution is outsourced',role:'Marketing',stage:'perform',mile:'later',ai:['nudge'],prio:'M,H,M',
+ trig:'Project at launch, mid-campaign push, units stalling and needing a boost, monthly performance review.',
+ out:'Ads live across Meta, Google, other channels, lead capture working, leads flowing into CRM, performance visible, agency held accountable.',
+ con:'Without the marketing lead being the media buyer, without losing visibility into agency performance.',
+ mot:'Direct demand is the developer\'s number-one job. The marketing lead owns delivery against it.',
+ flow:[['Campaigns run (agency or in-house)'],['Leads + spend tracked to source','<b>Nudge:</b> flags cost-ratio drift and stalling channels.'],['Performance visible for accountability']],
+ io:['Channel data','→ Performance dashboard']},
+{id:'A2',t:'Lead qualification and triage agent',role:'Agent',stage:'perform',mile:'later',ai:['nudge','write'],acts:'Sales manager and rep',prio:'M,H,M',
+ trig:'New inbound lead arrives from any channel.',
+ out:'Agent enriches the lead, scores it against project fit and buyer profile, assigns to the right rep based on rules, drafts an initial outreach message in the rep\'s voice.',
+ con:'Must not auto-send without rep approval, must defer to manager rules for allocation, must flag low-confidence enrichment.',
+ mot:'Cold leads get ignored by reps. Agent triage protects marketing spend.',
+ flow:[['Lead lands from any channel'],['Enriched, scored, assigned','<b>Write (preview):</b> drafts outreach in the rep\'s voice for approval.'],['Rep approves and sends']],
+ io:['Inbound lead','→ Draft outreach']},
+{id:'A11',t:'Inbound lead conversational qualification and appointment setting',role:'Agent',stage:'perform',mile:'later',ai:['write','match'],acts:'Sales rep, sales manager',prio:'M,H,M',
+ trig:'New inbound lead arrives from any channel.',
+ out:'Agent opens a conversation with the lead, asks qualifying questions, surfaces matching units, offers viewing slots based on rep availability, books the appointment, hands the qualified lead to the rep with the conversation history attached.',
+ con:'Must defer to manager rules for allocation, must not misrepresent units or prices, must escalate to a human if confidence drops, must respect the buyer\'s right to be handed to a human at any point.',
+ mot:'An agent that runs the cold-to-warm conversion stage without rep effort makes paid acquisition viable. Rep walks into a meeting with a pre-qualified, briefed buyer.',
+ flow:[['Agent messages the lead on their channel'],['Qualifies and surfaces matching units','<b>Match:</b> recommends units from stated criteria.'],['Books a viewing on rep availability','<b>Write:</b> creates the appointment.'],['Hands over to the rep with full history']],
+ io:['Inbound lead','Rep calendar','→ Booked viewing']},
+
+/* ===== SELL ===== */
+{id:'A1',t:'Conversational rep input agent',role:'Agent',stage:'sell',mile:'v1',ai:['ingest','write'],acts:'Sales rep',short:1,prio:'H,H,H',
+ trig:'Rep messages or speaks an update through their preferred chat or voice interface (status change, hold request, follow-up note, lead captured at a meeting).',
+ out:'Agent parses the message, updates the right CRM records (unit status, opportunity stage, contact note, calendar entry), confirms back to the rep, escalates approval requests to the manager.',
+ con:'Must handle ambiguity (which unit, which buyer), must not act on changes that need approval, must confirm before executing destructive actions.',
+ mot:'Reps don\'t use CRMs. The CRM stays current only if input is conversational and frictionless.',
+ flow:[['Rep sends a WhatsApp message or voice note','<b>Ingest (v1):</b> command parser handles 3–5 intents; WhatsApp voice notes included in v1.'],['Agent identifies record and intended change','Resolves which unit / which buyer from context.'],['Preview card shown, rep taps to confirm','<b>Write (v1):</b> preview-then-commit; escalates approvals to the manager.'],['Records updated everywhere, rep confirmed']],
+ io:['WhatsApp message','Voice note','→ Unit / Opportunity / Activity']},
+{id:'R1',t:'Work warm leads through to viewing without losing them to follow-up failure',role:'Rep',stage:'sell',mile:'v1',ai:['nudge','write'],short:3,prio:'H,H,H',
+ trig:'Lead in pipeline, last contacted 3 to 7 days ago, not yet at viewing stage.',
+ out:'Rep is prompted who to follow up with, message context pre-loaded, fires off the follow-up from whatever messaging interface the rep already lives in.',
+ con:'Without opening the CRM, without filling forms, without missing the buyer ready to commit.',
+ mot:'Don\'t lose the deal to the agency that follows up faster.',
+ flow:[['SLA timer detects a lead going quiet','<b>Nudge (v1):</b> configurable per-org threshold surfaces the follow-up.'],['Context pre-loaded into the rep\'s channel'],['Rep fires the message; or the agent drafts it','<b>Write (v1):</b> drafts a personalised follow-up for approval (full A4 nurture agent is Phase 2).']],
+ io:['Pipeline SLA','→ WhatsApp follow-up']},
+{id:'R3',t:'Update unit status, holds, reservations, sales conversationally',role:'Rep',stage:'sell',mile:'v1',ai:['ingest','write'],short:2,prio:'H,H,H',
+ trig:'Status changes during or after a buyer meeting.',
+ out:'Rep states the change in natural language through their preferred chat interface (messaging app, email, voice, AI agent), system updates everywhere.',
+ con:'Without logging into the CRM, without filling forms, without delay between the verbal commitment and system reflection.',
+ mot:'Reps live in conversation, not in software. Admin friction kills compliance. Single source of truth requires zero-friction conversational input.',
+ flow:[['Rep states the change in natural language','<b>Ingest (v1):</b> WhatsApp command parser captures the intent.'],['Hold/reservation requests routed for approval','Fires an ApprovalRequest to the manager (M1).'],['Preview shown, committed on tap','<b>Write (v1):</b> preview-then-commit — confirmed for v1 in the Friday meeting.']],
+ io:['WhatsApp / voice','→ Unit status','→ ApprovalRequest']},
+{id:'R4',t:'Customise floor plans and renders live during the buyer meeting',role:'Rep',stage:'sell',mile:'stretch',ai:['generate'],prio:'H,H,M',
+ trig:'Mid-meeting, buyer asks for a variant (different finish, layout change, different view).',
+ out:'Rep generates a customised render or floor plan variant in real time, respecting architectural constraints, hands the buyer something tangible.',
+ con:'Without breaking the constraint model, without commissioning the render studio, without making the buyer wait.',
+ mot:'Close in the room. A buyer who leaves empty-handed is a two-week chase.',
+ flow:[['Buyer asks for a variant in the meeting'],['Rep requests it from CRM context','v1: concierge produces in ~24h; stretch flow validates the thesis.'],['Variant generated to the constraint model','<b>Generate (v1.1):</b> A3 produces in-meeting, real time.']],
+ io:['Constraint model','Buyer request','→ Present render']},
+{id:'R5',t:'Send a personalised follow-up pack after the meeting',role:'Rep',stage:'sell',mile:'later',ai:['generate','write'],short:7,prio:'H,H,M',note:'Merges proposed R10.',
+ trig:'Meeting ends, buyer interested but not reserved.',
+ out:'Personalised brochure or one-pager with the variants the buyer cared about, lands in the buyer\'s preferred channel within minutes.',
+ con:'Without the rep designing it, without sending the same generic PDF every other rep sends.',
+ mot:'Stay differentiated from competing agencies, give the buyer something to show their partner or accountant, control the narrative outside the room.',
+ flow:[['Present session saved to the Opportunity','Shortlist + finishes captured automatically.'],['Personalised pack + microsite generated','<b>Generate:</b> branded pack with the buyer\'s variants.'],['Sent to the buyer\'s channel in minutes','<b>Write:</b> A4 queues/sends with rep approval.']],
+ io:['Present session','→ Buyer microsite / pack']},
+{id:'R9',t:'Match a buyer to the right unit across all live developments',role:'Rep',stage:'sell',mile:'v1',ai:['match'],prio:'M,H,M',
+ trig:'Buyer comes in with criteria (budget, timeline, location, lifestyle) but no specific unit.',
+ out:'Rep surfaces matching units across every live development, pivots if first-choice project doesn\'t fit.',
+ con:'Without memorising inventory across five projects, without losing the buyer when one project misfires.',
+ mot:'Higher hit rate by working full inventory, not one project.',
+ flow:[['Buyer states criteria'],['Cross-project search returns matches','<b>Match (v1 search):</b> works full inventory, not one project.'],['Rep pivots live if the first choice misfires']],
+ io:['Buyer criteria','All live inventory','→ Shortlist']},
+{id:'A4',t:'Follow-up and nurture agent',role:'Agent',stage:'sell',mile:'later',ai:['nudge','write'],acts:'Sales rep',prio:'M,H,M',
+ trig:'Lead has gone X days without contact, milestone in the buyer journey hits, anniversary of last meeting, project milestone the buyer cares about.',
+ out:'Agent drafts a personalised follow-up referencing the buyer\'s stated interests and the unit they viewed, queues it for rep approval or sends if pre-authorised, logs the activity.',
+ con:'Must not feel templated, must pause if buyer has reserved or gone cold by request.',
+ mot:'Follow-up failure is where deals die. Reps will not do this manually at volume.',
+ flow:[['Trigger fires (silence, milestone, anniversary)','<b>Nudge:</b> detects the moment.'],['Personalised draft written','<b>Write:</b> references the viewed unit and interests.'],['Rep approves or pre-authorises send']],
+ io:['Buyer history','→ Follow-up message']},
+{id:'A12',t:'On-demand consultant and decision-support agent',role:'Agent',stage:'sell',mile:'wizard',ai:['generate','match'],acts:'Developer, marketing lead, manager, C-level',prio:'M,H,L',
+ trig:'After project intake and constraint extraction, the agent opens a launch consultation before generation runs — or any user summons it for a decision (pricing, channel mix, budget, performance, cross-project patterns).',
+ out:'Loads the relevant context, runs a focused adaptive Q&A within a soft cap to validate thinking, surface gaps, share comparable data and references, and recommend direction. Captures locked decisions and produces downstream outputs.',
+ con:'Must stay within the soft cap, surface (not invent) references with sources, respect data permissions, persist reasoning as a ConsultationSession, produce structured outputs, escalate when confidence is low.',
+ mot:'The most visible expression of AI-as-OS: the difference between "AI generated four logos, none felt right" and "AI understood the project and gave me the right four."',
+ flow:[['Consultation opens (launch or on-demand)','v1: project-launch/brand consultation via the Wizard.'],['Agent loads context and runs adaptive Q&A','<b>Match:</b> surfaces comparable data and references with sources.'],['Locked decisions captured, briefs produced','<b>Generate:</b> structured outputs feed downstream generation.']],
+ io:['Project intake','Prior-project patterns','→ Brief / decisions']},
+
+/* ===== CLOSE ===== */
+{id:'M1',t:'Approve unit holds, reservations, and exceptions',role:'Manager',stage:'close',mile:'v1',ai:['write','nudge'],short:8,prio:'H,H,H',
+ trig:'Rep requests a hold or reservation outside standard terms.',
+ out:'Manager sees the request with full context, approves or rejects, rep and buyer notified, unit status updated.',
+ con:'Without being a bottleneck that loses deals, without approving things that compromise inventory, without losing requests in chat groups.',
+ mot:'Inventory integrity. Two reps can\'t hold the same unit for two buyers.',
+ flow:[['Rep files a hold/reservation/exception','Arrives as a structured ApprovalRequest (not a chat message).'],['Manager sees full context','<b>Nudge:</b> surfaces competing demand and inventory impact.'],['Approve/reject in one tap','<b>Write:</b> unit status updated, rep and buyer notified.']],
+ io:['ApprovalRequest','→ Unit status','→ Notifications']},
+{id:'M9',t:'Manage the hold request waitlist queue across the team',role:'Manager',stage:'close',mile:'prop',ai:['write','nudge'],prio:'M,M,M',
+ trig:'One or more hold requests filed on the same Unit, queue exists.',
+ out:'Manager sees the queue per unit with requester, buyer, timestamp, position, terms. Approves top of queue. Can manually re-order in exceptional cases with audit log.',
+ con:'Without losing fairness to whoever filed first, without losing visibility on competing demand.',
+ mot:'Competing demand is a signal — multiple holds mean the unit is priced or marketed well. Visibility informs pricing and forecasting.',
+ flow:[['Multiple holds land on one unit'],['Queue computed by timestamp','<b>Write:</b> place_unit_hold_with_queue sets position.'],['Manager approves top or re-orders with reason','<b>Nudge:</b> competing demand flagged as a pricing signal.']],
+ io:['Hold requests','→ Ordered queue']},
+{id:'M4',t:'Verify payouts and commissions before release',role:'Manager',stage:'close',mile:'later',ai:['nudge'],prio:'M,M,L',
+ trig:'End of month, deal closes, commission becomes payable.',
+ out:'Manager confirms commission split, referrer payouts, agency commissions are correct, signs off for payment.',
+ con:'Without recalculating from spreadsheets, without disputes between reps and the company.',
+ mot:'Pay reps right or lose them. Manager is the gatekeeper of correct pay.',
+ flow:[['Deal closes, commission becomes payable'],['Splits computed from the deal record','<b>Nudge:</b> flags mismatches vs policy before sign-off.'],['Manager signs off for payment']],
+ io:['Closed deal','Commission policy','→ Payout sign-off']},
+{id:'R6',t:'Move a buyer from interested to signed promise of sale',role:'Rep',stage:'close',mile:'later',ai:['write'],prio:'H,H,M',
+ trig:'Buyer commits verbally, ready to reserve.',
+ out:'Reservation captured, hold on the unit, notary appointment booked, deposit terms shared, parties notified.',
+ con:'Without coordinating five separate threads (manager, ops, notary, buyer, marketing).',
+ mot:'Lock the deal before the buyer cools or finds a competing project.',
+ flow:[['Buyer commits verbally'],['Reservation + hold captured conversationally','<b>Write:</b> A1 sets status; ops and notary auto-notified.'],['Deposit terms shared, appointment booked']],
+ io:['Verbal commit','→ Reservation','→ Notary appointment']},
+{id:'R7',t:'Hand a deal off to ops cleanly once past the rep\'s stage',role:'Rep',stage:'close',mile:'later',ai:['write'],prio:'M,M,L',
+ trig:'Promise of sale signed, deal moves to payment plan and contract phase.',
+ out:'Ops picks up with full context, no information lost, rep moves on.',
+ con:'Without the rep retyping context into another system.',
+ mot:'Track commission, avoid getting pulled back into post-sale admin.',
+ flow:[['POS signed, deal crosses into ops'],['Full context handed over','<b>Write:</b> no retyping — record carries everything.'],['Rep tracks commission, moves on']],
+ io:['Signed POS','→ Ops handover']},
+{id:'O1',t:'Prepare and manage the contract paperwork for each deal',role:'Ops',stage:'close',mile:'v1',ai:['ingest','generate'],prio:'M,H,M',
+ trig:'Deal moves from reservation to promise of sale, then to final contract.',
+ out:'Correct contract template populated with deal-specific details, reviewed, ready for signing, stored against the opportunity.',
+ con:'Without retyping buyer or unit details, without using the wrong template version, without contracts living in someone\'s inbox.',
+ mot:'A missing or wrong contract delays signing. Delays kill deals.',
+ flow:[['Deal reaches POS / contract stage','v1: POS-signed and Final-Contract-signed flags tracked.'],['Template populated from the deal record','<b>Generate:</b> details filled without retyping.'],['Uploaded contract auto-files to the deal','<b>Ingest:</b> drop a file, it finds the deal and stage.']],
+ io:['Deal record','Uploaded contract','→ Opportunity file']},
+{id:'O2',t:'Schedule and manage appointments tied to the deal lifecycle',role:'Ops',stage:'close',mile:'v1',ai:['write'],prio:'M,M,M',
+ trig:'Buyer needs a notary appointment, contract signing, payment milestone meeting, handover walkthrough.',
+ out:'Appointment booked with the right parties, confirmed, reminders sent, calendars synced.',
+ con:'Without back-and-forth across messaging threads, without missed appointments, without admin delays.',
+ mot:'Every appointment that slips is a deal that cools.',
+ flow:[['A lifecycle appointment is needed','v1: appointment record + Bricly-native calendar view.'],['Booked with the right parties','<b>Write:</b> A1 can create it conversationally.'],['Confirmed, reminders sent, calendars synced','Calendar + email sync included in v1.']],
+ io:['Deal stage','→ Appointment','→ Calendar']},
+{id:'O3',t:'Keep deal files organised and complete',role:'Ops',stage:'close',mile:'v1',ai:['ingest'],prio:'M,H,M',
+ trig:'Deal progresses through stages, each requires specific documents (KYC, ID, proof of funds, signed reservation, contracts, receipts).',
+ out:'Every deal has a complete, current file with all required documents, audit-ready, retrievable on demand.',
+ con:'Without files scattered across email, drives and chat, without asking the rep to re-find documents, without compliance gaps.',
+ mot:'When the bank, lawyer, auditor or developer asks for a file, ops produces it instantly.',
+ flow:[['Stage requires specific documents','v1: document checklist + uploads against the opportunity.'],['Uploaded files auto-classified to the deal','<b>Ingest:</b> a dropped file finds its task, deal and slot.'],['Checklist shows what\'s missing, audit-ready']],
+ io:['KYC / ID / contracts','→ Deal file / checklist']},
+{id:'O4',t:'Track payment milestones and chase what\'s overdue',role:'Ops',stage:'close',mile:'v1',ai:['nudge'],prio:'M,H,M',
+ trig:'Payment plan milestone approaches or passes (deposit, instalments, mid-construction, final balance).',
+ out:'Overdue or upcoming payments visible, buyer reminded, rep notified, manager alerted if escalation needed, payment confirmed when received.',
+ con:'Without manual spreadsheet tracking, without the rep chasing, without missed milestones that delay handover.',
+ mot:'Cash flow. Off-plan developments depend on milestone payments coming in on time.',
+ flow:[['6-stage milestone structure on the deal','v1: manual updates; structure in place.'],['Upcoming/overdue surfaced','<b>Nudge (Phase 2 auto-chase):</b> reminds buyer, alerts manager.'],['Payment confirmed when received']],
+ io:['Payment plan','→ Milestone tracker']},
+
+/* ===== CROSS-CUTTING ===== */
+{id:'D4',t:'Know whether the sales team is actually working the leads I\'m paying for',role:'Developer',stage:'cross',mile:'v1',ai:['nudge'],prio:'H,H,M',
+ trig:'Marketing spend going out, leads coming in, no visibility into agent follow-up, deal stage, or who\'s performing.',
+ out:'Live visibility into agent activity, lead status, pipeline by source, individual rep performance and commissions earned.',
+ con:'Without micromanaging, without relying on weekly reports that are stale on arrival.',
+ mot:'Protect marketing spend, hold the team accountable, surface top performers, replace under-performers.',
+ flow:[['Activity logged automatically as reps work','<b>Nudge:</b> dashboards derived from real activity, not self-reports.'],['Manager visibility through v1 dashboards'],['Developer reads live status any time']],
+ io:['Rep activity','→ Dashboards']},
+{id:'D5',t:'Forecast sell-out and report to investors and the bank with confidence',role:'Developer',stage:'cross',mile:'stretch',ai:['generate'],prio:'M,H,M',
+ trig:'Board meeting, bank covenant review, investor update due.',
+ out:'Live, defensible numbers on units sold, reserved, projected sell-out date, revenue to date.',
+ con:'Without spending three days assembling a deck, without data scattered across spreadsheets and agency Dropboxes.',
+ mot:'Credibility with capital, ability to release equity, ability to start the next project.',
+ flow:[['Current-state dashboards (v1)','v1: dashboards only, no forecasting.'],['Forecast + report generated on demand','<b>Generate (Phase 2, A6):</b> sell-out forecast in the recipient\'s format.'],['Numbers caveated with confidence levels']],
+ io:['Pipeline data','→ Board report']},
+{id:'D6',t:'Use data from past projects to predict and de-risk future ones',role:'Developer',stage:'cross',mile:'later',ai:['match'],prio:'M,M,L',
+ trig:'Planning the next development, deciding unit mix, pricing tiers, target buyer, marketing budget.',
+ out:'Pattern data from previous projects (buyer types, price points, render and channel performance) informs new project strategy before launch.',
+ con:'Without manually pulling data from old spreadsheets, without losing data when agency relationships end.',
+ mot:'Reduce launch risk, set realistic forecasts, repeat what worked.',
+ flow:[['Next project being planned'],['Patterns surfaced from past projects','<b>Match (A7):</b> evidence-based recommendation; compounds with each project.'],['Strategy set before launch']],
+ io:['Past-project history','→ Launch strategy']},
+{id:'M3',t:'See which reps are actually working their pipeline',role:'Manager',stage:'cross',mile:'v1',ai:['nudge'],prio:'M,H,M',
+ trig:'Weekly and monthly reviews, lead allocation decisions, performance conversations.',
+ out:'Visibility into rep activity, conversion rates by rep, deals stuck in stage by rep.',
+ con:'Without micromanaging, without relying on rep self-reports.',
+ mot:'Reps don\'t self-report honestly. Manager owns knowing who\'s performing.',
+ flow:[['Activity captured as reps work conversationally'],['Conversion and stuck-deal views per rep','<b>Nudge:</b> surfaces who\'s stalling without micromanaging.'],['Feeds allocation and 1:1s']],
+ io:['Rep activity','→ Manager dashboard']},
+{id:'M5',t:'Keep the team motivated and accountable through visible performance',role:'Manager',stage:'cross',mile:'later',ai:['generate'],prio:'L,M,L',
+ trig:'Daily and weekly, especially when morale or numbers dip.',
+ out:'Leaderboards, visible commissions, deal celebrations, top performers surfaced, laggards visible.',
+ con:'Without manually building leaderboards, without sharing inappropriate detail across the team.',
+ mot:'Sales is psychological. Visible competition and reward drive activity.',
+ flow:[['Performance data flows in continuously'],['Leaderboards + celebrations generated','<b>Generate:</b> no manual leaderboard building.'],['Shared at the right level of detail']],
+ io:['Performance data','→ Leaderboards']},
+{id:'M6',t:'Brief the developer on pipeline status and projected sell-out',role:'Manager',stage:'cross',mile:'stretch',ai:['generate'],prio:'M,H,M',
+ trig:'Developer check-ins, board prep, financing reviews, ad-hoc requests.',
+ out:'Live pipeline, conversion confidence by stage, projected closes, units committed versus open.',
+ con:'Without spending half a day building a deck, without stale numbers.',
+ mot:'Manager\'s credibility depends on answering "where are we?" with defensible numbers instantly.',
+ flow:[['Developer asks "where are we?"'],['Live pipeline brief assembled','<b>Generate (A6):</b> instant, defensible, current.'],['Committed vs open surfaced by stage']],
+ io:['Pipeline data','→ Developer brief']},
+{id:'M8',t:'Manage external real estate agency relationships and their deals',role:'Manager',stage:'cross',mile:'later',ai:['write'],prio:'M,M,M',
+ trig:'Agent contacts the manager about a buyer, lead, viewing, or commission claim.',
+ out:'Agency contact logged, lead attributed, viewings tracked, commission verified, fee paid out correctly.',
+ con:'Without disputes over who sourced whom, without paying on a buyer the developer found directly, without breaking the agent relationship.',
+ mot:'Agencies still drive most volume in the hybrid model. Bad handling loses the channel.',
+ flow:[['Agent submits a buyer or claims attribution'],['Lead attributed with an audit trail','<b>Write (A9):</b> programmatic agency submission via MCP later.'],['Commission verified and paid correctly']],
+ io:['Agency lead','→ Attribution / commission']},
+{id:'M10',t:'Decide ownership on re-engaging cold leads',role:'Manager',stage:'cross',mile:'prop',ai:['nudge'],prio:'M,M,L',
+ trig:'A Cold or Past_Client Contact re-engages (replies to drip, fills form, contacts developer).',
+ out:'Manager sees re-engagement context (original capture, new capture, original rep activity, time since last contact). Decides who owns the lead.',
+ con:'Without unfairly stealing leads from reps who worked them originally, without leaving dormant leads to rot.',
+ mot:'Cold leads come back, and they convert higher than fresh leads. Ownership matters for fairness, morale and conversion.',
+ flow:[['A cold contact re-engages'],['Re-engagement context assembled','<b>Nudge:</b> shows original rep + history for a fair call.'],['Manager assigns ownership']],
+ io:['Re-engaged contact','→ Ownership decision']},
+{id:'R8',t:'Track personal commission, expected payouts, and pipeline value',role:'Rep',stage:'cross',mile:'later',ai:['generate'],prio:'M,M,L',
+ trig:'Start of week, end of month, before a 1:1, or deciding which deal to push hardest.',
+ out:'Rep sees expected commission per deal, payout timing, gap to target, earnings to date.',
+ con:'Without manual spreadsheet math, without waiting for manager visibility.',
+ mot:'Commission is the motivation. Visible numbers drive which deals get worked.',
+ flow:[['Rep opens their pipeline'],['Commission + payout timing computed','<b>Generate:</b> gap-to-target without spreadsheet math.'],['Drives which deal gets pushed']],
+ io:['Pipeline','Commission splits','→ Rep earnings view']},
+{id:'A3',t:'Render and collateral generation agent',role:'Agent',stage:'cross',mile:'stretch',ai:['generate'],acts:'Sales rep, marketing lead',prio:'H,H,M',
+ trig:'Rep requests a variant during a meeting, marketing requests a campaign asset, or a project detail changes.',
+ out:'Agent generates the requested asset using Midjourney, Canva and the constraint model, respecting architectural and brand limits.',
+ con:'Must respect the JSON constraint model, must stay on-brand, must not hallucinate units or features that don\'t exist.',
+ mot:'Personalisation at the speed of the conversation.',
+ flow:[['Asset requested (variant or campaign)'],['Generated to constraint model + brand','<b>Generate:</b> in-meeting variants v1.1; campaigns Phase 2.'],['Delivered in-context']],
+ io:['Constraint model','Brand kit','→ Renders / assets']},
+{id:'A5',t:'Inventory and collateral sync agent',role:'Agent',stage:'cross',mile:'v1',ai:['write','nudge'],acts:'Marketing lead, sales manager',prio:'M,H,M',
+ trig:'Unit status changes, price changes, payment terms change, new unit released.',
+ out:'Agent propagates the change across every piece of collateral (brochure, website, availability PDF, social, ads, agent shares), versions updated, stale versions retired.',
+ con:'Must not push to public channels without approval rules, must keep an audit trail.',
+ mot:'Inventory drift is the manager\'s nightmare. Manual sync across collateral is what marketing can\'t keep up with.',
+ flow:[['A unit/price/terms change fires','v1: internal CRM↔Studio sync.'],['Change fans across collateral','<b>Write (Phase 2):</b> full external propagation with approval rules.'],['Stale versions retired, audit kept']],
+ io:['Unit change','→ All collateral']},
+{id:'A6',t:'Reporting and forecasting agent',role:'Agent',stage:'cross',mile:'later',ai:['generate'],acts:'Developer, sales manager',prio:'M,H,M',
+ trig:'Scheduled (weekly, monthly) or on-demand from the developer or manager.',
+ out:'Agent generates a live pipeline report, sell-out forecast, marketing ROI breakdown, agent and channel performance summary, in the format the recipient wants.',
+ con:'Must use live data, must caveat confidence levels, must not invent numbers when data is missing.',
+ mot:'Instant defensible numbers. Manual reporting is a half-day job that\'s stale on arrival.',
+ flow:[['Schedule hits or someone asks'],['Live report + forecast generated','<b>Generate:</b> recipient\'s format, confidence caveated.'],['Delivered without a manual deck']],
+ io:['Live pipeline','→ Report / forecast']},
+{id:'A7',t:'Cross-project pattern agent',role:'Agent',stage:'cross',mile:'later',ai:['match'],acts:'Developer',prio:'M,M,L',
+ trig:'New project being planned, pricing decision, marketing budget allocation, unit mix question.',
+ out:'Agent surfaces patterns from completed and live projects and gives an evidence-based recommendation.',
+ con:'Requires multi-project history to be useful.',
+ mot:'Reduce launch risk through evidence. Compounds as the developer runs more projects on Bricly.',
+ flow:[['A planning decision comes up'],['Patterns mined across projects','<b>Match:</b> evidence-based recommendation.'],['Compounds with each project run on Bricly']],
+ io:['Multi-project data','→ Recommendation']},
+{id:'A8',t:'Buyer\'s personal AI assistant accessing project data',role:'Agent',stage:'cross',mile:'later',ai:['match'],acts:'The buyer',prio:'L,M,L',
+ trig:'Buyer asks their assistant to find off-plan units matching criteria, get availability, request a viewing.',
+ out:'Buyer\'s agent connects via Bricly\'s MCP server, reads project resources, can request a viewing or generate a personalised brochure.',
+ con:'Must respect rate limits, must not expose private CRM data, must route enquiries to the right rep.',
+ mot:'Bricly becomes a data source for the AI agents buyers will use. Direct demand at scale.',
+ flow:[['Buyer\'s own agent connects via MCP'],['Reads public project resources','<b>Match:</b> finds matching units, requests a viewing.'],['Routed to the right rep']],
+ io:['MCP server','→ Viewing request']},
+{id:'A9',t:'Real estate agency AI submitting leads and tracking commissions',role:'Agent',stage:'cross',mile:'later',ai:['write'],acts:'External real estate agencies',prio:'M,M,L',
+ trig:'Agency wants to submit a buyer interest, request availability for a client, claim attribution on a closed deal.',
+ out:'Agency\'s agent connects via MCP, submits the lead with attribution, tracks the deal status, sees commission accrual.',
+ con:'Must enforce attribution rules, must not give agencies access to other agencies\' deals, must hold up to commission disputes.',
+ mot:'Agencies are 60 to 80% of volume. Programmatic agency integration is a moat.',
+ flow:[['Agency agent connects via MCP'],['Submits lead with attribution','<b>Write:</b> tracks status, sees commission accrual.'],['Attribution rules enforced, isolated per agency']],
+ io:['MCP server','→ Attributed lead']},
+{id:'A10',t:'Developer\'s own automations and integrations',role:'Agent',stage:'cross',mile:'later',ai:['write'],acts:'Developer super admin / marketing lead',prio:'L,M,L',
+ trig:'Developer wants to wire Bricly into their own stack.',
+ out:'Developer connects their tools to Bricly via API or MCP, builds custom workflows.',
+ con:'Must respect Bricly\'s data model, must use the same auth and permissions as humans.',
+ mot:'Extend Bricly into the developer\'s existing stack without bespoke work from us.',
+ flow:[['Developer connects their tools via API/MCP'],['Builds custom workflows','<b>Write:</b> same auth/permissions as human users.'],['Respects the Bricly data model']],
+ io:['API / MCP','→ Custom workflows']},
+{id:'A13',t:'Post-sale relationship continuity agent',role:'Agent',stage:'cross',mile:'prop',ai:['generate','nudge'],acts:'Buyer and developer team',prio:'M,M,L',
+ trig:'Reservation activated, ongoing through handover and warranty period.',
+ out:'Agent surfaces relevant updates to the buyer, drafts construction-update narratives from photos and milestones (for ops to review), nudges the developer when buyer-facing surfaces are stale.',
+ con:'Must not over-message the buyer, must respect the developer\'s brand and tone, must not auto-publish without ops review.',
+ mot:'The post-sale gap is where developers lose buyer satisfaction. An agent that keeps the relationship warm without ops effort makes the buyer portal valuable.',
+ flow:[['Reservation activated'],['Updates surfaced, narratives drafted','<b>Generate:</b> construction-update copy from photos/milestones.'],['Developer nudged on stale surfaces','<b>Nudge:</b> ops reviews before publish.']],
+ io:['Milestones / photos','→ Buyer portal']},
+{id:'O6',t:'Triage and resolve snagging items raised by buyers',role:'Ops',stage:'cross',mile:'prop',ai:['nudge'],prio:'M,M,L',
+ trig:'Buyer raises a SnaggingItem via the buyer portal, or a defect is identified at handover.',
+ out:'Ops sees a snagging dashboard per project and unit, routes per defect type (electrical, plumbing, finishings), tracks resolution, manages buyer confirmation or dispute.',
+ con:'Without losing items in inboxes, without buyer chasing for status, without disputes escalating.',
+ mot:'Post-handover relationship determines referrals and repeat business. Snagging done badly costs the next deal.',
+ flow:[['Buyer raises a defect'],['Routed by type, tracked to resolution','<b>Nudge:</b> nothing lost in an inbox.'],['Buyer confirms or disputes']],
+ io:['SnaggingItem','→ Resolution tracker']},
+{id:'O7',t:'Manage construction updates to the buyer portal',role:'Ops',stage:'cross',mile:'prop',ai:['generate'],prio:'M,M,L',
+ trig:'Construction milestone reached (foundation poured, structure complete, finishings, practical completion).',
+ out:'Photos uploaded, milestone marked, update narrative drafted, published to buyer portal across all affected buyers.',
+ con:'Without manually messaging every buyer, without forgetting buyers waiting 12+ months for handover.',
+ mot:'Buyer satisfaction in the gap between POS and handover is fragile. Regular updates keep it strong.',
+ flow:[['Milestone reached, photos uploaded'],['Narrative drafted and published','<b>Generate (A13):</b> update copy from milestone + photos.'],['Pushed to all affected buyers at once']],
+ io:['Milestone / photos','→ Buyer portal']},
+{id:'B1',t:'Track the status of my purchase from POS to keys',role:'Buyer',stage:'cross',mile:'later',ai:[],acts:'Buyer',prio:'M,M,L',
+ trig:'Buyer logs into the portal anytime between POS and handover.',
+ out:'Single screen showing payment milestones (paid, due, upcoming), construction progress, document status, key dates (notary, handover).',
+ con:'Without chasing the developer for updates, without managing the deal across email and WhatsApp threads.',
+ mot:'Buyer has committed 6–18 months of waiting and a large sum. They need confidence the deal is on track.',
+ flow:[['Buyer logs into the portal'],['Single status screen shown','Payments, construction, documents, key dates.'],['No chasing the developer']],
+ io:['Deal record','→ Buyer portal']},
+{id:'B2',t:'Communicate with the developer, notary, and solicitor in one place',role:'Buyer',stage:'cross',mile:'later',ai:[],acts:'Buyer',prio:'M,M,L',
+ trig:'Buyer has a question or needs an action.',
+ out:'Buyer messages the developer team in the portal, sees responses, sees relevant notary or solicitor updates pushed to them, with full audit trail.',
+ con:'Without losing thread across email, without information siloed between parties.',
+ mot:'Reduce coordination friction so the deal completes faster.',
+ flow:[['Buyer messages in the portal'],['All parties\' updates land in one thread','Full audit trail kept.'],['Deal completes with less friction']],
+ io:['Portal thread','→ Audit trail']},
+{id:'B3',t:'Raise and track snagging defects',role:'Buyer',stage:'cross',mile:'later',ai:[],acts:'Buyer',prio:'M,M,L',
+ trig:'Buyer notices a defect during handover walk-through or in the snagging period.',
+ out:'Buyer raises an item with description, photos, location and severity. Tracks status. Confirms resolution or disputes it.',
+ con:'Without phone calls, without losing track of what\'s been fixed.',
+ mot:'Get the unit to acceptable quality without becoming a project manager themselves.',
+ flow:[['Buyer spots a defect'],['Raises it with photos + severity','Feeds ops (O6).'],['Tracks, confirms or disputes resolution']],
+ io:['Defect + photos','→ Snagging (O6)']},
+{id:'B4',t:'Refer friends and earn attribution / incentive',role:'Buyer',stage:'cross',mile:'later',ai:[],acts:'Buyer',prio:'M,H,L',
+ trig:'Buyer wants to recommend the developer to a friend.',
+ out:'Buyer generates a personalised referral link or manually introduces a friend via the portal form. Tracks referral pipeline and earned incentive.',
+ con:'Without losing attribution to a generic "where did you hear about us" question.',
+ mot:'Buyer-driven referrals are the highest-converting channel in off-plan and the cheapest.',
+ flow:[['Buyer wants to refer a friend'],['Generates a tracked referral link','Attribution preserved end-to-end.'],['Referral pipeline + incentive tracked']],
+ io:['Referral link','→ Pipeline / incentive']}
+];
+
+/* ---- render ---- */
+function chip(m){const[label,cls]=MILE[m]||[m,'v12'];return '<span class="chip '+cls+'">'+label+'</span>';}
+function roleChip(r){return '<span class="rc '+ROLECLS[r]+'">'+r+'</span>';}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function prioBadge(p){const[pn,vl,ug]=p.split(',');
+  return '<span class="prio"><span><span class="dot '+pn+'"></span>Pain <b>'+pn+'</b></span><span><span class="dot '+vl+'"></span>Value <b>'+vl+'</b></span><span><span class="dot '+ug+'"></span>Urgency <b>'+ug+'</b></span></span>';}
+
+function jobCard(j){
+  const aiTags=(j.ai||[]).map(a=>'<span class="ai-tag">'+a+'</span>').join('');
+  const flow=j.flow.map(f=>'<div class="fs"><div>'+esc(f[0])+(f[1]?'<span class="ai">'+f[1]+'</span>':'')+'</div></div>').join('');
+  const io=(j.io||[]).map(p=>'<span class="pill">'+esc(p)+'</span>').join('');
+  const acts=j.acts?'<dt>Acts on behalf of</dt><dd>'+esc(j.acts)+'</dd>':'';
+  const note=j.note?' <span class="chip v12">'+esc(j.note)+'</span>':'';
+  return '<details class="job" data-id="'+j.id+'" data-role="'+j.role+'" data-mile="'+j.mile+'" data-short="'+(j.short?1:0)+'" data-text="'+esc((j.id+' '+j.t+' '+j.role+' '+(j.acts||'')+' '+j.trig+' '+j.out).toLowerCase())+'">'+
+    '<summary class="job-sum"><div class="job-top"><span class="job-id">'+j.id+'</span>'+roleChip(j.role)+chip(j.mile)+note+
+    '<svg class="job-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>'+
+    '<div class="job-title">'+esc(j.t)+'</div><div class="job-tags">'+aiTags+'</div></summary>'+
+    '<div class="job-detail"><dl class="kv">'+acts+
+    '<dt>Trigger</dt><dd>'+esc(j.trig)+'</dd>'+
+    '<dt>Functional outcome</dt><dd>'+esc(j.out)+'</dd>'+
+    '<dt>Constraint</dt><dd>'+esc(j.con)+'</dd>'+
+    '<dt>Underlying motivation</dt><dd>'+esc(j.mot)+'</dd></dl>'+
+    '<div><div class="eyebrow" style="margin-bottom:6px">Flow &amp; where AI removes the work</div><div class="flowsteps">'+flow+'</div></div>'+
+    '<div class="io">'+io+'</div>'+
+    '<div>'+prioBadge(j.prio)+'</div></div></details>';
+}
+
+Object.keys(STAGES).forEach(function(key){
+  const s=STAGES[key];const sec=document.getElementById(key);if(!sec)return;
+  const jobs=JOBS.filter(j=>j.stage===key);
+  const roles=[...new Set(jobs.map(j=>j.role))];
+  const head='<div class="module-head"><span class="modnum">'+s.n+'</span><div class="eyebrow">Stage '+(key==='cross'?'· always on':s.n)+'</div><h2>'+s.t+'</h2><p class="sub">'+s.d+'</p></div>';
+  const roleLegend='<div class="legend">'+roles.map(roleChip).join(' ')+'<span class="muted" style="margin-left:6px">'+jobs.length+' jobs</span></div>';
+  sec.innerHTML=head+roleLegend+'<div class="jobs">'+jobs.map(jobCard).join('')+'</div>';
+});
+document.getElementById('metacount').textContent=JOBS.length+' across 7 roles';
+
+/* shortlist table */
+const shortMoves={A1:'Parse WhatsApp/voice → preview → commit',R3:'Conversational status/hold updates',R1:'SLA nudge + drafted follow-up',D1:'Single capture endpoint, atomic lead creation',M2:'Brain-dump Excel/plans → mapped units',R2:'Enrich + score, warm-first queue',R5:'Auto-generate personalised pack from session',M1:'Structured approvals, one-tap commit'};
+const shortRows=JOBS.filter(j=>j.short).sort((a,b)=>a.short-b.short).map(j=>
+  '<tr><td class="rank">'+j.short+'</td><td class="k">'+roleChip(j.role)+' '+j.id+' — '+esc(j.t)+'</td><td>'+esc(j.mot.split('.')[0])+'.</td><td>'+esc(shortMoves[j.id]||'')+'</td><td>'+chip(j.mile)+'</td></tr>').join('');
+document.getElementById('shortBody').innerHTML=shortRows;
+
+/* ---- filters ---- */
+const state={roles:new Set(),miles:new Set(),short:false,q:''};
+function apply(){
+  let shown=0;
+  JOBS.forEach(function(j){
+    const el=document.querySelector('.job[data-id="'+j.id+'"]');if(!el)return;
+    let ok=true;
+    if(state.roles.size&&!state.roles.has(j.role))ok=false;
+    if(state.miles.size&&!state.miles.has(j.mile))ok=false;
+    if(state.short&&!j.short)ok=false;
+    if(state.q&&el.getAttribute('data-text').indexOf(state.q)===-1)ok=false;
+    el.classList.toggle('hide',!ok);if(ok)shown++;
+  });
+  Object.keys(STAGES).forEach(function(key){
+    const sec=document.getElementById(key);if(!sec)return;
+    const any=sec.querySelectorAll('.job:not(.hide)').length;
+    sec.style.display=any?'':'none';
+  });
+  document.getElementById('count').textContent=shown+' / '+JOBS.length+' shown';
+  document.getElementById('empty').style.display=shown?'none':'block';
+}
+document.getElementById('roleSeg').addEventListener('click',function(e){
+  const b=e.target.closest('.tog');if(!b)return;const r=b.dataset.role;
+  if(state.roles.has(r)){state.roles.delete(r);b.setAttribute('aria-pressed','false');}
+  else{state.roles.add(r);b.setAttribute('aria-pressed','true');}apply();
+});
+document.getElementById('mileSeg').addEventListener('click',function(e){
+  const b=e.target.closest('.tog');if(!b)return;const m=b.dataset.mile;
+  if(state.miles.has(m)){state.miles.delete(m);b.setAttribute('aria-pressed','false');}
+  else{state.miles.add(m);b.setAttribute('aria-pressed','true');}apply();
+});
+document.getElementById('shortTog').addEventListener('click',function(e){
+  state.short=!state.short;e.currentTarget.setAttribute('aria-pressed',state.short?'true':'false');apply();
+});
+document.getElementById('search').addEventListener('input',function(e){state.q=e.target.value.trim().toLowerCase();apply();});
+apply();
+
+/* ---- scrollspy ---- */
+(function(){
+  var links=[].slice.call(document.querySelectorAll('nav.side a[href^="#"]'));
+  var map={};links.forEach(function(a){map[a.getAttribute('href').slice(1)]=a;});
+  if(!('IntersectionObserver' in window))return;
+  var current=null;
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){if(e.isIntersecting)current=e.target.id;});
+    if(!current)return;links.forEach(function(a){a.classList.toggle('active',a===map[current]);});
+  },{rootMargin:'-15% 0px -70% 0px',threshold:0});
+  Object.keys(map).forEach(function(id){var el=document.getElementById(id);if(el)io.observe(el);});
+})();
+</script>
+</body>
+</html>
