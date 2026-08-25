@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bricly · AI Input Modalities &amp; Use Cases</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#FCFBF9;--surface:#FFFFFF;--c1:#F7F5F0;--c2:#EFECE6;--c3:#E3DFD8;
+  --text:#2E2D2C;--muted:#6D6D62;--line:#E5E4E1;
+  --accent:#657A32;--accent-hi:#52671F;--accent-lo:#B6C78D;--accent-tint:rgba(101,122,50,.12);
+  --err:#C9474A;--err-tint:rgba(235,87,89,.12);--warn:#9A6B12;--warn-tint:rgba(183,121,31,.14);--info:#3B6E8F;--info-tint:rgba(59,110,143,.12);
+  --purple:#6E5AA6;--purple-tint:rgba(110,90,166,.12);
+  --r:10px;--r-lg:14px;
+  --font:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;color-scheme:light}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:22px;-webkit-font-smoothing:antialiased}
+a{color:var(--accent-hi);text-decoration:none}a:hover{text-decoration:underline}
+h1,h2,h3,h4{margin:0;text-wrap:balance;font-weight:500}
+h1{font-size:28px;line-height:40px;letter-spacing:-.75px}
+h2{font-size:20px;line-height:28px;font-weight:600;letter-spacing:-.3px}
+h3{font-size:15px;line-height:22px;font-weight:600}
+p{margin:0}
+.eyebrow{font-family:var(--mono);font-size:11px;line-height:16px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.mono{font-family:var(--mono);font-size:12.5px}
+.muted{color:var(--muted)}
+.page{max-width:1240px;margin:0 auto;padding:32px 24px 80px;display:grid;grid-template-columns:200px minmax(0,1fr);gap:36px}
+@media (max-width:900px){.page{grid-template-columns:minmax(0,1fr);gap:20px;padding:20px 16px 56px}}
+nav.side{position:sticky;top:24px;align-self:start;display:flex;flex-direction:column;gap:2px}
+@media (max-width:900px){nav.side{position:static;flex-direction:row;flex-wrap:wrap;gap:6px}}
+nav.side a{display:block;padding:6px 10px;color:var(--muted);font-size:13px;line-height:20px;border-left:2px solid transparent;border-radius:0 8px 8px 0}
+nav.side a:hover{background:var(--c1);color:var(--text);text-decoration:none}
+nav.side .eyebrow{padding:0 10px 8px}
+main{display:flex;flex-direction:column;gap:44px;min-width:0}
+header.top{display:flex;flex-direction:column;gap:10px;padding-bottom:22px;border-bottom:1px solid var(--line)}
+.meta{display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--muted);font-size:13px;line-height:20px}
+section.module{display:flex;flex-direction:column;gap:14px;scroll-margin-top:24px}
+.module-head{position:relative;padding-left:44px;display:flex;flex-direction:column;gap:4px}
+.modnum{position:absolute;left:0;top:2px;width:32px;height:32px;border-radius:9px;background:var(--accent-tint);color:var(--accent-hi);font-family:var(--mono);font-size:13px;font-weight:500;display:inline-flex;align-items:center;justify-content:center}
+.sub{color:var(--muted);font-size:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px 18px}
+.chip{display:inline-flex;align-items:center;padding:0 8px;border-radius:999px;font-family:var(--mono);font-size:11px;line-height:18px;letter-spacing:.02em;white-space:nowrap;border:1px solid transparent}
+.chip.v1{background:var(--accent-tint);color:var(--accent-hi)}
+.chip.conc{background:var(--purple-tint);color:var(--purple)}
+.chip.stretch,.chip.v11{background:var(--info-tint);color:var(--info)}
+.chip.v12{background:var(--c2);color:var(--muted);border-color:var(--c3)}
+.chip.later{background:var(--warn-tint);color:var(--warn)}
+.chip.prop{background:var(--surface);color:var(--accent-hi);border-color:var(--accent-lo)}
+.rc{display:inline-flex;align-items:center;padding:0 8px;border-radius:999px;font-family:var(--mono);font-size:10.5px;line-height:18px;white-space:nowrap;border:1px solid transparent}
+.rc.rep{background:var(--info-tint);color:var(--info)}
+.rc.mgr{background:var(--warn-tint);color:var(--warn)}
+.rc.mkt{background:var(--purple-tint);color:var(--purple)}
+.rc.own{background:var(--accent-tint);color:var(--accent-hi)}
+.rc.ops{background:var(--c2);color:var(--text);border-color:var(--c3)}
+.rc.buyer{background:var(--err-tint);color:var(--err)}
+.rc.ext{background:var(--surface);color:var(--muted);border-color:var(--c3)}
+.rc.agent{background:#2E2D2C;color:#F7F5F0}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:12.5px;color:var(--muted)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:680px;font-size:13px;line-height:19px}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line)}
+th{background:var(--c1);font-weight:500;font-size:12px;color:var(--muted);white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:var(--c1)}
+td.k{font-weight:500}
+.controls{position:sticky;top:0;z-index:5;background:var(--bg);border:1px solid var(--line);border-radius:var(--r-lg);padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.controls .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.controls input[type=search]{flex:1;min-width:170px;font-family:var(--font);font-size:13.5px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text)}
+.tog{font-family:var(--mono);font-size:11px;letter-spacing:.02em;padding:4px 9px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer}
+.tog[aria-pressed=true]{background:var(--accent-tint);color:var(--accent-hi);border-color:var(--accent-lo)}
+.ctl-label{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:2px}
+#count{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:760px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.uc{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden}
+.uc.hide{display:none}
+.uc-sum{display:flex;flex-direction:column;gap:8px;padding:13px 15px;cursor:pointer;list-style:none}
+.uc-sum::-webkit-details-marker{display:none}
+.uc-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.uc-id{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--accent-hi);background:var(--accent-tint);border-radius:6px;padding:2px 7px}
+.uc-title{font-size:14px;font-weight:500;line-height:20px}
+.uc-tags{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.chev{margin-left:auto;color:var(--muted);transition:transform .18s}
+details[open] .chev{transform:rotate(90deg)}
+.uc-detail{padding:12px 15px 14px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+.kv dt:first-child{margin-top:0}
+.kv dd{margin:0;font-size:13.5px;line-height:20px}
+/* matrix */
+.mx td{font-size:12px;line-height:18px}
+.mx td .m-item{display:block}
+.mx th.rowh{background:var(--surface);color:var(--text);font-weight:600;white-space:nowrap}
+/* brainstorm widgets */
+.bs-bar{display:flex;align-items:center;gap:8px;padding:9px 15px;border-top:1px dashed var(--line);background:var(--c1)}
+.vote{font-family:var(--mono);font-size:11.5px;padding:3px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer}
+.vote.on,.vote:hover{border-color:var(--accent-lo);color:var(--accent-hi);background:var(--accent-tint)}
+.notebtn{font-family:var(--mono);font-size:11.5px;padding:3px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer}
+.notebtn.has{border-color:var(--accent-lo);color:var(--accent-hi)}
+.notewrap{padding:0 15px 13px;background:var(--c1);display:none}
+.notewrap.open{display:block}
+.notewrap textarea{width:100%;min-height:64px;font-family:var(--font);font-size:13px;line-height:19px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text);resize:vertical}
+/* candidates */
+.cand{border-left:3px solid var(--accent-lo)}
+.eff{font-family:var(--mono);font-size:10.5px;color:var(--muted);background:var(--c1);border:1px solid var(--line);border-radius:6px;padding:1px 7px;white-space:nowrap}
+/* add idea */
+.addcard{border:1px dashed var(--c3);border-radius:var(--r-lg);padding:16px 18px;background:var(--surface);display:flex;flex-direction:column;gap:8px}
+.addcard input,.addcard textarea,.addcard select{font-family:var(--font);font-size:13.5px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text)}
+.addcard textarea{min-height:56px;resize:vertical}
+.btn{font-size:13px;font-weight:500;padding:7px 14px;border-radius:8px;border:1px solid var(--accent-hi);background:var(--accent);color:#fff;cursor:pointer}
+.btn.ghost{background:var(--surface);color:var(--accent-hi);border-color:var(--accent-lo)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.del{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--muted);background:none;border:0;cursor:pointer}
+.del:hover{color:var(--err)}
+ul.clean{margin:0;padding-left:16px;display:flex;flex-direction:column;gap:4px;font-size:13.5px;line-height:20px}
+ul.clean li::marker{color:var(--accent)}
+.callout{border-left:3px solid var(--accent);background:var(--surface);border-radius:0 var(--r-lg) var(--r-lg) 0;padding:12px 16px;font-size:13.5px;line-height:20px}
+footer{color:var(--muted);font-size:12.5px;line-height:20px;border-top:1px solid var(--line);padding-top:16px}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#2E2D2C;color:#F7F5F0;font-size:13px;padding:8px 16px;border-radius:999px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:50}
+#toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="page">
+<nav class="side" aria-label="Sections">
+  <div class="eyebrow">Bricly · AI inputs</div>
+  <a href="#taxonomy">1 · Modalities</a>
+  <a href="#users">2 · User types</a>
+  <a href="#matrix">3 · Matrix</a>
+  <a href="#usecases">4 · Use cases</a>
+  <a href="#beyond">5 · Beyond (vote!)</a>
+  <a href="#caps">6 · Capabilities</a>
+  <a href="#gaps">7 · Open questions</a>
+</nav>
+<main>
+
+<header class="top">
+  <div class="eyebrow">Brainstorm workspace · 2026-08-25</div>
+  <h1>AI Agent — Input Modalities &amp; Use Cases</h1>
+  <p class="sub">Every way a user sends inputs and data to the Bricly AI layer — voice, PDFs, CAD files and beyond — per user type and per journey stage (Load → Launch → Perform → Sell → Close). Vote and leave notes on anything; add new ideas in section 5; export the session as markdown when you're done. Notes live in this browser (localStorage).</p>
+  <div class="meta">
+    <span><b>Source doc:</b> docs/ai-input-modalities-and-use-cases.md</span>
+    <span><b>Jobs map:</b> Bricly_Jobs_and_Flows.html</span>
+  </div>
+  <div class="toolbar">
+    <button class="btn ghost" onclick="exportMd()">⧉ Export session notes (markdown)</button>
+    <button class="btn ghost" onclick="clearSession()">Reset votes &amp; notes</button>
+  </div>
+  <div class="legend" style="margin-top:4px">
+    <span class="chip v1">v1</span><span class="chip conc">v1 concierge</span><span class="chip stretch">v1 stretch</span><span class="chip v11">v1.1</span><span class="chip v12">v1.2</span><span class="chip later">Phase 2</span><span class="chip prop">proposed</span>
+    <span style="width:12px"></span>
+    <span class="rc rep">Rep</span><span class="rc mgr">Manager</span><span class="rc mkt">Marketing</span><span class="rc own">Owner/Dev</span><span class="rc ops">Ops</span><span class="rc buyer">Buyer</span><span class="rc ext">External</span><span class="rc agent">AI agent</span>
+  </div>
+  <p class="sub" style="font-size:12.5px"><b>Locked design rule:</b> anything that reaches a buyer requires a human tap. Guarded actions (holds, unit status) always route through ApprovalRequest — no channel bypasses a gate.</p>
+</header>
+
+<section class="module" id="taxonomy">
+  <div class="module-head"><span class="modnum">1</span><h2>Input modality taxonomy</h2>
+  <p class="sub">The master list of channels and formats the AI layer must accept, with the processing each implies.</p></div>
+  <div class="tablewrap"><table id="tax-table"><thead><tr><th>#</th><th>Modality</th><th>Formats / payload</th><th>Processing required</th><th>Scope</th></tr></thead><tbody></tbody></table></div>
+</section>
+
+<section class="module" id="users">
+  <div class="module-head"><span class="modnum">2</span><h2>User types &amp; how each reaches the AI</h2></div>
+  <div class="tablewrap"><table id="user-table"><thead><tr><th>User type</th><th>Who</th><th>Primary input surfaces</th><th>Notes</th></tr></thead><tbody></tbody></table></div>
+</section>
+
+<section class="module" id="matrix">
+  <div class="module-head"><span class="modnum">3</span><h2>Master matrix — user × stage</h2>
+  <p class="sub">What each user actively sends through, per stage. Click a row header to filter the use cases below to that user.</p></div>
+  <div class="tablewrap"><table class="mx" id="mx-table"><thead></thead><tbody></tbody></table></div>
+</section>
+
+<section class="module" id="usecases">
+  <div class="module-head"><span class="modnum">4</span><h2>Use cases by stage</h2>
+  <p class="sub">Each cites its job ID from the jobs map. Expand for input → processing → output &amp; gating. Vote 👍 on what matters; leave notes.</p></div>
+  <div class="controls">
+    <div class="row">
+      <input type="search" id="q" placeholder="Search use cases… (e.g. voice, CAD, KYC, hold)" oninput="applyF()">
+      <span id="count"></span>
+    </div>
+    <div class="row"><span class="ctl-label">Stage</span><span id="f-stage"></span></div>
+    <div class="row"><span class="ctl-label">User</span><span id="f-role"></span></div>
+    <div class="row"><span class="ctl-label">Scope</span><span id="f-mile"></span></div>
+  </div>
+  <div class="grid2" id="uc-grid"></div>
+  <p class="sub" id="uc-empty" style="display:none;text-align:center">No use cases match — clear a filter.</p>
+</section>
+
+<section class="module" id="beyond">
+  <div class="module-head"><span class="modnum">5</span><h2>Beyond the documented surface — brainstorm menu</h2>
+  <p class="sub">Everything in §1–4 assumes the user <i>deliberately tells</i> the AI something. The richest untapped inputs are <b>forwarded, captured and implicit</b>. None committed — vote, annotate, and add your own below.</p></div>
+  <div class="grid2" id="cand-grid"></div>
+  <div class="addcard" id="addcard">
+    <h3>＋ Add a new idea</h3>
+    <input id="ni-title" placeholder="Idea title (e.g. Buyer sends a Vinted-style video tour request)">
+    <textarea id="ni-desc" placeholder="What does the user send, and what should the AI do with it?"></textarea>
+    <div class="row" style="display:flex;gap:8px;flex-wrap:wrap">
+      <select id="ni-user"><option>Rep</option><option>Manager</option><option>Marketing</option><option>Owner/Dev</option><option>Ops</option><option>Buyer</option><option>External</option><option>AI agent</option></select>
+      <select id="ni-stage"><option>Load</option><option>Launch</option><option>Perform</option><option>Sell</option><option>Close</option><option>Cross</option></select>
+      <button class="btn" onclick="addIdea()">Add idea</button>
+    </div>
+  </div>
+</section>
+
+<section class="module" id="caps">
+  <div class="module-head"><span class="modnum">6</span><h2>Processing-capability roll-up</h2>
+  <p class="sub">What the architecture must support, by the phase it's first required.</p></div>
+  <div class="tablewrap"><table id="cap-table"><thead><tr><th>Capability</th><th>Needed for</th><th>First required</th></tr></thead><tbody></tbody></table></div>
+  <div class="callout"><b>Shared primitive worth naming:</b> almost every file-ish input reduces to one question — <i>"which deal / unit / checklist slot does this artifact belong to?"</i> Build <b>artifact classification + routing</b> once, as a service, and every channel becomes a thin adapter. Same for the <b>write layer</b>: WhatsApp, email, MCP, portal and UI all converge on identical preview-then-commit + approval-gate semantics.</div>
+</section>
+
+<section class="module" id="gaps">
+  <div class="module-head"><span class="modnum">7</span><h2>Gaps &amp; open questions</h2></div>
+  <div class="card"><ul class="clean" id="gap-list"></ul></div>
+</section>
+
+<footer>Companion to <span class="mono">docs/ai-input-modalities-and-use-cases.md</span> · job IDs cite <span class="mono">Bricly_Jobs_and_Flows.html</span> · votes &amp; notes stored locally in this browser only.</footer>
+</main>
+</div>
+<div id="toast"></div>
+
+<script>
+/* ---------- data ---------- */
+const MILES={v1:['v1','v1'],conc:['v1 concierge','conc'],stretch:['v1 stretch','stretch'],v11:['v1.1','v11'],v12:['v1.2','v12'],later:['Phase 2','later'],prop:['proposed','prop']};
+const ROLES={rep:['Rep','rep'],mgr:['Manager','mgr'],mkt:['Marketing','mkt'],own:['Owner/Dev','own'],ops:['Ops','ops'],buyer:['Buyer','buyer'],ext:['External','ext'],agent:['AI agent','agent']};
+const STAGES={load:'1 Load',launch:'2 Launch',perform:'3 Perform',sell:'4 Sell',close:'5 Close',cross:'Cross-cutting'};
+
+const MODALITIES=[
+[1,'WhatsApp text commands','Free-text natural language (Twilio webhook)','LLM intent parsing → 6 intents; entity resolution (contacts, unit IDs, devs); one clarifying question on ambiguity; preview-then-commit','v1'],
+[2,'WhatsApp voice notes','Audio (.ogg/opus via Twilio)','Speech-to-text (Whisper) → same parse pipeline as text','v1'],
+[3,'WhatsApp media messages','Photos (.jpg), PDFs, forwarded documents','Classification + OCR/extraction → file to the right deal/checklist slot','v11'],
+[4,'In-app chat / Ask panel','Free-text queries against workspace data','Read-only NL → Resource queries; AI-draft chip = LLM call w/ opp context','stretch'],
+[5,'Email ingestion','Inbound email + attachments','Sender/thread → deal matching; attachment classification','v1'],
+[6,'Calendar sync','Google Calendar events (read-only v1)','Event ↔ Appointment/Opportunity linking','v1'],
+[7,'Hosted lead forms (Tier 1)','Form A (identity, buyer_type, budget_band) / Form B (+1–3 units); UTM, session, IP geo','Structured capture; phone-dedupe; atomic Contact+Opportunity creation','v1'],
+[8,'Availability schedule upload','Excel, CSV, PDF, photo of a printout','Normalise to canonical CSV; column → Unit-field mapping; validation before commit','v1'],
+[9,'Floor plan / media bulk upload','"Drive dump": PDFs, images, CAD (.dwg/.dxf), brochures','media_type classification (~9 types); filename/level/unit-no pattern match → Unit linking; fix-up queue','v1'],
+[10,'CAD → constraint model','.dwg/.dxf architect files','CAD parsing → ConstraintModel JSON (drives render generation limits)','conc'],
+[11,'Deal migration import','Old-CRM exports, spreadsheets, WhatsApp-group history — no format demanded','Contact dedupe on phone; Opportunity placement at true stage; checklist back-fill','conc'],
+[12,'Studio Wizard brief','Structured intake + reference uploads (style refs, brand assets)','Brief → StudioRequest; adaptive consultation Q&A (A12)','conc'],
+[13,'Present Mode session data','Shortlist, finishes, layouts, compare choices, session note','Session → Opportunity enrichment (units[], Activity, files)','v1'],
+[14,'Deal document uploads','KYC (passport/ID, PoA, source of funds), reservation forms, POS, receipts','Auto-classify → opportunity + stage + checklist slot','v1'],
+[15,'MCP tool calls','JSON tool invocations at mcp.bricly.io/v1 (6 toggleable tools)','Guard enforcement: read-only / autonomous / approval-gated / rep-tap','v11'],
+[16,'Ad-platform webhooks (Tier 2)','Meta/Google lead-form payloads','Schema mapping → same atomic capture as Tier 1','v12'],
+[17,'Inbound buyer conversations (Tier 3)','WhatsApp/email free text from buyers','LLM qualification dialogue, unit matching, appointment booking (A11)','later'],
+[18,'Partner/agency submissions (Tier 5)','Lead submissions + commission tracking via MCP (A9)','Identity classes, guarded-action matrix','later'],
+[19,'Buyer portal inputs','Status queries, messages, snag reports w/ photos, referrals (B1–B4)','Photo understanding for snags; thread routing','later'],
+[20,'Manual UI entry','New-contact / new-opp / new-event drawers, approval taps, checklist ticks','Structured writes (baseline)','v1']];
+
+const USERS=[
+['<span class="rc rep">Rep</span>','Works Phase A deals; lives in WhatsApp, not the CRM','WhatsApp text + voice (A1), Present Mode sessions, Units search, manual drawers','The conversational-input bet: the CRM stays current only if updating it is as easy as texting'],
+['<span class="rc mgr">Manager</span>','Inventory integrity, approvals, allocation','Approvals queue taps, WhatsApp intents, availability Excel handover (L2), reassignment','Every guarded transition lands on their queue regardless of source channel'],
+['<span class="rc mkt">Marketing</span>','Collateral, campaigns, brand gate-keeping','Studio Wizard briefs, collateral-change requests (ML3), campaign data reviews','Mostly Phase 2 jobs; v1 = concierge briefs'],
+['<span class="rc own">Owner/Dev</span>','Portfolio visibility, launch decisions, investor reporting','Wizard intake (D3), Reports queries, forecast asks (D5), consultation sessions (A12)','Subsumes "developer" — no separate persona'],
+['<span class="rc ops">Ops</span>','Onboarding data, deal files, appointments, contracts','Bulk uploads (L3), migration exports (L5), contract/KYC uploads (O1/O3), calendar drawer (O2)','Heaviest file-based input user'],
+['<span class="rc buyer">Buyer</span>','End customer — no login in v1','Lead forms, replies via rep, Present Mode choices (rep\u2019s device), portal (Phase 2)','Reaches the AI only through mediated surfaces until the portal ships'],
+['<span class="rc ext">External humans</span>','Architect, notary/solicitor, partner agency, bank','CAD/plan files, appointment threads, signed docs, lead submissions, sanction letters','Today files arrive through Ops/Manager; direct channels are §5 candidates'],
+['<span class="rc agent">External AI</span>','A9 agency agents, buyer-side agents, MCP callers','MCP tool calls under identity classes + guarded-action matrix','Ideal surface (154 capabilities) spec\u2019d in bricly-capability-surface.md — Post-MVP']];
+
+const MATRIX={
+rep:  {load:'—',launch:'—',perform:'Board CTAs, first-contact drafts [v1]',sell:'WhatsApp text+voice [v1] · Present sessions [v1] · match queries [v1] · personalise requests [conc]',close:'WhatsApp status intents [v1] · POS/notary scheduling [v1]',cross:'Ask/chat queries [stretch] · commission queries [P2]'},
+mgr:  {load:'Availability Excel/PDF/photo [v1] · WhatsApp setup [v1] · conversational inventory updates [v1]',launch:'Brand approvals [P2]',perform:'Allocation/reassignment taps [v1]',sell:'Approval taps from any channel [v1]',close:'Approvals queue [v1] · payout sign-off [P2]',cross:'Team-activity queries [v1] · briefing asks [stretch]'},
+mkt:  {load:'—',launch:'Studio briefs [conc] · collateral-change requests [P2] · brand kit uploads [conc]',perform:'Campaign/spend data [P2]',sell:'Buyer-profile collateral briefs [P2]',close:'—',cross:'Inventory-sync triggers (A5) [v1]'},
+own:  {load:'Signed contract + team roster (pre-flight) [conc]',launch:'Wizard intake + consultation Q&A [conc]',perform:'Margin/demand reviews [v1]',sell:'Personalisation briefs [conc]',close:'—',cross:'Forecast/report asks [stretch→P2] · cross-project queries [P2]'},
+ops:  {load:'Drive dump (plans/CADs/brochures) [v1] · migration exports [conc]',launch:'—',perform:'—',sell:'—',close:'Contract uploads [v1] · KYC/deal files [v1] · appointment drawer [v1]',cross:'Snag triage [prop] · construction updates [prop]'},
+buyer:{load:'—',launch:'—',perform:'Lead forms A/B [v1] · consultation booking [v1] · inbound conversations [P2]',sell:'Preferences via Present Mode (mediated) [v1] · variant requests (mediated) [conc]',close:'KYC docs via rep/ops [v1] · portal uploads [P2]',cross:'Portal: status, messages, snags, referrals [P2]'},
+ext:  {load:'Architect CADs via dump [v1]',launch:'Architect revisions [conc]',perform:'Agency lead handoff [P2]',sell:'—',close:'Notary threads, bank letters via ops [v1] → direct [§5C]',cross:'Agency availability shares [P2]'},
+agent:{load:'—',launch:'—',perform:'Lead submission via MCP [P2]',sell:'MCP tools (log/hold/task/status/brief/brochure) [v1.1]',close:'MCP guarded writes [v1.1]',cross:'Read-only Resources [v1.1]'}};
+
+/* use cases: id, title, stage, role, mile, prio, input, format, processing, output */
+const UC=[
+{id:'L2',t:'Import the availability Excel — "the brain-dump moment"',stage:'load',role:'mgr',mile:'v1',prio:'H·H·H',input:'Unit schedule in whatever shape it exists',fmt:'Excel, PDF, photo of a printout',proc:'Ingest: normalise to canonical CSV; map columns → Unit fields (unit_no · type · beds · floor · sqm · price · status); unmapped columns → tags',out:'Unit records; validation pass flags dupes/missing prices — nothing silently imported wrong'},
+{id:'L3',t:'Upload the Drive dump and link plans to units',stage:'load',role:'ops',mile:'v1',prio:'H·H·H',input:'Per-level floor plans, brochures, CADs, site studies',fmt:'Bulk upload: PDF, image, .dwg/.dxf, ZIP',proc:'Ingest: media_type classification (~9 types); filename/level/unit-number pattern match → link plan to Unit',out:'Documents linked; low-confidence matches → human fix-up queue'},
+{id:'L4',t:'Connect WhatsApp — enable the command channel',stage:'load',role:'mgr',mile:'v1',prio:'H·H·H',input:'Twilio number, rep roster, intent toggles',fmt:'Settings UI + onboarding call',proc:'Enables modalities 1–2; voice notes on — transcribe first, then parse same as text',out:'6 intents live; guarded intents fire ApprovalRequests'},
+{id:'L5',t:'Migrate live leads and deals',stage:'load',role:'ops',mile:'conc',prio:'M·H·H',input:'Existing leads/deals exported as-is',fmt:'Old-CRM export, spreadsheets, WhatsApp-group history',proc:'Ingest: Contact creation w/ phone-dedupe (hard block); Opportunities at true stage w/ units[]',out:'Live board; first-week concierge shadow fixes data'},
+{id:'M2',t:'Keep inventory accurate conversationally',stage:'load',role:'mgr',mile:'v1',prio:'H·H·H',input:'"CM1104 is sold", corrections before external pushes',fmt:'WhatsApp text/voice or UI',proc:'Write + nudge: guarded transition → ApprovalRequest; propagation everywhere',out:'Cross-opp removal on Sold, reps notified'},
+{id:'D3',t:'Launch brief via the Studio Wizard',stage:'launch',role:'own',mile:'conc',prio:'H·H·H',input:'Style direction, references, brand stage, timeline',fmt:'Structured intake + reference uploads',proc:'Brief → StudioRequest; generate [v1.1] (constraint model from CADs); concierge fulfils in v1',out:'Assets in delivery gallery; hosted lead form goes live'},
+{id:'A12',t:'Consultation Q&A / on-demand decision support',stage:'launch',role:'own',mile:'conc',prio:'M·H·L',input:'Answers in adaptive Q&A; pricing/channel-mix asks',fmt:'Conversational (Wizard chat)',proc:'Match + generate: loads context, surfaces comparable data w/ sources, captures locked decisions',out:'ConsultationSession persisted; escalates on low confidence'},
+{id:'CAD',t:'Architect drawings → constraint model',stage:'launch',role:'ext',mile:'conc',prio:'—',input:'Drawings + revisions from the architect',fmt:'.dwg/.dxf files',proc:'CAD parse → ConstraintModel JSON — the architectural limits every render/variant must respect',out:'Constraint model attached to Project/Units; AI parse is v1.1'},
+{id:'ML3',t:'Collateral-change requests',stage:'launch',role:'mkt',mile:'later',prio:'M·H·M',input:'"Price list changed / phase 2 released" notices',fmt:'UI request (future: conversational)',proc:'Generate + nudge: regenerate affected collateral; flag stale assets',out:'Updated collateral versions'},
+{id:'BK',t:'Brand kit upload',stage:'launch',role:'mkt',mile:'conc',prio:'—',input:'Logo, palette, typography, tone-of-voice, personas',fmt:'File upload + Wizard fields',proc:'Stored as BrandKit; conditions all generation',out:'Brand-consistency gate (ML5/ML8)'},
+{id:'D1',t:'Hosted lead form capture (Tier 1)',stage:'perform',role:'buyer',mile:'v1',prio:'H·H·H',input:'Form A (identity, buyer_type, budget_band) / Form B (+1–3 units); slot pick',fmt:'Hosted form; UTM/session/IP geo server-side',proc:'Ingest: atomic capture — Contact (phone-deduped) + Opportunity + source + Activity + notification; GTM event to pixel',out:'New Lead on board (or Viewing Booked w/ Appointment)'},
+{id:'R2',t:'Lead triage from form signals',stage:'perform',role:'rep',mile:'v1',prio:'H·H·M',input:'— (form data does the first sort)',fmt:'Form fields as signals',proc:'Nudge: rules-based priority ranking; scoring agent is Phase 2 (A2)',out:'"Make first contact" CTA; overdue turns red'},
+{id:'M7',t:'Allocate leads to reps',stage:'perform',role:'mgr',mile:'v1',prio:'M·H·M',input:'Reassignment taps',fmt:'UI (board / Contacts bulk)',proc:'Nudge: round-robin v1; capacity/language rules later',out:'Rep pinged bell + WhatsApp; SLA clock starts'},
+{id:'A2',t:'Lead qualification & triage agent',stage:'perform',role:'agent',mile:'later',prio:'M·H·M',input:'Inbound lead from any channel',fmt:'Any capture tier',proc:'Nudge + write: enrich, score, assign, draft outreach in the rep\u2019s voice',out:'Draft only — must not auto-send'},
+{id:'A11',t:'Conversational buyer qualification & booking',stage:'perform',role:'agent',mile:'later',prio:'M·H·M',input:'Qualifying conversation: criteria, budget, availability',fmt:'WhatsApp/email free text (two-way)',proc:'Write + match: qualification dialogue, unit recommendations, books viewing on rep availability',out:'Handover to rep w/ full history; escalates to human on low confidence or request'},
+{id:'T2',t:'Ad-platform lead webhooks (Tier 2)',stage:'perform',role:'ext',mile:'v12',prio:'—',input:'Meta/Google lead-form payloads',fmt:'Webhook JSON (v1: concierge CSV import)',proc:'Schema map → same atomic capture as D1',out:'Same as Tier 1'},
+{id:'A1',t:'Conversational rep input agent — the flagship',stage:'sell',role:'rep',mile:'v1',prio:'H·H·H',input:'"Just showed Mike Gatt the maisonette at Dolphin Court, wants a hold on CM9802, follow up Thursday"',fmt:'WhatsApp text or voice note (Twilio)',proc:'Ingest + write: STT if voice → multi-intent parse (that example = 3 intents) → entity resolution (#CM prefix optional) → one clarifying question on ambiguity',out:'Preview card → tap Confirm/Edit → records update everywhere; guarded intents → ApprovalRequest'},
+{id:'R3',t:'Holds, reservations & status changes conversationally',stage:'sell',role:'rep',mile:'v1',prio:'H·H·H',input:'"Put a hold on CM9802 for Mike Gatt" / "Mark CM1104 as sold"',fmt:'WhatsApp / voice / email',proc:'Ingest + write: request_hold / update_unit_status',out:'ApprovalRequest → M1; on approval, full propagation'},
+{id:'R1',t:'Approve drafted follow-ups',stage:'sell',role:'rep',mile:'v1',prio:'H·H·H',input:'Tap-approval of drafted follow-ups',fmt:'Drafted message in rep\u2019s channel',proc:'Nudge + write: cadence workflow ranks today\u2019s follow-ups; draft references viewed units',out:'Rep tap = send (buyer-facing rule)'},
+{id:'R9',t:'Match a buyer to the right unit',stage:'sell',role:'rep',mile:'v1',prio:'M·H·M',input:'Buyer criteria: budget, beds, type, view, timeline — "or just points at the building"',fmt:'Filters/⌘K; Visual Search hotspots; future NL',proc:'Match (v1 = filters + search)',out:'Shortlist tray → Present Mode Compare'},
+{id:'PS',t:'Present Mode session capture',stage:'sell',role:'buyer',mile:'v1',prio:'—',input:'Shortlist, finish/layout choices, compare decisions, note (rep + buyer together)',fmt:'Present Mode interaction capture',proc:'Session → Opportunity: units[], Activity, files',out:'Auto-captured on Save & send'},
+{id:'R4',t:'Live variant request in the buyer meeting',stage:'sell',role:'buyer',mile:'conc',prio:'H·H·M',input:'Mid-meeting ask: "different finish / layout / view"',fmt:'Personalise quick action; preference_profile capture',proc:'Generate against ConstraintModel — v1 concierge ~24h; v1.1 A3 in-meeting',out:'Variant lands on Opportunity + Unit, appears in Present + follow-up pack'},
+{id:'R5',t:'Personalised follow-up pack',stage:'sell',role:'rep',mile:'conc',prio:'H·H·M',input:'Send trigger after meeting',fmt:'One tap (send_brochure)',proc:'Generate + write: personalised pack from the buyer\u2019s actual shortlist',out:'Sent on buyer\u2019s channel; Activity logged'},
+{id:'A4',t:'Follow-up & nurture agent',stage:'sell',role:'agent',mile:'later',prio:'M·H·M',input:'Silence/milestone triggers (not user-sent)',fmt:'—',proc:'Nudge + write: personalised draft referencing viewed unit',out:'Rep approves or pre-authorises'},
+{id:'M1',t:'Approve holds, reservations, exceptions',stage:'close',role:'mgr',mile:'v1',prio:'H·H·H',input:'Approve/reject taps',fmt:'Approvals queue — structured ApprovalRequest w/ queue_position, never a chat message',proc:'Nudge: triage surfaces competing demand, 14-day expiry, inventory impact',out:'Unit transitions, propagation, rep+buyer notified'},
+{id:'O1',t:'Contract paperwork',stage:'close',role:'ops',mile:'v1',prio:'M·H·M',input:'Signed/returned contracts',fmt:'PDF upload or email attachment',proc:'Generate: template populated from deal record. Ingest: upload auto-classifies to opportunity + checklist slot',out:'Contract stored; POS-signed flag tracked'},
+{id:'O3',t:'KYC & deal-file collection',stage:'close',role:'ops',mile:'v1',prio:'M·H·M',input:'Passport/ID, proof of address, source of funds, reservation form, receipts',fmt:'File/photo uploads, email attachments, WhatsApp media',proc:'Ingest: dropped file finds its opportunity, stage and checklist slot via media_type',out:'Audit-ready deal file; immutable Activity rows'},
+{id:'O2',t:'Deal-lifecycle appointments',stage:'close',role:'ops',mile:'v1',prio:'M·M·M',input:'Appointment requests (notary, signing, handover)',fmt:'A1 conversational or "+ New event" drawer; external calendar + email sync',proc:'Write: typed Appointments linked to opportunity',out:'Reminders, calendar sync'},
+{id:'R6',t:'Verbal commit → reservation',stage:'close',role:'rep',mile:'v1',prio:'H·H·M',input:'Buyer commit → reservation details, deposit terms',fmt:'WhatsApp/UI; deposit recorded',proc:'Write: gate fires, Deal Room unlocks; KYC checklist runs',out:'Hold (14-day) → Reservation needs approval + form + deposit'},
+{id:'O4',t:'Payment milestone updates',stage:'close',role:'ops',mile:'v1',prio:'M·H·M',input:'Payment confirmations, receipts',fmt:'Manual status update + receipt upload (v1)',proc:'Nudge: upcoming/overdue surfaced; auto-chase Phase 2',out:'Milestone tracker; Reports aggregation'},
+{id:'NB',t:'Notary & bank documents (mediated)',stage:'close',role:'ext',mile:'v1',prio:'—',input:'Sanction letters, Konvenju, searches',fmt:'Email/paper → re-uploaded by Ops today',proc:'Same O3 ingest path',out:'Filed to deal; direct channel is candidate §5C'},
+{id:'D4',t:'Dashboard & activity queries',stage:'cross',role:'own',mile:'v1',prio:'H·H·M',input:'Dashboard & report queries',fmt:'UI; Ask panel NL [stretch]',proc:'Read-only aggregation of immutable Activity',out:'Live dashboards — no self-reporting anywhere'},
+{id:'D5',t:'Forecast & investor-report asks',stage:'cross',role:'own',mile:'stretch',prio:'M·H·M',input:'"Board deck for Thursday"',fmt:'NL request',proc:'Generate: sell-out forecast in recipient\u2019s format, caveated w/ confidence',out:'Report artifact'},
+{id:'A5',t:'Inventory & collateral sync agent',stage:'cross',role:'agent',mile:'v1',prio:'M·H·M',input:'Unit status changes (internal trigger)',fmt:'Event',proc:'Write + nudge: collateral/availability sync everywhere',out:'Stale-asset flags'},
+{id:'A9',t:'Agency AI lead submissions',stage:'cross',role:'agent',mile:'later',prio:'M·M·L',input:'Lead submissions, commission queries',fmt:'MCP tool calls (identity classes)',proc:'Guarded-action matrix',out:'Tracked partner deals'},
+{id:'B1-4',t:'Buyer portal: status, messages, snags, referrals',stage:'cross',role:'buyer',mile:'later',prio:'M·H·L',input:'Status queries, messages to notary/dev, snag reports w/ photos, referrals',fmt:'Buyer portal (post-sale)',proc:'Photo understanding → snag records (O6); thread routing',out:'Snag queue, referral attribution'},
+{id:'A13',t:'Post-sale continuity',stage:'cross',role:'buyer',mile:'prop',prio:'M·M·L',input:'Post-sale life events, upgrade interest',fmt:'Portal/WhatsApp',proc:'Generate + nudge: continuity touchpoints',out:'Repeat-client pathway'}];
+
+/* candidates: id, theme, title, user, stage, desc, effort */
+const CAND=[
+{id:'cA1',th:'A · Ambient & voice',t:'Viewing-conversation recording (with consent)',role:'rep',stage:'sell',d:'Rep records the buyer meeting → diarised STT → AI extracts preferences, objections, budget signals into preference_profile + Activity. The rep never types a note again. Feeds D2 personalisation.',eff:'Effort High · Fit High'},
+{id:'cA2',th:'A · Ambient & voice',t:'CarPlay / hands-free logging between viewings',role:'rep',stage:'sell',d:'Voice-first, eyes-free capture on the drive. Same A1 pipeline — the parser already handles voice.',eff:'Effort Low · Fit High'},
+{id:'cA3',th:'A · Ambient & voice',t:'"Hey Bricly" Siri Shortcut',role:'rep',stage:'sell',d:'Spoken intents routed to the same 6-intent parser via a shortcut.',eff:'Effort Low · Fit Med'},
+{id:'cA4',th:'A · Ambient & voice',t:'CTI call transcripts (in/outbound)',role:'rep',stage:'sell',d:'Phone audio → STT → summary + extracted intents → preview. Already flagged as a docs gap; biggest untapped channel for Maltese sales culture.',eff:'Effort Med · Fit High'},
+{id:'cB1',th:'B · Camera-as-input',t:'Snap a paper doc (signed POS, ID, deposit slip)',role:'ops',stage:'close',d:'WhatsApp photo → OCR + classify → O3 ingest path → checklist slot. Close-stage paperwork without a scanner.',eff:'Effort Med · Fit High'},
+{id:'cB2',th:'B · Camera-as-input',t:'Photo of the sales-office whiteboard',role:'mgr',stage:'load',d:'Table extraction → diff vs Unit records → M2 preview-then-commit corrections.',eff:'Effort Med · Fit Med'},
+{id:'cB3',th:'B · Camera-as-input',t:'Business card photo → contact',role:'rep',stage:'perform',d:'OCR → Contact draft, phone-deduped.',eff:'Effort Low · Fit High'},
+{id:'cB4',th:'B · Camera-as-input',t:'Construction-site photos → progress updates',role:'ops',stage:'cross',d:'Geotagged photos auto-tagged to project/phase → buyer-portal updates (O7).',eff:'Effort Med · Fit Med'},
+{id:'cB5',th:'B · Camera-as-input',t:'Screenshot forwarding (IG DM, competitor listing)',role:'rep',stage:'perform',d:'Image understanding → lead capture or competitive note.',eff:'Effort Med · Fit Med'},
+{id:'cC1',th:'C · Email dropbox',t:'Forward-to-Bricly address / BCC',role:'ext',stage:'close',d:'deals@&lt;workspace&gt;.bricly.io — forward the bank sanction letter, notary email or architect revision → AI matches sender/thread/content to the right deal, classifies the attachment, files it, logs the correspondence. The zero-UI channel for external humans who will never install anything. Email data-in is already v1 scope.',eff:'Effort Med · Fit High'},
+{id:'cD1',th:'D · Context & sensors',t:'Geofence viewing prompts',role:'rep',stage:'sell',d:'Rep arrives at Dolphin Court with a viewing on the calendar → "Log viewing held with Mike?" — one tap. Calendar + location fusion attacks the biggest compliance gap with near-zero rep effort. Consent + battery caveats.',eff:'Effort Med · Fit High'},
+{id:'cE1',th:'E · Implicit signals',t:'Engagement telemetry as input',role:'buyer',stage:'perform',d:'Microsite/brochure dwell time, revisits, unit favourites, email opens, WhatsApp read receipts, Present Mode traces. Nobody "sends" anything — but these are the inputs that make A2 scoring and A4 nurture work. Requires an event pipeline, not a message parser. The v1.1 trackable microsite is the natural carrier.',eff:'Effort Med · Fit High'},
+{id:'cF1',th:'F · Buyer media',t:'Inspiration images / Pinterest boards',role:'buyer',stage:'sell',d:'Conditioning inputs for render personalisation (R4/D2), constrained by the ConstraintModel.',eff:'Effort Med · Fit Med'},
+{id:'cF2',th:'F · Buyer media',t:'Secure one-time KYC upload link',role:'buyer',stage:'close',d:'Mortgage/KYC docs via a link — no portal needed → O3 ingest.',eff:'Effort Low · Fit High'},
+{id:'cF3',th:'F · Buyer media',t:'Snag photos + video at handover',role:'buyer',stage:'cross',d:'Photo/video understanding → snag records (B3/O6).',eff:'Effort Med · Fit Med'},
+{id:'cG1',th:'G · System webhooks',t:'DocuSign / Stripe / bank / accounting events',role:'ext',stage:'close',d:'Envelope-signed events advance the doc lifecycle chain automatically; payment-received advances PaymentMilestones and kills manual O4 updates; bank pre-approval unblocks the Reservation gate; land-registry results evidence the notary-searches step.',eff:'Effort Med · Fit High (v1.2 planned)'},
+{id:'cG2',th:'G · System webhooks',t:'Listing-portal sync',role:'ext',stage:'perform',d:'Inquiry capture (Tier-1-equivalent) + two-way availability.',eff:'Effort Med · Fit Med'},
+{id:'cH1',th:'H · Brain-dump ingest',t:'Whole-folder drag-drop onboarding',role:'ops',stage:'load',d:'Drop the entire messy project folder (mixed CADs, Excels, PDFs, photos, old contracts) → AI sorts, classifies and routes every file to the L2/L3/L5 pipelines in one pass, single review queue. The "no format demanded" philosophy taken to its conclusion — and the best onboarding demo imaginable.',eff:'Effort Med-High · Fit Very high'},
+{id:'cH2',th:'H · Brain-dump ingest',t:'Versioned CAD re-ingest with diff detection',role:'ext',stage:'launch',d:'Architect sends revisions → AI diffs vs the constraint model → flags affected units/renders/collateral → feeds ML3 regeneration.',eff:'Effort High · Fit High'}];
+
+const CAPS=[
+['LLM intent parsing + entity resolution + clarifying-question loop','WhatsApp text/voice, chat, email, inbound conversations','v1'],
+['Preview-then-commit write layer + ApprovalRequest gates (channel-agnostic)','all mutating inputs','v1'],
+['Speech-to-text (Whisper)','voice notes, §5A ambient','v1'],
+['Excel/CSV/table normalisation + column mapping + validation queue','schedule import, migration, §5H','v1 (concierge-assisted)'],
+['File classification (media_type, ~9 types) + deal/unit/checklist routing','bulk uploads, deal docs, §5B/C/H','v1 basic → v1.1 AI'],
+['Email thread ↔ deal matching + attachment handling','email ingestion, §5C','v1 sync → v1.2 parse'],
+['OCR / document extraction (typed + handwriting + ID docs)','WhatsApp media, KYC, §5B','v1.1'],
+['CAD parsing → ConstraintModel JSON (+ revision diffing)','CAD intake, §5H','v1 concierge → v1.1'],
+['Image/photo understanding (whiteboards, screenshots, site photos, snags)','§5B, buyer portal','v1.1+ candidates'],
+['MCP server: tool registry, identity classes, guard matrix','MCP calls, partner submissions','v1.1'],
+['Webhook ingestion framework (schema-mapped, idempotent)','ad platforms, §5G','v1.2'],
+['Behavioural event/telemetry pipeline + scoring features','Present sessions, §5E','v1.1 microsite → Phase 2 scoring'],
+['Generation conditioned on ConstraintModel + BrandKit (+ buyer inspiration)','Studio, personalisation, §5F','v1.1'],
+['Consent, recording-law & GDPR handling (recording, telemetry, geofencing)','voice, §5A/D/E','before any ambient capture ships']];
+
+const GAPS=[
+'<b>CTI / phone calls</b> — mentioned in lead-capture flow §10 but unspec\u2019d. Needs provider choice + recording-consent position.',
+'<b>Social DMs</b> (Instagram/Facebook) — named as a capture channel, no integration path. Could ride the Tier-2 webhook framework.',
+'<b>OCR depth</b> — v1 "AI-assisted PDF parsing" is scoped for availability lists only; ID-document extraction and handwriting undefined.',
+'<b>Video as input</b> — buyer walkthrough reactions, site videos: no documented use; only relevant if §5A/B ships.',
+'<b>Recording & telemetry compliance</b> — GDPR lawful basis, Maltese consent norms, retention for transcripts/telemetry. Must be resolved before §5 A/D/E leave the menu.',
+'<b>Buyer identity across channels</b> — same buyer arrives via form, WhatsApp, portal; phone dedupe is the v1 anchor, but email-only and DM-only identities need a merge strategy.',
+'<b>Offline/site conditions</b> — sales offices and construction sites have poor connectivity; voice/photo capture should queue-and-sync.'];
+
+/* ---------- state ---------- */
+const LS='briclyAIInputsBrainstorm';
+let S={votes:{},notes:{},ideas:[]};
+try{S=Object.assign(S,JSON.parse(localStorage.getItem(LS)||'{}'))}catch(e){}
+function save(){localStorage.setItem(LS,JSON.stringify(S))}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1800)}
+
+/* ---------- render helpers ---------- */
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const chip=m=>`<span class="chip ${MILES[m][1]}">${MILES[m][0]}</span>`;
+const rc=r=>`<span class="rc ${ROLES[r][1]}">${ROLES[r][0]}</span>`;
+function bsBar(id){
+  const v=S.votes[id]||0,n=S.notes[id];
+  return `<div class="bs-bar"><button class="vote${v?' on':''}" onclick="vote('${id}',event)">👍 <span id="v-${id}">${v}</span></button><button class="notebtn${n?' has':''}" id="nb-${id}" onclick="toggleNote('${id}',event)">✎ note${n?' ·':''}</button></div><div class="notewrap" id="nw-${id}"><textarea placeholder="Team note…" oninput="setNote('${id}',this.value)">${n?esc(n):''}</textarea></div>`;
+}
+function vote(id,e){e.preventDefault();e.stopPropagation();S.votes[id]=(S.votes[id]||0)+1;save();document.getElementById('v-'+id).textContent=S.votes[id];document.getElementById('v-'+id).parentElement.classList.add('on')}
+function toggleNote(id,e){e.preventDefault();e.stopPropagation();document.getElementById('nw-'+id).classList.toggle('open')}
+function setNote(id,v){S.notes[id]=v.trim();if(!S.notes[id])delete S.notes[id];save();const b=document.getElementById('nb-'+id);b.classList.toggle('has',!!S.notes[id])}
+
+/* ---------- tables ---------- */
+document.querySelector('#tax-table tbody').innerHTML=MODALITIES.map(r=>`<tr><td class="mono">${r[0]}</td><td class="k">${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${chip(r[4])}</td></tr>`).join('');
+document.querySelector('#user-table tbody').innerHTML=USERS.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td class="muted">${r[3]}</td></tr>`).join('');
+document.querySelector('#mx-table thead').innerHTML='<tr><th></th>'+Object.values(STAGES).map(s=>`<th>${s}</th>`).join('')+'</tr>';
+document.querySelector('#mx-table tbody').innerHTML=Object.keys(MATRIX).map(r=>`<tr><th class="rowh"><a href="#usecases" onclick="filterRole('${r}')">${rc(r)}</a></th>`+Object.keys(STAGES).map(st=>`<td>${MATRIX[r][st].split(' · ').map(x=>`<span class="m-item">${x}</span>`).join('')}</td>`).join('')+'</tr>').join('');
+document.querySelector('#cap-table tbody').innerHTML=CAPS.map(r=>`<tr><td class="k">${r[0]}</td><td>${r[1]}</td><td class="mono">${r[2]}</td></tr>`).join('');
+document.getElementById('gap-list').innerHTML=GAPS.map(g=>`<li>${g}</li>`).join('');
+
+/* ---------- use cases ---------- */
+const F={stage:new Set(),role:new Set(),mile:new Set(),q:''};
+function togBtn(group,key,label,extra){return `<button class="tog${extra?' '+extra:''}" data-g="${group}" data-k="${key}" aria-pressed="false" onclick="togF(this)">${label}</button>`}
+document.getElementById('f-stage').innerHTML=Object.entries(STAGES).map(([k,v])=>togBtn('stage',k,v)).join('');
+document.getElementById('f-role').innerHTML=Object.entries(ROLES).map(([k,v])=>togBtn('role',k,v[0])).join('');
+document.getElementById('f-mile').innerHTML=Object.entries(MILES).map(([k,v])=>togBtn('mile',k,v[0])).join('');
+function togF(b){const g=b.dataset.g,k=b.dataset.k;const on=F[g].has(k);on?F[g].delete(k):F[g].add(k);b.setAttribute('aria-pressed',!on);applyF()}
+function filterRole(r){F.role.clear();F.role.add(r);document.querySelectorAll('[data-g=role]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===r));applyF()}
+document.getElementById('q').addEventListener('input',e=>{F.q=e.target.value.toLowerCase();applyF()});
+
+function ucCard(u){
+  return `<details class="uc" data-stage="${u.stage}" data-role="${u.role}" data-mile="${u.mile}" data-txt="${esc((u.id+' '+u.t+' '+u.input+' '+u.fmt+' '+u.proc+' '+u.out).toLowerCase())}">
+  <summary class="uc-sum"><div class="uc-top"><span class="uc-id">${u.id}</span><span class="uc-title">${u.t}</span><span class="chev">›</span></div>
+  <div class="uc-tags">${rc(u.role)}<span class="rc ext">${STAGES[u.stage]}</span>${chip(u.mile)}${u.prio!=='—'?`<span class="eff">P·V·U ${u.prio}</span>`:''}</div></summary>
+  <div class="uc-detail"><dl class="kv">
+    <dt>Input sent</dt><dd>${u.input}</dd>
+    <dt>Modality &amp; format</dt><dd>${u.fmt}</dd>
+    <dt>AI processing</dt><dd>${u.proc}</dd>
+    <dt>Output &amp; gating</dt><dd>${u.out}</dd>
+  </dl></div>${bsBar(u.id)}</details>`;
+}
+document.getElementById('uc-grid').innerHTML=UC.map(ucCard).join('');
+function applyF(){
+  let n=0;
+  document.querySelectorAll('#uc-grid .uc').forEach(el=>{
+    const ok=(!F.stage.size||F.stage.has(el.dataset.stage))&&(!F.role.size||F.role.has(el.dataset.role))&&(!F.mile.size||F.mile.has(el.dataset.mile))&&(!F.q||el.dataset.txt.includes(F.q));
+    el.classList.toggle('hide',!ok);if(ok)n++;
+  });
+  document.getElementById('count').textContent=n+' / '+UC.length;
+  document.getElementById('uc-empty').style.display=n?'none':'block';
+}
+applyF();
+
+/* ---------- candidates ---------- */
+function candCard(c,custom){
+  return `<div class="uc cand" data-id="${c.id}">
+  <div class="uc-sum" style="cursor:default"><div class="uc-top"><span class="uc-id">${custom?'IDEA':c.th.split(' ')[0]}</span><span class="uc-title">${esc(c.t)}</span>${custom?`<button class="del" onclick="delIdea('${c.id}')">delete</button>`:''}</div>
+  <div class="uc-tags">${rc(c.role)}<span class="rc ext">${STAGES[c.stage]||c.stage}</span><span class="eff">${c.eff||'unrated'}</span>${custom?'':`<span class="muted mono" style="font-size:10.5px">${c.th}</span>`}</div>
+  <p style="font-size:13.5px;line-height:20px">${custom?esc(c.d):c.d}</p></div>${bsBar(c.id)}</div>`;
+}
+function renderCands(){
+  const roleKey=n=>({'Rep':'rep','Manager':'mgr','Marketing':'mkt','Owner/Dev':'own','Ops':'ops','Buyer':'buyer','External':'ext','AI agent':'agent'}[n]||'ext');
+  const stKey=n=>({'Load':'load','Launch':'launch','Perform':'perform','Sell':'sell','Close':'close','Cross':'cross'}[n]||'cross');
+  const ideas=S.ideas.map(i=>({id:i.id,t:i.t,d:i.d,role:roleKey(i.user),stage:stKey(i.stage),eff:'team idea'}));
+  document.getElementById('cand-grid').innerHTML=CAND.map(c=>candCard(c,false)).join('')+ideas.map(c=>candCard(c,true)).join('');
+}
+renderCands();
+function addIdea(){
+  const t=document.getElementById('ni-title').value.trim(),d=document.getElementById('ni-desc').value.trim();
+  if(!t){toast('Give the idea a title');return}
+  S.ideas.push({id:'idea'+Date.now(),t,d,user:document.getElementById('ni-user').value,stage:document.getElementById('ni-stage').value});
+  save();renderCands();
+  document.getElementById('ni-title').value='';document.getElementById('ni-desc').value='';
+  toast('Idea added');
+}
+function delIdea(id){S.ideas=S.ideas.filter(i=>i.id!==id);delete S.votes[id];delete S.notes[id];save();renderCands()}
+
+/* ---------- export & reset ---------- */
+function exportMd(){
+  const lines=['# Bricly AI Input Modalities — brainstorm session','','_Exported '+new Date().toLocaleString()+'_',''];
+  const voted=[...UC.map(u=>({id:u.id,t:u.t})),...CAND.map(c=>({id:c.id,t:c.t})),...S.ideas.map(i=>({id:i.id,t:i.t}))]
+    .map(x=>({...x,v:S.votes[x.id]||0,n:S.notes[x.id]||''}))
+    .filter(x=>x.v||x.n).sort((a,b)=>b.v-a.v);
+  if(voted.length){lines.push('## Votes & notes','');voted.forEach(x=>{lines.push(`- **${x.t}** (${x.id}) — 👍 ${x.v}${x.n?'\n  - Note: '+x.n:''}`)})}
+  else lines.push('_No votes or notes yet._');
+  if(S.ideas.length){lines.push('','## New ideas','');S.ideas.forEach(i=>lines.push(`- **${i.t}** — ${i.user} · ${i.stage}${i.d?'\n  - '+i.d:''}`))}
+  navigator.clipboard.writeText(lines.join('\n')).then(()=>toast('Markdown copied to clipboard'),()=>toast('Copy failed — check permissions'));
+}
+function clearSession(){if(confirm('Clear all votes, notes and added ideas?')){S={votes:{},notes:{},ideas:[]};save();location.reload()}}
+</script>
+</body>
+</html>

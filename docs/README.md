@@ -5,6 +5,7 @@ This repo now includes the packaged Bricly planning material so product context 
 ## Suggested starting points
 
 - `ai-context.md` — concise working brief for implementation conversations
+- `ai-input-modalities-and-use-cases.md` — every way users send inputs/data to the AI layer, per user type × journey stage (for AI architecture)
 - `mvp-prototyping-readiness.md` — verdict on whether the repo is ready for MVP prototyping
 - `mvp-build-checklist.md` — prototype-first build checklist for the locked MVP
 - `mvp-issues-and-gaps.md` — issues, conflicts, and definition gaps to watch
