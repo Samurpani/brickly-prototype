@@ -399,6 +399,46 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
 .cd.ok{background:rgba(101,122,50,.15);color:#52671F}
 .ct-bulkbar{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(90px);display:flex;align-items:center;gap:2px;background:var(--surface);border:1px solid var(--outline);border-radius:14px;box-shadow:var(--sh-xl);padding:7px 10px;z-index:50;transition:transform .2s,opacity .2s;opacity:0;pointer-events:none}
 .ct-bulkbar.on{transform:translateX(-50%);opacity:1;pointer-events:auto}
+.selbar{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(16px);display:flex;align-items:center;gap:2px;background:#1d1c1a;color:#f4f2ec;border-radius:14px;box-shadow:0 12px 34px -8px rgba(0,0,0,.5),0 2px 8px rgba(0,0,0,.28);padding:7px 8px 7px 10px;z-index:120;opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease;max-width:calc(100vw - 28px)}
+.selbar.on{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}
+.selbar-count{display:inline-flex;align-items:baseline;gap:6px;font-size:12.5px;font-weight:500;color:#cbc8bf;padding:0 6px 0 4px;white-space:nowrap}
+.selbar-count b{font-size:14px;font-weight:700;color:#e8c14a;font-variant-numeric:tabular-nums}
+.selbar-x{width:24px;height:24px;border-radius:7px;border:none;background:transparent;color:#8f8c84;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:none}
+.selbar-x svg{width:11px;height:11px}
+.selbar-x:hover{background:rgba(255,255,255,.09);color:#f4f2ec}
+.selbar-sep{width:1px;height:20px;background:rgba(255,255,255,.13);margin:0 4px;flex:none}
+.sbtn{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:8px;border:none;background:transparent;font-family:inherit;font-size:12.5px;font-weight:500;color:#f4f2ec;cursor:pointer;white-space:nowrap;transition:background .12s}
+.sbtn svg{width:14px;height:14px;flex:none;opacity:.82}
+.sbtn:hover{background:rgba(255,255,255,.1)}
+.sbtn:disabled{opacity:.38;cursor:default}
+.sbtn:disabled:hover{background:transparent}
+.sbtn.danger{color:#ff9a9a}
+.sbtn.danger:hover{background:rgba(235,87,87,.18)}
+.selbar-menu{position:absolute;bottom:calc(100% + 8px);left:0;background:#242220;border:1px solid rgba(255,255,255,.11);border-radius:10px;box-shadow:0 14px 30px -6px rgba(0,0,0,.55);padding:6px;min-width:172px;max-height:290px;overflow-y:auto;z-index:121}
+.selbar-mi{display:flex;align-items:center;gap:9px;width:100%;text-align:left;padding:8px 10px;border-radius:7px;border:none;background:transparent;font-family:inherit;font-size:12.5px;color:#f4f2ec;cursor:pointer}
+.selbar-mi svg{width:14px;height:14px;opacity:.75;flex:none}
+.selbar-mi:hover{background:rgba(255,255,255,.1)}
+.selbar-mi.danger{color:#ff9a9a}
+.selbar-mi:disabled{opacity:.4;cursor:default}
+.selbar-mi:disabled:hover{background:transparent}
+/* confirmation sheet */
+.sb-confirm{position:fixed;inset:0;z-index:130;display:none;align-items:center;justify-content:center}
+.sb-confirm.on{display:flex}
+.sb-confirm-scrim{position:absolute;inset:0;background:rgba(20,20,19,.36)}
+.sb-confirm-card{position:relative;background:var(--surface);border:1px solid var(--outline);border-radius:16px;box-shadow:var(--sh-xl);width:390px;max-width:calc(100vw - 32px);padding:22px 22px 18px}
+.sb-confirm-h{font-size:15px;font-weight:600;margin-bottom:10px}
+.sb-confirm-count{font-size:13px;color:var(--on-variant);margin-bottom:6px}
+.sb-confirm-count b{font-size:22px;font-weight:700;color:var(--on-surface);margin-right:4px}
+.sb-confirm-b{font-size:12.5px;color:var(--on-variant);line-height:1.5;margin-bottom:16px}
+.sb-confirm-foot{display:flex;gap:10px;justify-content:flex-end}
+@media (max-width:640px){
+  .selbar{left:14px;right:14px;transform:translateY(16px);max-width:none;overflow-x:auto}
+  .selbar.on{transform:translateY(0)}
+}
+
+/* ---------- Ask panel (drawer) ---------- */
+.ask-panel{position:fixed;top:0;right:0;bottom:0;width:340px;background:var(--surface);border-left:1px solid var(--outline);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .22s cubic-bezier(.4,0,.2,1);z-index:50;box-shadow:var(--sh-xl)}
+.ask-panel.open{transform:translateX(0)}
 .bb-count{font-size:12.5px;font-weight:600;padding:0 8px;white-space:nowrap}
 .bb-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-radius:8px;border:none;background:transparent;font-family:inherit;font-size:12.5px;color:var(--on-surface);cursor:pointer;white-space:nowrap;transition:.12s}
 .bb-btn:hover{background:var(--sc-lowest)}
@@ -988,28 +1028,141 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
 .tr-item .x{margin-left:auto;color:var(--muted);cursor:pointer;font-size:14px;flex:none}
 .tr-item .x:hover{color:var(--on-surface)}
 .tr-panel-foot{padding:12px 16px;border-top:1px solid var(--outline-variant);display:flex;gap:8px;flex:none}
-.cmp-body{flex-direction:column;overflow-y:auto;padding:22px 22px 0}
-.cmp-cols{display:flex;gap:16px;overflow-x:auto;padding-bottom:18px;align-items:flex-start}
-.cmp-col{flex:0 0 260px;border:1px solid var(--outline);border-radius:16px;overflow:hidden;background:var(--surface);display:flex;flex-direction:column}
+.cmp-body{display:block;overflow-y:auto;min-height:0;padding:22px 22px 0}
+.cmp-cols{display:flex;gap:16px;overflow-x:auto;padding-bottom:18px;align-items:stretch}
+.cmp-col{flex:1 1 280px;min-width:250px;border:1px solid var(--outline);border-radius:16px;overflow:hidden;background:var(--surface);display:flex;flex-direction:column}
 .cmp-col-head{position:relative;padding:12px 14px}
 .cmp-render{position:relative;height:120px;border-radius:10px;overflow:hidden;background:linear-gradient(135deg,#2c2a25,#4a463d);margin-bottom:10px}
 .cmp-render img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .cmp-x{position:absolute;top:10px;right:10px;width:24px;height:24px;border-radius:50%;border:none;background:rgba(20,18,14,.55);color:#fff;cursor:pointer;font-size:14px;z-index:2;line-height:1}
 .cmp-id{font-size:14px;font-weight:600}
 .cmp-dev{font-size:11.5px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:5px}
-.cmp-specs{padding:0 14px 10px;border-bottom:1px solid var(--outline-variant)}
+.cmp-specs{padding:0 14px 10px;flex:1}
 .cmp-row{display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:5px 0}
 .cmp-row .k{color:var(--muted);flex:none}
 .cmp-row .v.best{color:var(--primary);font-weight:700}
-.cmp-config{padding:12px 14px}
-.cmp-config .pz-sec{margin-bottom:14px}
-.cmp-config .pz-opts{gap:6px}
 .cmp-total{display:flex;justify-content:space-between;align-items:baseline;padding:12px 14px;border-top:1px solid var(--outline-variant);font-size:12.5px;color:var(--muted)}
 .cmp-total b{font-size:15px;color:var(--on-surface)}
 .cmp-actions{padding:0 14px 14px}
 .cmp-foot{border-top:1px solid var(--outline);padding:13px 22px;display:flex;align-items:center;gap:14px;flex:none;background:var(--surface)}
 .cmp-checkout{max-width:560px;margin:0 auto;padding-bottom:24px}
 .cmp-checkout h3{font-size:15px;margin:6px 0 16px;text-align:center}
+/* Compare v2 — buyer lens toolbar, grouped rows, signals */
+.cmp-toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:-22px -22px 12px;padding:16px 22px 12px;position:sticky;top:0;background:var(--surface);z-index:3;border-bottom:1px solid var(--outline-variant)}
+.cmp-lensrow{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.cmp-tlabel{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-right:2px}
+.cmp-lens{border:1px solid var(--outline);background:var(--surface);color:var(--on-variant);font-size:12px;padding:6px 12px;border-radius:100px;cursor:pointer;transition:.12s;white-space:nowrap}
+.cmp-lens:hover{background:var(--sc-lowest)}
+.cmp-lens.on{background:var(--primary);border-color:var(--primary);color:var(--on-primary);font-weight:600}
+.cmp-toggle{margin-left:auto;display:inline-flex;align-items:center;gap:7px;border:1px solid var(--outline);background:var(--surface);color:var(--on-variant);font-size:12px;padding:6px 12px;border-radius:100px;cursor:pointer}
+.cmp-toggle .dot{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--outline);flex:none;transition:.12s}
+.cmp-toggle.on{border-color:var(--primary);color:var(--primary)}
+.cmp-toggle.on .dot{background:var(--primary);border-color:var(--primary);box-shadow:inset 0 0 0 2.5px var(--surface)}
+.cmp-lenshint{font-size:11.5px;color:var(--on-variant);background:var(--sc-lowest);border:1px solid var(--outline-variant);border-radius:8px;padding:7px 11px;margin-bottom:14px}
+.cmp-grp{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;padding:11px 0 4px;margin-top:5px;border-top:1px solid var(--outline-variant)}
+.cmp-grp:first-child{border-top:none;margin-top:0}
+.cmp-row.hi{background:rgba(101,122,50,.07);margin:0 -8px;padding-left:8px;padding-right:8px;border-radius:6px}
+.cmp-row .v{text-align:right;white-space:normal;max-width:160px}
+.cmp-sigs{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
+.cmp-chip{font-size:10px;font-weight:600;padding:3px 8px;border-radius:100px;background:var(--sc-high);color:var(--on-variant);white-space:nowrap}
+.cmp-chip.fresh{background:rgba(101,122,50,.14);color:var(--primary)}
+.cmp-chip.warn{background:var(--y-bg);color:var(--y-ink)}
+.cmp-footinfo{font-size:13px}
+.cmp-footacts{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+/* Compare v3 — floor-plan toggle, shortlist checkout, in-flow unit peek */
+.cmp-media{display:inline-flex;border:1px solid var(--outline);border-radius:100px;overflow:hidden}
+.cmp-media button{border:none;background:var(--surface);color:var(--on-variant);font-size:12px;padding:6px 13px;cursor:pointer}
+.cmp-media button.on{background:var(--on-surface);color:var(--bg);font-weight:600}
+.cmp-render.plan{height:auto;min-height:230px;background:var(--sc-lowest);display:flex;align-items:center;justify-content:center;padding:8px;cursor:zoom-in}
+.cmp-render.plan:hover{background:var(--sc-high)}
+.cmp-render .plan-hint{position:absolute;bottom:7px;right:8px;font-size:9.5px;font-weight:600;color:var(--muted);background:var(--surface);border:1px solid var(--outline-variant);border-radius:100px;padding:2px 8px;pointer-events:none}
+.cmp-render .plan-hint.act{right:auto;left:8px;pointer-events:auto;cursor:pointer;font-family:inherit;line-height:inherit;transition:.12s}
+.cmp-render .plan-hint.act:hover{border-color:var(--primary);color:var(--primary)}
+/* Fullscreen side-by-side floor plans */
+.cmp-pfs{position:fixed;inset:0;background:rgba(20,18,14,.94);z-index:120;display:none;flex-direction:column}
+.cmp-pfs.on{display:flex}
+.cmp-pfs-head{height:56px;display:flex;align-items:center;gap:12px;padding:0 20px;color:#fff;flex:none}
+.cmp-pfs-head b{font-size:14px}
+.cmp-pfs-head .sub{font-size:12.5px;color:rgba(255,255,255,.6)}
+.cmp-pfs-x{margin-left:12px;border:1px solid rgba(255,255,255,.3);background:transparent;color:#fff;border-radius:100px;padding:7px 14px;font-size:12.5px;cursor:pointer}
+.cmp-pfs-x:hover{background:rgba(255,255,255,.12)}
+.cmp-pfs-grid{flex:1;min-height:0;display:flex;gap:18px;padding:8px 24px 26px;overflow:auto;align-items:stretch}
+.cmp-pfs-card{flex:1 1 0;min-width:340px;display:flex;flex-direction:column;background:#fdfcf9;border-radius:14px;overflow:hidden}
+.cmp-pfs-card .cap{padding:12px 16px;border-bottom:1px solid #e6e3d8;color:#2E2D2C}
+.cmp-pfs-card .cap b{font-size:14px}
+.cmp-pfs-card .cap .m{font-size:11.5px;color:#8a8578;margin-top:1px}
+.cmp-pfs-card .plan-wrap{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:16px}
+.cmp-pfs-card .plan-wrap svg{width:100%;height:100%}
+.cmp-lp input{width:100%;border:1px solid var(--outline);border-radius:10px;padding:10px 12px;font-size:13px;background:var(--surface);color:var(--on-surface)}
+.cmp-lp input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 2px rgba(101,122,50,.15)}
+.cmp-lp-dd{margin-top:8px;border:1px solid var(--outline-variant);border-radius:12px;overflow:hidden}
+.cmp-lp-g{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;padding:9px 12px 4px;background:var(--sc-lowest)}
+.cmp-lp-r{display:flex;align-items:center;gap:9px;padding:9px 12px;font-size:12.5px;cursor:pointer;border-top:1px solid var(--outline-variant)}
+.cmp-lp-r:first-child{border-top:none}
+.cmp-lp-r:hover{background:var(--sc-lowest)}
+.cmp-lp-r .meta{margin-left:auto;color:var(--muted);font-size:11.5px;flex:none}
+.cmp-lp-r.add{color:var(--primary);font-weight:600}
+.cmp-lp-chip{display:flex;align-items:center;gap:10px;border:1px solid var(--primary);background:color-mix(in srgb,var(--primary) 6%,var(--surface));border-radius:12px;padding:11px 14px;font-size:13px}
+.cmp-lp-chip .sub{font-size:11.5px;color:var(--muted);margin-top:1px;font-weight:400}
+.cmp-lp-chip .chg{margin-left:auto;border:none;background:none;color:var(--primary);font-size:12px;font-weight:600;cursor:pointer;flex:none}
+.cmp-sendopt{display:flex;gap:11px;align-items:flex-start;border:1px solid var(--outline);border-radius:12px;padding:12px 14px;cursor:pointer;transition:.12s;background:var(--surface)}
+.cmp-sendopt+.cmp-sendopt{margin-top:8px}
+.cmp-sendopt:hover{border-color:var(--sc-highest)}
+.cmp-sendopt.on{border-color:var(--primary);background:color-mix(in srgb,var(--primary) 6%,var(--surface));box-shadow:0 0 0 1px var(--primary)}
+.cmp-sendopt .ck{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--outline);flex:none;display:flex;align-items:center;justify-content:center;font-size:10px;color:transparent;margin-top:1px}
+.cmp-sendopt.on .ck{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+.cmp-sendopt .n{font-size:13px;font-weight:600}
+.cmp-sendopt .d{font-size:11.5px;color:var(--muted);margin-top:2px}
+#unPeek.over-tk{z-index:96}
+#unPeekScrim.over-tk{z-index:95}
+.cmp-devgal{padding:10px 14px;border-top:1px solid var(--outline-variant)}
+.cmp-devgal-h{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;margin-bottom:7px}
+.cmp-devgal-row{display:flex;gap:7px;overflow-x:auto;padding-bottom:3px}
+.cmp-devgal-t{flex:0 0 92px;border:1px solid var(--outline-variant);border-radius:9px;overflow:hidden;background:var(--sc-lowest);cursor:pointer;padding:0;text-align:left;transition:.12s}
+.cmp-devgal-t:hover{border-color:var(--sc-highest)}
+.cmp-devgal-t img{width:100%;height:60px;object-fit:cover;display:block}
+.cmp-devgal-t span{display:block;font-size:9.5px;color:var(--muted);padding:4px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.un-devcard{margin-top:14px;border:1px solid var(--outline-variant);border-radius:12px;padding:12px 13px;background:var(--surface)}
+.un-devcard-top{display:flex;gap:11px;align-items:center;margin-bottom:9px}
+.un-devcard-top img{width:56px;height:56px;border-radius:9px;object-fit:cover;flex:none}
+.un-devcard-top .nm{font-size:14px;font-weight:600}
+.un-devcard-top .lc{font-size:11.5px;color:var(--muted);margin-top:2px}
+.un-devcard-about{font-size:12px;color:var(--on-variant);line-height:1.5}
+.un-devcard-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;margin:12px 0 6px}
+.un-devcard-dist{display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:3px 0}
+.un-devcard-dist span{color:var(--muted)}
+/* Fullscreen compare popup — mode toggle, labeled shots, individual gallery */
+.cmp-pfs-seg{margin-left:auto;display:inline-flex;border:1px solid rgba(255,255,255,.3);border-radius:100px;overflow:hidden}
+.cmp-pfs-seg button{border:none;background:transparent;color:rgba(255,255,255,.75);font-size:12px;padding:6px 13px;cursor:pointer;white-space:nowrap}
+.cmp-pfs-seg button.on{background:#fff;color:#2E2D2C;font-weight:600}
+.cmp-pfs-card .shots{flex:1;min-height:0;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:11px}
+.cmp-fs-shot{margin:0}
+.cmp-fs-shot figcaption{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#8a8578;margin-bottom:4px}
+.cmp-fs-shot img{width:100%;height:190px;object-fit:cover;border-radius:9px;display:block;background:#eceadf}
+.cmp-fs-gallery{flex:1;min-height:0;overflow-y:auto;padding:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;align-content:start}
+/* Individual dev gallery — large renders left, overview panel right */
+.cmp-fs-large{flex:1;min-width:0;overflow-y:auto;display:flex;flex-direction:column;gap:16px}
+.cmp-fs-large .cmp-fs-shot img{height:auto;max-height:72vh}
+.cmp-fs-large .cmp-fs-shot figcaption{color:rgba(255,255,255,.65)}
+.cmp-fs-info{width:330px;flex:none;overflow-y:auto;background:#fdfcf9;border-radius:14px;padding:16px 18px;color:#2E2D2C;max-height:100%}
+.cmp-fs-info .t{font-size:15px;font-weight:600}
+.cmp-fs-info .m{font-size:12px;color:#8a8578;margin-top:2px}
+.cmp-fs-info .sec{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#8a8578;margin:14px 0 6px}
+.cmp-fs-info p{font-size:12.5px;line-height:1.55;margin:0;color:#4a4842}
+.cmp-fs-info .row{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;padding:4px 0;border-bottom:1px solid #efece1}
+.cmp-fs-info .row span{color:#8a8578}
+.cmp-fs-info .row:last-child{border-bottom:none}
+.cmp-fs-info .chips{display:flex;flex-wrap:wrap;gap:6px}
+.btn-primary.disabled{opacity:.45;pointer-events:none}
+/* Dev-focused compare columns */
+.cmp-shotgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding:0 14px 10px}
+/* Prepare loading screen */
+.cmp-loading{max-width:440px;margin:70px auto 0;text-align:center}
+.cmp-loading h3{font-size:15px;margin:0 0 14px}
+.cmp-spinner{width:38px;height:38px;border:3px solid var(--outline);border-top-color:var(--primary);border-radius:50%;margin:0 auto 18px;animation:cmpspin .8s linear infinite}
+@keyframes cmpspin{to{transform:rotate(360deg)}}
+.cmp-loading .st{opacity:0;animation:cmpfade .5s forwards;font-size:12.5px;color:var(--muted);padding:3px 0}
+@keyframes cmpfade{to{opacity:1}}
 
 .dv-hero-cta{position:absolute;top:16px;right:16px;display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:100px;border:1px solid rgba(255,255,255,.35);background:rgba(20,18,14,.45);backdrop-filter:blur(6px);color:#fff;font-size:12.5px;font-weight:500;cursor:pointer;transition:.12s}
 .dv-hero-cta:hover{background:rgba(20,18,14,.65)}
@@ -1474,7 +1627,7 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
 
           <div id="pipe-table" style="display:none">
             <table class="table">
-              <thead><tr><th>ID</th><th>Contact</th><th>Development</th><th>Unit</th><th>Stage</th><th>Source</th><th>Value</th></tr></thead>
+              <thead><tr><th style="width:30px;padding-right:0"><span class="ct-check" id="pipe-selall" onclick="pipeSelAll()"></span></th><th>ID</th><th>Contact</th><th>Development</th><th>Unit</th><th>Stage</th><th>Source</th><th>Value</th></tr></thead>
               <tbody id="pipe-rows"></tbody>
             </table>
             <div class="table-foot">
@@ -2536,6 +2689,10 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
   <div class="tk-body cmp-body" id="cmp-body"></div>
   <div class="cmp-foot" id="cmp-foot"></div>
 </div>
+<div class="cmp-pfs" id="cmpPfs">
+  <div class="cmp-pfs-head"><b id="cmpPfs-title">Floor plans</b><span class="sub" id="cmpPfs-sub"></span><div class="cmp-pfs-seg" id="cmpPfs-seg"></div><button class="cmp-pfs-x" onclick="cmpPlansFullClose()">Close ✕</button></div>
+  <div class="cmp-pfs-grid" id="cmpPfs-grid"></div>
+</div>
 <div class="tk" id="stwaWizard">
   <div class="tk-head">
     <b style="font-size:13.5px">Reconnect WhatsApp Business</b><span class="page-sub" id="stwa-wiz-sub"></span>
@@ -2865,10 +3022,14 @@ function tagChipsHtml(tags){
 }
 function projCell(devs){return `<span class="proj"><span class="proj-ic" style="background:${PROJ_IC[devs[0]]||'#657A32'}">◈</span>${devs[0]}${devs.length>1?` <span class="dev-more" title="${devs.slice(1).join(', ')}">+${devs.length-1}</span>`:''}</span>`;}
 
+var pipeSel=new Set(), dealSel=new Set();
 function renderRows(){
   const list=filteredOpps();
-  document.getElementById('pipe-rows').innerHTML = list.map(o=>`
-    <tr onclick="openOpp('${o.id}')">
+  document.getElementById('pipe-rows').innerHTML = list.map(o=>{
+    const sel=pipeSel.has(o.id);
+    return `
+    <tr class="${sel?'ct-selrow':''}" onclick="openOpp('${o.id}')">
+      <td style="padding-right:0" onclick="event.stopPropagation()"><span class="ct-check ${sel?'on':''}" onclick="pipeToggleSel('${o.id}',event)">${sel?CHECK_SVG:''}</span></td>
       <td class="cell-id">${o.id}</td>
       <td><span class="contact"><span class="avatar-sm neutral">${initials(o.lead)}</span>${o.lead}</span></td>
       <td>${projCell(o.devs)}</td>
@@ -2876,9 +3037,12 @@ function renderRows(){
       <td><span class="pill ${STAGE_PILL[o.stage]}">${o.stage}</span></td>
       <td>${o.source}</td>
       <td class="cell-strong">${money(o).approx?'~':''}€${money(o).amt}k <span class="money-lbl">${money(o).label}</span></td>
-    </tr>`).join('');
+    </tr>`;}).join('');
   const foot=document.getElementById('pipe-count');
   if(foot) foot.textContent = `Showing ${list.length} of ${OPPS.length} entries`;
+  const psa=document.getElementById('pipe-selall');
+  if(psa){const all=list.length&&list.every(o=>pipeSel.has(o.id));psa.className='ct-check'+(all?' on':pipeSel.size?' part':'');psa.innerHTML=all?CHECK_SVG:pipeSel.size?'–':'';}
+  if(typeof sbRefresh==='function') sbRefresh();
 }
 
 function renderBoard(){
@@ -3091,7 +3255,8 @@ function renderDeals(){
   rowsEl.innerHTML=list.map(({d,o})=>{
     const x=EXT[o.id];
     const nextPay=x&&x.payments?x.payments.find(p=>p.status!=='paid'):null;
-    return `<div class="closed-row" onclick="openDeal('${d.id}')">
+    return `<div class="closed-row${dealSel.has(d.id)?' ct-selrow':''}" onclick="openDeal('${d.id}')">
+      <span class="ct-check ${dealSel.has(d.id)?'on':''}" style="flex:none" onclick="dealToggleSel('${d.id}',event)">${dealSel.has(d.id)?CHECK_SVG:''}</span>
       <div class="cr-who"><div class="cr-name">${o.lead}</div><div class="cr-sub">${d.id} · ${o.units[0]} · ${o.devs[0]}${typeof docSummaryChip==='function'?docSummaryChip(o):''}</div></div>
       <div class="stepper">${stepperHtml(o.closed.step)}<div class="step-label">${closedStepLabel(o)}</div></div>
       <div class="cr-date"><div class="v">${nextPay?fmtEur(nextPay.amt):'—'}</div><div class="l">${nextPay?'Next payment':'No payment due'}</div></div>
@@ -3100,6 +3265,7 @@ function renderDeals(){
     </div>`;
   }).join('')||'<div class="col-empty">No deals match — try clearing filters</div>';
   renderDlFilters();
+  if(typeof sbRefresh==='function') sbRefresh();
 }
 function dlSetTab(k){dlTab=k;renderDeals();}
 function dlToggleSearch(){
@@ -4257,6 +4423,7 @@ function go(page){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.getElementById('p-'+page).classList.add('on');
   document.querySelectorAll('.ni').forEach(n=>n.classList.toggle('on',n.dataset.page===page));
+  if(typeof sbClearOnNav==='function') sbClearOnNav(page);
   document.getElementById('crumb').innerHTML = '<span class="cur">'+(CRUMB[page]||page)+'</span>';
   if(page==='chats') renderHistory();
   if(typeof ctOnNav==='function') ctOnNav(page);
@@ -4267,6 +4434,7 @@ function go(page){
   if(typeof stOnNav==='function') stOnNav(page);
   if(typeof auOnNav==='function') auOnNav(page);
   if(typeof dlOnNav==='function') dlOnNav(page);
+  if(typeof sbRefresh==='function') sbRefresh();
   document.getElementById('content').scrollTop=0;
 }
 function openOpp(id){
@@ -5263,25 +5431,7 @@ function ctSelAll(){
   renderContacts();
 }
 function ctClearSel(){ctState.sel.clear();renderContacts();}
-function renderCtBulk(){
-  const bar=document.getElementById('ct-bulkbar'); if(!bar) return;
-  const n=ctState.sel.size;
-  const onContacts=document.getElementById('p-contacts').classList.contains('on');
-  bar.classList.toggle('on',n>0&&onContacts);
-  if(!n||!onContacts){bar.innerHTML='';return;}
-  bar.innerHTML=`
-    <span class="bb-count">${n} selected</span><span class="bb-sep"></span>
-    <button class="bb-btn" onclick="ctBulkMenu('rep',event)">Assign rep ▾</button>
-    <button class="bb-btn" onclick="ctBulkMenu('status',event)">Status ▾</button>
-    <button class="bb-btn" onclick="ctBulkMenu('tag',event)">Tag ▾</button>
-    <button class="bb-btn" onclick="ctBulkMenu('msg',event)">Message ▾</button>
-    <span class="bb-sep"></span>
-    <button class="bb-btn" onclick="ctExport(true)">Export</button>
-    <button class="bb-btn" ${n===2?'':'disabled'} onclick="ctBulkMerge()" title="Select exactly 2 contacts to merge">Merge</button>
-    <button class="bb-btn" onclick="ctBulkArchive()">Do not contact</button>
-    <span class="bb-sep"></span>
-    <button class="bb-btn" title="Clear selection" onclick="ctClearSel()">✕</button>`;
-}
+function renderCtBulk(){ if(typeof sbRefresh==='function') sbRefresh(); }
 function ctBulkMenu(kind,e){
   e.stopPropagation();
   const old=document.querySelector('.bb-menu'), was=old&&old.dataset.kind===kind;
@@ -5859,6 +6009,14 @@ function openUnPeek(id){
     </div>
     <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px">${u.views.map(v=>`<span class="tag-chip">${v}</span>`).join('')}</div>
     <div style="border:1px solid var(--outline-variant);border-radius:12px;padding:10px;background:var(--sc-lowest)">${unPlanSVG(u,140)}</div>
+    <div class="un-devcard">
+      <div class="un-devcard-top"><img src="${UN_ASSET+d.photo}" alt="" onerror="this.style.display='none'"><div><div class="nm">${d.name}</div><div class="lc">${d.loc} \u00b7 ${UNITS.filter(x=>x.dev===u.dev).length} units \u00b7 ${d.completion}</div></div></div>
+      <div class="un-devcard-about">${d.about}</div>
+      <div class="un-devcard-lbl">Amenities</div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap">${d.amen.map(a=>`<span class="tag-chip">${a}</span>`).join('')}</div>
+      <div class="un-devcard-lbl">Getting around</div>
+      ${d.dist.map(x=>`<div class="un-devcard-dist"><span>${x[0]}</span><b>${x[1]}</b></div>`).join('')}
+    </div>
     <div style="margin-top:14px">
       <button class="${trHas(u.id)?'btn-primary':'btn-ghost'}" style="width:100%;justify-content:center" ${u.status==='sold'?'disabled style="width:100%;justify-content:center;opacity:.4;cursor:default"':`onclick="trToggle('${u.id}')"`}>${trHas(u.id)?'\u2713 In selection \u2014 tap to remove':'+ Add to selection'}</button>
     </div>
@@ -5873,7 +6031,7 @@ function openUnPeek(id){
   document.getElementById('unPeek').classList.add('open');
   document.getElementById('unPeekScrim').classList.add('on');
 }
-function closeUnPeek(){document.getElementById('unPeek').classList.remove('open');document.getElementById('unPeekScrim').classList.remove('on');}
+function closeUnPeek(){const p=document.getElementById('unPeek'),s=document.getElementById('unPeekScrim');p.classList.remove('open','over-tk');s.classList.remove('on','over-tk');}
 
 /* ---------- Parametric floor plan ---------- */
 function unPlanSVG(u,h){
@@ -7392,24 +7550,18 @@ function trToggle(id){trHas(id)?trRemove(id):trAdd(id);}
 function trClear(){trState.items=[];trState.open=false;trSave();trRender();trRefreshCurrentView();}
 function trToggleOpen(){trState.open=!trState.open;trRender();}
 function trRender(){
-  const n=trState.items.length, cmpOn=document.getElementById('cmp').classList.contains('on');
-  document.getElementById('trPill').classList.toggle('on', n>0&&!cmpOn);
-  document.getElementById('tr-pill-text').textContent=`${n} unit${n===1?'':'s'} selected`;
-  document.getElementById('trPanel').classList.toggle('on', trState.open&&n>0&&!cmpOn);
-  const cbtn=document.getElementById('tr-compare-btn');
-  cbtn.disabled=n<2; cbtn.style.opacity=n<2?'.45':'1'; cbtn.style.cursor=n<2?'default':'pointer';
-  document.getElementById('tr-panel-list').innerHTML=trState.items.map(it=>{
-    const u=UN(it.unitId); if(!u)return '';
-    return `<div class="tr-item"><span class="cell-id" style="font-weight:600">${u.id}</span><span style="color:var(--muted);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.dev} \u00b7 ${fmtK(u.price)}</span><span class="x" onclick="trRemove('${u.id}')">\u00d7</span></div>`;
-  }).join('')||'<div style="font-size:12.5px;color:var(--muted);padding:12px 0">No units selected yet \u2014 browse Units and tap + Add to selection.</div>';
+  // Corner tray retired — selection now drives the shared bottom selection bar.
+  const pill=document.getElementById('trPill'); if(pill)pill.classList.remove('on');
+  const panel=document.getElementById('trPanel'); if(panel)panel.classList.remove('on');
+  if(typeof sbRefresh==='function') sbRefresh();
 }
 
-/* ---------- Compare takeover (inline personalise per unit \u2192 attach to deal) ---------- */
-let cmpState={mode:'compare',opp:'',lead:'',budget:null,sendProposal:true,sendBrochure:true};
+/* ---------- Compare takeover (shortlist builder → link to an opportunity) ---------- */
+let cmpState={mode:'compare',view:'units',lens:'all',diffOnly:false,media:'plan',intent:'send',link:null,linkQ:'',budget:null,shareMsg:'',channel:'wa',sendLink:true,sendPdf:true};
 function cmpOpen(){
   if(trState.items.length<2){showToast('Select at least 2 units to compare');return;}
   trState.open=false;
-  cmpState={mode:'compare',opp:'',lead:'',budget:null,sendProposal:true,sendBrochure:true};
+  cmpState={mode:'compare',view:'units',lens:'all',diffOnly:false,media:'plan',intent:'send',link:null,linkQ:'',budget:null,shareMsg:'',channel:'wa',sendLink:true,sendPdf:true};
   document.getElementById('cmp').classList.add('on');
   cmpRender(); trRender();
 }
@@ -7419,157 +7571,468 @@ function cmpRemove(id){
   if(trState.items.length<2){showToast('Add another unit to keep comparing');cmpClose();return;}
   cmpRender();
 }
-function cmpSetCfg(id,k,v){const it=trState.items.find(x=>x.unitId===id);if(!it)return;it.config[k]=v;trSave();cmpRender();}
-function cmpToggleAdd(id,k){
-  const it=trState.items.find(x=>x.unitId===id);if(!it)return;
-  const a=it.config.adds,i=a.indexOf(k); i>=0?a.splice(i,1):a.push(k);
-  trSave(); cmpRender();
+function cmpSetMedia(m){cmpState.media=m;cmpRender();}
+function cmpBaseTotal(){return trState.items.reduce((s,it)=>s+UN(it.unitId).price,0);}
+// Open the unit preview drawer above the compare takeover so the rep never leaves the flow.
+function cmpPeekUnit(id){
+  openUnPeek(id);
+  document.getElementById('unPeek').classList.add('over-tk');
+  document.getElementById('unPeekScrim').classList.add('over-tk');
 }
-function cmpOpenUnitFromCol(id){cmpClose();openUnit(id);}
+// Full-screen compare popup — floor plans / unit renders / development compare / individual gallery.
+function cmpDevShots(d){
+  const m=d.media||{},ext=(m.renders&&m.renders.ext)||[],inr=(m.renders&&m.renders.int)||[],ph=m.photos||[];
+  const pick=(s,l)=>({l,img:(s&&s.img)||d.photo});
+  return [pick(ext[0],'Exterior render'),pick(ph[0],'Entrance'),pick(inr[0],'Entrance interior'),pick(ph[1],'Exterior detail')];
+}
+function cmpDevById(id){return DEVS.find(d=>d.id===id);}
+function cmpFsDevs(){return [...new Set(trState.items.map(it=>UN(it.unitId)).filter(Boolean).map(u=>u.dev))].map(n=>DEV(n));}
+let cmpFs={ctx:'units',mode:'plans',devId:null};
+function cmpPlansFull(){cmpFsOpen('units','plans');}
+function cmpFsOpen(ctx,mode,devId){cmpFs={ctx,mode,devId:devId||null};document.getElementById('cmpPfs').classList.add('on');cmpFsRender();}
+function cmpFsSet(mode,devId){cmpFs.mode=mode;if(devId!==undefined)cmpFs.devId=devId;cmpFsRender();}
+function cmpFsRender(){
+  const units=trState.items.map(it=>UN(it.unitId)).filter(Boolean);
+  const devs=cmpFsDevs();
+  const shot=s=>`<figure class="cmp-fs-shot"><figcaption>${s.l||''}</figcaption><img src="${UN_ASSET+s.img}" alt="" onerror="this.style.display='none'"></figure>`;
+  let title,sub,seg,grid;
+  if(cmpFs.ctx==='units'){
+    title=cmpFs.mode==='plans'?'Floor plans':'Unit renders';
+    sub=`${units.length} units \u00b7 side by side`;
+    seg=[['plans','Floor plans'],['renders','Renders']].map(([k,l])=>`<button class="${cmpFs.mode===k?'on':''}" onclick="cmpFsSet('${k}')">${l}</button>`).join('');
+    grid=cmpFs.mode==='plans'
+      ?units.map(u=>`<div class="cmp-pfs-card"><div class="cap"><b>${u.id}</b><div class="m">${u.dev} \u00b7 ${u.type} \u00b7 ${u.sqm} m\u00b2</div></div><div class="plan-wrap">${unPlanSVG(u,460)}</div></div>`).join('')
+      :units.map(u=>`<div class="cmp-pfs-card"><div class="cap"><b>${u.id}</b><div class="m">${u.dev} \u00b7 ${u.type} \u00b7 ${u.sqm} m\u00b2</div></div><div class="shots">${cmpDevShots(DEV(u.dev)).map(shot).join('')}</div></div>`).join('');
+  }else{
+    const gd=(cmpFs.devId&&cmpDevById(cmpFs.devId))||devs[0];
+    seg=`<button class="${cmpFs.mode==='devs'?'on':''}" onclick="cmpFsSet('devs')">Compare developments</button>`
+      +devs.map(d=>`<button class="${cmpFs.mode==='gallery'&&gd.id===d.id?'on':''}" onclick="cmpFsSet('gallery','${d.id}')">${d.name}</button>`).join('');
+    if(cmpFs.mode==='devs'){
+      title='Development renders'; sub=`${devs.length} developments \u00b7 same shots, side by side`;
+      grid=devs.map(d=>`<div class="cmp-pfs-card"><div class="cap"><b>${d.name}</b><div class="m">${d.loc} \u00b7 ${d.completion} \u00b7 ${UNITS.filter(x=>x.dev===d.name).length} units</div></div><div class="shots">${cmpDevShots(d).map(shot).join('')}</div></div>`).join('');
+    }else{
+      const m=gd.media||{};
+      const all=[...(((m.renders||{}).ext)||[]),...(((m.renders||{}).int)||[]),...(m.photos||[])];
+      const list=all.length?all:[{img:gd.photo,cap:gd.name}];
+      title=`${gd.name} \u2014 gallery`; sub=`${list.length} renders & photos`;
+      const total=UNITS.filter(x=>x.dev===gd.name).length, avail=cmpUnitsLeft(gd.name);
+      const prices=UNITS.filter(x=>x.dev===gd.name&&x.status!=='sold').map(x=>x.price);
+      const avg=cmpDevAvgPsq(gd.name);
+      const frow=(k,v)=>`<div class="row"><span>${k}</span><b>${v}</b></div>`;
+      grid=`<div class="cmp-fs-large">${list.map(s=>shot({l:(s.cap||gd.name)+(s.tag?' \u00b7 '+s.tag:''),img:s.img})).join('')}</div>
+      <div class="cmp-fs-info">
+        <div class="t">${gd.name}</div>
+        <div class="m">${gd.loc} \u00b7 ${gd.completion}</div>
+        ${gd.about?`<div class="sec">About</div><p>${gd.about}</p>`:''}
+        <div class="sec">Key facts</div>
+        ${frow('Delivery',gd.completion)}
+        ${frow('Size',total+' units')}
+        ${frow('Available',avail+' of '+total)}
+        ${avg?frow('Avg \u20ac/m\u00b2','\u20ac'+Math.round(avg).toLocaleString()):''}
+        ${prices.length?frow('From',fmtEur(Math.min(...prices))):''}
+        ${(gd.amen&&gd.amen.length)?`<div class="sec">Amenities</div><div class="chips">${gd.amen.map(a=>`<span class="tag-chip">${a}</span>`).join('')}</div>`:''}
+        ${(gd.dist&&gd.dist.length)?`<div class="sec">Getting around</div>${gd.dist.map(x=>frow(x[0],x[1])).join('')}`:''}
+      </div>`;
+    }
+  }
+  document.getElementById('cmpPfs-title').textContent=title;
+  document.getElementById('cmpPfs-sub').textContent=sub;
+  document.getElementById('cmpPfs-seg').innerHTML=seg;
+  document.getElementById('cmpPfs-grid').innerHTML=grid;
+}
+function cmpPlansFullClose(){document.getElementById('cmpPfs').classList.remove('on');}
 function cmpGoCheckout(){
-  cmpState.mode='checkout';
-  const total=trState.items.reduce((s,it)=>s+trPriceFor(UN(it.unitId),it.config),0);
-  cmpState.budget=Math.round(total/1000);
+  cmpState.mode='checkout'; cmpState.intent='send';
+  cmpState.budget=Math.round(cmpBaseTotal()/1000);
   cmpRender();
 }
 function cmpBackToCompare(){cmpState.mode='compare';cmpRender();}
-function cmpSetOpp(v){cmpState.opp=v;cmpRender();}
+/* Link picker — search opportunities & contacts, or create either inline without leaving the flow */
+function cmpLinkSearch(v){cmpState.linkQ=v;const dd=document.getElementById('cmp-lp-dd');if(dd)dd.innerHTML=cmpLinkResultsHtml();}
+function cmpLinkResultsHtml(){
+  const q=(cmpState.linkQ||'').toLowerCase().trim();
+  const opps=OPPS.filter(o=>o.stage!=='Closed Won'&&o.stage!=='Lost'&&(unIsMgr()||o.rep===UN_REP)&&(!q||(o.lead+' '+o.id).toLowerCase().includes(q))).slice(0,4);
+  const cts=CONTACTS.filter(c=>(c.type==='lead'||c.type==='buyer')&&(!q||c.name.toLowerCase().includes(q))).slice(0,4);
+  return (opps.length?`<div class="cmp-lp-g">Opportunities</div>`+opps.map(o=>`<div class="cmp-lp-r" onclick="cmpLinkPickOpp('${o.id}')"><b>${o.lead}</b><span class="meta">${o.id} \u00b7 ${o.stage}</span></div>`).join(''):'')
+    +(cts.length?`<div class="cmp-lp-g">Contacts \u2014 start a new opportunity</div>`+cts.map(c=>`<div class="cmp-lp-r" onclick="cmpLinkPickContact('${c.id}')"><b>${c.name}</b><span class="meta">${CT_TYPE[c.type].l}${c.oppIds.length?' \u00b7 '+c.oppIds.length+' opp'+(c.oppIds.length===1?'':'s'):''}</span></div>`).join(''):'')
+    +`<div class="cmp-lp-r add" onclick="cmpLinkNew()">+ Add ${q?'\u201c'+cmpState.linkQ.trim()+'\u201d as a':'a'} new contact</div>`;
+}
+function cmpLinkPickOpp(id){cmpState.link={mode:'opp',oppId:id};cmpState.linkQ='';cmpRender();}
+function cmpLinkPickContact(id){const c=CONTACTS.find(x=>x.id===id);if(!c)return;cmpState.link={mode:'contact',ctId:id};if(c.bmax)cmpState.budget=c.bmax;cmpState.linkQ='';cmpRender();}
+function cmpLinkNew(){cmpState.link={mode:'new',name:(cmpState.linkQ||'').trim(),phone:'',email:''};cmpState.linkQ='';cmpRender();}
+function cmpLinkClear(){cmpState.link=null;cmpState.linkQ='';cmpRender();}
+function cmpLinkHtml(){
+  const l=cmpState.link;
+  if(!l)return `<div class="cmp-lp">
+    <input placeholder="Search contacts or opportunities\u2026" value="${cmpState.linkQ||''}" oninput="cmpLinkSearch(this.value)">
+    <div class="cmp-lp-dd" id="cmp-lp-dd">${cmpLinkResultsHtml()}</div>
+  </div>`;
+  if(l.mode==='opp'){
+    const o=OPPS.find(x=>x.id===l.oppId);
+    return `<div class="cmp-lp-chip"><div><b>${o.lead}</b><div class="sub">${o.id} \u00b7 ${o.stage} \u00b7 ${o.rep}</div></div><button class="chg" onclick="cmpLinkClear()">Change</button></div>`;
+  }
+  const budget=`<div class="od-field" style="margin-top:12px"><label>Budget (\u20ack)</label><input type="number" value="${cmpState.budget||''}" oninput="cmpState.budget=this.value"></div>`;
+  if(l.mode==='contact'){
+    const c=CONTACTS.find(x=>x.id===l.ctId);
+    return `<div class="cmp-lp-chip"><div><b>New opportunity \u2014 ${c.name}</b><div class="sub">${CT_TYPE[c.type].l} \u00b7 via ${c.source}</div></div><button class="chg" onclick="cmpLinkClear()">Change</button></div>`+budget;
+  }
+  return `<div class="cmp-lp-chip"><div><b>New contact + opportunity</b><div class="sub">Both are created when you send</div></div><button class="chg" onclick="cmpLinkClear()">Change</button></div>
+    <div class="od-field" style="margin-top:12px"><label>Contact name</label><input value="${l.name||''}" placeholder="e.g. Ana Bugeja" oninput="cmpState.link.name=this.value"></div>
+    <div class="od-field"><label>Phone <span style="color:var(--muted);font-weight:400">(optional)</span></label><input value="${l.phone||''}" placeholder="+356 \u2026" oninput="cmpState.link.phone=this.value"></div>
+    <div class="od-field"><label>Email <span style="color:var(--muted);font-weight:400">(optional)</span></label><input value="${l.email||''}" placeholder="name@email.com" oninput="cmpState.link.email=this.value"></div>`+budget;
+}
+// Personalise renders needs an opportunity — route through the link step, then hand off to the custom-pack wizard.
+function cmpPersonalise(){
+  cmpState.mode='checkout'; cmpState.intent='personalise';
+  cmpState.budget=Math.round(cmpBaseTotal()/1000);
+  cmpRender();
+}
+// Take the current selection straight into a live Present-mode compare (no opportunity required).
+function cmpPresent(){
+  const ids=trState.items.map(it=>it.unitId);
+  if(ids.length<2){showToast('Select at least 2 units to present');return;}
+  cmpClose();
+  prOpenLobby();
+  prState.dev=UN(ids[0]).dev;
+  ids.forEach(id=>{const u=UN(id);if(!prState.viewed.includes(id))prState.viewed.push(id);if(!prState.viewedDevs.includes(u.dev))prState.viewedDevs.push(u.dev);});
+  prState.shortlist=ids.slice();
+  prGo('compare');
+}
 function cmpRender(){
   document.getElementById('cmp-sub').textContent=`${trState.items.length} units selected`;
-  document.getElementById('cmp-body').innerHTML = cmpState.mode==='checkout'?cmpCheckoutHtml():cmpColsHtml();
+  const m=cmpState.mode;
+  document.getElementById('cmp-body').innerHTML = m==='checkout'?cmpCheckoutHtml():m==='loading'?cmpLoadingHtml():m==='ready'?cmpReadyHtml():cmpColsHtml();
   document.getElementById('cmp-foot').innerHTML = cmpFootHtml();
 }
-function cmpColsHtml(){
-  const rows=trState.items.map(it=>({it,u:UN(it.unitId)})).filter(r=>r.u);
-  const bestPsq=rows.reduce((b,r)=>!b||r.u.price/r.u.sqm<b.u.price/b.u.sqm?r:b,null);
-  const bestSqm=rows.reduce((b,r)=>!b||r.u.sqm>b.u.sqm?r:b,null);
-  return `<div class="cmp-cols">${rows.map(r=>cmpColHtml(r.it,r.u,bestPsq&&bestPsq.u.id===r.u.id,bestSqm&&bestSqm.u.id===r.u.id)).join('')}</div>`;
+/* ---------- Compare v2: buyer lens + grouped, derived comparison ---------- */
+const CMP_GROUPS={pricing:'Pricing',unit:'Unit & layout',dev:'Development',location:'Location'};
+const CMP_LENSES=[
+  {k:'all',l:'All-round',hint:'A balanced side-by-side across price, space, development and location.',order:['pricing','unit','dev','location'],hi:[]},
+  {k:'investor',l:'Investor',hint:'Prioritising yield, \u20ac/m\u00b2 and rental demand \u2014 the numbers that drive a return.',order:['pricing','dev','location','unit'],hi:['psqm','psqmVsAvg','yield','left']},
+  {k:'firsthome',l:'First home',hint:'Leading with total price, payment plan and how soon they can move in.',order:['pricing','unit','location','dev'],hi:['base','plan','ready']},
+  {k:'relocation',l:'Relocation',hint:'Location-first \u2014 neighbourhood, getting around and move-in timing.',order:['location','unit','dev','pricing'],hi:['loc','around','ready']},
+  {k:'secondhome',l:'Second home',hint:'Lifestyle-first \u2014 views, outdoor space and the setting.',order:['unit','location','dev','pricing'],hi:['views','outdoor','around']},
+];
+const cmpLens=()=>CMP_LENSES.find(x=>x.k===cmpState.lens)||CMP_LENSES[0];
+function cmpUnitsLeft(dev){return UNITS.filter(u=>u.dev===dev&&u.status==='available').length;}
+function cmpDevAvgPsq(dev){const us=UNITS.filter(u=>u.dev===dev&&u.status!=='sold');return us.length?us.reduce((s,u)=>s+u.price/u.sqm,0)/us.length:null;}
+// Simulated rent (\u20ac/m\u00b2/month) per development for gross-yield estimates.
+const CMP_RENT_PSQM={'Dolphin Court':15,'Mercury':22,'La Lex':20,'Verdala':13,'Onyx Rise':20};
+function cmpYield(u){const r=CMP_RENT_PSQM[u.dev]||16;return (r*u.sqm*12)/u.price;}
+function cmpPlan(u){return u.ready==='Ready'?'10% reservation \u00b7 90% on deed':'20% res \u00b7 20% on POS \u00b7 60% on deed';}
+const CMP_ROWS=[
+  {g:'pricing',key:'base',label:'Base price',v:u=>fmtEur(u.price)},
+  {g:'pricing',key:'psqm',label:'\u20ac/m\u00b2',v:u=>'\u20ac'+Math.round(u.price/u.sqm).toLocaleString(),raw:u=>u.price/u.sqm,best:'min'},
+  {g:'pricing',key:'psqmVsAvg',label:'vs dev average',v:u=>{const a=cmpDevAvgPsq(u.dev);if(!a)return '\u2014';const p=Math.round(((u.price/u.sqm)/a-1)*100);return (p>0?'+':'')+p+'% \u20ac/m\u00b2';}},
+  {g:'pricing',key:'yield',label:'Est. gross yield',lens:['investor'],v:u=>(cmpYield(u)*100).toFixed(1)+'% p.a.',raw:u=>cmpYield(u),best:'max'},
+  {g:'pricing',key:'plan',label:'Payment plan',v:u=>cmpPlan(u)},
+  {g:'unit',key:'type',label:'Type',v:u=>u.type},
+  {g:'unit',key:'beds',label:'Beds / baths',v:u=>unBedsLabel(u)+' \u00b7 '+u.baths+' bath'},
+  {g:'unit',key:'floor',label:'Floor',v:u=>u.floor===0?'Ground':String(u.floor)},
+  {g:'unit',key:'sqm',label:'Internal',v:u=>u.sqm+' m\u00b2',raw:u=>u.sqm,best:'max'},
+  {g:'unit',key:'outdoor',label:'Outdoor',v:u=>u.ext?u.ext+' m\u00b2':'\u2014',raw:u=>u.ext,best:'max'},
+  {g:'unit',key:'views',label:'Views',v:u=>u.views.join(', ')},
+  {g:'unit',key:'ready',label:'Ready',v:u=>u.ready},
+  {g:'unit',key:'status',label:'Status',v:u=>{const st=UN_STATUS[u.status];return `<span class="pill ${st.p}">${st.l}</span>`;}},
+  {g:'dev',key:'delivery',label:'Delivery',v:u=>DEV(u.dev).completion},
+  {g:'dev',key:'amen',label:'Amenities',v:u=>DEV(u.dev).amen.slice(0,3).join(', ')},
+  {g:'dev',key:'left',label:'Available in dev',v:u=>{const n=cmpUnitsLeft(u.dev);return n+' unit'+(n===1?'':'s');},raw:u=>cmpUnitsLeft(u.dev),best:'max'},
+  {g:'dev',key:'devsize',label:'Development size',multiDev:true,v:u=>UNITS.filter(x=>x.dev===u.dev).length+' units total'},
+  {g:'location',key:'loc',label:'Locality',v:u=>DEV(u.dev).loc},
+  {g:'location',key:'around',label:'Getting around',v:u=>DEV(u.dev).dist.slice(0,2).map(x=>x[0]+' \u2014 '+x[1]).join('  \u00b7  ')},
+];
+function cmpActivePlan(cols,lens){
+  const plan=[];
+  const multiDev=new Set(cols.map(c=>c.u.dev)).size>1;
+  lens.order.forEach(gk=>{
+    const rows=CMP_ROWS.filter(r=>r.g===gk&&(!r.lens||r.lens.includes(lens.k))&&(!r.multiDev||multiDev));
+    const out=[];
+    rows.forEach(row=>{
+      const vals={}; cols.forEach(c=>{vals[c.u.id]=row.v(c.u,c.it.config);});
+      if(cmpState.diffOnly&&new Set(Object.values(vals)).size<=1)return;
+      let best=null;
+      if(row.best&&row.raw){let bv=null;cols.forEach(c=>{const rv=row.raw(c.u,c.it.config);if(rv==null)return;if(bv==null||(row.best==='min'?rv<bv:rv>bv)){bv=rv;best=c.u.id;}});}
+      out.push({row,vals,best});
+    });
+    if(out.length){plan.push({group:CMP_GROUPS[gk]});out.forEach(o=>plan.push(o));}
+  });
+  return plan;
 }
-function cmpColHtml(it,u,isBestPsq,isBestSqm){
-  const d=DEV(u.dev), cfg=it.config, st=UN_STATUS[u.status], fin=PZ_FIN.find(f=>f.k===cfg.fin), price=trPriceFor(u,cfg);
+function cmpSignals(u){
+  const c=[];
+  if(u.days<=7&&u.status==='available')c.push('<span class="cmp-chip fresh">New this week</span>');
+  const left=cmpUnitsLeft(u.dev);
+  if(u.status==='available'&&left<=3)c.push(`<span class="cmp-chip warn">Only ${left} left here</span>`);
+  if(u.status==='hold')c.push('<span class="cmp-chip warn">On hold \u2014 expiring</span>');
+  c.push(`<span class="cmp-chip">${u.ready==='Ready'?'Move-in ready':'Ready '+u.ready}</span>`);
+  return c.join('');
+}
+function cmpSetView(v){cmpState.view=v;cmpRender();}
+function cmpToolbarHtml(){
+  if(cmpState.view==='renders')return `<div class="cmp-toolbar"><span class="cmp-tlabel">Comparing development renders \u2014 use the chip on any image to switch back to units</span></div>`;
+  const lens=cmpLens();
+  return `<div class="cmp-toolbar">
+    <div class="cmp-lensrow"><span class="cmp-tlabel">Compare for</span>${CMP_LENSES.map(L=>`<button class="cmp-lens ${cmpState.lens===L.k?'on':''}" onclick="cmpSetLens('${L.k}')">${L.l}</button>`).join('')}</div>
+    <div class="cmp-media"><button class="${cmpState.media==='plan'?'on':''}" onclick="cmpSetMedia('plan')">Floor plans</button><button class="${cmpState.media==='plan'?'':'on'}" onclick="cmpSetMedia('render')">Renders</button></div>
+    <button class="cmp-toggle ${cmpState.diffOnly?'on':''}" onclick="cmpToggleDiff()"><span class="dot"></span>Differences only</button>
+  </div>
+  <div class="cmp-lenshint">${lens.hint}</div>`;
+}
+function cmpSetLens(k){cmpState.lens=k;cmpRender();}
+function cmpToggleDiff(){cmpState.diffOnly=!cmpState.diffOnly;cmpRender();}
+function cmpColsHtml(){
+  if(cmpState.view==='renders')return cmpToolbarHtml()+`<div class="cmp-cols">${cmpFsDevs().map(d=>cmpDevColHtml(d)).join('')}</div>`;
+  const lens=cmpLens();
+  const cols=trState.items.map(it=>({it,u:UN(it.unitId)})).filter(r=>r.u);
+  const plan=cmpActivePlan(cols,lens);
+  return cmpToolbarHtml()+`<div class="cmp-cols">${cols.map(c=>cmpColHtml(c.it,c.u,plan,lens)).join('')}</div>`;
+}
+// Development-focused column when comparing renders instead of units.
+function cmpDevColHtml(d){
+  const sel=trState.items.map(it=>UN(it.unitId)).filter(u=>u&&u.dev===d.name);
+  const shots=cmpDevShots(d);
+  const total=UNITS.filter(x=>x.dev===d.name).length;
+  const avail=cmpUnitsLeft(d.name);
+  const from=Math.min(...UNITS.filter(x=>x.dev===d.name&&x.status!=='sold').map(x=>x.price));
+  const row=(k,v)=>`<div class="cmp-row"><span class="k">${k}</span><span class="v">${v}</span></div>`;
+  return `<div class="cmp-col">
+    <div class="cmp-col-head">
+      <div class="cmp-render" style="height:150px;cursor:zoom-in" onclick="cmpFsOpen('devs','devs','${d.id}')"><img src="${UN_ASSET+shots[0].img}" alt="" onerror="this.remove()"><span class="plan-hint">Tap to compare \u2197</span><button class="plan-hint act" onclick="event.stopPropagation();cmpSetView('units')">\u21c4 Compare units</button></div>
+      <div class="cmp-id">${d.name}</div>
+      <div class="cmp-dev"><span class="proj-ic" style="background:${PROJ_IC[d.name]||'#657A32'}">\u25c8</span>${d.loc} \u00b7 ${d.completion}</div>
+      <div class="cmp-sigs">${sel.map(u=>`<span class="cmp-chip">${u.id}</span>`).join('')}</div>
+    </div>
+    <div class="cmp-shotgrid">${shots.slice(1).map(s=>`<button class="cmp-devgal-t" onclick="cmpFsOpen('devs','devs','${d.id}')"><img src="${UN_ASSET+s.img}" alt="" onerror="this.parentNode.style.display='none'"><span>${s.l}</span></button>`).join('')}</div>
+    <div class="cmp-specs">
+      <div class="cmp-grp">Development</div>
+      ${row('Delivery',d.completion)}
+      ${row('Size',total+' units')}
+      ${row('Available',avail+' of '+total)}
+      ${row('Avg \u20ac/m\u00b2',(a=>a?'\u20ac'+Math.round(a).toLocaleString():'\u2014')(cmpDevAvgPsq(d.name)))}
+      ${row('Amenities',(d.amen||[]).slice(0,3).join(', ')||'\u2014')}
+      <div class="cmp-grp">Location</div>
+      ${row('Locality',d.loc)}
+      ${row('Getting around',(d.dist||[]).slice(0,2).map(x=>x[0]+' \u2014 '+x[1]).join('  \u00b7  ')||'\u2014')}
+    </div>
+    <div class="cmp-total"><span>From</span><b>${fmtEur(from)}</b></div>
+    <div class="cmp-actions"><button class="btn-ghost" style="width:100%;justify-content:center" onclick="cmpFsOpen('devs','gallery','${d.id}')">View full gallery</button></div>
+  </div>`;
+}
+function cmpColHtml(it,u,plan,lens){
+  const d=DEV(u.dev);
+  const specs=plan.map(p=>{
+    if(p.group)return `<div class="cmp-grp">${p.group}</div>`;
+    const val=p.vals[u.id], isBest=p.best===u.id, isHi=lens.hi.includes(p.row.key);
+    return `<div class="cmp-row${isHi?' hi':''}"><span class="k">${p.row.label}</span><span class="v${isBest?' best':''}">${val}${isBest?' \u2605':''}</span></div>`;
+  }).join('');
+  const viewChip=`<button class="plan-hint act" onclick="event.stopPropagation();cmpSetView('renders')">\u21c4 Compare renders</button>`;
+  const media=cmpState.media==='plan'
+    ?`<div class="cmp-render plan" onclick="cmpPlansFull()">${unPlanSVG(u,214)}<span class="plan-hint">Tap to expand \u2197</span>${viewChip}</div>`
+    :`<div class="cmp-render" style="cursor:zoom-in" onclick="cmpFsOpen('units','renders')"><img src="${UN_ASSET+d.photo}" alt="" onerror="this.remove()"><span class="plan-hint">Tap to expand \u2197</span>${viewChip}</div>`;
   return `<div class="cmp-col">
     <div class="cmp-col-head">
       <button class="cmp-x" onclick="cmpRemove('${u.id}')" title="Remove">\u00d7</button>
-      <div class="cmp-render"><img src="${UN_ASSET}render-${cfg.fin}.jpg" alt="" onerror="this.remove()"><div style="position:absolute;inset:0;background:${fin.tint}"></div></div>
+      ${media}
       <div class="cmp-id">${u.id}</div>
       <div class="cmp-dev"><span class="proj-ic" style="background:${PROJ_IC[u.dev]||'#657A32'}">\u25c8</span>${u.dev} \u2014 ${d.loc}</div>
+      <div class="cmp-sigs">${cmpSignals(u)}</div>
     </div>
-    <div class="cmp-specs">
-      <div class="cmp-row"><span class="k">Type</span><span class="v">${u.type}</span></div>
-      <div class="cmp-row"><span class="k">Beds / baths</span><span class="v">${unBedsLabel(u)} \u00b7 ${u.baths} bath</span></div>
-      <div class="cmp-row"><span class="k">Floor</span><span class="v">${u.floor===0?'G':u.floor}</span></div>
-      <div class="cmp-row"><span class="k">Internal</span><span class="v ${isBestSqm?'best':''}">${u.sqm} m\u00b2${isBestSqm?' \u2605':''}</span></div>
-      <div class="cmp-row"><span class="k">Outdoor</span><span class="v">${u.ext?u.ext+' m\u00b2':'\u2014'}</span></div>
-      <div class="cmp-row"><span class="k">Ready</span><span class="v">${u.ready}</span></div>
-      <div class="cmp-row"><span class="k">Status</span><span class="v"><span class="pill ${st.p}">${st.l}</span></span></div>
-      <div class="cmp-row"><span class="k">Base price</span><span class="v">${fmtEur(u.price)}</span></div>
-      <div class="cmp-row"><span class="k">\u20ac/m\u00b2</span><span class="v ${isBestPsq?'best':''}">\u20ac${Math.round(u.price/u.sqm).toLocaleString()}${isBestPsq?' \u2605':''}</span></div>
-      <div class="cmp-row" style="align-items:flex-start"><span class="k">Views</span><span class="v" style="text-align:right;white-space:normal;max-width:150px">${u.views.join(', ')}</span></div>
-    </div>
-    <div class="cmp-config">
-      <div class="pz-sec"><h4>Finish</h4><div class="pz-opts">${PZ_FIN.map(f=>`
-        <div class="pz-opt ${cfg.fin===f.k?'on':''}" style="padding:7px" onclick="cmpSetCfg('${u.id}','fin','${f.k}')">
-          <div class="pz-sw" style="height:16px;margin-bottom:5px;background:${f.sw}"></div>
-          <div class="n" style="font-size:10px">${f.n}</div><div class="pr" style="font-size:9.5px">${f.add?'+'+fmtK(f.add):'Incl.'}</div>
-        </div>`).join('')}</div></div>
-      <div class="pz-sec"><h4>Layout</h4><div class="pz-opts">${PZ_LAY.map(l=>`
-        <div class="pz-opt ${cfg.lay===l.k?'on':''}" style="padding:7px" onclick="cmpSetCfg('${u.id}','lay','${l.k}')">
-          <div class="n" style="font-size:10px">${l.n}</div><div class="pr" style="font-size:9.5px">${l.add?'+'+fmtK(l.add):'Incl.'}</div>
-        </div>`).join('')}</div></div>
-      <div class="pz-sec"><h4>Add-ons</h4><div class="pz-opts" style="grid-template-columns:1fr">${PZ_ADD.map(a=>`
-        <div class="pz-opt ${cfg.adds.includes(a.k)?'on':''}" style="padding:7px;display:flex;justify-content:space-between;align-items:center" onclick="cmpToggleAdd('${u.id}','${a.k}')">
-          <span class="n" style="font-size:11px">${a.n}</span><span class="pr" style="font-size:10.5px">+${fmtK(a.add)}</span>
-        </div>`).join('')}</div></div>
-    </div>
-    <div class="cmp-total"><span>Configured price</span><b>${fmtEur(price)}</b></div>
-    <div class="cmp-actions"><button class="btn-ghost" style="width:100%;justify-content:center" onclick="cmpOpenUnitFromCol('${u.id}')">Open unit</button></div>
+    <div class="cmp-specs">${specs}</div>
+    ${cmpDevGal(u)}
+    <div class="cmp-total"><span>Price</span><b>${fmtEur(u.price)}</b></div>
+    <div class="cmp-actions"><button class="btn-ghost" style="width:100%;justify-content:center" onclick="cmpPeekUnit('${u.id}')">Open unit</button></div>
   </div>`;
+}
+// Development render gallery inside each column so devs can be compared visually.
+function cmpDevGal(u){
+  const d=DEV(u.dev), m=d.media||{};
+  const shots=[...((m.renders&&m.renders.ext)||[]),...((m.renders&&m.renders.int)||[]),...(m.photos||[])];
+  if(!shots.length)return '';
+  return `<div class="cmp-devgal"><div class="cmp-devgal-h">${d.name} \u2014 development</div>
+    <div class="cmp-devgal-row">${shots.map(s=>`<button class="cmp-devgal-t" onclick="cmpFsOpen('devs','devs','${d.id}')"><img src="${UN_ASSET+s.img}" alt="" onerror="this.parentNode.style.display='none'"><span>${s.cap||d.name}</span></button>`).join('')}</div></div>`;
 }
 function cmpCheckoutHtml(){
   const items=trState.items;
-  const cands=OPPS.filter(o=>o.stage!=='Closed Won'&&(unIsMgr()||o.rep===UN_REP));
+  const personalise=cmpState.intent==='personalise';
   return `<div class="cmp-checkout">
-    <h3>Attach ${items.length} units to a deal</h3>
+    <h3>${personalise?`Personalise ${items.length} units \u2014 link an opportunity first`:`Prepare shortlist for client \u2014 ${items.length} units`}</h3>
     <div class="dcard">
-      <div class="od-field"><label>Attach to</label>
-        <select onchange="cmpSetOpp(this.value)">
-          <option value="" ${!cmpState.opp?'selected':''} disabled>Choose a deal\u2026</option>
-          ${cands.map(o=>`<option value="${o.id}" ${cmpState.opp===o.id?'selected':''}>${o.lead} \u2014 ${o.id} (${o.stage})</option>`).join('')}
-          <option value="new" ${cmpState.opp==='new'?'selected':''}>+ New opportunity</option>
-        </select>
-      </div>
-      ${cmpState.opp==='new'?`
-      <div class="od-field"><label>Client name</label><input value="${cmpState.lead||''}" placeholder="e.g. Ana Bugeja" oninput="cmpState.lead=this.value"></div>
-      <div class="od-field"><label>Budget (\u20ack)</label><input type="number" value="${cmpState.budget||''}" oninput="cmpState.budget=this.value"></div>`:''}
-      <div class="od-field"><label>Send to client</label>
-        <label style="display:flex;gap:8px;align-items:center;font-size:12.5px;margin-bottom:6px"><input type="checkbox" ${cmpState.sendProposal?'checked':''} onchange="cmpState.sendProposal=this.checked"> Proposal link</label>
-        <label style="display:flex;gap:8px;align-items:center;font-size:12.5px"><input type="checkbox" ${cmpState.sendBrochure?'checked':''} onchange="cmpState.sendBrochure=this.checked"> Multi-unit brochure</label>
-      </div>
+      <div class="side-h">Opportunity</div>
+      ${cmpLinkHtml()}
     </div>
-    <div class="dcard"><div class="side-h">Units in this deal</div>
-      ${items.map(it=>{const u=UN(it.unitId);return `<div class="lu-row"><span class="cell-id">${u.id}</span><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.dev}</span><span style="font-weight:600">${fmtEur(trPriceFor(u,it.config))}</span></div>`;}).join('')}
+    ${personalise?`<div class="dcard" style="font-size:12px;color:var(--muted)">We\u2019ll open the custom-pack studio with these ${items.length} units ready to configure.</div>`:`
+    <div class="dcard">
+      <div class="side-h">What to prepare</div>
+      <div class="cmp-sendopt ${cmpState.sendLink?'on':''}" onclick="cmpState.sendLink=!cmpState.sendLink;cmpRender()"><span class="ck">\u2713</span><div><div class="n">Shortlist link</div><div class="d">Interactive landing page \u2014 floor plans, renders and prices the client can browse.</div></div></div>
+      <div class="cmp-sendopt ${cmpState.sendPdf?'on':''}" onclick="cmpState.sendPdf=!cmpState.sendPdf;cmpRender()"><span class="ck">\u2713</span><div><div class="n">Shortlist PDF</div><div class="d">Branded brochure \u2014 one page per unit, ready to print or attach.</div></div></div>
+    </div>`}
+    <div class="dcard"><div class="side-h">Units in this shortlist</div>
+      ${items.map(it=>{const u=UN(it.unitId);return `<div class="lu-row"><span class="cell-id">${u.id}</span><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.dev}</span><span style="font-weight:600">${fmtEur(u.price)}</span></div>`;}).join('')}
     </div>
   </div>`;
 }
 function cmpFootHtml(){
-  const total=trState.items.reduce((s,it)=>s+trPriceFor(UN(it.unitId),it.config),0);
-  if(cmpState.mode==='checkout'){
-    return `<div style="font-size:13px"><span style="color:var(--muted)">Configured total</span> <b style="font-size:15px;margin-left:6px">${fmtEur(total)}</b></div>
-      <div style="margin-left:auto;display:flex;gap:8px">
-        <button class="btn-ghost" onclick="cmpBackToCompare()">Back to compare</button>
-        <button class="btn-primary" onclick="cmpCheckout()">Create & send</button>
+  const total=cmpBaseTotal();
+  if(cmpState.mode==='loading')return `<div class="cmp-footinfo" style="color:var(--muted)">Preparing\u2026</div>`;
+  if(cmpState.mode==='ready'){
+    return `<div class="cmp-footinfo"><span style="color:var(--muted)">Shortlist total</span> <b style="font-size:15px;margin-left:6px">${fmtEur(total)}</b></div>
+      <div class="cmp-footacts">
+        <button class="btn-ghost" onclick="cmpViewOpp()">View opportunity</button>
+        <button class="btn-primary" onclick="cmpOpenShare()">Send to client \u2192</button>
       </div>`;
   }
-  return `<div style="font-size:13px"><span style="color:var(--muted)">${trState.items.length} units</span> <b style="font-size:15px;margin-left:6px">${fmtEur(total)}</b> <span style="color:var(--muted)">configured total</span></div>
-    <div style="margin-left:auto;display:flex;gap:8px">
+  if(cmpState.mode==='checkout'){
+    const personalise=cmpState.intent==='personalise';
+    const canGo=!!cmpState.link&&(personalise||cmpState.sendLink||cmpState.sendPdf);
+    return `<div class="cmp-footinfo"><span style="color:var(--muted)">Shortlist total</span> <b style="font-size:15px;margin-left:6px">${fmtEur(total)}</b></div>
+      <div class="cmp-footacts">
+        <button class="btn-ghost" onclick="cmpBackToCompare()">Back to compare</button>
+        <button class="btn-primary${canGo?'':' disabled'}" onclick="cmpPrepare()">${personalise?'Continue to studio \u2192':'Prepare &amp; send \u2192'}</button>
+      </div>`;
+  }
+  return `<div class="cmp-footinfo"><span style="color:var(--muted)">${trState.items.length} units</span> <b style="font-size:15px;margin-left:6px">${fmtEur(total)}</b> <span style="color:var(--muted)">shortlist total</span></div>
+    <div class="cmp-footacts">
       <button class="btn-ghost" onclick="cmpClose()">Keep browsing</button>
-      <button class="btn-primary" onclick="cmpGoCheckout()">Continue \u2192 Create proposal</button>
+      <button class="btn-ghost" onclick="cmpPresent()">Present live</button>
+      <button class="btn-ghost" onclick="cmpPersonalise()">Personalise renders</button>
+      <button class="btn-primary" onclick="cmpGoCheckout()">Prepare shortlist \u2192</button>
     </div>`;
 }
-function cmpCheckout(){
+function cmpPrepare(){
   const items=trState.items;
+  const link=cmpState.link;
+  if(!link){showToast('Link an opportunity or contact first');return;}
+  if(cmpState.intent!=='personalise'&&!cmpState.sendLink&&!cmpState.sendPdf){showToast('Pick at least one deliverable to prepare');return;}
+  const total=cmpBaseTotal();
+  const devs=[...new Set(items.map(it=>UN(it.unitId).dev))];
   let o;
-  if(cmpState.opp==='new'){
-    const lead=(cmpState.lead||'').trim();
-    if(!lead){showToast('Add the client name for the new deal');return;}
-    const devs=[...new Set(items.map(it=>UN(it.unitId).dev))];
-    const budget=parseInt(cmpState.budget,10)||Math.round(items.reduce((s,it)=>s+trPriceFor(UN(it.unitId),it.config),0)/1000);
-    o={id:'OPP-'+(1000+OPPS.length+17),lead,devs,units:items.map(it=>it.unitId),stage:'Qualified',source:'Showroom consultation',
-       budget:Math.ceil(budget/50)*50,value:budget,tags:[],rep:UN_REP,
-       next:{d:'Aug 14',t:'Follow up on unit proposal'},ago:'Today'};
-    OPPS.push(o);
-  }else{
-    o=OPPS.find(x=>x.id===cmpState.opp);
-    if(!o){showToast('Pick a deal to attach to');return;}
+  if(link.mode==='opp'){
+    o=OPPS.find(x=>x.id===link.oppId);
+    if(!o){showToast('Pick an opportunity to link to');return;}
     items.forEach(it=>{
       const u=UN(it.unitId);
       if(!o.units.includes(u.id))o.units.push(u.id);
       if(!o.devs.includes(u.dev))o.devs.push(u.dev);
     });
+  }else{
+    const ct=link.mode==='contact'?CONTACTS.find(x=>x.id===link.ctId):null;
+    const name=ct?ct.name:(link.name||'').trim();
+    if(!name){showToast('Add the contact name first');return;}
+    const budget=parseInt(cmpState.budget,10)||Math.round(total/1000);
+    o={id:'OPP-'+(1000+OPPS.length+17),lead:name,devs:devs.slice(),units:items.map(it=>it.unitId),stage:'Qualified',source:ct?ct.source:'Shortlist consultation',
+       budget:Math.ceil(budget/50)*50,value:budget,tags:[],rep:UN_REP,
+       next:{d:'Aug 14',t:'Follow up on shortlist'},ago:'Today'};
+    OPPS.push(o);
+    if(ct){ct.oppIds.push(o.id);ct.last='Today';ct.lastD=0;}
+    else{
+      const h=ctHash(name);
+      CONTACTS.push({id:'CT-'+(300+CONTACTS.length),name,type:'lead',btype:'Owner-occupier',company:null,status:'lead',
+        email:(link.email||'').trim()||ctSlug(name)+'@email.com',phone:(link.phone||'').trim()||'+356 '+(7700+h%299)+' '+(1000+h%9000),
+        nat:'Maltese',lang:'Maltese, English',source:'Shortlist consultation',ref:null,bmin:null,bmax:budget,
+        interest:items.length+' shortlisted units \u00b7 '+devs.join(', '),ploc:devs.join(', '),finance:'Arranging finance',timeline:'Exploring',
+        rep:UN_REP,tags:[],oppIds:[o.id],consent:{wa:true,em:true,sms:true},created:'Today',last:'Today',lastD:0,notesList:[]});
+    }
   }
   const x=getExt(o);
-  x.unitConfigs=x.unitConfigs||{};
-  items.forEach(it=>{
-    const u=UN(it.unitId), fin=PZ_FIN.find(f=>f.k===it.config.fin), lay=PZ_LAY.find(l=>l.k===it.config.lay);
-    x.unitConfigs[u.id]={fin:fin.n,lay:lay.n,adds:PZ_ADD.filter(a=>it.config.adds.includes(a.k)).map(a=>a.n),price:trPriceFor(u,it.config)};
-  });
-  const total=items.reduce((s,it)=>s+trPriceFor(UN(it.unitId),it.config),0);
-  const ids=items.map(it=>it.unitId).join(', ');
-  if(cmpState.sendProposal){
-    const link='bricly.mt/p/'+o.id.toLowerCase();
-    ensureShared(o,x).unshift({n:'Unit selection proposal',d:`${link} \u00b7 ${items.length} units`,eng:'Sent just now \u00b7 not yet opened'});
-    x.comms.unshift({ch:'em',dir:'out',who:'You',t:'Just now',sub:'Your personalised unit selection',
-      text:`Proposal with ${items.length} units (${ids}) \u2014 configured total ${fmtEur(total)}. Link: ${link}`});
+  if(cmpState.intent==='personalise'){
+    const seed=crFreshState(o); seed.unitIds=items.map(it=>it.unitId);
+    x.comms.unshift({ch:'sys',t:'Just now',text:`${items.length} units brought in from the compare shortlist to personalise`});
+    trClear();
+    document.getElementById('cmp').classList.remove('on');
+    if(typeof pipeRenderAll==='function')pipeRenderAll();
+    crOpen(o.id,seed);
+    showToast(`${items.length} units ready to personalise for ${o.lead.split(' ')[0]}`);
+    return;
   }
-  if(cmpState.sendBrochure){
-    x.comms.unshift({ch:'sys',t:'Just now',text:`Multi-unit brochure generated for ${items.length} units (${ids})`});
-  }
-  x.comms.unshift({ch:'sys',t:'Just now',text:`${items.length} units attached from the compare selection \u2014 configured total ${fmtEur(total)}`});
+  // Deliverables are "generated" on a staged loading screen, then reviewed on the ready page.
+  cmpState._oppId=o.id;
+  cmpState.shareMsg=cmpState.shareMsg||`Hi ${o.lead.split(' ')[0]}, here\u2019s a shortlist of ${items.length} units I\u2019ve put together for you \u2014 take a look and let me know your thoughts.`;
+  cmpState.mode='loading'; cmpRender();
+  setTimeout(()=>{
+    if(cmpState.mode!=='loading')return;
+    const what=cmpState.sendLink&&cmpState.sendPdf?'link + PDF':cmpState.sendLink?'link':'PDF';
+    const entry={n:'Unit shortlist',d:`bricly.mt/s/${o.id.toLowerCase()} \u00b7 ${items.length} units`,eng:'Generated just now \u00b7 not yet sent'};
+    ensureShared(o,x).unshift(entry); cmpState._sharedRef=entry;
+    x.comms.unshift({ch:'sys',t:'Just now',text:`Shortlist ${what} generated \u2014 ${items.length} units, total ${fmtEur(total)}`});
+    cmpState.mode='ready'; cmpRender();
+  },1600);
+}
+function cmpLoadingHtml(){
+  const o=OPPS.find(x=>x.id===cmpState._oppId);
+  const steps=[cmpState.sendLink?'Building the landing page':null,cmpState.sendPdf?'Rendering the PDF brochure':null,'Writing the client message'].filter(Boolean);
+  return `<div class="cmp-loading"><div class="cmp-spinner"></div><h3>Preparing shortlist for ${o?o.lead:'your client'}\u2026</h3>
+    <div>${steps.map((s,i)=>`<div class="st" style="animation-delay:${(i*0.4).toFixed(1)}s">\u2713 ${s}</div>`).join('')}</div></div>`;
+}
+function cmpReadyHtml(){
+  const o=OPPS.find(x=>x.id===cmpState._oppId), items=trState.items;
+  const url='bricly.mt/s/'+o.id.toLowerCase();
+  const pdf=o.lead.split(' ')[0].toLowerCase()+'-shortlist.pdf';
+  return `<div class="cmp-checkout">
+    <h3>Shortlist ready for ${o.lead}</h3>
+    <div class="dcard"><div class="side-h">Deliverables</div>
+      ${cmpState.sendLink?`<div class="cr-deliv"><div class="ic">\ud83d\udd17</div><div style="flex:1"><div class="t">Landing page</div><div class="s">${url}</div></div><button class="cr-toggle" onclick="showToast('Opening landing page preview')">View</button><button class="cr-toggle" onclick="showToast('${url} copied')">Copy link</button></div>`:''}
+      ${cmpState.sendPdf?`<div class="cr-deliv"><div class="ic">\ud83d\udcc4</div><div style="flex:1"><div class="t">Shortlist PDF</div><div class="s">${pdf} \u00b7 ${items.length} units</div></div><button class="cr-toggle" onclick="showToast('Opening PDF')">View</button><button class="cr-toggle" onclick="showToast('Shortlist PDF downloaded')">Download</button></div>`:''}
+    </div>
+    <div class="dcard"><div class="side-h">Linked opportunity</div>
+      <div class="lu-row"><b>${o.lead}</b><span style="color:var(--muted)">${o.id} \u00b7 ${o.stage}</span><span style="font-weight:600;margin-left:auto">${fmtEur(cmpBaseTotal())}</span></div>
+      ${items.map(it=>{const u=UN(it.unitId);return `<div class="lu-row"><span class="cell-id">${u.id}</span><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.dev}</span><span style="font-weight:600">${fmtEur(u.price)}</span></div>`;}).join('')}
+    </div>
+    <div class="dcard" style="font-size:12px;color:var(--muted)">Everything is saved to the opportunity under \u201cShared with client\u201d \u2014 send it now, or come back to it later.</div>
+  </div>`;
+}
+function cmpViewOpp(){
+  const id=cmpState._oppId;
+  trClear();
+  document.getElementById('cmp').classList.remove('on');
+  if(typeof pipeRenderAll==='function')pipeRenderAll();
+  if(id)openOpp(id);
+}
+function cmpOpenShare(){
+  const el=document.createElement('div'); el.className='cr-modal'; el.id='cmp-share-modal';
+  el.onclick=e=>{if(e.target===el)cmpCloseShare();};
+  document.body.appendChild(el); cmpRenderShare();
+}
+function cmpRenderShare(){
+  const el=document.getElementById('cmp-share-modal'); if(!el)return;
+  const o=OPPS.find(x=>x.id===cmpState._oppId), items=trState.items;
+  const url='bricly.mt/s/'+o.id.toLowerCase();
+  const pdf=o.lead.split(' ')[0].toLowerCase()+'-shortlist.pdf';
+  el.innerHTML=`<div class="cr-modal-box">
+    <div style="font-size:17px;font-weight:600;margin-bottom:2px">Review &amp; share</div>
+    <div class="s-step-hint" style="margin-bottom:14px">Your shortlist deliverables are ready \u2014 choose how to send them to ${o.lead}.</div>
+    ${cmpState.sendLink?`<div class="cr-deliv"><div class="ic">\ud83d\udd17</div><div style="flex:1"><div class="t">Shortlist link</div><div class="s">${url}</div></div><button class="cr-toggle" onclick="showToast('Opening shortlist preview')">View</button><button class="cr-toggle" onclick="showToast('${url} copied')">Copy</button></div>`:''}
+    ${cmpState.sendPdf?`<div class="cr-deliv"><div class="ic">\ud83d\udcc4</div><div style="flex:1"><div class="t">Shortlist PDF</div><div class="s">${pdf} \u00b7 ${items.length} units</div></div><button class="cr-toggle" onclick="showToast('Opening PDF')">View</button><button class="cr-toggle" onclick="showToast('Shortlist PDF downloaded')">Download</button></div>`:''}
+    <div class="cr-blink-sec">Message to send with it</div>
+    <textarea class="cr-field" rows="3" oninput="cmpState.shareMsg=this.value">${cmpState.shareMsg}</textarea>
+    <div class="cr-blink-sec">Send via</div>
+    <div class="cr-seg" style="margin-bottom:16px">${[['wa','WhatsApp'],['em','Email'],['copy','Copy link']].map(([k,l])=>`<button class="${cmpState.channel===k?'on':''}" onclick="cmpShareSetChannel('${k}')">${l}</button>`).join('')}</div>
+    <div style="display:flex;justify-content:space-between;gap:8px">
+      <button class="s-step-back-btn" onclick="cmpCloseShare()">\u2190 Back</button>
+      <button class="s-step-next-btn submit" onclick="cmpShareSend()">${cmpState.channel==='copy'?'Copy &amp; save \u2192':'Send via '+CH_META[cmpState.channel].label+' \u2192'}</button>
+    </div>
+  </div>`;
+}
+function cmpShareSetChannel(k){cmpState.channel=k;cmpRenderShare();}
+function cmpCloseShare(){const el=document.getElementById('cmp-share-modal');if(el)el.remove();}
+function cmpShareSend(){
+  const o=OPPS.find(x=>x.id===cmpState._oppId); if(!o){cmpCloseShare();return;}
+  const x=getExt(o), items=trState.items;
+  const ch=cmpState.channel==='copy'?'wa':cmpState.channel;
+  const chLabel=CH_META[ch].label;
+  const total=cmpBaseTotal(), ids=items.map(it=>it.unitId).join(', ');
+  const url='bricly.mt/s/'+o.id.toLowerCase();
+  const what=cmpState.sendLink&&cmpState.sendPdf?'link + PDF':cmpState.sendLink?'link':'PDF';
+  if(cmpState._sharedRef)cmpState._sharedRef.eng='Sent just now \u00b7 not yet opened';
+  else ensureShared(o,x).unshift({n:'Unit shortlist',d:`${url} \u00b7 ${items.length} units`,eng:'Sent just now \u00b7 not yet opened'});
+  x.comms.unshift({ch:ch==='wa'?'wa':'em',dir:'out',who:'You',t:'Just now',sub:'Your unit shortlist',
+    text:`${cmpState.shareMsg}\n\nShortlist (${items.length} units): ${url}`});
+  x.comms.unshift({ch:'sys',t:'Just now',text:`Shortlist sent via ${chLabel} \u2014 ${items.length} units (${ids}), ${what}, total ${fmtEur(total)}`});
+  cmpCloseShare();
   trClear();
   document.getElementById('cmp').classList.remove('on');
   if(typeof pipeRenderAll==='function')pipeRenderAll();
   openOpp(o.id);
-  showToast(`Proposal sent \u00b7 ${items.length} units attached to ${o.id}`);
+  showToast(`Shortlist sent to ${o.lead.split(' ')[0]} via ${chLabel}`);
 }
 
 /* ---------- Nav hook + init ---------- */
@@ -7579,7 +8042,11 @@ function unOnNav(page){
   if(page==='developments')renderDevs();
 }
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){closeUnPeek();closeUnLink();unCloseFilters();dlCloseFilters();closeDvPeek();closeLightbox();pzClose();prClose();cmpClose();}
+  if(e.key==='Escape'){
+    const sh=document.getElementById('cmp-share-modal'); if(sh){sh.remove();return;}
+    if(document.getElementById('cmpPfs').classList.contains('on')){cmpPlansFullClose();return;}
+    closeUnPeek();closeUnLink();unCloseFilters();dlCloseFilters();closeDvPeek();closeLightbox();pzClose();prClose();cmpClose();
+  }
 });
 let lbList=[],lbIdx=0;
 function openLightbox(list,idx){
@@ -7605,6 +8072,274 @@ document.addEventListener('keydown',e=>{
 });
 trLoad(); trRender();
 renderUnits(); renderDevs();
+</script>
+<script>
+/* ================= SHARED SELECTION BAR (bulk actions, role-aware) ================= */
+const SB_IC={
+  compare:'<path d="M7 1.5v11M4 4L1.5 7 4 10M10 4l2.5 3-2.5 3"/>',
+  opp:'<path d="M2 11.5V6l5-4 5 4v5.5M5.5 11.5V8h3v3.5"/>',
+  status:'<path d="M2 7l3.4 3.4L12 3.6"/>',
+  price:'<path d="M7 1.5v11M4.5 3.6h4a1.7 1.7 0 010 3.4H4.5M4.5 7h5.2"/>',
+  export:'<path d="M7 9V2M4.4 4.6L7 2l2.6 2.6M2 8.5v3.5h10V8.5"/>',
+  stage:'<path d="M2 3h10M2 7h7M2 11h4"/>',
+  rep:'<circle cx="7" cy="5" r="2.4"/><path d="M2.6 12c0-2.4 2-4 4.4-4s4.4 1.6 4.4 4"/>',
+  tag:'<path d="M2 2.4h4.6l5 5-4.6 4.6-5-5V2.4z"/><circle cx="4.6" cy="4.6" r="1"/>',
+  msg:'<path d="M2 3h10v7H6.5l-3 2V10H2z"/>',
+  pay:'<rect x="1.5" y="3.6" width="11" height="6.8" rx="1.4"/><path d="M1.5 6h11"/>',
+  doc:'<path d="M3 1.6h4.8l3.2 3.2V12.4H3z"/><path d="M7.6 1.6V5h3"/>',
+  merge:'<path d="M4 2v3.2C4 7.6 5.6 8.6 7 8.6M10 2v3.2C10 7.6 8.4 8.6 7 8.6M7 8.6V12"/>',
+  ban:'<circle cx="7" cy="7" r="5"/><path d="M3.5 3.5l7 7"/>',
+  more:'<circle cx="3" cy="7" r="1.1"/><circle cx="7" cy="7" r="1.1"/><circle cx="11" cy="7" r="1.1"/>',
+  x:'<path d="M3.2 3.2l7.6 7.6M10.8 3.2l-7.6 7.6"/>'
+};
+function sbIcon(k){return `<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">${SB_IC[k]||''}</svg>`;}
+
+const SB_SURFACES=[];
+function sbRegister(cfg){SB_SURFACES.push(cfg);}
+var sbEl=null, sbConfirmEl=null, sbConfirmCb=null;
+function sbRole(){return typeof curPersona!=='undefined'?curPersona:'rep';}
+function sbReps(){return [...new Set(OPPS.map(o=>o.rep))].filter(Boolean).sort();}
+
+function sbInit(){
+  if(sbEl) return;
+  sbEl=document.createElement('div'); sbEl.className='selbar'; sbEl.id='selbar'; document.body.appendChild(sbEl);
+  sbConfirmEl=document.createElement('div'); sbConfirmEl.className='sb-confirm'; sbConfirmEl.id='sbConfirm';
+  sbConfirmEl.innerHTML='<div class="sb-confirm-scrim" onclick="sbConfirmClose()"></div><div class="sb-confirm-card" id="sbConfirmCard"></div>';
+  document.body.appendChild(sbConfirmEl);
+  document.addEventListener('keydown',e=>{
+    if(e.key!=='Escape')return;
+    if(sbConfirmEl.classList.contains('on')){sbConfirmClose();return;}
+    if(sbActive()){sbClearActive();}
+  });
+  document.addEventListener('click',e=>{
+    const m=sbEl.querySelector('.selbar-menu');
+    if(m&&!m.contains(e.target)&&!e.target.closest('.sbtn')) m.remove();
+  });
+  sbRefresh();
+}
+function sbActive(){
+  for(const s of SB_SURFACES){
+    const pg=document.getElementById(s.pageId);
+    if(pg&&pg.classList.contains('on')&&(!s.isActive||s.isActive())&&s.count()>0) return s;
+  }
+  return null;
+}
+function sbClearActive(){const s=sbActive();if(!s)return;s.clear();s.rerender();sbRefresh();}
+function sbVisible(s){const role=sbRole();return s.actions.filter(a=>a.roles.includes(role));}
+function sbRefresh(){
+  if(!sbEl) return;
+  const openMenu=sbEl.querySelector('.selbar-menu'); if(openMenu) openMenu.remove();
+  // Hide the selection bar whenever a full-screen takeover (compare / personalise / present) is open.
+  if(document.querySelector('.tk.on')){sbEl.classList.remove('on');sbEl._surface=null;return;}
+  const s=sbActive();
+  if(!s){sbEl.classList.remove('on');sbEl._surface=null;return;}
+  const acts=sbVisible(s), ids=[...s.ids()];
+  const norm=acts.filter(a=>!a.danger), dang=acts.filter(a=>a.danger);
+  const inline=norm.slice(0,5), overflow=norm.slice(5);
+  const btn=a=>{
+    const en=a.enabled?a.enabled(ids):true, ok=en===true;
+    return `<button class="sbtn${a.danger?' danger':''}" ${ok?'':'disabled'} title="${ok?'':sbEsc(String(en))}" onclick="sbClick('${a.id}',event)">${sbIcon(a.icon)}${a.label}${a.menu?' \u25be':''}</button>`;
+  };
+  const c=s.count();
+  let h=`<span class="selbar-count"><b>${c}</b> ${c===1?s.entity:s.plural} selected</span>`+
+        `<button class="selbar-x" title="Clear selection (Esc)" onclick="sbClearActive()">${sbIcon('x')}</button>`+
+        `<span class="selbar-sep"></span>`+
+        inline.map(btn).join('');
+  if(overflow.length) h+=`<button class="sbtn" onclick="sbMore(event)">${sbIcon('more')}More</button>`;
+  if(dang.length) h+=`<span class="selbar-sep"></span>`+dang.map(btn).join('');
+  sbEl.innerHTML=h; sbEl._surface=s; sbEl._overflow=overflow;
+  sbEl.classList.add('on');
+}
+function sbEsc(s){return s.replace(/"/g,'&quot;');}
+function sbFind(id){const s=sbEl._surface;return s?s.actions.find(a=>a.id===id):null;}
+function sbClick(id,e){
+  if(e)e.stopPropagation();
+  const s=sbEl._surface, a=sbFind(id); if(!s||!a)return;
+  const om=sbEl.querySelector('.selbar-menu'); if(om&&om.dataset.for!==id&&om.dataset.for!=='__more') om.remove();
+  const ids=[...s.ids()];
+  const en=a.enabled?a.enabled(ids):true; if(en!==true)return;
+  if(a.menu){sbOpenMenu(a,e,ids);return;}
+  sbRun(s,a,ids);
+}
+function sbOpenMenu(a,e,ids){
+  const old=sbEl.querySelector('.selbar-menu'), was=old&&old.dataset.for===a.id;
+  if(old)old.remove(); if(was)return;
+  const items=a.menu(ids);
+  const m=document.createElement('div'); m.className='selbar-menu'; m.dataset.for=a.id;
+  m.innerHTML=items.map((it,i)=>`<button class="selbar-mi${it.danger?' danger':''}" onclick="sbMenuPick('${a.id}',${i})">${it.icon?sbIcon(it.icon):''}${it.label}</button>`).join('');
+  sbEl.appendChild(m); sbEl._menuItems=items;
+  const trg=e&&e.currentTarget;
+  if(trg) m.style.left=Math.max(4,Math.min(trg.offsetLeft, sbEl.offsetWidth-m.offsetWidth-8))+'px';
+}
+function sbMenuPick(aid,i){
+  const s=sbEl._surface, a=sbFind(aid), it=sbEl._menuItems[i];
+  const m=sbEl.querySelector('.selbar-menu'); if(m)m.remove();
+  sbRun(s,a,[...s.ids()],it.value);
+}
+function sbMore(e){
+  e.stopPropagation();
+  const old=sbEl.querySelector('.selbar-menu'), was=old&&old.dataset.for==='__more';
+  if(old)old.remove(); if(was)return;
+  const ov=sbEl._overflow||[], ids=[...sbEl._surface.ids()];
+  const m=document.createElement('div'); m.className='selbar-menu'; m.dataset.for='__more';
+  m.innerHTML=ov.map(a=>{const en=a.enabled?a.enabled(ids):true,ok=en===true;
+    return `<button class="selbar-mi${a.danger?' danger':''}" ${ok?'':'disabled'} title="${ok?'':sbEsc(String(en))}" onclick="sbClick('${a.id}',event)">${sbIcon(a.icon)}${a.label}</button>`;}).join('');
+  sbEl.appendChild(m);
+  const trg=e.currentTarget;
+  m.style.left=Math.max(4,Math.min(trg.offsetLeft, sbEl.offsetWidth-m.offsetWidth-8))+'px';
+}
+function sbRun(s,a,ids,arg){
+  const exec=()=>{
+    const res=a.run(ids,arg)||{};
+    if(a.clearAfter!==false) s.clear();
+    s.rerender();
+    if(res.msg) showToast(res.msg,(res.undo&&!a.confirm)?res.undo:undefined);
+    sbRefresh();
+  };
+  if(a.confirm){
+    const title=a.confirmTitle?a.confirmTitle(ids,arg):`${a.label}?`;
+    const body=a.confirmBody?a.confirmBody(ids,arg):'';
+    sbConfirm(title,body,ids.length,s,exec);
+  } else exec();
+}
+function sbConfirm(title,body,count,s,cb){
+  sbConfirmCb=cb;
+  document.getElementById('sbConfirmCard').innerHTML=
+    `<div class="sb-confirm-h">${title}</div>`+
+    `<div class="sb-confirm-count"><b>${count}</b>${count===1?s.entity:s.plural}</div>`+
+    (body?`<div class="sb-confirm-b">${body}</div>`:'')+
+    `<div class="sb-confirm-foot"><button class="btn-ghost" onclick="sbConfirmClose()">Cancel</button><button class="btn-primary" onclick="sbConfirmGo()">Confirm</button></div>`;
+  sbConfirmEl.classList.add('on');
+}
+function sbConfirmClose(){sbConfirmEl.classList.remove('on');sbConfirmCb=null;}
+function sbConfirmGo(){const cb=sbConfirmCb;sbConfirmClose();if(cb)cb();}
+function sbClearOnNav(page){
+  if(page!=='pipeline'&&typeof pipeSel!=='undefined')pipeSel.clear();
+  if(page!=='deals'&&typeof dealSel!=='undefined')dealSel.clear();
+  if(page!=='contacts'&&typeof ctState!=='undefined')ctState.sel.clear();
+  // Units selection (trState) persists intentionally via localStorage
+}
+function sbDownload(csv,name){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=name;a.click();URL.revokeObjectURL(a.href);}
+function sbCsv(head,rows){return [head.join(',')].concat(rows.map(r=>r.map(v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`).join(','))).join('\n');}
+
+/* ---- Units-page bulk selection Set ---- */
+function pipeToggleSel(id,e){if(e)e.stopPropagation();pipeSel.has(id)?pipeSel.delete(id):pipeSel.add(id);renderRows();}
+function pipeSelAll(){const list=filteredOpps();const all=list.length&&list.every(o=>pipeSel.has(o.id));list.forEach(o=>all?pipeSel.delete(o.id):pipeSel.add(o.id));renderRows();}
+function dealToggleSel(id,e){if(e)e.stopPropagation();dealSel.has(id)?dealSel.delete(id):dealSel.add(id);renderDeals();}
+
+/* ---- Add-to-opportunity (units): jump straight to compare checkout ---- */
+function sbUnitsAddToOpp(){
+  if(!trState.items.length)return;
+  document.getElementById('cmp').classList.add('on');
+  cmpState={mode:'checkout',view:'units',lens:'all',diffOnly:false,media:'plan',intent:'send',link:null,linkQ:'',budget:null,shareMsg:'',channel:'wa',sendLink:true,sendPdf:true};
+  cmpState.budget=Math.round(trState.items.reduce((s,it)=>s+UN(it.unitId).price,0)/1000);
+  cmpRender(); trRender();
+}
+function sbExportUnits(ids){
+  const rows=ids.map(UN).filter(Boolean).map(u=>[u.id,u.dev,u.type,unBedsLabel(u),u.baths,u.floor,u.sqm,u.price,UN_STATUS[u.status].l]);
+  sbDownload(sbCsv(['Unit','Development','Type','Beds','Baths','Floor','Size m2','Price','Status'],rows),'bricly-units.csv');
+}
+function sbExportOpps(ids){
+  const rows=ids.map(id=>OPPS.find(o=>o.id===id)).filter(Boolean).map(o=>[o.id,o.lead,o.devs.join('; '),o.units.join('; '),o.stage,o.source,money(o).amt,o.rep,(o.tags||[]).join('; ')]);
+  sbDownload(sbCsv(['ID','Contact','Development','Unit','Stage','Source','Value k','Rep','Tags'],rows),'bricly-opportunities.csv');
+}
+function sbExportDeals(ids){
+  const rows=ids.map(id=>DEALS.find(d=>d.id===id)).filter(Boolean).map(d=>{const o=dealOpp(d);return [d.id,o.lead,o.units.join('; '),o.devs.join('; '),CLOSED_STEPS[o.closed.step]||'',o.closed.deed,o.value,o.closed.comm,o.closed.paid?'Paid':'Pending'];});
+  sbDownload(sbCsv(['Deal','Contact','Unit','Development','Stage','Expected deed','Value k','Commission k','Commission status'],rows),'bricly-deals.csv');
+}
+
+/* ---- Surface registrations (order + role visibility per design brief) ---- */
+sbRegister({
+  pageId:'p-properties', entity:'unit', plural:'units',
+  count:()=>trState.items.length, ids:()=>trState.items.map(it=>it.unitId),
+  clear:()=>{trState.items=[];trState.open=false;trSave();}, rerender:()=>trRefreshCurrentView(),
+  actions:[
+    {id:'u-compare',label:'Compare',icon:'compare',roles:['rep','manager','marketing','owner'],clearAfter:false,
+      enabled:ids=>ids.length<2?'Select 2 to 4 units to compare':ids.length>4?'Compare up to 4 units \u2014 remove one first':true,
+      run:()=>{cmpOpen();return{};}},
+    {id:'u-addopp',label:'Add to opportunity',icon:'opp',roles:['rep','manager'],clearAfter:false,
+      enabled:ids=>{const bad=ids.map(UN).filter(u=>u&&u.status!=='available');return bad.length?`${bad.length} selected unit${bad.length>1?'s are':' is'} not available`:true;},
+      run:()=>{sbUnitsAddToOpp();return{};}},
+    {id:'u-status',label:'Change status',icon:'status',roles:['manager','owner'],confirm:true,
+      confirmTitle:(ids,v)=>`Change status to \u201c${UN_STATUS[v]?UN_STATUS[v].l:v}\u201d?`,
+      confirmBody:()=>'This updates live inventory shown to buyers and in Present mode.',
+      menu:()=>Object.keys(UN_STATUS).map(k=>({label:UN_STATUS[k].l,value:k,icon:'status'})),
+      run:(ids,v)=>{ids.forEach(id=>{const u=UN(id);if(u)u.status=v;});return{msg:`${ids.length} unit${ids.length>1?'s':''} set to ${UN_STATUS[v].l}`};}},
+    {id:'u-reprice',label:'Reprice',icon:'price',roles:['manager','owner'],confirm:true,
+      confirmTitle:(ids,v)=>`Apply ${v>0?'+':''}${v}% to price?`,
+      confirmBody:()=>'This updates the listed price on the selected units.',
+      menu:()=>[['+2%',2],['+5%',5],['\u22122%',-2],['\u22125%',-5]].map(([l,v])=>({label:l,value:v,icon:'price'})),
+      run:(ids,v)=>{ids.forEach(id=>{const u=UN(id);if(u)u.price=Math.round(u.price*(1+v/100));});return{msg:`Repriced ${ids.length} unit${ids.length>1?'s':''} ${v>0?'+':''}${v}%`};}},
+    {id:'u-export',label:'Export',icon:'export',roles:['rep','manager','marketing','owner'],clearAfter:false,
+      run:ids=>{sbExportUnits(ids);return{msg:`Exported ${ids.length} unit${ids.length>1?'s':''} to CSV`};}}
+  ]
+});
+sbRegister({
+  pageId:'p-pipeline', entity:'opportunity', plural:'opportunities', isActive:()=>pipeView==='table',
+  count:()=>pipeSel.size, ids:()=>[...pipeSel],
+  clear:()=>pipeSel.clear(), rerender:()=>pipeRenderAll(),
+  actions:[
+    {id:'o-stage',label:'Move stage',icon:'stage',roles:['rep','manager'],
+      menu:()=>STAGES.map(s=>({label:s,value:s,icon:'stage'})),
+      run:(ids,v)=>{const prev=ids.map(id=>{const o=OPPS.find(x=>x.id===id);const p=o.stage;o.stage=v;return[o,p];});return{msg:`${ids.length} moved to ${v}`,undo:()=>{prev.forEach(([o,p])=>o.stage=p);pipeRenderAll();}};}},
+    {id:'o-rep',label:'Reassign rep',icon:'rep',roles:['manager','owner'],
+      menu:()=>sbReps().map(r=>({label:r,value:r,icon:'rep'})),
+      run:(ids,v)=>{const prev=ids.map(id=>{const o=OPPS.find(x=>x.id===id);const p=o.rep;o.rep=v;return[o,p];});return{msg:`${ids.length} reassigned to ${v}`,undo:()=>{prev.forEach(([o,p])=>o.rep=p);pipeRenderAll();}};}},
+    {id:'o-tag',label:'Add tag',icon:'tag',roles:['rep','manager'],
+      menu:()=>{const t=[...new Set(OPPS.flatMap(o=>o.tags||[]))];return (t.length?t:['Urgent','Hot','Investor']).map(x=>({label:x,value:x,icon:'tag'}));},
+      run:(ids,v)=>{const added=[];ids.forEach(id=>{const o=OPPS.find(x=>x.id===id);o.tags=o.tags||[];if(!o.tags.includes(v)){o.tags.push(v);added.push(o);}});return{msg:`Tag \u201c${v}\u201d added to ${added.length}`,undo:()=>{added.forEach(o=>{const i=o.tags.indexOf(v);if(i>=0)o.tags.splice(i,1);});pipeRenderAll();}};}},
+    {id:'o-msg',label:'Send message',icon:'msg',roles:['rep','manager'],confirm:true,
+      confirmTitle:()=>'Send message',confirmBody:()=>'Sends your drafted message to the primary contact on each selected opportunity.',
+      run:ids=>({msg:`Message sent to ${ids.length} contact${ids.length>1?'s':''}`})},
+    {id:'o-export',label:'Export',icon:'export',roles:['rep','manager','owner'],clearAfter:false,
+      run:ids=>{sbExportOpps(ids);return{msg:`Exported ${ids.length} to CSV`};}}
+  ]
+});
+sbRegister({
+  pageId:'p-deals', entity:'deal', plural:'deals',
+  count:()=>dealSel.size, ids:()=>[...dealSel],
+  clear:()=>dealSel.clear(), rerender:()=>renderDeals(),
+  actions:[
+    {id:'d-pay',label:'Log payment',icon:'pay',roles:['rep','manager'],confirm:true,
+      confirmTitle:()=>'Log payment',confirmBody:()=>'Marks the next due payment as received on each selected deal.',
+      run:ids=>{let n=0;ids.forEach(id=>{const d=DEALS.find(x=>x.id===id);const o=d&&dealOpp(d);const x=o&&EXT[o.id];const p=x&&x.payments&&x.payments.find(pp=>pp.status!=='paid');if(p){p.status='paid';p.due='Paid today';n++;}});return{msg:`Logged payment on ${n} deal${n!==1?'s':''}`};}},
+    {id:'d-doc',label:'Add document',icon:'doc',roles:['rep','manager'],
+      run:ids=>({msg:`Document request sent for ${ids.length} deal${ids.length>1?'s':''}`})},
+    {id:'d-rep',label:'Reassign rep',icon:'rep',roles:['manager','owner'],
+      menu:()=>sbReps().map(r=>({label:r,value:r,icon:'rep'})),
+      run:(ids,v)=>{const prev=ids.map(id=>{const d=DEALS.find(x=>x.id===id);const o=dealOpp(d);const p=o.rep;o.rep=v;return[o,p];});return{msg:`${ids.length} deal${ids.length>1?'s':''} reassigned to ${v}`,undo:()=>{prev.forEach(([o,p])=>o.rep=p);renderDeals();}};}},
+    {id:'d-export',label:'Export',icon:'export',roles:['manager','owner'],clearAfter:false,
+      run:ids=>{sbExportDeals(ids);return{msg:`Exported ${ids.length} deal${ids.length>1?'s':''} to CSV`};}}
+  ]
+});
+sbRegister({
+  pageId:'p-contacts', entity:'contact', plural:'contacts',
+  count:()=>ctState.sel.size, ids:()=>[...ctState.sel],
+  clear:()=>ctState.sel.clear(), rerender:()=>renderContacts(),
+  actions:[
+    {id:'c-rep',label:'Reassign rep',icon:'rep',roles:['manager','owner'],clearAfter:false,
+      menu:()=>CT_OPTS.rep.map(r=>({label:r,value:r,icon:'rep'})),
+      run:(ids,v)=>{const prev=ids.map(id=>{const c=ctById(id);const p=c.rep;c.rep=v;return[c,p];});return{msg:`${ids.length} contact${ids.length>1?'s':''} assigned to ${v}`,undo:()=>{prev.forEach(([c,p])=>c.rep=p);renderContacts();}};}},
+    {id:'c-status',label:'Change status',icon:'status',roles:['rep','manager'],clearAfter:false,
+      menu:()=>Object.keys(CT_STATUS).map(k=>({label:CT_STATUS[k].l,value:k,icon:'status'})),
+      run:(ids,v)=>{const prev=ids.map(id=>{const c=ctById(id);const p=c.status;c.status=v;return[c,p];});return{msg:`${ids.length} contact${ids.length>1?'s':''} set to ${CT_STATUS[v].l}`,undo:()=>{prev.forEach(([c,p])=>c.status=p);renderContacts();}};}},
+    {id:'c-tag',label:'Add tag',icon:'tag',roles:['rep','manager','marketing'],clearAfter:false,
+      menu:()=>(CT_OPTS.tag.length?CT_OPTS.tag:['Urgent']).map(t=>({label:t,value:t,icon:'tag'})),
+      run:(ids,v)=>{const added=[];ids.forEach(id=>{const c=ctById(id);if(!c.tags.includes(v)){c.tags.push(v);added.push(c);}});return{msg:`Tag \u201c${v}\u201d added to ${added.length} contact${added.length!==1?'s':''}`,undo:()=>{added.forEach(c=>{const i=c.tags.indexOf(v);if(i>=0)c.tags.splice(i,1);});renderContacts();}};}},
+    {id:'c-msg',label:'Send message',icon:'msg',roles:['rep','manager','marketing'],clearAfter:false,
+      menu:()=>[['WhatsApp','WhatsApp'],['Email','Email'],['SMS','SMS']].map(([l,v])=>({label:l,value:v,icon:'msg'})),
+      run:(ids,v)=>{ctBulkMessage(v);return{};}},
+    {id:'c-export',label:'Export',icon:'export',roles:['manager','marketing','owner'],clearAfter:false,
+      run:()=>{ctExport(true);return{};}},
+    {id:'c-merge',label:'Merge',icon:'merge',roles:['rep','manager'],clearAfter:false,
+      enabled:ids=>ids.length!==2?'Select exactly 2 contacts to merge':true,
+      run:()=>{ctBulkMerge();return{};}},
+    {id:'c-dnc',label:'Do not contact',icon:'ban',roles:['rep','manager'],danger:true,confirm:true,clearAfter:false,
+      confirmTitle:()=>'Mark do-not-contact',confirmBody:()=>'Stops all outreach and clears messaging consent for the selected contacts.',
+      run:()=>{ctBulkArchive();return{};}}
+  ]
+});
+sbInit();
 </script>
 <script>
 /* ================= DASHBOARD (db*) — persona-aware, customizable sections ================= */
