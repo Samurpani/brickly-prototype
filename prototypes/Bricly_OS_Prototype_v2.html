@@ -6859,7 +6859,7 @@ function renderDevs(){
     </div>`;
   }).join('');
 }
-let dvCur=null,dvTabCur='overview',dvF={status:'all',beds:'all',type:'all',price:'all',view:'all',sortCol:'price',sortDir:'asc'};
+let dvCur=null,dvTabCur='overview',dvAvailabilityView='list',dvF={status:'all',beds:'all',type:'all',price:'all',view:'all',sortCol:'price',sortDir:'asc'};
 function openDvPeek(id){
   const d=DEVS.find(x=>x.id===id)||DEV(id),s=dvStats(d.name);
   document.getElementById('dvPeekBody').innerHTML=`
@@ -6884,7 +6884,7 @@ function openDvPeek(id){
 function closeDvPeek(){document.getElementById('dvPeek').classList.remove('open');document.getElementById('dvPeekScrim').classList.remove('on');}
 function openDev(id){
   dvSelection.clear();
-  dvCur=DEVS.find(d=>d.id===id)||DEV(id); dvTabCur='overview'; dvF={status:'all',beds:'all',type:'all',price:'all',view:'all',sortCol:'price',sortDir:'asc'};
+  dvCur=DEVS.find(d=>d.id===id)||DEV(id); dvTabCur='overview'; dvAvailabilityView='list'; dvF={status:'all',beds:'all',type:'all',price:'all',view:'all',sortCol:'price',sortDir:'asc'};
   closeDvPeek();
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.getElementById('p-development').classList.add('on');
@@ -6895,13 +6895,25 @@ function openDev(id){
   document.getElementById('content').scrollTop=0;
 }
 function dvSetTab(t){dvTabCur=t;renderDev();}
+function dvToggleAvailabilityView(){
+  dvAvailabilityView=dvAvailabilityView==='list'?'floorplans':'list';
+  renderDev();
+  document.getElementById('dvu-view-toggle')?.focus({preventScroll:true});
+}
+function dvUnitMatches(unit){
+  return (dvF.status==='all'||(dvF.status==='held'?(unit.status==='hold'||unit.status==='reserved'):unit.status===dvF.status))
+    &&(dvF.beds==='all'||String(unit.beds)===dvF.beds)
+    &&(dvF.type==='all'||unit.type===dvF.type)
+    &&(dvF.price==='all'||UN_PRICE_BANDS[dvF.price](unit.price))
+    &&(dvF.view==='all'||unit.views.includes(dvF.view));
+}
 const dvFloorViews={};
 function dvFloorContext(development){
   const units=UNITS.filter(unit=>unit.dev===development.name);
   const floors=[...new Set([...units.map(unit=>unit.floor),...(development.floors||[])])].filter(Number.isFinite).sort((left,right)=>left-right);
   const view=dvFloorViews[development.id]||(dvFloorViews[development.id]={floor:floors[0],zoom:100,editing:false,unitId:''});
   if(!floors.includes(view.floor)){view.floor=floors[0];view.editing=false;view.unitId='';}
-  const floorUnits=units.filter(unit=>unit.floor===view.floor);
+  const floorUnits=units.filter(unit=>unit.floor===view.floor&&dvUnitMatches(unit));
   if(!floorUnits.some(unit=>unit.id===view.unitId))view.unitId=floorUnits[0]?.id||'';
   return {view,floors,units:floorUnits,plan:development.floorPlans?.[view.floor]};
 }
@@ -6922,7 +6934,7 @@ function dvFloorHtml(development){
     <div class="dv-floor-units">${units.map(unit=>{const status=UN_STATUS[unit.status]||{l:'Unknown',p:'p-paused'};return `<button class="dv-floor-unit" data-unit-id="${unit.id}" onclick="openUnPeek('${unit.id}')"><span><strong>${xesc(unit.id)}</strong><small>${unBedsLabel(unit)} · ${unit.sqm} m²${!plan?.positions[unit.id]?' · Not placed on plan':''}</small></span><span class="pill ${status.p}">${status.l}</span></button>`;}).join('')||'<p class="deal-muted">No units recorded on this floor.</p>'}</div>${canEdit?'<small class="dv-floor-caption">Drawing and marker storage: this browser session only.</small>':''}`:'<div class="dv-floor-empty">No floors recorded for this development.</div>'}<p id="dv-floor-message" role="status"></p></section>`;
 }
 function dvFloorRefresh(developmentId){
-  if(dvCur?.id!==developmentId||dvTabCur!=='overview')return;
+  if(dvCur?.id!==developmentId||dvTabCur!=='availability'||dvAvailabilityView!=='floorplans')return;
   const panel=document.getElementById('dv-floor-panel');
   if(panel){
     const active=document.activeElement,focusLabel=panel.contains(active)?active.getAttribute('aria-label'):null;
@@ -7125,7 +7137,7 @@ function renderDev(){
   <div class="crm-page-controls"><div class="tabs">${tabs.map(([k,l])=>`<button class="tab ${dvTabCur===k?'on':''}" onclick="dvSetTab('${k}')">${l}</button>`).join('')}</div>
     <div class="toolbar"><button class="btn-primary" onclick="prOpenDev('${d.id}')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x="2" y="3" width="10" height="7" rx="1"/><path d="M7 10v2M5 12h4"/></svg>Enter present mode</button></div>
   </div>
-  <div class="dv-hero"><img src="${UN_ASSET+d.photo}" alt="${d.name}" onerror="this.remove()"></div>
+  ${dvTabCur==='overview'?`<div class="dv-hero"><img src="${UN_ASSET+d.photo}" alt="${d.name}" onerror="this.remove()"></div>`:''}
   <div id="dv-tabc">${dvTabHtml(d,s,deals,actDeals)}</div>`;
   if(dvTabCur==='availability')dvuSyncChips();
 }
@@ -7138,7 +7150,6 @@ function dvTabHtml(d,s,deals,actDeals){
           <div style="display:flex;gap:5px;flex-wrap:wrap">${d.amen.map(a=>`<span class="tag-chip">${a}</span>`).join('')}</div>
         </div>
         ${dvHubHtml(d)}
-        ${dvFloorHtml(d)}
         <div class="dcard"><h3>Location</h3>
           <div class="dv-map"><iframe src="https://www.google.com/maps?q=${d.lat},${d.lng}&z=15&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="${d.name} location map"></iframe></div>
           <div class="kv-grid" style="grid-template-columns:repeat(2,1fr);margin-top:14px">${d.dist.map(x=>`<div class="kv"><div class="k">${x[0]}</div><div class="v">${x[1]}</div></div>`).join('')}</div>
@@ -7157,12 +7168,7 @@ function dvTabHtml(d,s,deals,actDeals){
       </div>
     </div>`;
   if(dvTabCur==='availability'){
-    let list=UNITS.filter(u=>u.dev===d.name)
-      .filter(u=>dvF.status==='all'||(dvF.status==='held'?(u.status==='hold'||u.status==='reserved'):u.status===dvF.status))
-      .filter(u=>dvF.beds==='all'||String(u.beds)===dvF.beds)
-      .filter(u=>dvF.type==='all'||u.type===dvF.type)
-      .filter(u=>dvF.price==='all'||UN_PRICE_BANDS[dvF.price](u.price))
-      .filter(u=>dvF.view==='all'||u.views.includes(dvF.view));
+    let list=UNITS.filter(u=>u.dev===d.name&&dvUnitMatches(u));
     const key={id:u=>u.id,type:u=>u.type,beds:u=>u.beds,floor:u=>u.floor,sqm:u=>u.sqm,price:u=>u.price,psq:u=>u.price/u.sqm,status:u=>u.status}[dvF.sortCol]||(u=>u.price);
     list.sort((a,b)=>{const av=key(a),bv=key(b);const r=av>bv?1:av<bv?-1:0;return dvF.sortDir==='desc'?-r:r;});
     const anyF=dvF.status!=='all'||dvF.beds!=='all'||dvF.type!=='all'||dvF.price!=='all'||dvF.view!=='all';
@@ -7176,8 +7182,9 @@ function dvTabHtml(d,s,deals,actDeals){
       <button class="crm-filter-field" data-label="View & features" onclick="crmFilterField(event,dvuOpenFilters,'dvu-filter-menu','View & features')">View & features</button>
       ${anyF?`<span class="fclear" onclick="dvuClearF()">Clear all</span>`:''}
       <div class="filter-menu" id="dvu-filter-menu" style="display:none"></div>
+      <button id="dvu-view-toggle" class="btn-ghost" onclick="dvToggleAvailabilityView()">${sbIcon(dvAvailabilityView==='list'?'doc':'stage')}${dvAvailabilityView==='list'?'View as floorplans':'View as list'}</button>
     </div>
-    <table class="table">
+    ${dvAvailabilityView==='floorplans'?dvFloorHtml(d):`<table class="table">
       <thead><tr><th style="width:26px"></th>${th('id','Unit')}${th('type','Type')}${th('beds','Beds')}${th('floor','Floor')}${th('sqm','Size')}${th('price','Price')}${th('psq','\u20ac/m\u00b2')}${th('status','Status')}<th>Interest</th></tr></thead>
       <tbody>${list.map(u=>{const st=UN_STATUS[u.status];return `<tr class="${trHas(u.id)?'tr-sel':''}" style="cursor:pointer" onclick="openUnPeek('${u.id}')">
         <td onclick="event.stopPropagation()">${trCheckboxHtml(u)}</td>
@@ -7187,7 +7194,7 @@ function dvTabHtml(d,s,deals,actDeals){
         <td style="font-weight:600">${fmtK(u.price)}</td><td style="color:var(--on-variant)">\u20ac${Math.round(u.price/u.sqm).toLocaleString()}</td>
         <td><span class="pill ${st.p}">${st.l}</span></td><td>${unIntCell(u)}</td></tr>`;}).join('')}</tbody>
     </table>
-    <div class="table-foot"><span>${list.length} units</span></div>`;
+    <div class="table-foot"><span>${list.length} units</span></div>`}`;
   }
   if(dvTabCur==='visual'){
     const us=UNITS.filter(u=>u.dev===d.name);

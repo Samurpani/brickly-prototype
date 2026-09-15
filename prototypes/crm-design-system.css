@@ -65,6 +65,9 @@ html[data-theme="dark"] #dealEventDialog { color-scheme:dark; }
 #dvHubDialog svg { width:14px; height:14px; }
 #dv-hub-error { color:var(--crm-error); }
 @media(max-width:600px){ .crm-resource-row { gap:6px; padding:0 4px; } .crm-resource-primary { gap:8px; } .dv-hub-icon { width:28px; height:28px; } .dv-hub-actions { gap:2px; } }
+.app #dvu-view-toggle { margin-left:auto; flex-shrink:0; background:var(--crm-surface-high); color:var(--crm-on-surface); border-color:var(--crm-outline); }
+.app #dvu-view-toggle:hover { background:var(--crm-surface-highest); }
+#dvu-view-toggle svg { width:14px; height:14px; }
 .dv-floor-panel header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
 .dv-floor-panel h3 { margin:0; }
 .dv-floor-panel select { max-width:100%; min-height:32px; padding:4px 8px; border:1px solid var(--crm-outline); border-radius:4px; background:var(--crm-surface); color:var(--crm-on-surface); font:12px var(--crm-font); }

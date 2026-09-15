@@ -108,6 +108,11 @@ async function floorDrawingFixture(page){
 test('Development floor plans link real drawings to current floor inventory',async({page})=>{
   await page.evaluate(()=>{curPersona='owner';openDev('dolphin');});
   const panel=page.locator('#dv-floor-panel');
+  await expect(panel).toHaveCount(0);
+  await expect(page.locator('#dv-root .dv-hero')).toBeVisible();
+  await page.getByRole('button',{name:/^Availability \(/}).click();
+  await expect(page.locator('#dv-root .dv-hero')).toHaveCount(0);
+  await page.getByRole('button',{name:'View as floorplans',exact:true}).click();
   await expect(panel).toContainText('No drawing for ground floor');
   await page.getByLabel('Floor plan level').selectOption('1');
   await expect(panel.locator('.dv-floor-unit')).toHaveCount(2);
@@ -136,12 +141,27 @@ test('Development floor plans link real drawings to current floor inventory',asy
   await expect(panel).toContainText('On hold 1');
   await page.getByLabel('Floor plan level').selectOption('1');
   await expect(panel.locator('.dv-floor-pin')).toHaveCount(2);
+  const drawing=await panel.locator('.dv-floor-canvas img').getAttribute('src');
+  await page.evaluate(()=>dvuPick('status','sold'));
+  await expect(panel.locator('.dv-floor-unit')).toHaveCount(1);
+  await expect(panel.locator('.dv-floor-pin')).toHaveCount(1);
+  await page.getByRole('button',{name:'View as list',exact:true}).click();
+  await expect(panel).toHaveCount(0);
+  await expect(page.locator('#dv-tabc .table tbody tr')).toHaveCount(1);
+  await expect(page.locator('#dv-tabc .table tbody')).toContainText('#CM1105');
+  await page.getByRole('button',{name:'View as floorplans',exact:true}).click();
+  await expect(page.getByLabel('Floor plan level')).toHaveValue('1');
+  await expect(panel.locator('.dv-floor-canvas img')).toHaveAttribute('src',drawing);
+  await expect(panel.locator('.dv-floor-pin')).toHaveCount(1);
+  await page.evaluate(()=>dvuClearF());
+  await expect(panel.locator('.dv-floor-pin')).toHaveCount(2);
   await sold.focus();await page.keyboard.press('Enter');
   await expect(page.locator('#unPeek')).toHaveClass(/open/);
 });
 
 test('Development floor plans reject invalid files, preserve cancelled replacements and restrict editing',async({page})=>{
-  await page.evaluate(()=>{curPersona='owner';openDev('dolphin');});
+  await page.evaluate(()=>{curPersona='owner';openDev('dolphin');dvSetTab('availability');});
+  await page.getByRole('button',{name:'View as floorplans',exact:true}).click();
   await page.getByLabel('Floor plan level').selectOption('1');
   await page.locator('#dv-floor-file').setInputFiles({name:'broken.png',mimeType:'image/png',buffer:Buffer.from('not an image')});
   await expect(page.locator('#dv-floor-message')).toContainText('could not be opened');
@@ -155,15 +175,39 @@ test('Development floor plans reject invalid files, preserve cancelled replaceme
   await page.evaluate(()=>{curPersona='rep';renderDev();});
   await expect(page.getByRole('button',{name:'Replace drawing'})).toHaveCount(0);
   await expect(page.getByRole('button',{name:'Place units',exact:true})).toHaveCount(0);
-  await page.evaluate(()=>openDev('mercury'));
+  await page.evaluate(()=>{openDev('mercury');dvSetTab('availability');});
+  await page.getByRole('button',{name:'View as floorplans',exact:true}).click();
   await expect(page.locator('.dv-floor-canvas')).toHaveCount(0);
+});
+
+test('Development hero is limited to Overview across all tabs',async({page})=>{
+  await page.evaluate(()=>{curPersona='owner';openDev('dolphin');});
+  const hero=page.locator('#dv-root .dv-hero');
+  await expect(hero).toBeVisible();
+  for(const tab of ['availability','visual','media','deals','marketing']){
+    await page.locator(`#dv-root .tab[onclick="dvSetTab('${tab}')"]`).click();
+    await expect(hero).toHaveCount(0);
+    await expect(page.locator('#dv-floor-panel')).toHaveCount(0);
+  }
+  await page.getByRole('button',{name:'Overview',exact:true}).click();
+  await expect(hero).toBeVisible();
+  await expect(page.locator('#dv-floor-panel')).toHaveCount(0);
 });
 
 for(const theme of ['light','dark']){
   for(const width of [1440,390]){
     test(`Development floor plans ${theme} fit ${width}`,async({page},testInfo)=>{
       await page.setViewportSize({width,height:900});
-      await page.evaluate(theme=>{curPersona='owner';document.documentElement.dataset.theme=theme;openDev('dolphin');},theme);
+      await page.evaluate(theme=>{curPersona='owner';document.documentElement.dataset.theme=theme;openDev('dolphin');dvSetTab('availability');},theme);
+      const toggle=page.getByRole('button',{name:'View as floorplans',exact:true});
+      const toggleBounds=await toggle.boundingBox();
+      const rowBounds=await page.locator('#dvu-filter-row').boundingBox();
+      expect(Math.abs(toggleBounds.x+toggleBounds.width-rowBounds.x-rowBounds.width)).toBeLessThan(2);
+      if(width===1440){
+        const filterBounds=await page.locator('#dvu-filter-row .crm-filter-field').first().boundingBox();
+        expect(Math.abs(toggleBounds.y+toggleBounds.height/2-filterBounds.y-filterBounds.height/2)).toBeLessThan(2);
+      }
+      await toggle.click();
       await page.getByLabel('Floor plan level').selectOption('1');
       await page.locator('#dv-floor-file').setInputFiles(await floorDrawingFixture(page));
       await expect(page.locator('.dv-floor-canvas img')).toBeVisible();
@@ -172,6 +216,7 @@ for(const theme of ['light','dark']){
       const bounds=await panel.boundingBox();expect(bounds.x+bounds.width).toBeLessThanOrEqual(width+1);
       expect(await panel.evaluate(element=>element.scrollWidth<=element.clientWidth)).toBe(true);
       await panel.screenshot({path:testInfo.outputPath('development-floor-plan.png')});
+      await page.screenshot({path:testInfo.outputPath('development-availability-floorplans.png'),fullPage:true});
       await page.getByRole('button',{name:'Place units',exact:true}).click();
       expect(await panel.evaluate(element=>element.scrollWidth<=element.clientWidth)).toBe(true);
       await panel.screenshot({path:testInfo.outputPath('development-floor-mapping.png')});
