@@ -4,6 +4,8 @@ This repo now includes the packaged Bricly planning material so product context 
 
 ## Suggested starting points
 
+- [Present Mode full flow](present-mode-full-flow.md) — standalone product, designer and developer handoff; current journey, interactions, asset requirements, production boundaries and acceptance criteria
+- [Present Mode v2 implementation and QA](present-mode-v2.md) — technical companion and recorded prototype coverage
 - `ai-context.md` — concise working brief for implementation conversations
 - `ai-input-modalities-and-use-cases.md` — every way users send inputs/data to the AI layer, per user type × journey stage (for AI architecture)
 - `mvp-prototyping-readiness.md` — verdict on whether the repo is ready for MVP prototyping

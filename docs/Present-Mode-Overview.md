@@ -1,5 +1,7 @@
 # Bricly Present Mode — Project Resource
 
+> **Historical overview — superseded for current v2 Present Mode.** Use [the full designer/developer flow](present-mode-full-flow.md) for current requirements and [the v2 implementation/QA guide](present-mode-v2.md) for demonstrated behavior. The older prototype link and descriptions below—including true 3D, live configuration changes, immediate CRM exit and public delivery—are not the current v2 baseline. Original text is retained as design history.
+
 > An interactive, agent-led buyer showroom built into the Bricly CRM prototype. Present Mode turns a laptop or iPad into a car-showroom-style experience for presenting developments to potential buyers — 3D building models, cinematic renders, live unit customisation, and a one-tap handoff back into the CRM.
 
 **Live demo:** https://samurpani.github.io/brickly-prototype/prototypes/Bricly_CRM_Prototype.html

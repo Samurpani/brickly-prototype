@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "test:present": "playwright test",
     "start": "python3 -m http.server 3000"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0"
   }
 }

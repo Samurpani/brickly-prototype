@@ -22,6 +22,8 @@ Then open http://localhost:3000 in your browser.
 - Imported planning docs in `docs/source/`
 - A concise working brief in `docs/ai-context.md`
 - Imported HTML prototypes in `prototypes/`
+- [Present Mode full flow — designer and developer requirements](docs/present-mode-full-flow.md)
+- [Present Mode v2 implementation and QA](docs/present-mode-v2.md)
 - Supporting reference assets in `reference/`
 
 ## Project context

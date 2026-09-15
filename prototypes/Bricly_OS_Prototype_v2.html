@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bricly OS — Prototype (v2)</title>
+<link rel="stylesheet" href="present-mode.css">
+<link rel="stylesheet" href="present-map.css">
+<link rel="stylesheet" href="present-viewer.css">
+<link rel="stylesheet" href="present-details.css">
+<link rel="stylesheet" href="present-experience.css">
+<link rel="stylesheet" href="present-spatial.css">
+<link rel="stylesheet" href="present-neighbourhood.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -199,9 +206,9 @@ button{font-family:inherit}
 .btn-ghost:hover{background:var(--sc-lowest)}
 
 /* ---------- Table ---------- */
-.table{width:100%;border-collapse:collapse;font-size:13px}
+.table{width:100%;border-collapse:collapse;font-size:14px;line-height:22px;font-weight:400;letter-spacing:0}
 .table th{text-align:left;font-weight:400;color:var(--muted);font-size:12px;padding:10px 14px;border-bottom:1px solid var(--outline)}
-.table td{padding:12px 14px;border-bottom:1px solid var(--outline-variant);color:var(--on-surface)}
+.table td{height:56px;padding:8px;border-bottom:1px solid var(--outline-variant);color:var(--on-surface);vertical-align:middle}
 .table tbody tr:hover,.table tbody tr:hover{background:var(--sc-lowest);cursor:pointer}
 .table-scroll{overflow-x:auto}
 .table-scroll .table{min-width:1240px}
@@ -298,10 +305,14 @@ button{font-family:inherit}
 .card-deal{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:9px -12px -12px;padding:8px 12px;background:color-mix(in srgb,var(--primary) 9%,transparent);border-top:1px solid color-mix(in srgb,var(--primary) 25%,transparent);border-radius:0 0 var(--r-lg) var(--r-lg);font-size:11.5px;font-weight:500;color:#52671F}
 .card-deal button{border:none;background:transparent;color:var(--primary-high);font-size:11.5px;font-weight:600;cursor:pointer;padding:2px 0;white-space:nowrap}
 .card-deal button:hover{text-decoration:underline}
-.deal-steps{margin-bottom:16px;padding:4px 2px 16px;border-bottom:1px solid var(--outline-variant)}
-.dstep-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:8px}
-.dstep-labels span.done{color:var(--on-variant)}
-.dstep-labels span.cur{color:var(--primary-high);font-weight:600}
+.dstage{margin-bottom:16px}
+.dstage-track{display:flex;gap:5px}
+.dstage-seg{flex:1;height:6px;border-radius:3px;background:var(--sc-highest)}
+.dstage-seg.done,.dstage-seg.cur{background:var(--primary)}
+.dstage-labels{display:flex;gap:5px;margin-top:8px}
+.dstage-labels span{flex:1;font-size:11px;color:var(--muted);line-height:1.3}
+.dstage-labels span.done{color:var(--on-variant)}
+.dstage-labels span.cur{color:var(--on-surface);font-weight:600}
 /* Deal progress card on opportunity detail */
 .ct-meta{font-size:12px;color:var(--on-variant);display:flex;align-items:center;gap:6px}
 .ct-meta b{font-weight:600}
@@ -1286,7 +1297,6 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
 .pr-wrap2 .btn-primary,.pr-wrap2 .btn-ghost{width:100%;justify-content:center}
 .dv-map{height:200px;border-radius:12px;overflow:hidden;border:1px solid var(--outline)}
 .dv-map iframe{width:100%;height:100%;border:0;display:block}
-.dv-filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;align-items:center}
 .med-sub{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:14px 0 8px}
 .med-sub:first-child{margin-top:0}
 .th-sort{cursor:pointer;user-select:none;white-space:nowrap}
@@ -1306,10 +1316,6 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
 .vis-dot:hover .vis-tip{opacity:1}
 .vis-key{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle}
 .dv-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
-.dv-view-toggle{display:inline-flex;border:1px solid var(--outline);border-radius:9px;overflow:hidden;flex:none}
-.dv-view-toggle button{padding:7px 12px;border:none;background:var(--surface);color:var(--on-variant);font-size:12.5px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px}
-.dv-view-toggle button.on{background:var(--sc-high);color:var(--on-surface)}
-.dv-view-toggle button+button{border-left:1px solid var(--outline)}
 .dv-list-row{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr 1fr 1.4fr;gap:10px;align-items:center;padding:12px 14px;border:1px solid var(--outline);border-radius:12px;background:var(--surface);cursor:pointer;margin-bottom:8px;transition:.12s}
 .dv-list-row:hover{box-shadow:var(--sh-sm);border-color:var(--sc-highest)}
 .dv-list-row .nm{font-size:13.5px;font-weight:600}
@@ -1504,6 +1510,7 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
 .stwa-wiz-line{width:36px;height:2px;background:var(--outline)}
 .stwa-qr{width:180px;height:180px;margin:0 auto 18px;border:1px solid var(--outline);border-radius:12px;background:repeating-conic-gradient(#2E2D2C 0% 25%,#fff 0% 50%) 0 0/20px 20px;display:flex;align-items:center;justify-content:center}
 </style>
+<link rel="stylesheet" href="crm-design-system.css">
 </head>
 <body>
 <div class="app" id="appShell">
@@ -1521,24 +1528,24 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
     </div>
     <nav class="nav">
       <div class="nav-label">Manage</div>
-      <div class="ni on" data-page="today" onclick="go('today')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="3"/><path d="M7 1v1.4M7 11.6V13M13 7h-1.4M2.4 7H1M11.2 2.8l-.9.9M3.7 10.3l-.9.9M11.2 11.2l-.9-.9M3.7 3.7l-.9-.9"/></svg>Today</div>
-      <div class="ni" data-page="dashboard" onclick="go('dashboard')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 7l3-2"/></svg>Dashboard</div>
-      <div class="ni" data-page="pipeline" onclick="go('pipeline')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M1.5 12.5V8M7 12.5V3M12.5 12.5V6"/></svg>Opportunities</div>
-      <div class="ni" data-page="deals" onclick="go('deals')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M3.5 1.5H8L10.5 4v8.5h-7z"/><path d="M8 1.5V4h2.5"/><path d="M5 8.5l1.5 1.5L9 6.5"/></svg>Deals</div>
-      <div class="ni" data-page="properties" onclick="go('properties')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1" y="4" width="12" height="9" rx="1"/><path d="M4 4V3a3 3 0 016 0v1"/><circle cx="7" cy="8.5" r="1.3"/></svg>Units</div>
-      <div class="ni" data-page="developments" onclick="go('developments')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1 13V5l6-4 6 4v8H1z"/><path d="M5 13v-3h4v3"/></svg>Developments</div>
-      <div class="ni" data-page="contacts" onclick="go('contacts')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="7" cy="5" r="2.6"/><path d="M2 13c0-2.8 2.2-4.5 5-4.5s5 1.7 5 4.5"/></svg>Contacts</div>
+      <div class="ni on" data-page="today" onclick="go('today')" title="Today"><span class="crm-nav-icon" aria-hidden="true"></span>Today</div>
+      <div class="ni" data-page="dashboard" onclick="go('dashboard')" title="Dashboard"><span class="crm-nav-icon" aria-hidden="true"></span>Dashboard</div>
+      <div class="ni" data-page="pipeline" onclick="go('pipeline')" title="Opportunities"><span class="crm-nav-icon" aria-hidden="true"></span>Opportunities</div>
+      <div class="ni" data-page="deals" onclick="go('deals')" title="Deals"><span class="crm-nav-icon" aria-hidden="true"></span>Deals</div>
+      <div class="ni" data-page="properties" onclick="go('properties')" title="Units"><span class="crm-nav-icon" aria-hidden="true"></span>Units</div>
+      <div class="ni" data-page="developments" onclick="go('developments')" title="Developments"><span class="crm-nav-icon" aria-hidden="true"></span>Developments</div>
+      <div class="ni" data-page="contacts" onclick="go('contacts')" title="Contacts"><span class="crm-nav-icon" aria-hidden="true"></span>Contacts</div>
       <!-- Chats & tasks — new chat + 3 most recent, full list on the Chats & tasks page -->
       <div class="nav-label">Chats &amp; tasks</div>
-      <div class="ni" data-page="newchat" onclick="chatNavClick()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M10 2l2 2-7 7H3v-2L10 2z"/></svg>New chat</div>
+      <div class="ni" data-page="newchat" onclick="chatNavClick()" title="New chat"><span class="crm-nav-icon" aria-hidden="true"></span>New chat</div>
       <div class="sbr-div"></div>
       <div id="sbrList"></div>
       <div class="nav-label">Tools</div>
       <div class="ni" data-page="present" onclick="prOpenLobby()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="3" width="11" height="7.5" rx="1"/><path d="M7 10.5v2M4.8 12.5h4.4"/></svg>Present</div>
       <div class="ni" data-page="automations" onclick="go('automations')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 7h2.5l1.5-4 3 8 1.5-4H12"/></svg>Automations</div>
-      <div class="ni" data-page="calendar" onclick="go('calendar')"><svg viewBox="0 0 14 14" fill="currentColor"><rect x="1" y="2" width="12" height="11" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M1 5h12"/><path d="M4 1v2M10 1v2"/><rect x="3" y="7" width="2" height="2" rx="0.5"/><rect x="6" y="7" width="2" height="2" rx="0.5"/><rect x="9" y="7" width="2" height="2" rx="0.5"/></svg>Calendar</div>
-      <div class="ni" data-page="reports" onclick="go('reports')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="2.5" y="1.5" width="9" height="11" rx="1.5"/><path d="M4.5 4.5h5M4.5 7h5M4.5 9.5h3"/></svg>Reports</div>
-      <div class="ni" data-page="settings" onclick="go('settings')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="7" cy="7" r="2"/><path d="M7 1v1.5M7 11.5V13M13 7h-1.5M2.5 7H1M11.3 2.7l-1 1M3.7 10.3l-1 1M11.3 11.3l-1-1M3.7 3.7l-1-1"/></svg>Settings</div>
+      <div class="ni" data-page="calendar" onclick="go('calendar')" title="Calendar"><span class="crm-nav-icon" aria-hidden="true"></span>Calendar</div>
+      <div class="ni" data-page="reports" onclick="go('reports')" title="Reports"><span class="crm-nav-icon" aria-hidden="true"></span>Reports</div>
+      <div class="ni" data-page="settings" onclick="go('settings')" title="Settings"><span class="crm-nav-icon" aria-hidden="true"></span>Settings</div>
     </nav>
     <div class="sb-foot">
       <div class="user">
@@ -1556,10 +1563,10 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
         <button class="tb-toggle" onclick="document.getElementById('sidebar').classList.toggle('collapsed')" title="Toggle sidebar"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="2.5" width="13" height="11" rx="2"/><path d="M6 2.5v11"/></svg></button>
         <div class="crumb" id="crumb"><span class="cur">Today</span></div>
       </div>
-      <div class="tb-search" onclick="this.querySelector('input').focus()">
+      <button class="tb-search" id="navSearch" type="button" onclick="gsOpen()" aria-label="Search or jump into" aria-haspopup="dialog" aria-controls="globalSearch">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg>
-        <input placeholder="Search or jump into"><span class="kbd">⌘/K</span>
-      </div>
+        <span class="gs-placeholder">Search or jump into</span><span class="kbd" id="gsShortcut">⌘ K</span>
+      </button>
       <div class="tb-right">
         <button class="icon-btn" title="Notifications"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><path d="M7 1a4 4 0 014 4v3l1 2H2l1-2V5a4 4 0 014-4z" opacity=".75"/><path d="M5.5 11a1.5 1.5 0 003 0" opacity=".75"/></svg></button>
         <button class="ask-btn" onclick="openAsk()"><svg width="13" height="13" viewBox="0 0 14 14" fill="currentColor"><path d="M7 0l1.5 4.5L13 6 8.5 7.5 7 12 5.5 7.5 1 6l4.5-1.5L7 0z"/></svg>Ask</button>
@@ -1594,8 +1601,8 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
       <!-- ===== PIPELINE ===== -->
       <section class="page" id="p-pipeline">
         <div class="wrap">
-          <div class="page-title" style="margin-bottom:16px">Pipeline</div>
-          <div class="row-between" style="margin-bottom:14px">
+          <div class="crm-page-heading"><div class="page-title">Pipeline</div></div>
+          <div class="row-between crm-page-controls">
             <div class="tabs">
               <button class="tab on" onclick="setPipeSeg('all',this)">All Items</button>
               <button class="tab" onclick="setPipeSeg('active',this)">Active Work</button>
@@ -1609,7 +1616,6 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
                 <input id="pipe-search" placeholder="Search leads, developments, IDs" oninput="setPipeSearch(this.value)">
               </div>
               <button class="tool" title="Search" onclick="togglePipeSearch()"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg></button>
-              <button class="tool" title="Sort"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 4h10M4 7h6M6 10h2"/></svg></button>
               <button class="btn-ghost" id="pipe-closed-vis" style="font-size:12px;padding:5px 10px" onclick="togglePipeClosed()">Hide closed</button>
               <div class="viewtoggle">
                 <button id="vt-table" onclick="setPipeView('table')" title="Table"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="2.5" width="11" height="9" rx="1.5"/><path d="M1.5 5.5h11M5.5 5.5v6"/></svg></button>
@@ -1619,9 +1625,15 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
             </div>
           </div>
 
-          <div class="filter-row" id="filter-row">
-            <button class="fchip-add" onclick="toggleFilterMenu(event)">+ Filter</button>
+          <div class="filter-row crm-page-filters" id="filter-row">
+            <button class="crm-filter-field" id="pipe-sort-trigger" onclick="sortOpen('pipeline',event)">Sort</button>
+            <button class="crm-filter-field" data-label="Development" onclick="crmFilterField(event,toggleFilterMenu,'filter-menu','Development')">Development</button>
+            <button class="crm-filter-field" data-label="Rep" onclick="crmFilterField(event,toggleFilterMenu,'filter-menu','Rep')">Rep</button>
+            <button class="crm-filter-field" data-label="Source" onclick="crmFilterField(event,toggleFilterMenu,'filter-menu','Source')">Source</button>
+            <button class="crm-filter-field" data-label="Max budget" onclick="crmFilterField(event,toggleFilterMenu,'filter-menu','Max budget')">Max budget</button>
+            <button class="crm-filter-field" data-label="Tag" onclick="crmFilterField(event,toggleFilterMenu,'filter-menu','Tag')">Tag</button>
             <div id="active-filters" style="display:contents"></div>
+            <div class="filter-menu sort-menu" id="pipe-sort-menu" style="display:none"></div>
             <div class="filter-menu" id="filter-menu" style="display:none"></div>
           </div>
 
@@ -1647,7 +1659,7 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
 
       <!-- ===== OPPORTUNITY DETAIL ===== -->
       <section class="page" id="p-opp">
-        <div class="wrap" style="max-width:1120px">
+        <div class="wrap">
           <button class="btn-back" onclick="go('pipeline')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8.5 3L4 7l4.5 4"/></svg>Back to Pipeline</button>
           <div id="opp-root"></div>
         </div>
@@ -1667,8 +1679,8 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
               </div>
             </div>
           </div>
-          <div class="page-title" style="margin-bottom:4px">Create custom pack</div>
-          <div class="page-sub" style="margin-bottom:18px" id="cr-sub">Layout, finishes and style — then a branded buyer link.</div>
+          <div class="crm-page-heading"><div class="page-title">Create custom pack</div>
+          <div class="page-sub" id="cr-sub">Layout, finishes and style — then a branded buyer link.</div></div>
           <div id="cr-root"></div>
         </div>
       </section>
@@ -1676,10 +1688,9 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
       <!-- ===== DEALS ===== -->
       <section class="page" id="p-deals">
         <div class="wrap">
-          <div class="page-title" style="margin-bottom:4px">Deals</div>
-          <div class="page-sub" style="margin-bottom:18px">Signed deals from POS to keys — payments, deeds and commissions in one place.</div>
-          <div id="deals-stats"></div>
-          <div class="row-between" style="margin-bottom:14px">
+          <div class="crm-page-heading"><div class="page-title">Deals</div></div>
+          <div class="crm-page-metrics" id="deals-stats"></div>
+          <div class="row-between crm-page-controls">
             <div class="tabs" id="dl-tabs"></div>
             <div class="toolbar">
               <div class="pipe-search-wrap" id="dl-search-wrap" style="display:none">
@@ -1689,9 +1700,18 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
               <button class="tool" title="Search" onclick="dlToggleSearch()"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg></button>
             </div>
           </div>
-          <div class="filter-row" id="dl-filter-row">
-            <button class="fchip-add" onclick="dlOpenFilters()">+ Filter</button>
+          <div class="filter-row crm-page-filters" id="dl-filter-row">
+            <button class="crm-filter-field" id="dl-sort-trigger" onclick="sortOpen('deals',event)">Sort</button>
+            <button class="crm-filter-field" data-label="Development" onclick="crmFilterField(event,dlOpenFilters,'dl-filter-menu','Development')">Development</button>
+            <button class="crm-filter-field" data-label="Deal stage" onclick="crmFilterField(event,dlOpenFilters,'dl-filter-menu','Deal stage')">Deal stage</button>
+            <button class="crm-filter-field" data-label="Commission" onclick="crmFilterField(event,dlOpenFilters,'dl-filter-menu','Commission')">Commission</button>
+            <button class="crm-filter-field" data-label="Sale price" onclick="crmFilterField(event,dlOpenFilters,'dl-filter-menu','Sale price')">Sale price</button>
+            <button class="crm-filter-field" data-label="POS signed" onclick="crmFilterField(event,dlOpenFilters,'dl-filter-menu','POS signed')">POS signed</button>
+            <button class="crm-filter-field" data-label="Expected deed" onclick="crmFilterField(event,dlOpenFilters,'dl-filter-menu','Expected deed')">Expected deed</button>
+            <button class="crm-filter-field" data-label="Rep" onclick="crmFilterField(event,dlOpenFilters,'dl-filter-menu','Rep')">Rep</button>
             <div id="dl-active-filters" style="display:contents"></div>
+            <div class="filter-menu sort-menu" id="dl-sort-menu" style="display:none"></div>
+            <div class="filter-menu" id="dl-filter-menu" style="display:none"></div>
           </div>
           <div id="deals-rows"></div>
         </div>
@@ -1699,7 +1719,7 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
 
       <!-- ===== DEAL DETAIL ===== -->
       <section class="page" id="p-deal">
-        <div class="wrap" style="max-width:1120px">
+        <div class="wrap">
           <button class="btn-back" onclick="go('deals')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8.5 3L4 7l4.5 4"/></svg>Back to Deals</button>
           <div id="deal-root"></div>
         </div>
@@ -1750,26 +1770,27 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
 
       <!-- ===== CHATS & TASKS — full history of chats + agent work ===== -->
       <section class="page" id="p-chats">
-        <div class="wrap" style="max-width:760px">
-          <div class="chat-hist-head" style="margin-top:6px">
-            <div class="page-title">Chats &amp; tasks</div>
-            <div class="chat-hist-filter">
+        <div class="wrap">
+            <div class="crm-page-heading"><div class="page-title">Chats &amp; tasks</div></div>
+            <div class="crm-page-controls">
               <div class="tabs" id="histTabs">
                 <button class="tab on" onclick="histFilterScope('all',this)">All</button>
                 <button class="tab" onclick="histFilterScope('chats',this)">Chats</button>
                 <button class="tab" onclick="histFilterScope('tasks',this)">Tasks</button>
               </div>
-              <div class="hist-search">
+              <div class="toolbar"><div class="hist-search">
                 <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg>
                 <input id="histSearch" placeholder="Search chats & tasks…" oninput="renderHistory()">
               </div>
-              <button class="tool" id="histSortBtn" title="Sort A-Z / Recent" onclick="histToggleSort()"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 4h10M4 7h6M6 10h2"/></svg></button>
               <button class="btn-primary" onclick="chatNew()" style="font-size:12px;padding:5px 12px">+ New chat</button>
-            </div>
+              </div>
           </div>
-          <div class="filter-row" id="hist-filter-row">
-            <button class="fchip-add" onclick="histToggleFilterMenu(event)">+ Filter</button>
+          <div class="filter-row crm-page-filters" id="hist-filter-row">
+            <button class="crm-filter-field" id="hist-sort-trigger" onclick="sortOpen('chats',event)">Sort</button>
+            <button class="crm-filter-field" data-label="Chat scope" onclick="crmFilterField(event,histToggleFilterMenu,'hist-filter-menu','Chat scope')">Chat scope</button>
+            <button class="crm-filter-field" data-label="Task status" onclick="crmFilterField(event,histToggleFilterMenu,'hist-filter-menu','Task status')">Task status</button>
             <div id="hist-active-filters" style="display:contents"></div>
+            <div class="filter-menu sort-menu" id="hist-sort-menu" style="display:none"></div>
             <div class="filter-menu" id="hist-filter-menu" style="display:none"></div>
           </div>
           <div id="histList"></div>
@@ -1779,11 +1800,11 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
       <!-- ===== PLACEHOLDER PAGES ===== -->
       <section class="page" id="p-dashboard">
         <div class="db-wrap">
+          <div class="crm-page-heading"><div class="page-title">Dashboard</div></div>
           <div class="db-hero" id="db-hero"></div>
-          <div class="db-toolbar">
-            <div class="db-toolbar-title">Dashboard</div>
+          <div class="crm-page-controls">
             <div class="seg" id="db-period-seg"></div>
-            <button class="btn-ghost" id="db-edit-btn" onclick="dbToggleEdit()">Customize</button>
+            <div class="toolbar"><button class="btn-ghost" id="db-edit-btn" onclick="dbToggleEdit()">Customize</button></div>
           </div>
           <div class="db-grid" id="db-grid"></div>
           <div class="db-hidden-tray" id="db-hidden-tray" style="display:none"></div>
@@ -1792,8 +1813,12 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
       <!-- ===== UNITS (availability list) ===== -->
       <section class="page" id="p-properties">
         <div class="wrap">
-          <div class="row-between" style="margin-bottom:16px;align-items:flex-start">
-            <div><div class="page-title">Units</div><div class="page-sub">Live availability across every development — one list, always current</div></div>
+          <div class="crm-page-heading">
+            <div class="page-title">Units</div>
+          </div>
+          <div class="ct-stats crm-page-metrics" id="un-stats"></div>
+          <div class="crm-page-controls">
+            <div class="tabs" id="un-tabs"></div>
             <div class="toolbar">
               <div class="pipe-search-wrap">
                 <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg>
@@ -1802,11 +1827,17 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
               <button class="btn-ghost" onclick="showToast('Availability list exported')">Export list</button>
             </div>
           </div>
-          <div class="ct-stats" id="un-stats"></div>
-          <div class="filter-row" id="un-filter-row">
-            <div class="tabs" id="un-tabs"></div>
-            <button class="fchip-add" onclick="unOpenFilters()">+ Filter</button>
+          <div class="filter-row crm-page-filters" id="un-filter-row">
+            <button class="crm-filter-field" id="un-sort-trigger" onclick="sortOpen('units',event)">Sort</button>
+            <button class="crm-filter-field" data-label="Location" onclick="crmFilterField(event,unOpenFilters,'un-filter-menu','Location')">Location</button>
+            <button class="crm-filter-field" data-label="Development" onclick="crmFilterField(event,unOpenFilters,'un-filter-menu','Development')">Development</button>
+            <button class="crm-filter-field" data-label="Type" onclick="crmFilterField(event,unOpenFilters,'un-filter-menu','Type')">Type</button>
+            <button class="crm-filter-field" data-label="Beds" onclick="crmFilterField(event,unOpenFilters,'un-filter-menu','Beds')">Beds</button>
+            <button class="crm-filter-field" data-label="Price" onclick="crmFilterField(event,unOpenFilters,'un-filter-menu','Price')">Price</button>
+            <button class="crm-filter-field" data-label="View & features" onclick="crmFilterField(event,unOpenFilters,'un-filter-menu','View & features')">View & features</button>
             <div id="un-active-filters" style="display:contents"></div>
+            <div class="filter-menu sort-menu" id="un-sort-menu" style="display:none"></div>
+            <div class="filter-menu" id="un-filter-menu" style="display:none"></div>
           </div>
           <div class="table-scroll">
           <table class="table" style="min-width:1560px">
@@ -1833,7 +1864,7 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
       </section>
       <!-- ===== UNIT DETAIL ===== -->
       <section class="page" id="p-unit">
-        <div class="wrap" style="max-width:1120px">
+        <div class="wrap">
           <button class="btn-back" onclick="go('properties')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8.5 3L4 7l4.5 4"/></svg>Back to Units</button>
           <div id="un-root"></div>
         </div>
@@ -1841,16 +1872,16 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
       <!-- ===== DEVELOPMENTS ===== -->
       <section class="page" id="p-developments">
         <div class="wrap">
-          <div class="row-between" style="margin-bottom:16px;align-items:flex-start">
-            <div><div class="page-title">Developments</div><div class="page-sub">Every project in one place — details, media, availability and pipeline</div></div>
+          <div class="crm-page-heading">
+            <div class="page-title">Developments</div>
           </div>
-          <div class="dv-toolbar" id="dv-toolbar"></div>
+          <div class="dv-toolbar crm-page-controls" id="dv-toolbar"></div>
           <div class="dv-grid" id="dv-grid"></div>
         </div>
       </section>
       <!-- ===== DEVELOPMENT DETAIL ===== -->
       <section class="page" id="p-development">
-        <div class="wrap" style="max-width:1120px">
+        <div class="wrap">
           <button class="btn-back" onclick="go('developments')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8.5 3L4 7l4.5 4"/></svg>Back to Developments</button>
           <div id="dv-root"></div>
         </div>
@@ -1858,31 +1889,31 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
       <!-- ===== CONTACTS ===== -->
       <section class="page" id="p-contacts">
         <div class="wrap">
-          <div class="row-between" style="margin-bottom:16px;align-items:flex-start">
+          <div class="crm-page-heading">
             <div><div class="page-title">Contacts</div><div class="page-sub" id="ct-sub">All the people around your deals — buyers, vendors, suppliers and partners</div></div>
-            <div class="toolbar">
-              <button class="btn-ghost" onclick="ctExport()">Export CSV</button>
-              <button class="btn-primary" onclick="ctOpenNew()">New contact</button>
-            </div>
           </div>
-          <div class="ct-stats" id="ct-stats"></div>
-          <div class="row-between" style="margin-bottom:14px">
+          <div class="ct-stats crm-page-metrics" id="ct-stats"></div>
+          <div class="row-between crm-page-controls">
             <div class="tabs" id="ct-tabs"></div>
             <div class="toolbar">
               <div class="pipe-search-wrap">
                 <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg>
                 <input id="ct-search" placeholder="Search name, email, phone, company" oninput="ctSetSearch(this.value)">
               </div>
-              <select class="ct-sort" id="ct-sort" onchange="ctSetSort(this.value)">
-                <option value="last">Last activity</option>
-                <option value="name">Name A–Z</option>
-                <option value="budget">Budget high–low</option>
-              </select>
+              <button class="btn-ghost" onclick="ctExport()">Export CSV</button>
+              <button class="btn-primary" onclick="ctOpenNew()">New contact</button>
             </div>
           </div>
-          <div class="filter-row" id="ct-filter-row">
-            <button class="fchip-add" onclick="ctToggleFilterMenu(event)">+ Filter</button>
+          <div class="filter-row crm-page-filters" id="ct-filter-row">
+            <button class="crm-filter-field" id="ct-sort-trigger" onclick="sortOpen('contacts',event)">Sort</button>
+            <button class="crm-filter-field" data-label="Status" onclick="crmFilterField(event,ctToggleFilterMenu,'ct-filter-menu','Status')">Status</button>
+            <button class="crm-filter-field" data-label="Source" onclick="crmFilterField(event,ctToggleFilterMenu,'ct-filter-menu','Source')">Source</button>
+            <button class="crm-filter-field" data-label="Rep" onclick="crmFilterField(event,ctToggleFilterMenu,'ct-filter-menu','Rep')">Rep</button>
+            <button class="crm-filter-field" data-label="Max budget" onclick="crmFilterField(event,ctToggleFilterMenu,'ct-filter-menu','Max budget')">Max budget</button>
+            <button class="crm-filter-field" data-label="Tag" onclick="crmFilterField(event,ctToggleFilterMenu,'ct-filter-menu','Tag')">Tag</button>
+            <button class="crm-filter-field" data-label="Last activity" onclick="crmFilterField(event,ctToggleFilterMenu,'ct-filter-menu','Last activity')">Last activity</button>
             <div id="ct-active-filters" style="display:contents"></div>
+            <div class="filter-menu sort-menu" id="ct-sort-menu" style="display:none"></div>
             <div class="filter-menu" id="ct-filter-menu" style="display:none"></div>
           </div>
           <div class="table-scroll">
@@ -1899,7 +1930,7 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
       </section>
       <!-- ===== CONTACT DETAIL ===== -->
       <section class="page" id="p-contact">
-        <div class="wrap" style="max-width:1120px">
+        <div class="wrap">
           <button class="btn-back" onclick="go('contacts')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8.5 3L4 7l4.5 4"/></svg>Back to Contacts</button>
           <div id="ct-root"></div>
         </div>
@@ -1907,14 +1938,16 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
       <!-- ===== CALENDAR ===== -->
       <section class="page" id="p-calendar">
         <div class="wrap">
-          <div class="row-between" style="margin-bottom:16px;align-items:flex-start">
+          <div class="crm-page-heading">
             <div><div class="page-title">Calendar</div><div class="page-sub">Viewings, follow-ups and signings — synced with your day</div></div>
+          </div>
+          <div class="crm-page-controls">
+            <div class="seg" id="cv-view-seg"></div>
             <div class="toolbar">
               <button class="btn-ghost" onclick="cvNav(-1)">‹</button>
               <button class="btn-ghost" onclick="cvGoToday()">Today</button>
               <button class="btn-ghost" onclick="cvNav(1)">›</button>
               <span id="cv-range" style="font-size:13px;font-weight:600;margin:0 6px;color:var(--on-surface)"></span>
-              <div class="seg" id="cv-view-seg"></div>
               <button class="btn-primary" onclick="cvOpenNew()">+ New event</button>
             </div>
           </div>
@@ -2472,23 +2505,18 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
 
       <!-- ── ASSET LIBRARY ──────────────────────────── -->
       <div class="s-screen" id="ss-assets" style="padding:22px 26px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
           <div>
             <div style="font-size:22px;font-weight:700;color:var(--on-surface);letter-spacing:-0.5px">Asset library</div>
             <div style="font-size:12px;color:var(--muted);margin-top:3px">All delivered files across every project</div>
           </div>
-          <div style="display:flex;gap:8px">
-            <select class="s-select" id="asset-dev-filter" style="width:170px;font-size:11px" onchange="renderStudioAssets(this.value, document.getElementById('asset-type-filter').value)">
-              <option>All developments</option>
-            </select>
-            <select class="s-select" style="width:150px;font-size:11px" id="asset-type-filter" onchange="renderStudioAssets(document.getElementById('asset-dev-filter').value, this.value)">
-              <option>All types</option>
-              <option>Renders</option>
-              <option>Brochures</option>
-              <option>Floor Plans</option>
-              <option>Social</option>
-              <option>Brand</option>
-            </select>
+          <div class="filter-row" id="as-filter-row" style="position:relative">
+            <button class="crm-filter-field" id="as-sort-trigger" onclick="sortOpen('assets',event)">Sort</button>
+            <button class="crm-filter-field" data-label="Development" onclick="crmFilterField(event,asOpenFilters,'as-filter-menu','Development')">Development</button>
+            <button class="crm-filter-field" data-label="Type" onclick="crmFilterField(event,asOpenFilters,'as-filter-menu','Type')">Type</button>
+            <div id="as-active-filters" style="display:contents"></div>
+            <div class="filter-menu sort-menu" id="as-sort-menu" style="display:none"></div>
+            <div class="filter-menu" id="as-filter-menu" style="display:none"></div>
           </div>
         </div>
         <div class="s-asset-grid" style="grid-template-columns:repeat(5,1fr)" id="studio-asset-grid"></div>
@@ -2620,7 +2648,6 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
   <div class="od-head"><span id="unLinkTitle">Link to a deal</span><button class="x" onclick="closeUnLink()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3l8 8M11 3l-8 8"/></svg></button></div>
   <div class="od-body" id="unLinkBody"></div>
 </aside>
-<div class="scrim" id="unFilterScrim" onclick="unCloseFilters()"></div>
 <div class="scrim" id="docAddScrim" onclick="docAddClose()"></div>
 <aside class="opp-drawer" id="docAddDrawer">
   <div class="od-head"><span>Add document</span><button class="x" onclick="docAddClose()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3l8 8M11 3l-8 8"/></svg></button></div>
@@ -2632,17 +2659,6 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
   <div class="od-head"><span style="flex:1">New event</span><span class="icon-btn" onclick="cvCloseNew()" style="width:26px;height:26px">✕</span></div>
   <div class="od-body" id="cvDrawerBody" style="padding:16px;overflow-y:auto"></div>
   <div class="od-foot"><button class="btn-ghost" style="flex:1;justify-content:center" onclick="cvCloseNew()">Cancel</button><button class="btn-primary" style="flex:1;justify-content:center" onclick="cvSaveNew()">Save event</button></div>
-</aside>
-<aside class="opp-drawer" id="unFilterDrawer">
-  <div class="od-head"><span>Filter units</span><button class="x" onclick="unCloseFilters()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3l8 8M11 3l-8 8"/></svg></button></div>
-  <div class="od-body" id="unFilterBody"></div>
-  <div class="od-foot"><button class="btn-ghost" style="flex:1;justify-content:center" onclick="unClearF()">Clear all</button><button class="btn-primary" style="flex:1;justify-content:center" onclick="unCloseFilters()">Show results</button></div>
-</aside>
-<div class="scrim" id="dlFilterScrim" onclick="dlCloseFilters()"></div>
-<aside class="opp-drawer" id="dlFilterDrawer">
-  <div class="od-head"><span>Filter deals</span><button class="x" onclick="dlCloseFilters()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3l8 8M11 3l-8 8"/></svg></button></div>
-  <div class="od-body" id="dlFilterBody"></div>
-  <div class="od-foot"><button class="btn-ghost" style="flex:1;justify-content:center" onclick="dlClearAllF()">Clear all</button><button class="btn-primary" style="flex:1;justify-content:center" id="dl-fd-apply" onclick="dlCloseFilters()">Show results</button></div>
 </aside>
 <div class="scrim" id="dvPeekScrim" onclick="closeDvPeek()"></div>
 <aside class="opp-drawer" id="dvPeek" style="width:430px">
@@ -2802,14 +2818,27 @@ function ensureDeal(o){
 }
 function dealDone(o){return !!o.closed&&o.closed.step>=5;}
 function dealStatus(o){return dealDone(o)?{l:'Completed',pill:'p-won'}:o.closed.stalled?{l:'Stalled',pill:'p-hold'}:{l:'In progress',pill:'p-res'};}
-function dealCash(o){ // paid vs total from the payment plan; estimated from the stepper otherwise
+function dealReceipts(payment){
+  if(!payment.id) payment.id=crypto.randomUUID();
+  if(!payment.receipts) payment.receipts=payment.status==='paid'?[{id:crypto.randomUUID(),amount:payment.amt,date:null,method:'Not recorded',documentIds:[],legacy:true}]:[];
+  if(!payment.unpaidStatus) payment.unpaidStatus=payment.status==='overdue'?'overdue':'upcoming';
+  return payment.receipts;
+}
+function dealReceived(payment){
+  return Math.round(dealReceipts(payment).filter(receipt=>!receipt.voided).reduce((sum,receipt)=>sum+receipt.amount,0)*100)/100;
+}
+function dealPaymentStatus(payment){
+  const received=dealReceived(payment);
+  payment.status=received>=payment.amt?'paid':received>0?'partial':payment.unpaidStatus;
+  return payment.status;
+}
+function dealCash(o){
   const x=EXT[o.id], total=o.value*1000;
   if(x&&x.payments){
     const t=x.payments.reduce((s,p)=>s+p.amt,0);
-    return {paid:x.payments.filter(p=>p.status==='paid').reduce((s,p)=>s+p.amt,0),total:t};
+    return {paid:Math.round(x.payments.reduce((sum,payment)=>sum+dealReceived(payment),0)*100)/100,total:t};
   }
-  const frac=o.closed.step>=3?1:0.3; // 10/20 collected by POS; balance settles on deed
-  return {paid:Math.round(total*frac),total};
+  return {paid:0,total};
 }
 
 // ---------- Buyer journey model: Phase A (Selling) → offer accepted → Phase B (Closing) → POS Signed converts to a Deal ----------
@@ -2971,8 +3000,150 @@ function getExt(o){
   };
 }
 
+// ---------- Shared: dropdown list items, search-in-dropdown, range rows ----------
+function fdCheckItem(label,checked,onclick){ // multi-select row: checkbox on the left; passes the clicked button through so its own picker can toggle it in place instead of rebuilding the menu
+  return `<button type="button" class="fd-item ${checked?'on':''}" onclick="${onclick.replace(/\)$/,',this)')}"><span class="fd-box">${checked?CHECK_SVG:''}</span><span class="fd-label">${label}</span></button>`;
+}
+function fdRadioItem(label,checked,onclick){ // single-select row: checkmark on the right
+  return `<button type="button" class="fd-item ${checked?'on':''}" onclick="${onclick}"><span class="fd-label">${label}</span><span class="fd-mark">${CHECK_SVG}</span></button>`;
+}
+function fdSearchHtml(placeholder){
+  return `<div class="fd-search"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg><input placeholder="${placeholder}" oninput="fdFilterList(this)"></div>`;
+}
+function fdFilterList(inputEl){
+  const list=inputEl.closest('.fd-search').nextElementSibling;
+  if(!list) return;
+  const q=inputEl.value.trim().toLowerCase();
+  let visible=0;
+  list.querySelectorAll('.fd-item').forEach(it=>{
+    const match=it.querySelector('.fd-label').textContent.toLowerCase().includes(q);
+    it.style.display=match?'':'none';
+    if(match) visible++;
+  });
+  let empty=list.querySelector('.fd-empty');
+  if(!visible){ if(!empty){empty=document.createElement('div');empty.className='fd-empty';empty.textContent='No matches';list.appendChild(empty);} }
+  else if(empty) empty.remove();
+}
+function fdGroup(label,options,isSelected,mkOnclick,opts={}){ // one .fm-group: search box appears once options.length>=8
+  const items=options.map(o=>{
+    const val=opts.value?opts.value(o):o;
+    const text=opts.text?opts.text(o):o;
+    const checked=isSelected(val);
+    const onclick=mkOnclick(val);
+    return opts.radio?fdRadioItem(text,checked,onclick):fdCheckItem(text,checked,onclick);
+  }).join('');
+  const search=options.length>=8?fdSearchHtml(`Search ${label.toLowerCase()}`):'';
+  return `<div class="fm-group"><div class="fm-label">${label}</div>${search}<div class="fd-list">${items}</div></div>`;
+}
+
+// ---------- Shared: multi-rule sort (trigger chip + popover) ----------
+const SORT_PAGES={};
+function sortRegister(key,opts){ SORT_PAGES[key]={rules:opts.rules.map(r=>({...r})),properties:opts.properties,defaultProp:opts.rules[0].prop,defaultDir:opts.rules[0].dir,onchange:opts.onchange,triggerId:opts.triggerId,menuId:opts.menuId}; }
+function sortComparator(key){
+  const st=SORT_PAGES[key];
+  const propMap={}; st.properties.forEach(p=>propMap[p.key]=p);
+  return (a,b)=>{
+    for(const rule of st.rules){
+      const prop=propMap[rule.prop]; if(!prop) continue;
+      let c=prop.cmp(a,b);
+      if(rule.dir==='desc') c=-c;
+      if(c) return c;
+    }
+    return 0;
+  };
+}
+function sortLabel(key){
+  const st=SORT_PAGES[key];
+  const propMap={}; st.properties.forEach(p=>propMap[p.key]=p);
+  const first=st.rules[0];
+  const isDefault=st.rules.length===1&&first.prop===st.defaultProp&&first.dir===st.defaultDir;
+  if(!st.rules.length||isDefault) return 'Sort';
+  return 'Sort: '+(propMap[first.prop]?propMap[first.prop].label:first.prop);
+}
+function sortSyncTrigger(key){
+  const st=SORT_PAGES[key];
+  const btn=document.getElementById(st.triggerId); if(!btn) return;
+  btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 19V5M8 5L4.5 8.5M8 5l3.5 3.5M16 5v14M16 19l-3.5-3.5M16 19l3.5-3.5"/></svg>'+sortLabel(key);
+  const first=st.rules[0];
+  btn.classList.toggle('on',!!first&&!(first.prop===st.defaultProp&&first.dir===st.defaultDir));
+}
+function sortMenuHtml(key){
+  const st=SORT_PAGES[key];
+  const cur=st.rules[0]||{};
+  return st.properties.map(p=>
+    fdRadioItem(`${p.label}: ${p.ascLabel||'Ascending'}`,cur.prop===p.key&&cur.dir==='asc',`sortPick('${key}','${p.key}','asc')`)
+    +fdRadioItem(`${p.label}: ${p.descLabel||'Descending'}`,cur.prop===p.key&&cur.dir==='desc',`sortPick('${key}','${p.key}','desc')`)
+  ).join('');
+}
+function sortOpen(key,e){
+  e.stopPropagation();
+  const st=SORT_PAGES[key];
+  const m=document.getElementById(st.menuId);
+  const open=m.style.display==='block';
+  document.querySelectorAll('.filter-menu').forEach(el=>{if(el!==m)el.style.display='none';});
+  if(open){m.style.display='none';return;}
+  m.innerHTML=sortMenuHtml(key);
+  m.style.display='block';
+  const row=m.closest('.filter-row');
+  const btn=document.getElementById(st.triggerId);
+  if(row&&btn) m.style.left=Math.max(0,Math.min(btn.offsetLeft,row.clientWidth-m.offsetWidth))+'px';
+}
+function sortPick(key,prop,dir){
+  const st=SORT_PAGES[key];
+  st.rules=[{prop,dir}];
+  const m=document.getElementById(st.menuId); if(m) m.style.display='none';
+  sortSyncTrigger(key);
+  st.onchange();
+}
+document.addEventListener('click',e=>{
+  Object.values(SORT_PAGES).forEach(st=>{
+    const m=document.getElementById(st.menuId);
+    if(m&&m.style.display==='block'&&!m.contains(e.target)&&!e.target.closest('#'+st.triggerId)) m.style.display='none';
+  });
+});
+
+// ---------- Shared: merge each field's active selection(s) directly into its shortcut chip ----------
+function crmSyncFilterChips(rowId,valuesMap){
+  document.querySelectorAll(`#${rowId} .crm-filter-field[data-label]`).forEach(btn=>{
+    const label=btn.dataset.label;
+    const vals=(valuesMap[label]||[]).filter(v=>v!=null&&v!=='');
+    if(!vals.length){
+      btn.textContent=label;
+      btn.classList.remove('on');
+    }else{
+      btn.classList.add('on');
+      btn.textContent=vals.length===1?`${label}: ${vals[0]}`:label;
+      if(vals.length>1)btn.insertAdjacentHTML('beforeend',`<span class="crm-ff-count">${vals.length}</span>`);
+    }
+  });
+  return Object.values(valuesMap).some(v=>(v||[]).filter(x=>x!=null&&x!=='').length);
+}
+function fdToggleBox(btn){ // instant checkbox flip so the popover never has to rebuild (and never loses its open state) on a plain pick
+  const on=!btn.classList.contains('on');
+  btn.classList.toggle('on',on);
+  const box=btn.querySelector('.fd-box'); if(box) box.innerHTML=on?CHECK_SVG:'';
+}
+
 // ---------- Pipeline filter/search/segment state ----------
-const pipeF = {seg:'all', dev:null, rep:null, source:null, budgetMax:null, tags:[], q:'', showClosed:true};
+const pipeF = {seg:'all', dev:[], rep:[], source:[], budgetMax:[], tags:[], q:'', showClosed:true};
+function pipeAgoDays(ago){ // parses 'Today'/'3 days'/'5 months' style ago strings to a day count
+  if(!ago) return 9999;
+  if(ago==='Today') return 0;
+  let m=ago.match(/(\d+)\s*month/); if(m) return parseInt(m[1],10)*30;
+  m=ago.match(/(\d+)\s*day/); if(m) return parseInt(m[1],10);
+  return 9999;
+}
+sortRegister('pipeline',{
+  triggerId:'pipe-sort-trigger', menuId:'pipe-sort-menu',
+  properties:[
+    {key:'recent',label:'Recent activity',cmp:(a,b)=>pipeAgoDays(a.ago)-pipeAgoDays(b.ago),ascLabel:'Most recent first',descLabel:'Oldest first'},
+    {key:'value',label:'Value',cmp:(a,b)=>money(a).amt-money(b).amt,ascLabel:'Low to high',descLabel:'High to low'},
+    {key:'stage',label:'Pipeline stage',cmp:(a,b)=>STAGES.indexOf(a.stage)-STAGES.indexOf(b.stage),ascLabel:'Early to late',descLabel:'Late to early'},
+    {key:'lead',label:'Contact',cmp:(a,b)=>a.lead.localeCompare(b.lead),ascLabel:'A–Z',descLabel:'Z–A'},
+  ],
+  rules:[{prop:'recent',dir:'asc'}],
+  onchange:()=>pipeRenderAll()
+});
 const FILTER_OPTS = {
   dev: [...new Set(OPPS.flatMap(o=>o.devs))].sort(),
   rep: [...new Set(OPPS.map(o=>o.rep))].sort(),
@@ -2982,13 +3153,13 @@ const FILTER_OPTS = {
 };
 
 function filteredOpps(){
-  return OPPS.filter(o=>{
+  const list=OPPS.filter(o=>{
     if(!SEG_STAGES[pipeF.seg].includes(o.stage)) return false;
     if(!pipeF.showClosed && EXIT_STAGES.includes(o.stage)) return false;
-    if(pipeF.dev && !o.devs.includes(pipeF.dev)) return false;
-    if(pipeF.rep && o.rep!==pipeF.rep) return false;
-    if(pipeF.source && o.source!==pipeF.source) return false;
-    if(pipeF.budgetMax && money(o).amt>pipeF.budgetMax) return false;
+    if(pipeF.dev.length && !pipeF.dev.some(d=>o.devs.includes(d))) return false;
+    if(pipeF.rep.length && !pipeF.rep.includes(o.rep)) return false;
+    if(pipeF.source.length && !pipeF.source.includes(o.source)) return false;
+    if(pipeF.budgetMax.length && !pipeF.budgetMax.some(b=>money(o).amt<=b)) return false;
     if(pipeF.tags.length && !pipeF.tags.every(t=>o.tags.includes(t))) return false;
     if(pipeF.q){
       const hay=(o.lead+' '+o.devs.join(' ')+' '+o.id+' '+o.units.join(' ')).toLowerCase();
@@ -2996,6 +3167,7 @@ function filteredOpps(){
     }
     return true;
   });
+  return list.slice().sort(sortComparator('pipeline'));
 }
 function unitLabel(o){return o.units.length>1?o.units.length+' units':o.units[0];}
 // Buyer type dictates the sales process; shown across all opportunities.
@@ -3022,7 +3194,7 @@ function tagChipsHtml(tags){
 }
 function projCell(devs){return `<span class="proj"><span class="proj-ic" style="background:${PROJ_IC[devs[0]]||'#657A32'}">◈</span>${devs[0]}${devs.length>1?` <span class="dev-more" title="${devs.slice(1).join(', ')}">+${devs.length-1}</span>`:''}</span>`;}
 
-var pipeSel=new Set(), dealSel=new Set();
+var pipeSel=new Set();
 function renderRows(){
   const list=filteredOpps();
   document.getElementById('pipe-rows').innerHTML = list.map(o=>{
@@ -3108,51 +3280,60 @@ function colDrop(e,stage){
 }
 
 // ---------- Filters ----------
+function filterMenuHtml(){
+  return fdGroup('Development',FILTER_OPTS.dev,v=>pipeF.dev.includes(v),v=>`setFilter('dev','${v}')`)
+    +fdGroup('Rep',FILTER_OPTS.rep,v=>pipeF.rep.includes(v),v=>`setFilter('rep','${v}')`)
+    +fdGroup('Source',FILTER_OPTS.source,v=>pipeF.source.includes(v),v=>`setFilter('source','${v}')`)
+    +fdGroup('Max budget',FILTER_OPTS.budget,v=>pipeF.budgetMax.includes(v),v=>`setFilter('budgetMax',${v})`,{text:v=>`≤ €${v}k`})
+    +fdGroup('Tag',FILTER_OPTS.tag,v=>pipeF.tags.includes(v),v=>`setFilter('tags','${v}')`);
+}
 function toggleFilterMenu(e){
   e.stopPropagation();
   const m=document.getElementById('filter-menu');
   const open=m.style.display==='block';
   if(open){m.style.display='none';return;}
-  m.innerHTML = `
-    <div class="fm-group"><div class="fm-label">Development</div><div class="fm-opts">${FILTER_OPTS.dev.map(v=>`<button class="fm-opt ${pipeF.dev===v?'on':''}" onclick="setFilter('dev','${v}')">${v}</button>`).join('')}</div></div>
-    <div class="fm-group"><div class="fm-label">Rep</div><div class="fm-opts">${FILTER_OPTS.rep.map(v=>`<button class="fm-opt ${pipeF.rep===v?'on':''}" onclick="setFilter('rep','${v}')">${v}</button>`).join('')}</div></div>
-    <div class="fm-group"><div class="fm-label">Source</div><div class="fm-opts">${FILTER_OPTS.source.map(v=>`<button class="fm-opt ${pipeF.source===v?'on':''}" onclick="setFilter('source','${v}')">${v}</button>`).join('')}</div></div>
-    <div class="fm-group"><div class="fm-label">Max budget</div><div class="fm-opts">${FILTER_OPTS.budget.map(v=>`<button class="fm-opt ${pipeF.budgetMax===v?'on':''}" onclick="setFilter('budgetMax',${v})">≤ €${v}k</button>`).join('')}</div></div>
-    <div class="fm-group"><div class="fm-label">Tag</div><div class="fm-opts">${FILTER_OPTS.tag.map(v=>`<button class="fm-opt ${pipeF.tags.includes(v)?'on':''}" onclick="setFilter('tags','${v}')">${v}</button>`).join('')}</div></div>`;
+  m.innerHTML = filterMenuHtml();
   m.style.display='block';
+}
+function crmFilterField(event,openFilters,rootId,label){
+  event.stopPropagation();
+  const root=document.getElementById(rootId);
+  const isMenu=root.classList.contains('filter-menu');
+  if(isMenu)root.style.display='none';
+  openFilters(event);
+  const groups=[...root.querySelectorAll('.fm-group,.fd-sec')];
+  const target=groups.find(group=>group.querySelector('.fm-label')?.textContent===label);
+  if(isMenu){
+    groups.forEach(group=>{group.hidden=group!==target;});
+    const row=root.closest('.filter-row');
+    root.style.left=Math.max(0,Math.min(event.currentTarget.offsetLeft,row.clientWidth-root.offsetWidth))+'px';
+  }else if(target){
+    target.scrollIntoView({block:'nearest'});
+  }
+  target?.querySelector('button,select,input')?.focus({preventScroll:true});
 }
 document.addEventListener('click',e=>{
   const m=document.getElementById('filter-menu');
   if(m && m.style.display==='block' && !m.contains(e.target) && !e.target.closest('.fchip-add')) m.style.display='none';
 });
-function setFilter(type,val){
-  if(type==='tags'){
-    const i=pipeF.tags.indexOf(val);
-    if(i>-1) pipeF.tags.splice(i,1); else pipeF.tags.push(val);
-  } else {
-    pipeF[type] = pipeF[type]===val ? null : val;
-  }
-  toggleFilterMenu({stopPropagation(){}});
-  pipeRenderAll();
-}
-function clearFilter(type,val){
-  if(type==='tags'){ pipeF.tags=pipeF.tags.filter(t=>t!==val); }
-  else { pipeF[type]=null; }
+function setFilter(type,val,btn){
+  const arr=pipeF[type];
+  const i=arr.indexOf(val);
+  if(i>-1) arr.splice(i,1); else arr.push(val);
+  if(btn) fdToggleBox(btn); // leave the open popover exactly as-is so multiple values can be picked in a row
   pipeRenderAll();
 }
 function clearAllFilters(){
-  pipeF.dev=null;pipeF.rep=null;pipeF.source=null;pipeF.budgetMax=null;pipeF.tags=[];
+  pipeF.dev=[];pipeF.rep=[];pipeF.source=[];pipeF.budgetMax=[];pipeF.tags=[];
   pipeRenderAll();
 }
 function renderActiveFilters(){
-  const chips=[];
-  if(pipeF.dev) chips.push({label:'Development',val:pipeF.dev,clear:"clearFilter('dev')"});
-  if(pipeF.rep) chips.push({label:'Rep',val:pipeF.rep,clear:"clearFilter('rep')"});
-  if(pipeF.source) chips.push({label:'Source',val:pipeF.source,clear:"clearFilter('source')"});
-  if(pipeF.budgetMax) chips.push({label:'Budget',val:'≤ €'+pipeF.budgetMax+'k',clear:"clearFilter('budgetMax')"});
-  pipeF.tags.forEach(t=>chips.push({label:'Tag',val:t,clear:`clearFilter('tags','${t}')`}));
-  const html = chips.map(c=>`<span class="fchip">${c.label}: <b>${c.val}</b><span class="x" onclick="${c.clear}">✕</span></span>`).join('');
-  document.getElementById('active-filters').innerHTML = html + (chips.length?`<span class="fclear" onclick="clearAllFilters()">Clear all</span>`:'');
+  const any=crmSyncFilterChips('filter-row',{
+    Development:pipeF.dev, Rep:pipeF.rep, Source:pipeF.source,
+    'Max budget':pipeF.budgetMax.map(v=>'\u2264 \u20ac'+v+'k'), Tag:pipeF.tags
+  });
+  document.getElementById('active-filters').innerHTML = any?`<span class="fclear" onclick="clearAllFilters()">Clear all</span>`:'';
+  sortSyncTrigger('pipeline');
 }
 
 // ---------- Search ----------
@@ -3214,6 +3395,17 @@ function dlMonth(str){ // '28 Nov'/'Sep 12'/'14 Aug 2025' -> month index; 'Today
   const m=String(str).match(/[A-Za-z]{3}/);
   return m?DL_MONTHS.indexOf(m[0]):null;
 }
+sortRegister('deals',{
+  triggerId:'dl-sort-trigger', menuId:'dl-sort-menu',
+  properties:[
+    {key:'recent',label:'Recent activity',cmp:(a,b)=>pipeAgoDays(a.o.ago)-pipeAgoDays(b.o.ago),ascLabel:'Most recent first',descLabel:'Oldest first'},
+    {key:'deed',label:'Deed date',cmp:(a,b)=>(dlMonth(a.o.closed.deed)??99)-(dlMonth(b.o.closed.deed)??99),ascLabel:'Soonest first',descLabel:'Latest first'},
+    {key:'value',label:'Value',cmp:(a,b)=>a.o.value-b.o.value,ascLabel:'Low to high',descLabel:'High to low'},
+    {key:'comm',label:'Commission',cmp:(a,b)=>a.o.closed.comm-b.o.closed.comm,ascLabel:'Low to high',descLabel:'High to low'},
+  ],
+  rules:[{prop:'recent',dir:'asc'}],
+  onchange:()=>renderDeals()
+});
 function dlInRange(mi,from,to){
   if(from===null&&to===null) return true;
   if(mi===null) return false;
@@ -3231,7 +3423,7 @@ function renderDeals(){
   const out=all.reduce((s,r)=>{const c=dealCash(r.o);return s+(c.total-c.paid);},0);
   const comm=all.filter(r=>!r.o.closed.paid).reduce((s,r)=>s+r.o.closed.comm,0);
   document.getElementById('deals-stats').innerHTML=`
-    <div class="closed-sum" style="grid-template-columns:repeat(4,1fr)">
+    <div class="closed-sum deals-summary">
       <div class="csum"><div class="v">${act.length}</div><div class="l">Deals in progress</div></div>
       <div class="csum"><div class="v">€${Math.round(collected/1000)}k</div><div class="l">Cash collected</div></div>
       <div class="csum"><div class="v">€${Math.round(out/1000)}k</div><div class="l">Outstanding to deed</div></div>
@@ -3252,16 +3444,18 @@ function renderDeals(){
   list=list.filter(r=>dlInRange(dlMonth(r.o.closed.deed),dlF.deedFrom,dlF.deedTo));
   list=list.filter(r=>dlInRange(dlMonth(r.d.pos),dlF.posFrom,dlF.posTo));
   if(dlF.q){const q=dlF.q.toLowerCase();list=list.filter(r=>(r.o.lead+' '+r.o.devs.join(' ')+' '+r.d.id+' '+r.o.units.join(' ')).toLowerCase().includes(q));}
+  list.sort(sortComparator('deals'));
   rowsEl.innerHTML=list.map(({d,o})=>{
     const x=EXT[o.id];
-    const nextPay=x&&x.payments?x.payments.find(p=>p.status!=='paid'):null;
-    return `<div class="closed-row${dealSel.has(d.id)?' ct-selrow':''}" onclick="openDeal('${d.id}')">
-      <span class="ct-check ${dealSel.has(d.id)?'on':''}" style="flex:none" onclick="dealToggleSel('${d.id}',event)">${dealSel.has(d.id)?CHECK_SVG:''}</span>
+    const nextPay=x&&x.payments?x.payments.find(p=>dealPaymentStatus(p)!=='paid'):null;
+    return `<div class="closed-row${dealDone(o)?' is-complete':''}" onclick="openDeal('${d.id}')">
       <div class="cr-who"><div class="cr-name">${o.lead}</div><div class="cr-sub">${d.id} · ${o.units[0]} · ${o.devs[0]}${typeof docSummaryChip==='function'?docSummaryChip(o):''}</div></div>
       <div class="stepper">${stepperHtml(o.closed.step)}<div class="step-label">${closedStepLabel(o)}</div></div>
-      <div class="cr-date"><div class="v">${nextPay?fmtEur(nextPay.amt):'—'}</div><div class="l">${nextPay?'Next payment':'No payment due'}</div></div>
+      <div class="cr-date"><div class="v">${nextPay?fmtEur(nextPay.amt-dealReceived(nextPay)):'—'}</div><div class="l">${nextPay?'Next payment':'No payment due'}</div></div>
       <div class="cr-date"><div class="v">${o.closed.deed}</div><div class="l">${dealDone(o)?'Deed signed':'Expected deed'}</div></div>
-      <div class="cr-money"><div class="v">€${o.value}k</div><div class="c">€${o.closed.comm}k comm. <span class="pill ${o.closed.paid?'p-won':'p-paused'}">${o.closed.paid?'Paid':'Pending'}</span></div></div>
+      <div class="cr-commission"><div class="v">€${o.closed.comm}k</div><div class="l">Commission</div></div>
+      <div class="cr-money"><div class="v">€${o.value}k</div><div class="l">${o.closed.paid?'Paid':'Pending'}</div></div>
+      <span class="pill ${dealDone(o)||o.closed.paid?'p-won':'p-paused'}">${dealDone(o)?'Closed':o.closed.paid?'Paid':'Pending'}</span>
     </div>`;
   }).join('')||'<div class="col-empty">No deals match — try clearing filters</div>';
   renderDlFilters();
@@ -3276,53 +3470,59 @@ function dlToggleSearch(){
   else { document.getElementById('dl-search').value=''; dlSetSearch(''); }
 }
 function dlSetSearch(v){dlF.q=v;renderDeals();}
-// ---- Filter drawer (right-hand panel) ----
-function dlOpenFilters(){dlRenderFilterBody();document.getElementById('dlFilterDrawer').classList.add('open');document.getElementById('dlFilterScrim').classList.add('on');}
-function dlCloseFilters(){document.getElementById('dlFilterDrawer').classList.remove('open');document.getElementById('dlFilterScrim').classList.remove('on');}
+// ---- Filter popover (inline, anchored under the clicked field chip) ----
+function dlOpenFilters(e){
+  if(e) e.stopPropagation();
+  const m=document.getElementById('dl-filter-menu');
+  if(m.style.display==='block'){m.style.display='none';return;}
+  dlRenderFilterBody();
+  m.style.display='block';
+}
+function dlCloseFilters(){const m=document.getElementById('dl-filter-menu');if(m)m.style.display='none';}
+document.addEventListener('click',e=>{
+  const m=document.getElementById('dl-filter-menu');
+  if(m&&m.style.display==='block'&&!m.contains(e.target)&&!e.target.closest('#dl-filter-row .crm-filter-field')) m.style.display='none';
+});
 function dlRenderFilterBody(){
   const opps=DEALS.map(dealOpp).filter(Boolean);
   const devs=[...new Set(opps.flatMap(o=>o.devs))].sort(), reps=[...new Set(opps.map(o=>o.rep))].sort();
-  const grp=(label,g,opts,lb)=>`<div class="fd-sec"><div class="fm-label">${label}</div><div class="fm-opts">${opts.map(v=>`<button class="fm-opt ${dlF[g].includes(v)?'on':''}" onclick="dlPick('${g}','${v}')">${lb?lb(v):v}</button>`).join('')}</div></div>`;
-  const monthSel=(id,val,onch)=>`<select class="s-select" style="width:auto;flex:1;padding:7px 10px" onchange="${onch}"><option value="">Any</option>${DL_MONTHS.map((m,i)=>`<option value="${i}" ${val===i?'selected':''}>${m}</option>`).join('')}</select>`;
-  const range=(label,fromKey,toKey,hint)=>`<div class="fd-sec"><div class="fm-label">${label}</div>
-    <div style="display:flex;gap:8px;align-items:center">${monthSel(fromKey,dlF[fromKey],`dlSetRange('${fromKey}',this.value)`)}<span style="font-size:12px;color:var(--muted)">to</span>${monthSel(toKey,dlF[toKey],`dlSetRange('${toKey}',this.value)`)}</div>
-    ${hint?`<div style="font-size:11px;color:var(--muted);margin-top:6px">${hint}</div>`:''}</div>`;
-  document.getElementById('dlFilterBody').innerHTML=
-    grp('Deal stage','step',[...CLOSED_STEPS.slice(0,5).map((s,i)=>String(i)),'done'],v=>v==='done'?'Completed':CLOSED_STEPS[+v])
-    +`<div class="fd-sec"><div class="fm-label">Commission</div><div class="fm-opts">${['Pending','Paid'].map(v=>`<button class="fm-opt ${dlF.comm===v?'on':''}" onclick="dlPickComm('${v}')">${v}</button>`).join('')}</div></div>`
-    +range('POS signed (contract date)','posFrom','posTo')
+  const monthSel=(val,onch)=>`<select onchange="${onch}"><option value="">Any</option>${DL_MONTHS.map((m,i)=>`<option value="${i}" ${val===i?'selected':''}>${m}</option>`).join('')}</select>`;
+  const range=(label,fromKey,toKey,hint)=>`<div class="fm-group"><div class="fm-label">${label}</div>
+    <div class="fd-range-row">${monthSel(dlF[fromKey],`dlSetRange('${fromKey}',this.value)`)}<span style="font-size:12px;color:var(--muted)">to</span>${monthSel(dlF[toKey],`dlSetRange('${toKey}',this.value)`)}</div>
+    ${hint?`<div class="fd-range-hint">${hint}</div>`:''}</div>`;
+  document.getElementById('dl-filter-menu').innerHTML=
+    fdGroup('Deal stage',[...CLOSED_STEPS.slice(0,5).map((s,i)=>String(i)),'done'],v=>dlF.step.includes(v),v=>`dlPick('step','${v}')`,{text:v=>v==='done'?'Completed':CLOSED_STEPS[+v]})
+    +fdGroup('Commission',['Pending','Paid'],v=>dlF.comm===v,v=>`dlPickComm('${v}')`,{radio:true})
+    +range('POS signed','posFrom','posTo','Contract signing date')
     +range('Expected deed','deedFrom','deedTo','Deals without a set deed date are hidden while a range is active.')
-    +grp('Sale price','price',Object.keys(DL_PRICE_BANDS))
-    +grp('Development','dev',devs)
-    +grp('Rep','rep',reps);
-  dlUpdateApplyCount();
+    +fdGroup('Sale price',Object.keys(DL_PRICE_BANDS),v=>dlF.price.includes(v),v=>`dlPick('price','${v}')`)
+    +fdGroup('Development',devs,v=>dlF.dev.includes(v),v=>`dlPick('dev','${v}')`)
+    +fdGroup('Rep',reps,v=>dlF.rep.includes(v),v=>`dlPick('rep','${v}')`);
 }
-function dlPick(g,v){const a=dlF[g],i=a.indexOf(v);i>=0?a.splice(i,1):a.push(v);renderDeals();dlRenderFilterBody();}
+function dlPick(g,v,btn){
+  const a=dlF[g],i=a.indexOf(v);i>=0?a.splice(i,1):a.push(v);
+  if(btn) fdToggleBox(btn); // keep the popover open for the next pick
+  renderDeals();
+}
 function dlPickComm(v){dlF.comm=dlF.comm===v?null:v;renderDeals();dlRenderFilterBody();}
-function dlSetRange(key,v){dlF[key]=v===''?null:+v;renderDeals();dlRenderFilterBody();}
-function dlClearF(g){if(Array.isArray(dlF[g]))dlF[g]=[];else dlF[g]=null;renderDeals();}
-function dlClearRange(a,b){dlF[a]=null;dlF[b]=null;renderDeals();}
+function dlSetRange(key,v){dlF[key]=v===''?null:+v;renderDeals();}
 function dlClearAllF(){dlF.step=[];dlF.dev=[];dlF.rep=[];dlF.comm=null;dlF.price=[];dlF.deedFrom=null;dlF.deedTo=null;dlF.posFrom=null;dlF.posTo=null;renderDeals();dlRenderFilterBody();}
-function dlUpdateApplyCount(){
-  const b=document.getElementById('dl-fd-apply');
-  if(b) b.textContent=`Show ${document.querySelectorAll('#deals-rows .closed-row').length} deals`;
-}
 function dlRangeLabel(from,to){
   if(from!==null&&to!==null) return from===to?DL_MONTHS[from]:DL_MONTHS[from]+'–'+DL_MONTHS[to];
   return from!==null?'from '+DL_MONTHS[from]:'until '+DL_MONTHS[to];
 }
 function renderDlFilters(){
-  const chips=[];
-  dlF.step.forEach(v=>chips.push({l:'Stage',v:v==='done'?'Completed':CLOSED_STEPS[+v],c:`dlPick('step','${v}')`}));
-  if(dlF.comm) chips.push({l:'Commission',v:dlF.comm,c:"dlPickComm('"+dlF.comm+"')"});
-  if(dlF.posFrom!==null||dlF.posTo!==null) chips.push({l:'POS signed',v:dlRangeLabel(dlF.posFrom,dlF.posTo),c:"dlClearRange('posFrom','posTo')"});
-  if(dlF.deedFrom!==null||dlF.deedTo!==null) chips.push({l:'Deed',v:dlRangeLabel(dlF.deedFrom,dlF.deedTo),c:"dlClearRange('deedFrom','deedTo')"});
-  dlF.price.forEach(v=>chips.push({l:'Price',v,c:`dlPick('price','${v}')`}));
-  dlF.dev.forEach(v=>chips.push({l:'Development',v,c:`dlPick('dev','${v}')`}));
-  dlF.rep.forEach(v=>chips.push({l:'Rep',v,c:`dlPick('rep','${v}')`}));
-  const el=document.getElementById('dl-active-filters'); if(!el) return;
-  el.innerHTML=chips.map(c=>`<span class="fchip">${c.l}: <b>${c.v}</b><span class="x" onclick="${c.c.replace(/"/g,'&quot;')}">✕</span></span>`).join('')
-    +(chips.length>1?`<button class="fchip-add" onclick="dlClearAllF()" style="border-style:solid">Clear all</button>`:'');
+  const any=crmSyncFilterChips('dl-filter-row',{
+    Development:dlF.dev,
+    'Deal stage':dlF.step.map(v=>v==='done'?'Completed':CLOSED_STEPS[+v]),
+    Commission:dlF.comm?[dlF.comm]:[],
+    'Sale price':dlF.price,
+    'POS signed':(dlF.posFrom!==null||dlF.posTo!==null)?[dlRangeLabel(dlF.posFrom,dlF.posTo)]:[],
+    'Expected deed':(dlF.deedFrom!==null||dlF.deedTo!==null)?[dlRangeLabel(dlF.deedFrom,dlF.deedTo)]:[],
+    Rep:dlF.rep
+  });
+  const el=document.getElementById('dl-active-filters'); if(el) el.innerHTML=any?`<span class="fclear" onclick="dlClearAllF()">Clear all</span>`:'';
+  sortSyncTrigger('deals');
 }
 
 function openDeal(id){
@@ -3338,9 +3538,10 @@ function openDeal(id){
 function renderDeal(){
   const d=dealCur; if(!d) return;
   const o=dealOpp(d), x=getExt(o), c=o.closed, st=dealStatus(o), cash=dealCash(o);
+  const milestones=dealMilestones(o);
   const cur=c.step<5?CLOSED_STEPS[c.step]:null;
   document.getElementById('deal-root').innerHTML=`
-  <div class="row-between" style="align-items:flex-start;margin-bottom:14px">
+  <div class="row-between crm-page-heading">
     <div>
       <div class="page-title">${o.lead}</div>
       <div class="page-sub">${o.devs[0]} · ${unitLabel(o)} · ${d.id}</div>
@@ -3348,35 +3549,184 @@ function renderDeal(){
     <span class="pill ${st.pill}" style="font-size:12px;padding:5px 12px">${st.l}</span>
   </div>
   <div class="dcard oj-hero deal-live" id="oj-hero">
-    <div class="deal-steps">
-      ${stepperHtml(c.step)}
-      <div class="dstep-labels">${CLOSED_STEPS.map((s,i)=>`<span class="${i<c.step?'done':i===c.step?'cur':''}">${s}</span>`).join('')}</div>
+    <div class="dstage">
+      <div class="dstage-track">${CLOSED_STEPS.map((s,i)=>`<span class="dstage-seg ${i<c.step?'done':i===c.step?'cur':''}"></span>`).join('')}</div>
+      <div class="dstage-labels">${CLOSED_STEPS.map((s,i)=>`<span class="${i<c.step?'done':i===c.step?'cur':''}">${s}</span>`).join('')}</div>
     </div>
     <div class="now-strip" style="border-top:none;padding-top:0">
       <div class="now-cell deal-info"><div class="k">Sale price</div><div class="v">${fmtEur(o.value*1000)}</div><div class="d">${o.units[0]} · ${o.devs[0]}</div></div>
-      <div class="now-cell"><div class="k">Cash collected</div><div class="v">${fmtEur(cash.paid)}</div><div class="d">${cash.total-cash.paid>0?fmtEur(cash.total-cash.paid)+' outstanding':'Fully settled'}</div></div>
-      <div class="now-cell"><div class="k">${dealDone(o)?'Deed signed':'Expected deed'}</div><div class="v">${c.deed}</div></div>
+      <div class="now-cell"><div class="k">Cash collected</div><div class="v">${fmtEur(cash.paid)}</div><div class="d">${!x.payments?.length?'No payment plan recorded':cash.total-cash.paid>0?fmtEur(cash.total-cash.paid)+' outstanding':'Fully settled'}</div></div>
+      <div class="now-cell"><div class="k">${milestones[3]?'Deed signed':'Expected deed'}</div><div class="v">${c.deed}</div></div>
       <div class="now-cell"><div class="k">Commission</div><div class="v">€${c.comm}k</div><div class="d">${c.paid?'Paid to '+o.rep:'Pending'}</div></div>
-      ${cur?`<button class="btn-primary" onclick="dealAdvance()">${cur} ✓</button>`:'<span class="pill p-won" style="justify-self:end">Complete</span>'}
+      ${cur?`<button class="btn-primary" onclick="dealAdvance()">${milestones[c.step]?'Review stage change':DEAL_MILESTONE_ACTIONS[c.step]}</button>`:'<span class="pill p-won" style="justify-self:end">Complete</span>'}
     </div>
   </div>
   <div class="opp-grid">
     <div>
       ${dealPaymentsHtml(o,x)}
-      ${docsCardHtml(o,x,dealDone(o))}
+      ${dealMilestonesHtml(o)}
+      ${docsCardHtml(o,x,false)}
       <div class="dcard"><h3>Activity</h3><div class="feed">${x.comms.slice(0,10).map(feedItem).join('')||'<div class="col-empty">No activity yet</div>'}</div></div>
     </div>
     <div>${dealRailHtml(o,x,d)}</div>
   </div>`;
 }
 function dealPaymentsHtml(o,x){
-  if(!x.payments) return `<div class="dcard"><h3>Payment schedule</h3><div class="col-empty">No payment plan recorded yet — milestones are added from the POS.</div></div>`;
-  const total=x.payments.reduce((s,p)=>s+p.amt,0), paid=x.payments.filter(p=>p.status==='paid').reduce((s,p)=>s+p.amt,0);
+  if(!x.payments?.length) return `<div class="dcard"><h3>Payment schedule</h3><div class="col-empty">No payment plan recorded yet — milestones are added from the POS.</div></div>`;
+  const {total,paid}=dealCash(o);
   return `<div class="dcard">
     <div class="row-between"><h3 style="margin:0">Payment schedule</h3>${paid>=total?'<span class="pill p-res">fully paid · '+fmtEur(total)+'</span>':`<span class="dr-owed">${fmtEur(total-paid)} outstanding</span>`}</div>
-    <div class="progress" style="margin:10px 0 12px"><span style="width:${Math.round(paid/total*100)}%"></span></div>
-    ${x.payments.map(p=>`<div class="pay-row ${p.status}"><span class="ps-dot"></span><span class="pl">${p.label}</span><span class="pd">${p.due}</span><span class="pa">${fmtEur(p.amt)}</span><span class="pill ${p.status==='paid'?'p-res':p.status==='overdue'?'p-bad':'p-avail'}">${p.status}</span></div>`).join('')}
+    <div class="progress" style="margin:10px 0 12px"><span style="width:${total?Math.min(100,Math.round(paid/total*100)):0}%"></span></div>
+    ${x.payments.map(payment=>{
+      const received=dealReceived(payment),state=dealPaymentStatus(payment),receipts=dealReceipts(payment);
+      const pending=receipts.some(receipt=>!receipt.voided&&!receipt.documentIds?.length);
+      return `<div class="deal-payment" data-payment-id="${payment.id}">
+        <div><strong>${xesc(payment.label)}</strong><div class="deal-muted">${xesc(payment.due)} · ${fmtEur(payment.amt)} scheduled</div></div>
+        <div><strong>${fmtEur(received)} received</strong><div class="deal-muted">${fmtEur(Math.max(0,payment.amt-received))} remaining</div></div>
+        <div class="deal-payment-state"><span class="pill ${state==='paid'?'p-res':state==='overdue'?'p-bad':'p-avail'}">${state==='partial'?'Partially paid':state}</span>${pending?'<span class="deal-evidence">Evidence pending</span>':''}</div>
+        <div class="deal-payment-actions">${received<payment.amt?`<button class="btn-ghost" onclick="dealEventOpen('${o.id}','payment','${payment.id}')">${sbIcon('pay')}Record payment</button>`:''}${receipts.length?`<button class="btn-ghost" onclick="dealEventOpen('${o.id}','receipts','${payment.id}')">${sbIcon('doc')}${pending?'Add proof / receipts':'View receipts'}</button>`:''}</div>
+      </div>`;
+    }).join('')}
   </div>`;
+}
+let dealEventContext=null;
+function dealToday(){
+  const date=new Date();
+  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+}
+function dealEventTarget(){
+  const context=dealEventContext;
+  if(!context) return null;
+  const opportunity=OPPS.find(record=>record.id===context.oppId);
+  if(!opportunity?.closed) return null;
+  const extension=getExt(opportunity);
+  const payment=extension.payments?.find(record=>record.id===context.paymentId);
+  return {context,opportunity,extension,payment,receipt:payment?.receipts?.find(record=>record.id===context.receiptId)};
+}
+function dealEvidenceFields(opportunity){
+  return `<label>Attach proof (optional)<input id="de-file" type="file" accept="application/pdf,image/png,image/jpeg,image/webp" onchange="if(this.files.length)document.getElementById('de-document').value=''" aria-describedby="de-storage"></label>
+    <label>Or link an existing document<select id="de-document" onchange="if(this.value)document.getElementById('de-file').value=''"><option value="">None</option>${ensureDocs(opportunity,getExt(opportunity)).filter(record=>record.file).map(record=>`<option value="${record.id}">${xesc(record.label)} - ${xesc(record.file.name)}</option>`).join('')}</select></label>
+    <small id="de-storage" class="deal-muted">Attachment storage: this browser session only.</small>`;
+}
+function dealEvidenceHtml(opportunity,record){
+  return (record.documentIds||[]).map(id=>{
+    const documentRecord=ensureDocs(opportunity,getExt(opportunity)).find(document=>document.id===id);
+    if(!documentRecord?.file) return '';
+    return documentRecord.file.url?`<a href="${xesc(documentRecord.file.url)}" target="_blank" rel="noopener">${xesc(documentRecord.file.name)}</a>`:`<span>${xesc(documentRecord.file.name)} (file not available in this session)</span>`;
+  }).join('')||'<span class="deal-evidence">Evidence pending</span>';
+}
+function dealEventOpen(oppId,mode,paymentId='',receiptId=''){
+  const previousFocus=document.activeElement;
+  dealEventContext={oppId,mode,paymentId,receiptId,previousFocus};
+  const target=dealEventTarget();
+  if(!target) return;
+  const {opportunity,payment,receipt}=target;
+  let dialog=document.getElementById('dealEventDialog');
+  if(!dialog){
+    dialog=document.createElement('dialog');dialog.id='dealEventDialog';dialog.setAttribute('aria-labelledby','de-title');
+    dialog.addEventListener('close',()=>{const focus=dealEventContext?.previousFocus;dealEventContext=null;if(focus?.isConnected)focus.focus();else document.querySelector('#p-deal button')?.focus();});
+    document.body.appendChild(dialog);
+  }
+  let title='',body='',save='';
+  if(mode==='payment'&&payment){
+    title='Record payment';save='Record payment';
+    body=`<p>${xesc(payment.label)} · ${fmtEur(payment.amt-dealReceived(payment))} remaining</p>
+      <label>Amount received (€)<input id="de-amount" type="number" min="0.01" step="0.01" max="${(payment.amt-dealReceived(payment)).toFixed(2)}" value="${(payment.amt-dealReceived(payment)).toFixed(2)}" required></label>
+      <label>Date received<input id="de-date" type="date" value="${dealToday()}" max="${dealToday()}" required></label>
+      <label>Payment method<select id="de-method"><option>Bank transfer</option><option>Cheque</option><option>Cash</option><option>Other</option></select></label>
+      <label>Reference / note<input id="de-reference" maxlength="300"></label>${dealEvidenceFields(opportunity)}`;
+  }else if(mode==='receipts'&&payment){
+    title=payment.label;
+    body=dealReceipts(payment).map(record=>`<section class="deal-receipt"><strong>${fmtEur(record.amount)} ${record.voided?'· Voided':''}</strong><div class="deal-muted">${xesc(record.date||'Date not recorded')} · ${xesc(record.method)}${record.reference?' · '+xesc(record.reference):''}</div><div class="deal-proof">${dealEvidenceHtml(opportunity,record)}</div>${record.voided?`<p>${xesc(record.voided.reason)}</p>`:`<div class="deal-payment-actions"><button type="button" class="btn-ghost" onclick="dealEventOpen('${oppId}','evidence','${payment.id}','${record.id}')">${sbIcon('doc')}Add proof</button><button type="button" class="btn-ghost" onclick="dealEventOpen('${oppId}','void','${payment.id}','${record.id}')">${sbIcon('x')}Void receipt</button></div>`}</section>`).join('');
+  }else if(mode==='evidence'&&receipt&&!receipt.voided){
+    title='Add payment proof';save='Attach proof';body=`<p>${xesc(payment.label)} · ${fmtEur(receipt.amount)}</p>${dealEvidenceFields(opportunity)}`;
+  }else if(mode==='void'&&receipt&&!receipt.voided){
+    title='Void receipt';save='Void receipt';body=`<p>${fmtEur(receipt.amount)} will be removed from received totals. The original receipt and evidence remain in history.</p><label>Reason<input id="de-reason" required maxlength="300"></label>`;
+  }else if(mode==='document'){
+    const documentRecord=ensureDocs(opportunity,target.extension).find(record=>record.id===paymentId);
+    if(!documentRecord)return;
+    title='Update document';save='Save document';
+    const statuses=documentRecord.flow==='sign'?['uploaded','signed']:documentRecord.flow==='kyc'?['received','verified']:['filed'];
+    body=`<p>${xesc(documentRecord.label)}</p><label>File<input id="de-file" type="file" accept="application/pdf,image/png,image/jpeg,image/webp" ${documentRecord.file?'':'required'}></label>${documentRecord.file?`<p class="deal-muted">Current file: ${xesc(documentRecord.file.name)}</p>`:''}<label>Recorded status<select id="de-doc-status">${statuses.map(state=>`<option value="${state}" ${state===documentRecord.status?'selected':''}>${state==='uploaded'?'Uploaded (not signed)':state==='signed'?'Signed externally':DOC_STATUS[state].label}</option>`).join('')}</select></label><label>Event date<input id="de-date" type="date" value="${dealToday()}" max="${dealToday()}" required></label><label>Reference / correction reason<input id="de-reference" maxlength="300" ${documentRecord.file?'required':''}></label><label class="de-check"><input id="de-event-confirm" type="checkbox" required>I confirm the recorded status and date.</label><small class="deal-muted">Attachment storage: this browser session only.</small>`;
+  }else{
+    const milestoneForm=dealMilestoneForm(target);
+    if(!milestoneForm) return;
+    ({title,body,save}=milestoneForm);
+  }
+  dialog.innerHTML=`<form id="dealEventForm" onsubmit="event.preventDefault();dealEventSave()"><header><div><h2 id="de-title">${xesc(title)}</h2><div class="deal-muted">${xesc(opportunity.lead)} · ${xesc(dealFor(oppId)?.id||oppId)}</div></div><button type="button" class="de-close" aria-label="Close" title="Close" onclick="document.getElementById('dealEventDialog').close()">${sbIcon('x')}</button></header><div class="de-body">${body}<p id="de-error" role="alert"></p></div><footer><button type="button" class="btn-ghost" onclick="document.getElementById('dealEventDialog').close()">${save?'Cancel':'Close'}</button>${save?`<button class="btn-primary" type="submit">${sbIcon('status')}${save}</button>`:''}</footer></form>`;
+  if(!dialog.open)dialog.showModal();
+  (dialog.querySelector('.de-body input:not([type=file]),.de-body select')||dialog.querySelector('footer button'))?.focus();
+}
+function dealAttachEvidence(target,label,group='Payments'){
+  const file=document.getElementById('de-file')?.files[0];
+  const existingId=document.getElementById('de-document')?.value;
+  const documents=ensureDocs(target.opportunity,target.extension);
+  if(file){
+    if(!['application/pdf','image/png','image/jpeg','image/webp'].includes(file.type)||file.size>20*1024*1024||!file.size)throw new Error('Choose a PDF, PNG, JPEG or WebP file up to 20 MB.');
+    const step=Number(target.context.paymentId),isMilestone=['milestone','milestone-proof'].includes(target.context.mode);
+    const pattern=isMilestone&&step===0?/promise of sale|konveniu|\bpos\b/i:isMilestone&&step===3?/deed/i:null;
+    const existing=target.context.mode==='document'?documents.find(record=>record.id===target.context.paymentId):pattern?documents.find(record=>pattern.test(record.label)):null;
+    if(existing){
+      if(existing.file){existing.versions=existing.versions||[];existing.versions.push(existing.file);}
+      existing.file={name:file.name,size:(file.size/1024).toFixed(1)+' KB',url:URL.createObjectURL(file)};
+      if(existing.status==='required')existing.status=existing.flow==='sign'?'uploaded':existing.flow==='kyc'?'received':'filed';
+      existing.hist.push({t:dealToday(),who:'You',act:'File attached: '+file.name});return existing.id;
+    }
+    const record={id:crypto.randomUUID(),g:group,label,flow:'file',status:'filed',file:{name:file.name,size:(file.size/1024).toFixed(1)+' KB',url:URL.createObjectURL(file)},hist:[{t:dealToday(),who:'You',act:'Evidence attached'}]};
+    documents.push(record);return record.id;
+  }
+  if(existingId){
+    if(!documents.some(record=>record.id===existingId&&record.file))throw new Error('The selected document is no longer available.');
+    return existingId;
+  }
+  return null;
+}
+function dealEventLog(target,text){
+  target.extension.comms.unshift({ch:'sys',t:'Just now',who:'You',text:xesc(text)});
+}
+function dealEventRefresh(){
+  if(dealCur&&document.getElementById('p-deal').classList.contains('on'))renderDeal();
+  else if(oppCur&&document.getElementById('p-opp').classList.contains('on'))renderOpp();
+  renderDeals();pipeRenderAll();
+}
+function dealEventSave(){
+  const form=document.getElementById('dealEventForm');
+  if(form.dataset.saved)return;
+  if(!form.reportValidity())return;
+  const target=dealEventTarget();if(!target)return;
+  const {context,payment,receipt}=target;
+  try{
+    if(context.mode==='payment'){
+      const amount=Number(document.getElementById('de-amount').value),date=document.getElementById('de-date').value;
+      if(!payment||!Number.isFinite(amount)||amount<=0||Math.abs(amount*100-Math.round(amount*100))>0.000001||Math.round(amount*100)>Math.round((payment.amt-dealReceived(payment))*100))throw new Error('Enter an amount within the outstanding balance, with at most two decimal places.');
+      if(!date||date>dealToday())throw new Error('Date received cannot be in the future.');
+      const documentId=dealAttachEvidence(target,payment.label+' - payment proof');
+      payment.receipts.push({id:crypto.randomUUID(),amount,date,method:document.getElementById('de-method').value,reference:document.getElementById('de-reference').value.trim(),documentIds:documentId?[documentId]:[],who:'You',recordedAt:new Date().toISOString()});
+      dealPaymentStatus(payment);dealEventLog(target,payment.label+': '+fmtEur(amount)+' received on '+date+(documentId?' - proof attached':' - evidence pending'));
+    }else if(context.mode==='evidence'){
+      if(!receipt||receipt.voided)throw new Error('This receipt is no longer active.');
+      const documentId=dealAttachEvidence(target,payment.label+' - payment proof');
+      if(!documentId)throw new Error('Choose a file or an existing document.');
+      receipt.documentIds=[...new Set([...(receipt.documentIds||[]),documentId])];
+      dealEventLog(target,'Proof attached to '+payment.label+' receipt '+fmtEur(receipt.amount));
+    }else if(context.mode==='void'){
+      const reason=document.getElementById('de-reason').value.trim();
+      if(!receipt||receipt.voided||!reason)throw new Error('An active receipt and a reason are required.');
+      receipt.voided={reason,who:'You',at:new Date().toISOString()};dealPaymentStatus(payment);
+      dealEventLog(target,payment.label+': '+fmtEur(receipt.amount)+' receipt voided - '+reason);
+    }else if(context.mode==='document'){
+      const documentRecord=ensureDocs(target.opportunity,target.extension).find(record=>record.id===context.paymentId);
+      const date=document.getElementById('de-date').value,state=document.getElementById('de-doc-status').value,note=document.getElementById('de-reference').value.trim();
+      if(!documentRecord||!date||date>dealToday()||!document.getElementById('de-event-confirm').checked)throw new Error('Confirm the document status and date.');
+      if(documentRecord.file&&!note)throw new Error('Add a reference or reason for this update.');
+      if(!documentRecord.file&&!document.getElementById('de-file').files.length)throw new Error('Choose a file.');
+      dealAttachEvidence(target,documentRecord.label,documentRecord.g);
+      documentRecord.hist.push({t:date,who:'You',act:DOC_STATUS[state].label+' recorded'+(note?' - '+note:'')});
+      documentRecord.status=state;dealEventLog(target,documentRecord.label+': '+DOC_STATUS[state].label+' recorded on '+date);
+    }else if(!dealMilestoneSave(target))return;
+    form.dataset.saved='true';
+    document.getElementById('dealEventDialog').close();dealEventRefresh();showToast('Deal updated');
+  }catch(error){document.getElementById('de-error').textContent=error.message;}
 }
 function dealRailHtml(o,x,d){
   const b=x.buyer||{};
@@ -3400,19 +3750,95 @@ function dealRailHtml(o,x,d){
   ${x.keyDates?`<div class="dcard"><div class="side-h">Key dates</div>${x.keyDates.map(k=>`<div class="side-kv"><div class="k">${k.label}</div><div class="v">${k.value}${k.in?` <span style="color:${k.tone==='bad'?'#c23b3e':'var(--muted)'};font-weight:400;font-size:12px">· ${k.in}</span>`:''}</div></div>`).join('')}</div>`:''}
   ${portfolioCardHtml(o.lead)}`;
 }
-function dealAdvance(){
-  const d=dealCur, o=dealOpp(d), c=o.closed, x=getExt(o);
-  if(c.step>=5) return;
-  const doneStep=CLOSED_STEPS[c.step];
-  c.step++;
-  x.comms.unshift({ch:'sys',t:'Just now',text:doneStep+' — complete'});
-  if(c.step>=5){
-    c.paid=true;
-    if(!o.completed) o.completed={date:'27 Aug 2026'};
-    x.comms.unshift({ch:'sys',t:'Just now',text:'Deal completed — commission paid out'});
+const DEAL_MILESTONE_ACTIONS=['Record POS signing','Record bank approval','Record notary clearance','Record deed signing','Record commission receipt'];
+function dealMilestones(opportunity){
+  const closed=opportunity.closed;
+  if(!closed.milestones)closed.milestones=Array.from({length:5},(_,index)=>index<closed.step||index===4&&closed.paid?{id:crypto.randomUUID(),date:null,legacy:true,documentIds:[]}:null);
+  return closed.milestones;
+}
+function dealMilestonesHtml(opportunity){
+  const milestones=dealMilestones(opportunity);
+  return `<div class="dcard"><h3>Legal milestones & commission</h3>${CLOSED_STEPS.map((label,index)=>{
+    const record=milestones[index],available=true;
+    return `<div class="deal-milestone"><div><strong>${label}</strong><div class="deal-muted">${record?xesc(record.date||'Recorded previously · date unknown'):available?'Awaiting record':'Upcoming'}</div>${record?.reference?`<div class="deal-muted">${xesc(record.reference)}</div>`:''}${record?`<div class="deal-proof">${dealEvidenceHtml(opportunity,record)}</div>`:''}</div><div class="deal-payment-actions">${record?`<button class="btn-ghost" onclick="dealEventOpen('${opportunity.id}','milestone-proof','${index}')">${sbIcon('doc')}Add evidence</button><button class="btn-ghost" onclick="dealEventOpen('${opportunity.id}','milestone-void','${index}')">${sbIcon('x')}Void record</button>`:available?`<button class="btn-ghost" onclick="dealEventOpen('${opportunity.id}','milestone','${index}')">${sbIcon('status')}${DEAL_MILESTONE_ACTIONS[index]}</button>`:''}</div></div>`;
+  }).join('')}${opportunity.closed.milestoneHistory?.length?`<details class="deal-receipt"><summary>Voided milestone history (${opportunity.closed.milestoneHistory.length})</summary>${opportunity.closed.milestoneHistory.map(record=>`<section class="deal-receipt"><strong>${CLOSED_STEPS[record.step]}</strong><div>${xesc(record.date||'Date unknown')} · ${xesc(record.voided.reason)}</div><div class="deal-proof">${dealEvidenceHtml(opportunity,record)}</div></section>`).join('')}</details>`:''}</div>`;
+}
+function dealStageWarnings(opportunity,step){
+  const warnings=[],record=dealMilestones(opportunity)[step];
+  if(record&&!record.documentIds.length)warnings.push('Milestone evidence is pending.');
+  const relevant=(getExt(opportunity).payments||[]).filter(payment=>step===0?/reservation|deposit|on pos/i.test(payment.label):step===3?/deed|final/i.test(payment.label):false);
+  const outstanding=Math.round(relevant.reduce((sum,payment)=>sum+Math.max(0,payment.amt-dealReceived(payment)),0)*100)/100;
+  if(outstanding)warnings.push(fmtEur(outstanding)+' remains outstanding for '+(step===0?'reservation / POS':'deed')+' payments.');
+  return warnings;
+}
+function dealMilestoneForm(target){
+  const {context,opportunity}=target,step=Number(context.paymentId),closed=opportunity.closed;
+  if(!Number.isInteger(step)||step<0||step>4)return null;
+  const record=dealMilestones(opportunity)[step];
+  if(context.mode==='milestone-proof'&&record)return {title:'Add milestone evidence',save:'Attach evidence',body:`<p>${CLOSED_STEPS[step]}</p>${dealEvidenceFields(opportunity)}`};
+  if(context.mode==='milestone-void'&&record){
+    context.milestoneId=record.id;
+    return {title:'Void milestone record',save:'Void record',body:`<p>${CLOSED_STEPS[step]} will be reopened. ${step===4?'Commission will return to pending. ':''}Buyer payment receipts will not change. The original record and evidence remain in history.</p><label>Reason<input id="de-reason" required maxlength="300"></label>`};
   }
-  renderDeal(); renderDeals(); pipeRenderAll();
-  showToast(doneStep+' ✓');
+  if(context.mode==='confirm'&&record&&closed.step===step){
+    context.milestoneId=record.id;
+    const warnings=dealStageWarnings(opportunity,step);
+    return {title:'Confirm stage change',save:'Confirm stage change',body:`<p><strong>${CLOSED_STEPS[step]}</strong> recorded ${xesc(record.date||'(date unknown)')}.</p><p>Next stage: <strong>${CLOSED_STEPS[step+1]||'Completed'}</strong></p>${warnings.length?`<div class="deal-evidence">${warnings.map(warning=>`<p>${warning}</p>`).join('')}</div>`:''}<label class="de-check"><input id="de-ack" type="checkbox" required>${warnings.length?'I confirm advancement with these outstanding items.':'I confirm the stage change.'}</label>`};
+  }
+  if(context.mode!=='milestone'||record)return null;
+  return {title:DEAL_MILESTONE_ACTIONS[step],save:DEAL_MILESTONE_ACTIONS[step],body:`${step===1?'<label>Bank outcome<select id="de-bank-outcome"><option value="approved">Approval received</option><option value="not-required">Not required - cash purchase</option></select></label>':''}${step===4?`<p>Commission payable: <strong>${fmtEur(closed.comm*1000)}</strong> to ${xesc(opportunity.rep)}</p><label>Commission received (€)<input id="de-commission" type="number" min="${closed.comm*1000}" max="${closed.comm*1000}" step="0.01" value="${closed.comm*1000}" required></label><label>Payment method<select id="de-method"><option>Bank transfer</option><option>Cheque</option><option>Cash</option><option>Other</option></select></label>`:''}<label>${step===4?'Date received':'Event date'}<input id="de-date" type="date" value="${dealToday()}" max="${dealToday()}" required></label><label>Reference / note<input id="de-reference" maxlength="300"></label>${dealEvidenceFields(opportunity)}<label class="de-check"><input id="de-event-confirm" type="checkbox" required>${['I confirm the POS was signed.','I confirm the bank outcome.','I confirm the notary cleared the searches.','I confirm the final deed was signed.','I confirm the full commission was received.'][step]}</label>`};
+}
+function dealMilestoneSave(target){
+  const {context,opportunity}=target,step=Number(context.paymentId),closed=opportunity.closed;
+  if(!Number.isInteger(step)||step<0||step>4)throw new Error('Invalid milestone.');
+  const milestones=dealMilestones(opportunity),record=milestones[step];
+  if(context.mode==='milestone-void'){
+    const reason=document.getElementById('de-reason').value.trim();
+    if(!record||record.id!==context.milestoneId||!reason)throw new Error('An active milestone and a reason are required.');
+    closed.milestoneHistory=closed.milestoneHistory||[];
+    closed.milestoneHistory.push({...record,step,voided:{reason,who:'You',at:new Date().toISOString()}});
+    milestones[step]=null;closed.step=Math.min(closed.step,step);delete opportunity.completed;
+    if(step===4)closed.paid=false;
+    if(step===3)closed.deed='TBC';
+    if(step===0)dealFor(opportunity.id).pos='TBC';
+    dealEventLog(target,CLOSED_STEPS[step]+' voided - '+reason+'; stage reopened');return true;
+  }
+  if(context.mode==='milestone-proof'){
+    if(!record)throw new Error('Record the milestone first.');
+    const documentId=dealAttachEvidence(target,CLOSED_STEPS[step]+' - evidence',step===4?'Payments':'Contract');
+    if(!documentId)throw new Error('Choose a file or an existing document.');
+    record.documentIds=[...new Set([...record.documentIds,documentId])];dealEventLog(target,'Evidence attached to '+CLOSED_STEPS[step]);return true;
+  }
+  if(context.mode==='confirm'){
+    if(closed.step!==step)throw new Error('The deal stage has changed. Reopen this action.');
+    if(!record||record.id!==context.milestoneId)throw new Error('Record this milestone before advancing.');
+    if(!document.getElementById('de-ack')?.checked)throw new Error('Confirm the stage change before advancing.');
+    closed.step=step+1;
+    if(closed.step===5)opportunity.completed={date:milestones[3]?.date||record.date||'Date not recorded'};
+    dealEventLog(target,'Stage confirmed: '+CLOSED_STEPS[step]+' complete; '+(CLOSED_STEPS[step+1]||'deal completed'));return true;
+  }
+  if(context.mode!=='milestone'||record)throw new Error('This milestone has already been recorded.');
+  const date=document.getElementById('de-date').value;
+  if(!date||date>dealToday()||!document.getElementById('de-event-confirm').checked)throw new Error('Confirm the event and a valid date.');
+  if(step===4&&Number(document.getElementById('de-commission').value)!==closed.comm*1000)throw new Error('Record the full commission amount.');
+  const reference=document.getElementById('de-reference').value.trim(),bankOutcome=document.getElementById('de-bank-outcome')?.value;
+  if(bankOutcome==='not-required'&&!reference)throw new Error('Add the reason bank approval is not required.');
+  const documentId=dealAttachEvidence(target,CLOSED_STEPS[step]+' - evidence',step===4?'Payments':'Contract');
+  milestones[step]={id:crypto.randomUUID(),date,reference:bankOutcome==='not-required'?'Bank approval not required: '+reference:reference,documentIds:documentId?[documentId]:[],who:'You',recordedAt:new Date().toISOString()};
+  if(step===1)milestones[step].outcome=bankOutcome;
+  if(step===0)dealFor(opportunity.id).pos=date;
+  if(step===3)closed.deed=date;
+  if(step===4){closed.paid=true;milestones[step].amount=closed.comm*1000;milestones[step].method=document.getElementById('de-method').value;}
+  dealEventLog(target,(bankOutcome==='not-required'?'Bank approval not required':CLOSED_STEPS[step])+' recorded on '+date+'; stage awaiting confirmation');
+  if(step!==closed.step)return true;
+  document.getElementById('dealEventForm').dataset.saved='true';
+  dealEventRefresh();dealEventOpen(opportunity.id,'confirm',String(step));return false;
+}
+function dealAdvance(){
+  if(!dealCur)return;
+  const opportunity=dealOpp(dealCur),step=opportunity.closed.step;
+  if(step>=5)return;
+  dealEventOpen(opportunity.id,dealMilestones(opportunity)[step]?'confirm':'milestone',String(step));
 }
 
 
@@ -3626,7 +4052,6 @@ function chatRenameActive(el){
 }
 
 // --- History controls (Chats & tasks page) ---
-let chatSortAZ=false;
 let histF={scope:null,status:null}; // scope filters chats, status filters tasks
 function histFilterScope(scope,el){
   chatScope=scope;
@@ -3634,22 +4059,25 @@ function histFilterScope(scope,el){
   if(el) el.classList.add('on');
   renderHistory();
 }
-function histToggleSort(){
-  chatSortAZ=!chatSortAZ;
-  const btn=document.getElementById('histSortBtn');
-  if(btn) btn.style.color=chatSortAZ?'var(--primary)':'';
-  renderHistory();
-}
+sortRegister('chats',{
+  triggerId:'hist-sort-trigger', menuId:'hist-sort-menu',
+  properties:[
+    {key:'recent',label:'Recent activity',cmp:(a,b)=>a.updatedAt-b.updatedAt,ascLabel:'Oldest first',descLabel:'Most recent first'},
+    {key:'name',label:'Name',cmp:(a,b)=>a.ref.title.localeCompare(b.ref.title),ascLabel:'A–Z',descLabel:'Z–A'},
+  ],
+  rules:[{prop:'recent',dir:'desc'}],
+  onchange:()=>renderHistory()
+});
 const HIST_F_LABELS={personal:'Personal',shared:'Shared',running:'Running',review:'Needs review',done:'Done'};
 function histToggleFilterMenu(e){
   e.stopPropagation();
   const m=document.getElementById('hist-filter-menu');
   if(m.style.display==='block'){ m.style.display='none'; return; }
-  m.innerHTML=`
-    <div class="fm-group"><div class="fm-label">Chat scope</div><div class="fm-opts">${['personal','shared'].map(v=>`<button class="fm-opt ${histF.scope===v?'on':''}" onclick="histSetFilter('scope','${v}')">${HIST_F_LABELS[v]}</button>`).join('')}</div></div>
-    <div class="fm-group"><div class="fm-label">Task status</div><div class="fm-opts">${['running','review','done'].map(v=>`<button class="fm-opt ${histF.status===v?'on':''}" onclick="histSetFilter('status','${v}')">${HIST_F_LABELS[v]}</button>`).join('')}</div></div>`;
+  m.innerHTML=
+    fdGroup('Chat scope',['personal','shared'],v=>histF.scope===v,v=>`histSetFilter('scope','${v}')`,{radio:true,text:v=>HIST_F_LABELS[v]})
+    +fdGroup('Task status',['running','review','done'],v=>histF.status===v,v=>`histSetFilter('status','${v}')`,{radio:true,text:v=>HIST_F_LABELS[v]});
   m.style.display='block';
-  const close=ev=>{ if(!m.contains(ev.target)&&!ev.target.closest('#hist-filter-row .fchip-add')){ m.style.display='none'; document.removeEventListener('click',close); } };
+  const close=ev=>{ if(!m.contains(ev.target)&&!ev.target.closest('#hist-filter-row .crm-filter-field')){ m.style.display='none'; document.removeEventListener('click',close); } };
   setTimeout(()=>document.addEventListener('click',close),0);
 }
 function histSetFilter(type,val){
@@ -3660,11 +4088,12 @@ function histSetFilter(type,val){
 }
 function renderHistActiveFilters(){
   const el=document.getElementById('hist-active-filters'); if(!el)return;
-  let html='';
-  if(histF.scope) html+=`<span class="fchip"><b>Scope:</b>&nbsp;${HIST_F_LABELS[histF.scope]}<span class="x" onclick="histSetFilter('scope','${histF.scope}')">×</span></span>`;
-  if(histF.status) html+=`<span class="fchip"><b>Status:</b>&nbsp;${HIST_F_LABELS[histF.status]}<span class="x" onclick="histSetFilter('status','${histF.status}')">×</span></span>`;
-  if(histF.scope&&histF.status) html+=`<span class="fclear" onclick="histF={scope:null,status:null};renderHistActiveFilters();renderHistory()">Clear all</span>`;
-  el.innerHTML=html;
+  const any=crmSyncFilterChips('hist-filter-row',{
+    'Chat scope':histF.scope?[HIST_F_LABELS[histF.scope]]:[],
+    'Task status':histF.status?[HIST_F_LABELS[histF.status]]:[]
+  });
+  el.innerHTML=any?`<span class="fclear" onclick="histF={scope:null,status:null};renderHistActiveFilters();renderHistory()">Clear all</span>`:'';
+  sortSyncTrigger('chats');
 }
 function renderHistory(){
   const list=document.getElementById('histList'); if(!list)return;
@@ -3678,7 +4107,7 @@ function renderHistory(){
       ? (histF.scope ? i.ref.scope===histF.scope : false)
       : (histF.status ? i.ref.status===histF.status : false));
   }
-  items.sort(chatSortAZ ? (a,b)=>a.ref.title.localeCompare(b.ref.title) : (a,b)=>b.updatedAt-a.updatedAt);
+  items.sort(sortComparator('chats'));
   const now=Date.now();
   const groups={Today:[],Yesterday:[],Earlier:[]};
   items.forEach(i=>{
@@ -4466,7 +4895,7 @@ function renderOpp(){
       `<div class="opp-grid"><div>${feedCard(o,x)}</div><div>${ownerRailHtml(o,x)}</div></div>`
     : dl
     ? oppHeadHtml(o,{label:'POS signed · Deal'},true) + handoffHeroHtml(o,dl) +
-      `<div class="opp-grid"><div>${feedCard(o,x)}</div><div>${railHtml(o,x,ji)}</div></div>`
+      `<div class="opp-grid"><div>${feedCard(o,x)}${crPackPanelHtml(o,x)}${oppAutosHtml(o,x)}</div><div>${railHtml(o,x,ji)}</div></div>`
     : oppHeadHtml(o,JOURNEY[ji]) + heroHtml(o,x,ji) + tabsLayoutHtml(o,x,ji);
 }
 // Post-POS the opportunity hands off to its deal record.
@@ -4491,12 +4920,14 @@ function oppSend(){
 }
 
 function oppHeadHtml(o,j,comp){
-  return `<div class="row-between" style="align-items:flex-start;margin-bottom:14px">
-    <div>
+  return `<div class="opp-page-head">
+    <div class="crm-page-heading">
       <div class="page-title">${o.lead} <span class="cr-btag">${buyerTypeFor(o)}</span></div>
       <div class="page-sub">${o.devs.join(' · ')} · ${unitLabel(o)} · ${o.id}</div>
     </div>
-    <div style="display:flex;align-items:center;gap:10px">
+    <div class="crm-page-controls">
+      ${comp?'':oppTabsHtml()}
+    <div class="toolbar">
       <button class="status-sel"><span class="dot" ${comp?'style="background:var(--primary)"':''}></span>${j.label} <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 4.5L6 7.5 9 4.5"/></svg></button>
       <div class="cr-actions">
         <button class="btn-primary cr-actions-btn" onclick="crToggleActions(event)">Actions <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 4.5L6 7.5 9 4.5"/></svg></button>
@@ -4511,6 +4942,7 @@ function oppHeadHtml(o,j,comp){
         </div>
       </div>
     </div>
+    </div>
   </div>`;
 }
 
@@ -4522,6 +4954,7 @@ function heroHtml(o,x,ji){
   }).join('');
   const bad=x.next&&x.next.overdue, dTone=x.date&&x.date.tone, inDeal=j.phase==='B', m=money(o);
   return `<div class="dcard oj-hero ${inDeal?'deal-live':''}" id="oj-hero">
+    <h3 class="oj-title">Timeline</h3>
     <div class="oj-bar">
       <div class="oj-phase ${inDeal?'dimmed':''}"><div class="oj-phase-l">Selling</div><div class="oj-stages">${seg('A')}</div></div>
       <div class="oj-gate ${ji>=jIdx('hold')?'passed':''}" title="Offer accepted — closing opens"><span>◆</span><em>Offer<br>accepted</em></div>
@@ -4589,11 +5022,11 @@ function archiveHtml(o,x){
   const kd=x.keyDates?`<div class="kd-strip">${x.keyDates.map(d=>`<div class="kd"><div class="k">${d.label}</div><div class="v">${d.value}</div></div>`).join('')}</div>`:'';
   let pay='';
   if(x.payments){
-    const total=x.payments.reduce((s,p)=>s+p.amt,0);
+    const {total,paid}=dealCash(o);
     pay=`<div class="dr-sec">
-      <div class="row-between"><h4>Payment schedule</h4><span class="pill p-res">fully paid · ${fmtEur(total)}</span></div>
-      <div class="progress" style="margin:8px 0 10px"><span style="width:100%"></span></div>
-      ${x.payments.map(p=>`<div class="pay-row paid"><span class="ps-dot"></span><span class="pl">${p.label}</span><span class="pd">${p.due}</span><span class="pa">${fmtEur(p.amt)}</span><span class="pill p-res">paid</span></div>`).join('')}
+      <div class="row-between"><h4>Payment schedule</h4><span class="pill p-res">${fmtEur(paid)} received · ${fmtEur(Math.max(0,total-paid))} outstanding</span></div>
+      <div class="progress" style="margin:8px 0 10px"><span style="width:${total?Math.min(100,Math.round(paid/total*100)):0}%"></span></div>
+      ${x.payments.map(payment=>`<div class="pay-row ${dealPaymentStatus(payment)}"><span class="ps-dot"></span><span class="pl">${payment.label}</span><span class="pd">${payment.due}</span><span class="pa">${fmtEur(dealReceived(payment))} / ${fmtEur(payment.amt)}</span><span class="pill p-avail">${payment.status}</span></div>`).join('')}
     </div>`;
   }
   const payout=o.closed?`<div class="dr-sec"><h4>Team payout</h4>
@@ -4646,16 +5079,19 @@ function newOppFor(name){
     const tagBtn=document.querySelector('#nf-tags .fm-opt[data-tag="Repeat Client"]'); if(tagBtn)tagBtn.classList.add('on');
   },130);
 }
-function tabsLayoutHtml(o,x,ji){
-  const phaseB=JOURNEY[ji].phase==='B', t=oppTabB;
-  return `<div class="tabs" style="margin-bottom:18px">
+function oppTabsHtml(){
+  const t=oppTabB;
+  return `<div class="tabs">
       <button class="tab ${t==='activity'?'on':''}" onclick="oppSetTab('activity')">Activity</button>
       <button class="tab ${t==='deal'?'on':''}" onclick="oppSetTab('deal')">Closing Room</button>
       <button class="tab ${t==='details'?'on':''}" onclick="oppSetTab('details')">Details</button>
       <button class="tab ${t==='notes'?'on':''}" onclick="oppSetTab('notes')">Notes</button>
       <button class="tab ${t==='docs'?'on':''}" onclick="oppSetTab('docs')">Documents</button>
-    </div>
-    ${t==='activity'?`<div class="opp-grid"><div>${feedCard(o,x)}</div><div>${railHtml(o,x,ji)}</div></div>`:''}
+    </div>`;
+}
+function tabsLayoutHtml(o,x,ji){
+  const phaseB=JOURNEY[ji].phase==='B', t=oppTabB;
+  return `${t==='activity'?`<div class="opp-grid"><div>${feedCard(o,x)}${crPackPanelHtml(o,x)}${oppAutosHtml(o,x)}</div><div>${railHtml(o,x,ji)}</div></div>`:''}
     ${t==='deal'?(phaseB?dealRoomHtml(o,x,ji):`<div class="dcard oj-lock">The Closing Room unlocks once an offer is accepted.<br>Hold approval, reservation deposit, KYC and POS prep live here — after the POS is signed, the deal takes over.<br><br><button class="ff-chip" onclick="oppSetTab('docs')">Collect KYC &amp; documents now →</button></div>`):''}
     ${t==='details'?detailsHtml(o,x,ji):''}
     ${t==='notes'?notesTabHtml(o,x,ji):''}
@@ -4707,7 +5143,6 @@ function railHtml(o,x,ji){
     <div class="side-h">Linked units</div>
     ${o.units.map((u,i)=>{const cfg=x.unitConfigs&&x.unitConfigs[u];return `<div class="lu-row" ${typeof UN==='function'&&UN(u)?`style="cursor:pointer" onclick="openUnPeek('${u}')"`:''}><span class="cell-id">${u}</span><span class="proj"><span class="proj-ic" style="background:${PROJ_IC[o.devs[i]||o.devs[0]]||'#657A32'}">◈</span>${o.devs[i]||o.devs[0]}${cfg?`<div style="font-size:11px;color:var(--muted);margin-top:2px">${cfg.fin} \u00b7 ${cfg.lay}${cfg.adds.length?' + '+cfg.adds.join(', '):''}</div>`:''}</span><span style="font-weight:500">${cfg?fmtEur(cfg.price):'€'+o.value+'k'}</span></div>`;}).join('')}
   </div>
-  ${crPackPanelHtml(o,x)}
   ${ji>=jIdx('negotiating')&&x.offer?`<div class="dcard">
     <div class="side-h">Offer</div>
     <div style="font-size:20px;font-weight:600;letter-spacing:-0.3px;margin-bottom:2px">${fmtEur(x.offer.amt)}</div>
@@ -4719,8 +5154,10 @@ function railHtml(o,x,ji){
     <div class="side-h" style="margin-bottom:8px">Waiting on approval</div>
     <div style="font-size:12.5px;color:var(--on-variant)">${x.blocker}</div>
     <button class="btn-ghost" style="margin-top:12px" onclick="showToast('Reminder sent to manager')">Nudge manager</button>
-  </div>`:''}
-  <div class="dcard">
+  </div>`:''}`;
+}
+function oppAutosHtml(o,x){
+  return `<div class="dcard">
     <div class="row-between" style="margin-bottom:6px"><div class="side-h" style="margin-bottom:0">Automations</div><button class="ff-chip" onclick="go('automations')">Rules</button></div>
     ${ensureAutos(o,x).map(a=>`<div class="auto-row" style="cursor:pointer" onclick="go('automations')"><div class="ic">⚙</div><div><div>${a.txt}</div><div class="at">${a.t}</div></div></div>`).join('')}
   </div>`;
@@ -4821,6 +5258,7 @@ function docSummaryChip(o){
 function docToggle(key){docOpen[key]=!docOpen[key];docHostRender();}
 function docAdvance(id){
   const o=oppCur,x=getExt(o),d=ensureDocs(o,x).find(k=>k.id===id); if(!d) return;
+  if(o.closed){dealEventOpen(o.id,'document',id);return;}
   const ch=DOC_CHAINS[d.flow],i=ch.indexOf(d.status); if(i<0||i>=ch.length-1) return;
   const ns=ch[i+1],m=DOC_STATUS[ns];
   d.status=ns;
@@ -4842,16 +5280,18 @@ function docRowHtml(o,d,ro){
     <div class="doc-main" onclick="docToggle('${key}')">
       <span class="doc-ic ${docDone(d)?'done':''}">${docDone(d)?CHECK_SVG:DOC_SVG}</span>
       <div class="doc-t">
-        <div class="doc-name">${d.label}</div>
-        <div class="doc-meta">${d.file?`<span class="doc-file">${d.file.name} · ${d.file.size}</span>`:'<span class="none">No file yet</span>'}${last?` · ${last.act} — ${last.t}`:''}</div>
+        <div class="doc-name">${xesc(d.label)}</div>
+        <div class="doc-meta">${d.file?`<span class="doc-file">${xesc(d.file.name)} · ${xesc(d.file.size)}</span>`:'<span class="none">No file yet</span>'}${last?` · ${xesc(last.act)} — ${xesc(last.t)}`:''}</div>
       </div>
       <span class="pill ${m.pill}">${m.label}</span>
-      ${next?`<button class="doc-act" onclick="event.stopPropagation();docAdvance('${d.id}')">${next.act}</button>`:''}
+      ${!ro&&o.closed?`<button class="doc-act" onclick="event.stopPropagation();docAdvance('${d.id}')">Update document</button>`:next?`<button class="doc-act" onclick="event.stopPropagation();docAdvance('${d.id}')">${next.act}</button>`:''}
       <svg class="doc-chev" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5L6 7.5 9 4.5"/></svg>
     </div>
     ${open?`<div class="doc-hist">
-      ${docTrackHtml(d)}
-      ${d.hist.length?d.hist.map(h=>`<div class="dh-row"><span class="dh-dot"></span><span class="dh-act">${h.act}</span><span class="dh-who">${h.who}</span><span class="dh-t">${h.t}</span></div>`).join(''):'<div class="dh-row" style="color:var(--muted)">No events yet</div>'}
+      ${d.file?.url?`<div class="deal-proof"><a href="${xesc(d.file.url)}" target="_blank" rel="noopener">Open ${xesc(d.file.name)}</a></div>`:''}
+      ${d.versions?.length?`<details><summary>Previous files (${d.versions.length})</summary><div class="deal-proof">${d.versions.map(file=>file.url?`<a href="${xesc(file.url)}" target="_blank" rel="noopener">${xesc(file.name)}</a>`:`<span>${xesc(file.name)} (file not available in this session)</span>`).join('')}</div></details>`:''}
+      ${o.closed?'':docTrackHtml(d)}
+      ${d.hist.length?d.hist.map(h=>`<div class="dh-row"><span class="dh-dot"></span><span class="dh-act">${xesc(h.act)}</span><span class="dh-who">${xesc(h.who)}</span><span class="dh-t">${xesc(h.t)}</span></div>`).join(''):'<div class="dh-row" style="color:var(--muted)">No events yet</div>'}
     </div>`:''}
   </div>`;
 }
@@ -5317,9 +5757,7 @@ function filteredContacts(){
     }
     return true;
   });
-  if(ctState.sort==='name') list.sort((a,b)=>a.name.localeCompare(b.name));
-  else if(ctState.sort==='budget') list.sort((a,b)=>(b.bmax||0)-(a.bmax||0));
-  else list.sort((a,b)=>a.lastD-b.lastD);
+  list.sort(sortComparator('contacts'));
   return list;
 }
 
@@ -5374,8 +5812,17 @@ function renderContacts(){
 
 function ctSetTab(t){ctState.tab=t;renderContacts();}
 function ctSetSearch(v){ctState.q=v;renderContacts();}
-function ctSetSort(v){ctState.sort=v;renderContacts();}
 function ctQuick(k){ctState.quick=ctState.quick===k||k==='null'?null:k;renderContacts();}
+sortRegister('contacts',{
+  triggerId:'ct-sort-trigger', menuId:'ct-sort-menu',
+  properties:[
+    {key:'last',label:'Last activity',cmp:(a,b)=>a.lastD-b.lastD,ascLabel:'Most recent first',descLabel:'Oldest first'},
+    {key:'name',label:'Name',cmp:(a,b)=>a.name.localeCompare(b.name),ascLabel:'A–Z',descLabel:'Z–A'},
+    {key:'budget',label:'Budget',cmp:(a,b)=>(a.bmax||0)-(b.bmax||0),ascLabel:'Low to high',descLabel:'High to low'},
+  ],
+  rules:[{prop:'last',dir:'asc'}],
+  onchange:()=>renderContacts()
+});
 
 // ---------- Contact filters ----------
 function ctToggleFilterMenu(e){
@@ -5383,13 +5830,13 @@ function ctToggleFilterMenu(e){
   const m=document.getElementById('ct-filter-menu');
   if(m.style.display==='block'){m.style.display='none';return;}
   const f=ctState.f;
-  m.innerHTML=`
-    <div class="fm-group"><div class="fm-label">Status</div><div class="fm-opts">${Object.keys(CT_STATUS).map(s=>`<button class="fm-opt ${f.status===s?'on':''}" onclick="ctSetFilter('status','${s}')">${CT_STATUS[s].l}</button>`).join('')}</div></div>
-    <div class="fm-group"><div class="fm-label">Source</div><div class="fm-opts">${CT_OPTS.source.map(v=>`<button class="fm-opt ${f.source===v?'on':''}" onclick="ctSetFilter('source','${v}')">${v}</button>`).join('')}</div></div>
-    <div class="fm-group"><div class="fm-label">Rep</div><div class="fm-opts">${CT_OPTS.rep.map(v=>`<button class="fm-opt ${f.rep===v?'on':''}" onclick="ctSetFilter('rep','${v}')">${v}</button>`).join('')}</div></div>
-    <div class="fm-group"><div class="fm-label">Max budget</div><div class="fm-opts">${CT_OPTS.budget.map(v=>`<button class="fm-opt ${f.budgetMax===v?'on':''}" onclick="ctSetFilter('budgetMax',${v})">≤ €${v}k</button>`).join('')}</div></div>
-    <div class="fm-group"><div class="fm-label">Tag</div><div class="fm-opts">${CT_OPTS.tag.map(v=>`<button class="fm-opt ${f.tag===v?'on':''}" onclick="ctSetFilter('tag','${v}')">${v}</button>`).join('')}</div></div>
-    <div class="fm-group"><div class="fm-label">Last activity</div><div class="fm-opts">${CT_OPTS.act.map(([v,l])=>`<button class="fm-opt ${f.act===v?'on':''}" onclick="ctSetFilter('act',${v})">${l}</button>`).join('')}</div></div>`;
+  m.innerHTML=
+    fdGroup('Status',Object.keys(CT_STATUS),s=>f.status===s,s=>`ctSetFilter('status','${s}')`,{radio:true,text:s=>CT_STATUS[s].l})
+    +fdGroup('Source',CT_OPTS.source,v=>f.source===v,v=>`ctSetFilter('source','${v}')`,{radio:true})
+    +fdGroup('Rep',CT_OPTS.rep,v=>f.rep===v,v=>`ctSetFilter('rep','${v}')`,{radio:true})
+    +fdGroup('Max budget',CT_OPTS.budget,v=>f.budgetMax===v,v=>`ctSetFilter('budgetMax',${v})`,{radio:true,text:v=>`≤ €${v}k`})
+    +fdGroup('Tag',CT_OPTS.tag,v=>f.tag===v,v=>`ctSetFilter('tag','${v}')`,{radio:true})
+    +fdGroup('Last activity',CT_OPTS.act,([v])=>f.act===v,([v])=>`ctSetFilter('act',${v})`,{radio:true,text:([,l])=>l});
   m.style.display='block';
 }
 function ctSetFilter(type,val){
@@ -5397,23 +5844,23 @@ function ctSetFilter(type,val){
   document.getElementById('ct-filter-menu').style.display='none';
   renderContacts();
 }
-function ctClearFilter(type){ctState.f[type]=null;renderContacts();}
 function ctClearAll(){Object.keys(ctState.f).forEach(k=>ctState.f[k]=null);ctState.quick=null;renderContacts();}
 function renderCtFilters(){
-  const f=ctState.f, chips=[];
-  if(f.status) chips.push({l:'Status',v:CT_STATUS[f.status].l,c:"ctClearFilter('status')"});
-  if(f.source) chips.push({l:'Source',v:f.source,c:"ctClearFilter('source')"});
-  if(f.rep) chips.push({l:'Rep',v:f.rep,c:"ctClearFilter('rep')"});
-  if(f.budgetMax) chips.push({l:'Budget',v:'≤ €'+f.budgetMax+'k',c:"ctClearFilter('budgetMax')"});
-  if(f.tag) chips.push({l:'Tag',v:f.tag,c:"ctClearFilter('tag')"});
-  if(f.act) chips.push({l:'Activity',v:'≤ '+f.act+' days',c:"ctClearFilter('act')"});
-  document.getElementById('ct-active-filters').innerHTML =
-    chips.map(c=>`<span class="fchip">${c.l}: <b>${c.v}</b><span class="x" onclick="${c.c}">✕</span></span>`).join('')
-    +(chips.length?`<span class="fclear" onclick="ctClearAll()">Clear all</span>`:'');
+  const f=ctState.f;
+  const any=crmSyncFilterChips('ct-filter-row',{
+    Status:f.status?[CT_STATUS[f.status].l]:[],
+    Source:f.source?[f.source]:[],
+    Rep:f.rep?[f.rep]:[],
+    'Max budget':f.budgetMax?['\u2264 \u20ac'+f.budgetMax+'k']:[],
+    Tag:f.tag?[f.tag]:[],
+    'Last activity':f.act?['\u2264 '+f.act+' days']:[]
+  });
+  document.getElementById('ct-active-filters').innerHTML = any?`<span class="fclear" onclick="ctClearAll()">Clear all</span>`:'';
+  sortSyncTrigger('contacts');
 }
 document.addEventListener('click',e=>{
   const m=document.getElementById('ct-filter-menu');
-  if(m&&m.style.display==='block'&&!m.contains(e.target)&&!e.target.closest('#ct-filter-row .fchip-add')) m.style.display='none';
+  if(m&&m.style.display==='block'&&!m.contains(e.target)&&!e.target.closest('#ct-filter-row .crm-filter-field')) m.style.display='none';
   const bm=document.querySelector('.bb-menu');
   if(bm&&!bm.contains(e.target)&&!e.target.closest('.bb-btn')) bm.remove();
 });
@@ -5613,19 +6060,19 @@ function ctFeedHtml(c){
 function renderContact(){
   const c=ctCur, kv=(k,v)=>v?`<div class="side-kv"><div class="k">${k}</div><div class="v">${v}</div></div>`:'';
   document.getElementById('ct-root').innerHTML=`
-    <div class="row-between" style="align-items:flex-start;margin-bottom:14px">
+    <div class="row-between crm-page-heading">
       <div class="rep" style="margin:0">
         <div class="avatar" style="width:44px;height:44px;font-size:15px;background:${color(c.name)}">${initials(c.name)}</div>
         <div><div class="page-title">${c.name}</div><div class="page-sub">${c.btype}${c.company?' · '+c.company:''} · ${c.id}</div></div>
       </div>
       <div style="display:flex;gap:6px;align-items:center"><span class="pill ${CT_TYPE[c.type].pill}">${CT_TYPE[c.type].l}</span><span class="pill ${CT_STATUS[c.status].pill}">${CT_STATUS[c.status].l}</span></div>
     </div>
-    <div class="qa-bar">
+    <div class="crm-page-controls"><div class="toolbar">
       <button class="qa-btn" onclick="showToast('WhatsApp opened — ${c.phone}')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 3h10v7H6l-3 2.5V3z"/></svg>Message</button>
       <button class="qa-btn" onclick="ctLogNote()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 3.5v7M3.5 7h7"/></svg>Log activity</button>
       <button class="qa-btn" onclick="showToast('Viewing slots sent to ${c.name.split(' ')[0]}')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="2.5" width="10" height="9.5" rx="1.5"/><path d="M2 5.5h10M5 2.5V1M9 2.5V1"/></svg>Book viewing</button>
       <button class="qa-btn" onclick="ctNewOppFor()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="3" width="10" height="8" rx="1"/><path d="M7 5v4M5 7h4"/></svg>New opportunity</button>
-    </div>
+    </div></div>
     <div class="opp-grid">
       <div>
         <div class="dcard"><h3>Activity</h3><div class="feed">${ctFeedHtml(c)}</div></div>
@@ -5876,6 +6323,14 @@ let unState={tab:'all',q:'',loc:'all',sortCol:'days',sortDir:'asc',f:{dev:[],bed
 const UN_PRICE_BANDS={'\u2264 \u20ac300k':p=>p<=300000,'\u20ac300\u2013400k':p=>p>300000&&p<=400000,'\u20ac400\u2013550k':p=>p>400000&&p<=550000,'\u20ac550k+':p=>p>550000};
 const UN_VIEWS=['Sea view','Harbour view','Country view','Mdina view','City view','Garden','Terrace','Pool access','Character features'];
 const UN_SORT_KEYS={id:u=>u.id,dev:u=>u.dev,loc:u=>DEV(u.dev).loc,type:u=>u.type,beds:u=>u.beds,baths:u=>u.baths,floor:u=>u.floor,sqm:u=>u.sqm,price:u=>u.price,psq:u=>u.price/u.sqm,status:u=>u.status,days:u=>u.days};
+const UN_COL_LABELS={id:'Unit ID',dev:'Development',loc:'Location',type:'Type',beds:'Beds',baths:'Baths',floor:'Floor',sqm:'Size',price:'Price',psq:'€/m²',status:'Status',days:'Newest'};
+const UN_SORT_PROPS=[
+  {key:'days',label:'Newest arrivals',cmp:(a,b)=>a.days-b.days,ascLabel:'Newest first',descLabel:'Oldest first'},
+  {key:'price',label:'Price',cmp:(a,b)=>a.price-b.price,ascLabel:'Low to high',descLabel:'High to low'},
+  {key:'sqm',label:'Size',cmp:(a,b)=>a.sqm-b.sqm,ascLabel:'Smallest first',descLabel:'Largest first'},
+  {key:'id',label:'Unit ID',cmp:(a,b)=>a.id.localeCompare(b.id),ascLabel:'A–Z',descLabel:'Z–A'},
+];
+sortRegister('units',{triggerId:'un-sort-trigger',menuId:'un-sort-menu',properties:UN_SORT_PROPS,rules:[{prop:'days',dir:'asc'}],onchange:()=>{const first=SORT_PAGES.units.rules[0];unState.sortCol=first.prop;unState.sortDir=first.dir;renderUnits();}});
 
 function unFiltered(){
   const s=unState,q=s.q.toLowerCase();
@@ -5924,12 +6379,17 @@ function renderUnits(){
   document.getElementById('un-tabs').innerHTML=tabs.map(([k,l])=>`<button class="tab ${unState.tab===k?'on':''}" onclick="unSetTab('${k}')">${l}</button>`).join('');
   // active filter chips
   const chips=[];
-  if(unState.loc!=='all')chips.push(`<span class="fchip"><b>${unState.loc}</b><span class="x" onclick="unSetLoc('all')">×</span></span>`);
-  for(const[g,vals]of Object.entries(unState.f)){
-    if(g==='fresh'){if(vals)chips.push(`<span class="fchip">New this week<span class="x" onclick="unToggleFresh()">\u00d7</span></span>`);continue;}
-    vals.forEach(v=>chips.push(`<span class="fchip"><b>${g==='beds'?(v==='0'?'Studio':v+' bed'):v}</b><span class="x" onclick="unRmF('${g}','${v}')">\u00d7</span></span>`));
-  }
-  document.getElementById('un-active-filters').innerHTML=chips.join('')+(chips.length?`<span class="fclear" onclick="unClearF()">Clear all</span>`:'');
+  if(unState.f.fresh)chips.push(`<span class="fchip">New this week<span class="x" onclick="unToggleFresh()">\u00d7</span></span>`);
+  const any=crmSyncFilterChips('un-filter-row',{
+    Location:unState.loc!=='all'?[unState.loc]:[],
+    Development:unState.f.dev,
+    Type:unState.f.type,
+    Beds:unState.f.beds.map(v=>v==='0'?'Studio':v+' bed'),
+    Price:unState.f.price,
+    'View & features':unState.f.view
+  });
+  document.getElementById('un-active-filters').innerHTML=chips.join('')+((any||unState.f.fresh)?`<span class="fclear" onclick="unClearF()">Clear all</span>`:'');
+  sortSyncTrigger('units');
   document.querySelectorAll('#p-properties th.th-sort').forEach(th=>{
     th.classList.toggle('on',th.dataset.col===unState.sortCol);
     th.classList.toggle('desc',th.dataset.col===unState.sortCol&&unState.sortDir==='desc');
@@ -5955,34 +6415,52 @@ function renderUnits(){
   document.getElementById('un-count').textContent=`${list.length} of ${UNITS.length} units`;
 }
 function unSetTab(t){unState.tab=unState.tab===t&&t!=='all'?'all':t;renderUnits();}
-function unSetLoc(l){unState.loc=l;renderUnits();}
 function unToggleFresh(){unState.f.fresh=!unState.f.fresh;renderUnits();}
 function unSetSearch(v){unState.q=v;renderUnits();}
+function unToggleActions(e){e.stopPropagation();const m=document.getElementById('un-actions-menu');if(m)m.style.display=m.style.display==='none'?'block':'none';}
+document.addEventListener('click',e=>{const m=document.getElementById('un-actions-menu');if(m&&!e.target.closest('.un-actions'))m.style.display='none';});
+function unAct(fn,arg){const m=document.getElementById('un-actions-menu');if(m)m.style.display='none';if(arg!==undefined){window[fn](arg);}else{window[fn]();}if(fn==='trToggle')renderUnit();}
+function unShareBrochure(){showToast('Brochure link copied \u2014 ready to share');}
 function unSortBy(col){
   if(unState.sortCol===col)unState.sortDir=unState.sortDir==='asc'?'desc':'asc';
   else{unState.sortCol=col;unState.sortDir='asc';}
+  const st=SORT_PAGES.units;
+  if(!st.properties.some(p=>p.key===col)){
+    st.properties=[{key:col,label:UN_COL_LABELS[col]||col,cmp:(a,b)=>{const av=UN_SORT_KEYS[col](a),bv=UN_SORT_KEYS[col](b);return av>bv?1:av<bv?-1:0;},ascLabel:'A\u2013Z / Low\u2013High',descLabel:'Z\u2013A / High\u2013Low'},...UN_SORT_PROPS];
+  }
+  st.rules[0]={prop:col,dir:unState.sortDir};
+  sortSyncTrigger('units');
   renderUnits();
 }
-function unRmF(g,v){unState.f[g]=unState.f[g].filter(x=>x!==v);renderUnits();unRenderFilterBody();}
 function unClearF(){unState.f={dev:[],beds:[],type:[],price:[],view:[],fresh:false};unState.loc='all';renderUnits();unRenderFilterBody();}
-function unOpenFilters(){unRenderFilterBody();document.getElementById('unFilterDrawer').classList.add('open');document.getElementById('unFilterScrim').classList.add('on');}
-function unCloseFilters(){document.getElementById('unFilterDrawer').classList.remove('open');document.getElementById('unFilterScrim').classList.remove('on');}
+function unOpenFilters(e){
+  if(e) e.stopPropagation();
+  const m=document.getElementById('un-filter-menu');
+  if(m.style.display==='block'){m.style.display='none';return;}
+  unRenderFilterBody();
+  m.style.display='block';
+}
+function unCloseFilters(){const m=document.getElementById('un-filter-menu');if(m)m.style.display='none';}
+document.addEventListener('click',e=>{
+  const m=document.getElementById('un-filter-menu');
+  if(m&&m.style.display==='block'&&!m.contains(e.target)&&!e.target.closest('#un-filter-row .crm-filter-field')) m.style.display='none';
+});
 function unRenderFilterBody(){
-  const grp=(label,g,opts,lb)=>`<div class="fm-group"><div class="fm-label">${label}</div><div class="fm-opts">${opts.map(o=>`<button class="fm-opt ${unState.f[g].includes(o)?'on':''}" onclick="unMenuPick(event,'${g}','${o}')">${lb?lb(o):o}</button>`).join('')}</div></div>`;
   const locs=[...new Set(DEVS.map(d=>d.loc))];
-  const locGrp=`<div class="fm-group"><div class="fm-label">Location</div><div class="fm-opts">${locs.map(l=>`<button class="fm-opt ${unState.loc===l?'on':''}" onclick="unMenuPickLoc(event,'${l}')">${l}</button>`).join('')}</div></div>`;
-  document.getElementById('unFilterBody').innerHTML=locGrp
-    +grp('Development','dev',DEVS.map(d=>d.name))
-    +grp('Beds','beds',['0','1','2','3'],v=>v==='0'?'Studio':v+' bed')
-    +grp('Type','type',['Apartment','Penthouse','Maisonette','Studio'])
-    +grp('Price','price',Object.keys(UN_PRICE_BANDS))
-    +grp('View & features','view',UN_VIEWS);
+  document.getElementById('un-filter-menu').innerHTML=
+    fdGroup('Location',locs,l=>unState.loc===l,l=>`unMenuPickLoc(event,'${l}')`,{radio:true})
+    +fdGroup('Development',DEVS.map(d=>d.name),v=>unState.f.dev.includes(v),v=>`unMenuPick(event,'dev','${v}')`)
+    +fdGroup('Beds',['0','1','2','3'],v=>unState.f.beds.includes(v),v=>`unMenuPick(event,'beds','${v}')`,{text:v=>v==='0'?'Studio':v+' bed'})
+    +fdGroup('Type',['Apartment','Penthouse','Maisonette','Studio'],v=>unState.f.type.includes(v),v=>`unMenuPick(event,'type','${v}')`)
+    +fdGroup('Price',Object.keys(UN_PRICE_BANDS),v=>unState.f.price.includes(v),v=>`unMenuPick(event,'price','${v}')`)
+    +fdGroup('View & features',UN_VIEWS,v=>unState.f.view.includes(v),v=>`unMenuPick(event,'view','${v}')`);
 }
 function unMenuPickLoc(e,l){e.stopPropagation();unState.loc=unState.loc===l?'all':l;renderUnits();unRenderFilterBody();}
-function unMenuPick(e,g,v){
+function unMenuPick(e,g,v,btn){
   e.stopPropagation();
   const arr=unState.f[g],i=arr.indexOf(v); i>=0?arr.splice(i,1):arr.push(v);
-  e.target.classList.toggle('on'); renderUnits();
+  if(btn) fdToggleBox(btn); // keep the popover open for the next pick
+  renderUnits();
 }
 
 /* ---------- Unit peek drawer ---------- */
@@ -6066,7 +6544,7 @@ function renderUnit(){
     .sort((a,b)=>(a.dev===u.dev?0:1)-(b.dev===u.dev?0:1)||Math.abs(a.price-u.price)-Math.abs(b.price-u.price)).slice(0,4);
   const s=dvStats(u.dev);
   document.getElementById('un-root').innerHTML=`
-  <div class="row-between" style="align-items:flex-start;margin-bottom:14px">
+  <div class="row-between crm-page-heading">
     <div>
       <div class="page-title">${u.id} \u00b7 ${unBedsLabel(u)} ${u.type}</div>
       <div class="page-sub"><a style="cursor:pointer;color:var(--primary);font-weight:500" onclick="openDev('${d.id}')">${u.dev}</a> \u2014 ${d.loc} \u00b7 Floor ${u.floor===0?'G':u.floor} \u00b7 ${u.ready==='Ready'?'Ready now':'Delivery '+u.ready}</div>
@@ -6077,14 +6555,19 @@ function renderUnit(){
       <span class="pill ${st.p}">${st.l}</span>
     </div>
   </div>
-  <div class="qa-bar">
-    <button class="qa-btn ${trHas(u.id)?'on':''}" onclick="trToggle('${u.id}')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 3.5v7M3.5 7h7"/></svg>${trHas(u.id)?'\u2713 In selection':'+ Add to selection'}</button>
-    ${sellable?`<button class="qa-btn" onclick="unNewDeal('${u.id}')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 3.5v7M3.5 7h7"/></svg>Create deal</button>
-    <button class="qa-btn" onclick="unLinkDeal('${u.id}')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M6 8a2.5 2.5 0 003.5.3l2-2a2.5 2.5 0 00-3.5-3.5l-1 1M8 6a2.5 2.5 0 00-3.5-.3l-2 2a2.5 2.5 0 003.5 3.5l1-1"/></svg>Link to deal</button>`:''}
-    <button class="qa-btn" onclick="pzOpen('${u.id}')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 12l6.5-6.5M9.5 2.5l2 2L10 6 8 4l1.5-1.5zM2 12l1-3 2 2-3 1z"/></svg>Personalise</button>
-    <button class="qa-btn" onclick="prOpen('${u.id}')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="3" width="10" height="7" rx="1"/><path d="M7 10v2M5 12h4"/></svg>Present</button>
-    <button class="qa-btn" onclick="showToast('Brochure link copied \u2014 ready to share')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2.5" y="2" width="9" height="10" rx="1.5"/><path d="M5 5h4M5 7.5h4"/></svg>Share brochure</button>
-  </div>
+  <div class="crm-page-controls"><div class="toolbar">
+    <div class="cr-actions un-actions">
+      <button class="btn-primary cr-actions-btn" onclick="unToggleActions(event)">Actions <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 4.5L6 7.5 9 4.5"/></svg></button>
+      <div class="cr-actions-menu" id="un-actions-menu" style="display:none">
+        <button onclick="unAct('trToggle','${u.id}')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 3.5v7M3.5 7h7"/></svg>${trHas(u.id)?'\u2713 In selection':'Add to selection'}</button>
+        ${sellable?`<button onclick="unAct('unNewDeal','${u.id}')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 3.5v7M3.5 7h7"/></svg>Create deal</button>
+        <button onclick="unAct('unLinkDeal','${u.id}')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M6 8a2.5 2.5 0 003.5.3l2-2a2.5 2.5 0 00-3.5-3.5l-1 1M8 6a2.5 2.5 0 00-3.5-.3l-2 2a2.5 2.5 0 003.5 3.5l1-1"/></svg>Link to deal</button>`:''}
+        <button onclick="unAct('pzOpen','${u.id}')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 12l6.5-6.5M9.5 2.5l2 2L10 6 8 4l1.5-1.5zM2 12l1-3 2 2-3 1z"/></svg>Personalise</button>
+        <button onclick="unAct('prOpen','${u.id}')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="3" width="10" height="7" rx="1"/><path d="M7 10v2M5 12h4"/></svg>Present</button>
+        <button onclick="unAct('unShareBrochure')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2.5" y="2" width="9" height="10" rx="1.5"/><path d="M5 5h4M5 7.5h4"/></svg>Share brochure</button>
+      </div>
+    </div>
+  </div></div>
   <div class="opp-grid">
     <div>
       <div class="un-media">
@@ -6263,6 +6746,16 @@ function dvBarHtml(s){
 }
 function dvGallery(d){return [...d.media.renders.ext,...d.media.renders.int,...d.media.photos];}
 let dvListState={view:'card',loc:'all',comp:'all',price:'all'};
+const dvSelection=new Set();
+function dvToggleSelection(id){
+  dvSelection.has(id)?dvSelection.delete(id):dvSelection.add(id);
+  document.querySelectorAll('#dv-grid [data-dev-id]').forEach(card=>{
+    const selected=dvSelection.has(card.dataset.devId);
+    card.classList.toggle('selected',selected);
+    card.querySelector('input[type="checkbox"]').checked=selected;
+  });
+  sbRefresh();
+}
 const DV_PRICE_BANDS={'\u2264 \u20ac250k':p=>p<=250000,'\u20ac250\u2013300k':p=>p>250000&&p<=300000,'\u20ac300k+':p=>p>300000};
 function dvFilteredList(){
   return DEVS.filter(d=>{
@@ -6270,36 +6763,70 @@ function dvFilteredList(){
     if(dvListState.comp!=='all'&&d.completion!==dvListState.comp)return false;
     if(dvListState.price!=='all'&&!DV_PRICE_BANDS[dvListState.price](dvStats(d.name).min))return false;
     return true;
-  });
+  }).sort(sortComparator('developments'));
 }
+sortRegister('developments',{
+  triggerId:'dv-sort-trigger', menuId:'dv-sort-menu',
+  properties:[
+    {key:'name',label:'Name',cmp:(a,b)=>a.name.localeCompare(b.name),ascLabel:'A\u2013Z',descLabel:'Z\u2013A'},
+    {key:'price',label:'Starting price',cmp:(a,b)=>dvStats(a.name).min-dvStats(b.name).min,ascLabel:'Low to high',descLabel:'High to low'},
+    {key:'avail',label:'Units available',cmp:(a,b)=>dvStats(a.name).avail-dvStats(b.name).avail,ascLabel:'Fewest first',descLabel:'Most first'},
+  ],
+  rules:[{prop:'name',dir:'asc'}],
+  onchange:()=>renderDevs()
+});
+function dvOpenFilters(e){
+  if(e)e.stopPropagation();
+  const m=document.getElementById('dv-filter-menu'); if(!m)return;
+  if(m.style.display==='block'){m.style.display='none';return;}
+  dvRenderFilterBody();
+  m.style.display='block';
+}
+function dvRenderFilterBody(){
+  const m=document.getElementById('dv-filter-menu'); if(!m)return;
+  const locs=[...new Set(DEVS.map(d=>d.loc))],comps=[...new Set(DEVS.map(d=>d.completion))];
+  m.innerHTML=
+    fdGroup('Location',['all',...locs],v=>dvListState.loc===v,v=>`dvSetListF('loc','${v}')`,{radio:true,text:v=>v==='all'?'All locations':v})
+    +fdGroup('Completion',['all',...comps],v=>dvListState.comp===v,v=>`dvSetListF('comp','${v}')`,{radio:true,text:v=>v==='all'?'Any completion':(v==='Ready'?'Ready now':v)})
+    +fdGroup('Starting price',['all',...Object.keys(DV_PRICE_BANDS)],v=>dvListState.price===v,v=>`dvSetListF('price','${v}')`,{radio:true,text:v=>v==='all'?'Any starting price':v});
+}
+document.addEventListener('click',e=>{
+  const m=document.getElementById('dv-filter-menu');
+  if(m&&m.style.display==='block'&&!m.contains(e.target)&&!e.target.closest('#dv-filter-row .crm-filter-field')) m.style.display='none';
+});
 function dvSetListF(k,v){dvListState[k]=v;renderDevs();}
+function dvClearAllF(){dvListState={view:dvListState.view,loc:'all',comp:'all',price:'all'};renderDevs();}
 function dvSetView(v){dvListState.view=v;renderDevs();}
 function renderDevs(){
-  const locs=[...new Set(DEVS.map(d=>d.loc))],comps=[...new Set(DEVS.map(d=>d.completion))];
   document.getElementById('dv-toolbar').innerHTML=`
-    <select class="ct-sort" onchange="dvSetListF('loc',this.value)">
-      <option value="all">All locations</option>
-      ${locs.map(l=>`<option value="${l}" ${dvListState.loc===l?'selected':''}>${l}</option>`).join('')}
-    </select>
-    <select class="ct-sort" onchange="dvSetListF('comp',this.value)">
-      <option value="all">Any completion</option>
-      ${comps.map(c=>`<option value="${c}" ${dvListState.comp===c?'selected':''}>${c==='Ready'?'Ready now':c}</option>`).join('')}
-    </select>
-    <select class="ct-sort" onchange="dvSetListF('price',this.value)">
-      <option value="all">Any starting price</option>
-      ${Object.keys(DV_PRICE_BANDS).map(p=>`<option value="${p}" ${dvListState.price===p?'selected':''}>${p}</option>`).join('')}
-    </select>
-    ${(dvListState.loc!=='all'||dvListState.comp!=='all'||dvListState.price!=='all')?`<span class="fclear" onclick="dvListState={view:dvListState.view,loc:'all',comp:'all',price:'all'};renderDevs()">Clear filters</span>`:''}
-    <div class="dv-view-toggle" style="margin-left:auto">
-      <button class="${dvListState.view==='card'?'on':''}" onclick="dvSetView('card')"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="1.5" width="5" height="5" rx="1"/><rect x="7.5" y="1.5" width="5" height="5" rx="1"/><rect x="1.5" y="7.5" width="5" height="5" rx="1"/><rect x="7.5" y="7.5" width="5" height="5" rx="1"/></svg>Card</button>
-      <button class="${dvListState.view==='list'?'on':''}" onclick="dvSetView('list')"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1.5 3.5h11M1.5 7h11M1.5 10.5h11"/></svg>List</button>
-    </div>`;
+    <div class="filter-row crm-page-filters" id="dv-filter-row">
+    <button class="crm-filter-field" id="dv-sort-trigger" onclick="sortOpen('developments',event)">Sort</button>
+    <button class="crm-filter-field" data-label="Location" onclick="crmFilterField(event,dvOpenFilters,'dv-filter-menu','Location')">Location</button>
+    <button class="crm-filter-field" data-label="Completion" onclick="crmFilterField(event,dvOpenFilters,'dv-filter-menu','Completion')">Completion</button>
+    <button class="crm-filter-field" data-label="Starting price" onclick="crmFilterField(event,dvOpenFilters,'dv-filter-menu','Starting price')">Starting price</button>
+    <div id="dv-active-filters" style="display:contents"></div>
+    <div class="filter-menu sort-menu" id="dv-sort-menu" style="display:none"></div>
+    <div class="filter-menu" id="dv-filter-menu" style="display:none"></div>
+    </div><div class="toolbar"><div class="viewtoggle">
+      <button class="${dvListState.view==='card'?'on':''}" onclick="dvSetView('card')" title="Card view" aria-label="Card view"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="1.5" width="5" height="5" rx="1"/><rect x="7.5" y="1.5" width="5" height="5" rx="1"/><rect x="1.5" y="7.5" width="5" height="5" rx="1"/><rect x="7.5" y="7.5" width="5" height="5" rx="1"/></svg></button>
+      <button class="${dvListState.view==='list'?'on':''}" onclick="dvSetView('list')" title="List view" aria-label="List view"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1.5 3.5h11M1.5 7h11M1.5 10.5h11"/></svg></button>
+    </div></div>`;
+  const any=crmSyncFilterChips('dv-filter-row',{
+    Location:dvListState.loc!=='all'?[dvListState.loc]:[],
+    Completion:dvListState.comp!=='all'?[dvListState.comp==='Ready'?'Ready now':dvListState.comp]:[],
+    'Starting price':dvListState.price!=='all'?[dvListState.price]:[]
+  });
+  document.getElementById('dv-active-filters').innerHTML=any?`<span class="fclear" onclick="dvClearAllF()">Clear all</span>`:'';
+  sortSyncTrigger('developments');
   const list=dvFilteredList();
+  document.getElementById('dv-grid').classList.toggle('list-view',dvListState.view==='list');
+  if(typeof sbRefresh==='function')sbRefresh();
   if(!list.length){document.getElementById('dv-grid').innerHTML=`<div style="text-align:center;color:var(--muted);padding:40px">No developments match \u2014 loosen a filter</div>`;return;}
   if(dvListState.view==='list'){
     document.getElementById('dv-grid').innerHTML=`<div>${list.map(d=>{
       const s=dvStats(d.name);
-      return `<div class="dv-list-row" onclick="openDev('${d.id}')">
+      return `<div class="dv-list-row${dvSelection.has(d.id)?' selected':''}" data-dev-id="${d.id}" onclick="openDev('${d.id}')">
+        <label class="dv-list-select" onclick="event.stopPropagation()"><input type="checkbox" aria-label="Select ${xesc(d.name)}" ${dvSelection.has(d.id)?'checked':''} onchange="dvToggleSelection('${d.id}')"></label>
         <div><div class="nm">${d.name}</div><div class="sub">${d.loc}</div></div>
         <div class="sub">${d.completion==='Ready'?'Ready now':d.completion}</div>
         <div class="sub">${s.total} units</div>
@@ -6312,13 +6839,22 @@ function renderDevs(){
   }
   document.getElementById('dv-grid').innerHTML=list.map(d=>{
     const s=dvStats(d.name);
-    return `<div class="dv-card" onclick="openDev('${d.id}')">
-      <div class="ph"><img src="${UN_ASSET+d.photo}" alt="" onerror="this.remove()"></div>
+    const units=UNITS.filter(unit=>unit.dev===d.name),beds=units.map(unit=>unit.beds),prices=units.map(unit=>unit.price);
+    const bedMin=Math.min(...beds),bedMax=Math.max(...beds);
+    const status=d.status||(s.total>0&&s.sold===s.total?'Sold out':s.avail>0&&s.avail<=2?'Final Units':'Selling');
+    const types=[...new Set(units.map(unit=>unit.type))];
+    return `<div class="dv-card${dvSelection.has(d.id)?' selected':''}" data-dev-id="${d.id}" tabindex="0" role="link" aria-label="Open ${xesc(d.name)}" onclick="openDev('${d.id}')" onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();openDev('${d.id}');}">
+      <div class="ph"><img src="${UN_ASSET+d.photo}" alt="${xesc(d.name)}" onerror="this.remove()"><span class="dv-card-status ${status.toLowerCase().replaceAll(' ','-')}">${xesc(status)}</span><label class="dv-card-select" onclick="event.stopPropagation()"><input type="checkbox" aria-label="Select ${xesc(d.name)}" ${dvSelection.has(d.id)?'checked':''} onchange="dvToggleSelection('${d.id}')"></label></div>
       <div class="bd">
-        <div class="row-between"><div style="font-size:14.5px;font-weight:600">${d.name}</div><span class="pill ${d.completion==='Ready'?'p-av':'p-paused'}">${d.completion==='Ready'?'Ready now':d.completion}</span></div>
-        <div style="font-size:12px;color:var(--muted);margin-top:2px">${d.loc} \u00b7 ${d.tag}</div>
-        ${dvBarHtml(s)}
-        <div style="font-size:12px;color:var(--on-variant)">${s.total} units \u00b7 <b>${s.avail} available</b> \u00b7 from ${fmtK(s.min)}</div>
+        <div class="dv-card-name">${xesc(d.name)}</div>
+        <div class="dv-card-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M20 10c0 6-8 11-8 11S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>${xesc(d.loc)}</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 18v3m18-3v3M3 11V5h18v6M2 18v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5H2ZM7 11V8h10v3"/></svg>${units.length?(bedMin===bedMax?bedMin:bedMin+'\u2013'+bedMax)+' Bedrooms':'\u2014'}</span></div>
+        <dl class="dv-card-facts">
+          <div><dt>Available</dt><dd>${s.avail} of ${s.total} units</dd></div>
+          <div><dt>Ready</dt><dd>${d.completion==='Ready'?'Ready now':xesc(d.completion)}</dd></div>
+          <div><dt>Budget</dt><dd>${prices.length?fmtK(Math.min(...prices))+' - '+fmtK(Math.max(...prices)):'\u2014'}</dd></div>
+          <div><dt>Property types</dt><dd>${types.map(type=>xesc(type)).join(' \u00b7 ')||'\u2014'}</dd></div>
+        </dl>
+        <div class="dv-card-tags">${d.amen.slice(0,3).map(amenity=>`<span>${xesc(amenity)}</span>`).join('')}</div>
       </div>
     </div>`;
   }).join('');
@@ -6347,6 +6883,7 @@ function openDvPeek(id){
 }
 function closeDvPeek(){document.getElementById('dvPeek').classList.remove('open');document.getElementById('dvPeekScrim').classList.remove('on');}
 function openDev(id){
+  dvSelection.clear();
   dvCur=DEVS.find(d=>d.id===id)||DEV(id); dvTabCur='overview'; dvF={status:'all',beds:'all',type:'all',price:'all',view:'all',sortCol:'price',sortDir:'asc'};
   closeDvPeek();
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
@@ -6354,9 +6891,73 @@ function openDev(id){
   document.querySelectorAll('.ni').forEach(n=>n.classList.toggle('on',n.dataset.page==='developments'));
   document.getElementById('crumb').innerHTML=`<a onclick="go('developments')">Developments</a><span class="sep">/</span><span class="cur">${dvCur.name}</span>`;
   renderDev();
+  if(typeof sbRefresh==='function')sbRefresh();
   document.getElementById('content').scrollTop=0;
 }
 function dvSetTab(t){dvTabCur=t;renderDev();}
+function dvHubAssets(development){
+  const links=development.salesLinks||{},brand=DV_BRAND[development.name]||{};
+  const brochure=development.files.find(file=>/brochure/i.test(file.n));
+  const terms=development.files.find(file=>/payment|specification|price list/i.test(file.n));
+  return [
+    {key:'website',label:'Website',icon:'opp',url:links.website??(brand.site?'https://'+brand.site:''),detail:brand.site||'Link needed'},
+    {key:'brochure',label:'Sales brochure',icon:'doc',url:links.brochure,detail:brochure?brochure.n+' · Link needed':'Link needed'},
+    {key:'availability',label:'Branded availability list',icon:'stage',url:links.availability,tab:'availability',detail:links.availability?'Published list':'Live inventory · Branded link needed'},
+    {key:'floorplans',label:'Floor plans',icon:'compare',url:links.floorplans,detail:'Link needed'},
+    {key:'renders',label:'Renders & photography',icon:'tag',url:links.renders,tab:'media',detail:dvGallery(development).length+' images'},
+    {key:'presentation',label:'Sales presentation',icon:'opp',present:true,detail:'Present Mode'},
+    {key:'terms',label:'Payment terms & specifications',icon:'pay',url:links.terms,detail:terms?terms.n+' · Link needed':'Link needed'},
+    {key:'instagram',label:'Instagram',icon:'msg',url:links.instagram,detail:'Link needed'},
+    {key:'facebook',label:'Facebook',icon:'msg',url:links.facebook,detail:'Link needed'},
+  ];
+}
+function dvHubHtml(development){
+  const canEdit=curPersona==='owner'||curPersona==='marketing';
+  const assets=dvHubAssets(development);
+  const groups=[['Online presence',['website','instagram','facebook']],['Sales documents',['brochure','availability','terms']],['Visuals & presentations',['floorplans','renders','presentation']]];
+  const rowHtml=asset=>{
+    const actionLabel=asset.tab==='availability'&&!asset.url?'Open live availability':asset.present?'Enter present mode':'Open '+asset.label;
+    const canOpen=!!(asset.url||asset.tab||asset.present);
+    const label=canOpen?actionLabel:canEdit?'Add '+asset.label+' link':asset.label+' - link not available';
+    const content=`<span class="dv-hub-icon" aria-hidden="true">${sbIcon(asset.icon)}</span><span class="dv-hub-text"><strong>${asset.label}</strong><span>${xesc(asset.url?new URL(asset.url).hostname:asset.detail)}</span></span>${canOpen?`<span class="crm-resource-open" aria-hidden="true">${sbIcon('export')}</span>`:''}`;
+    const primary=asset.url?`<a class="crm-resource-primary" href="${xesc(asset.url)}" target="_blank" rel="noopener noreferrer" title="${label}" aria-label="${label}">${content}</a>`:`<button class="crm-resource-primary" ${canOpen||canEdit?`onclick="${asset.present?`prOpenDev('${development.id}')`:asset.tab?`dvSetTab('${asset.tab}')`:`dvHubEdit('${development.id}','${asset.key}')`}"`:'disabled'} title="${label}" aria-label="${label}">${content}</button>`;
+    return `<div class="crm-resource-row dv-hub-row" data-hub-asset="${asset.key}">${primary}<div class="dv-hub-actions">
+      ${!asset.present?`<button class="dv-hub-action" onclick="dvHubShare('${development.id}','${asset.key}')" ${asset.url?'':'disabled'} title="${asset.url?'Share '+asset.label:'Add a published link to share'}" aria-label="Share ${asset.label}">${sbIcon('merge')}</button>${canEdit&&canOpen?`<button class="dv-hub-action" onclick="dvHubEdit('${development.id}','${asset.key}')" title="${asset.url?'Edit':'Add'} ${asset.label} link" aria-label="${asset.url?'Edit':'Add'} ${asset.label} link">${sbIcon('more')}</button>`:''}`:''}
+    </div></div>`;
+  };
+  return `<section class="dcard dv-sales-hub" aria-labelledby="dv-hub-title"><header><h3 id="dv-hub-title">Marketing & sales hub</h3><button class="btn-ghost" onclick="dvSetTab('media')">${sbIcon('doc')}All assets</button></header><div class="dv-hub-list">${groups.map(([title,keys],index)=>`<section class="crm-resource-group" aria-labelledby="dv-hub-group-${index}"><h4 id="dv-hub-group-${index}">${title}</h4>${keys.map(key=>rowHtml(assets.find(asset=>asset.key===key))).join('')}</section>`).join('')}</div></section>`;
+}
+async function dvHubShare(developmentId,key){
+  const development=DEVS.find(record=>record.id===developmentId),asset=development&&dvHubAssets(development).find(record=>record.key===key);
+  if(!asset?.url)return;
+  try{
+    if(navigator.share){await navigator.share({title:development.name+' - '+asset.label,url:asset.url});}
+    else{await navigator.clipboard.writeText(asset.url);showToast(asset.label+' link copied');}
+  }catch(error){if(error.name!=='AbortError')showToast('Unable to share. Open the asset and copy its address.');}
+}
+function dvHubEdit(developmentId,key){
+  if(curPersona!=='owner'&&curPersona!=='marketing')return;
+  const development=DEVS.find(record=>record.id===developmentId),asset=development&&dvHubAssets(development).find(record=>record.key===key);
+  if(!asset)return;
+  let dialog=document.getElementById('dvHubDialog');
+  if(!dialog){dialog=document.createElement('dialog');dialog.id='dvHubDialog';document.body.appendChild(dialog);}
+  const trigger=document.activeElement;
+  dialog.onclose=()=>{if(trigger?.isConnected)trigger.focus();else document.querySelector(`[data-hub-asset="${key}"] button:not(:disabled)`)?.focus();};
+  dialog.innerHTML=`<form><h2 id="dv-link-title">${xesc(asset.label)} link</h2><p>${xesc(development.name)}</p><label for="dv-hub-url">Published URL</label><input id="dv-hub-url" type="url" placeholder="https://" value="${xesc(asset.url||'')}"><small>Link changes are saved for this browser session only.</small><p id="dv-hub-error" role="alert"></p><footer><button type="button" class="btn-ghost" onclick="document.getElementById('dvHubDialog').close()">Cancel</button><button type="submit" class="btn-primary">${sbIcon('status')}Save link</button></footer></form>`;
+  dialog.setAttribute('aria-labelledby','dv-link-title');
+  dialog.querySelector('form').onsubmit=event=>{
+    event.preventDefault();
+    if(curPersona!=='owner'&&curPersona!=='marketing')return;
+    const value=document.getElementById('dv-hub-url').value.trim();
+    try{
+      if(value){const url=new URL(value);if(url.protocol!=='https:'||url.username||url.password)throw new Error();}
+      development.salesLinks={...development.salesLinks,[key]:value};
+      if(dvCur?.id===developmentId&&dvTabCur==='overview')renderDev();
+      dialog.close();showToast(value?'Asset link saved':'Asset link removed');
+    }catch{document.getElementById('dv-hub-error').textContent='Enter a public HTTPS URL without credentials.';}
+  };
+  dialog.showModal();dialog.querySelector('input').focus();
+}
 /* Per-development branding kits (shown on the admin Marketing tab) */
 const DV_BRAND={
   'Dolphin Court':{mark:'DC',bg:'linear-gradient(135deg,#1a2030,#0a1020)',tagline:'Harbour-view living, the quiet way',headFont:'Georgia',headFontName:'Fraunces',voice:'Calm, assured, maritime',updated:'2 Aug',site:'dolphincourt.mt',
@@ -6380,6 +6981,32 @@ function dvSortBy(col){
   else{dvF.sortCol=col;dvF.sortDir='asc';}
   renderDev();
 }
+const DVU_STATUS_LABELS={available:'Available',held:'Held',sold:'Sold'};
+function dvuOpenFilters(){
+  const m=document.getElementById('dvu-filter-menu');
+  m.innerHTML=
+    fdGroup('Status',['available','held','sold'],v=>dvF.status===v,v=>`dvuPick('status','${v}')`,{radio:true,text:v=>DVU_STATUS_LABELS[v]})
+    +fdGroup('Beds',['0','1','2','3'],v=>dvF.beds===v,v=>`dvuPick('beds','${v}')`,{radio:true,text:v=>v==='0'?'Studio':v+' bed'})
+    +fdGroup('Type',['Apartment','Penthouse','Maisonette','Studio'],v=>dvF.type===v,v=>`dvuPick('type','${v}')`,{radio:true})
+    +fdGroup('Price',Object.keys(UN_PRICE_BANDS),v=>dvF.price===v,v=>`dvuPick('price','${v}')`,{radio:true})
+    +fdGroup('View & features',UN_VIEWS,v=>dvF.view===v,v=>`dvuPick('view','${v}')`,{radio:true});
+  m.style.display='block';
+}
+function dvuPick(g,v){dvF[g]=dvF[g]===v?'all':v;renderDev();}
+function dvuClearF(){Object.assign(dvF,{status:'all',beds:'all',type:'all',price:'all',view:'all'});renderDev();}
+function dvuSyncChips(){
+  crmSyncFilterChips('dvu-filter-row',{
+    Status:dvF.status!=='all'?[DVU_STATUS_LABELS[dvF.status]]:[],
+    Beds:dvF.beds!=='all'?[dvF.beds==='0'?'Studio':dvF.beds+' bed']:[],
+    Type:dvF.type!=='all'?[dvF.type]:[],
+    Price:dvF.price!=='all'?[dvF.price]:[],
+    'View & features':dvF.view!=='all'?[dvF.view]:[]
+  });
+}
+document.addEventListener('click',e=>{
+  const m=document.getElementById('dvu-filter-menu');
+  if(m&&m.style.display==='block'&&!m.contains(e.target)&&!e.target.closest('#dvu-filter-row .crm-filter-field'))m.style.display='none';
+});
 function renderDev(){
   const d=dvCur,s=dvStats(d.name);
   const deals=OPPS.filter(o=>o.devs.includes(d.name));
@@ -6389,23 +7016,22 @@ function renderDev(){
   const tabs=[['overview','Overview'],['availability',`Availability (${s.avail})`],['visual','Visual Search'],['media','Media'],['deals',`Deals (${deals.length})`]];
   if(mkAdmin)tabs.push(['marketing','Marketing']);
   document.getElementById('dv-root').innerHTML=`
-  <div class="dv-hero">
-    <img src="${UN_ASSET+d.photo}" alt="" onerror="this.remove()">
-    <button class="dv-hero-cta" onclick="prOpenDev('${d.id}')"><svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="3" width="10" height="7" rx="1"/><path d="M7 10v2M5 12h4"/></svg>Enter present mode</button>
-    <div class="ov">
-      <div style="font-size:24px;font-weight:600;letter-spacing:-.3px">${d.name}</div>
-      <div style="font-size:13px;opacity:.85;margin-top:3px">${d.loc} \u00b7 ${d.tag}</div>
-    </div>
+  <div class="crm-page-heading">
+    <div class="page-title">${d.name}</div>
   </div>
-  <div class="dv-stat-row">
+  <div class="dv-stat-row crm-page-metrics">
     <div class="dv-stat"><div class="v">${s.total}</div><div class="l">Total units</div></div>
     <div class="dv-stat"><div class="v">${s.avail}</div><div class="l">Available now</div></div>
     <div class="dv-stat"><div class="v">${fmtK(s.min)}</div><div class="l">Prices from</div></div>
     <div class="dv-stat"><div class="v">\u20ac${s.psq.toLocaleString()}</div><div class="l">Avg \u20ac/m\u00b2</div></div>
     <div class="dv-stat"><div class="v">${d.completion==='Ready'?'Ready':d.completion}</div><div class="l">Completion</div></div>
   </div>
-  <div class="tabs" style="margin-bottom:16px;border-bottom:1px solid var(--outline);padding-bottom:8px">${tabs.map(([k,l])=>`<button class="tab ${dvTabCur===k?'on':''}" onclick="dvSetTab('${k}')">${l}</button>`).join('')}</div>
+  <div class="crm-page-controls"><div class="tabs">${tabs.map(([k,l])=>`<button class="tab ${dvTabCur===k?'on':''}" onclick="dvSetTab('${k}')">${l}</button>`).join('')}</div>
+    <div class="toolbar"><button class="btn-primary" onclick="prOpenDev('${d.id}')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x="2" y="3" width="10" height="7" rx="1"/><path d="M7 10v2M5 12h4"/></svg>Enter present mode</button></div>
+  </div>
+  <div class="dv-hero"><img src="${UN_ASSET+d.photo}" alt="${d.name}" onerror="this.remove()"></div>
   <div id="dv-tabc">${dvTabHtml(d,s,deals,actDeals)}</div>`;
+  if(dvTabCur==='availability')dvuSyncChips();
 }
 function dvTabHtml(d,s,deals,actDeals){
   if(dvTabCur==='overview')return `
@@ -6415,6 +7041,7 @@ function dvTabHtml(d,s,deals,actDeals){
           <p style="font-size:13px;color:var(--on-variant);line-height:1.65;margin:0 0 16px">${d.about}</p>
           <div style="display:flex;gap:5px;flex-wrap:wrap">${d.amen.map(a=>`<span class="tag-chip">${a}</span>`).join('')}</div>
         </div>
+        ${dvHubHtml(d)}
         <div class="dcard"><h3>Location</h3>
           <div class="dv-map"><iframe src="https://www.google.com/maps?q=${d.lat},${d.lng}&z=15&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="${d.name} location map"></iframe></div>
           <div class="kv-grid" style="grid-template-columns:repeat(2,1fr);margin-top:14px">${d.dist.map(x=>`<div class="kv"><div class="k">${x[0]}</div><div class="v">${x[1]}</div></div>`).join('')}</div>
@@ -6425,10 +7052,6 @@ function dvTabHtml(d,s,deals,actDeals){
           ${dvBarHtml(s)}
           <div style="font-size:12px;color:var(--on-variant);margin-bottom:12px">${s.avail} available \u00b7 ${s.held} held \u00b7 ${s.sold} sold</div>
           <button class="btn-ghost" style="width:100%;justify-content:center" onclick="dvSetTab('availability')">See the list</button>
-        </div>
-        <div class="dcard"><div class="side-h">Sales collateral</div>
-          ${d.files.slice(0,2).map(f=>dvFileRow(f)).join('')}
-          <button class="btn-ghost" style="width:100%;justify-content:center;margin-top:10px" onclick="dvSetTab('media')">All media & documents</button>
         </div>
         <div class="dcard"><div class="side-h">Pipeline</div>
           <div style="font-size:12.5px;color:var(--on-variant);margin-bottom:10px"><b>${actDeals.length}</b> active deal${actDeals.length!==1?'s':''} \u00b7 <b>${deals.filter(o=>o.stage==='Closed Won').length}</b> closed</div>
@@ -6448,33 +7071,14 @@ function dvTabHtml(d,s,deals,actDeals){
     const anyF=dvF.status!=='all'||dvF.beds!=='all'||dvF.type!=='all'||dvF.price!=='all'||dvF.view!=='all';
     const th=(col,label)=>`<th class="th-sort ${dvF.sortCol===col?'on '+(dvF.sortDir==='desc'?'desc':''):''}" onclick="dvSortBy('${col}')">${label}</th>`;
     return `
-    <div class="dv-filters">
-      <select class="ct-sort" onchange="dvF.status=this.value;renderDev()">
-        <option value="all">All statuses</option>
-        <option value="available" ${dvF.status==='available'?'selected':''}>Available</option>
-        <option value="held" ${dvF.status==='held'?'selected':''}>Held</option>
-        <option value="sold" ${dvF.status==='sold'?'selected':''}>Sold</option>
-      </select>
-      <select class="ct-sort" onchange="dvF.beds=this.value;renderDev()">
-        <option value="all">Any beds</option>
-        <option value="0" ${dvF.beds==='0'?'selected':''}>Studio</option>
-        <option value="1" ${dvF.beds==='1'?'selected':''}>1 bed</option>
-        <option value="2" ${dvF.beds==='2'?'selected':''}>2 bed</option>
-        <option value="3" ${dvF.beds==='3'?'selected':''}>3 bed</option>
-      </select>
-      <select class="ct-sort" onchange="dvF.type=this.value;renderDev()">
-        <option value="all">Any type</option>
-        ${['Apartment','Penthouse','Maisonette','Studio'].map(t=>`<option value="${t}" ${dvF.type===t?'selected':''}>${t}</option>`).join('')}
-      </select>
-      <select class="ct-sort" onchange="dvF.price=this.value;renderDev()">
-        <option value="all">Any price</option>
-        ${Object.keys(UN_PRICE_BANDS).map(p=>`<option value="${p}" ${dvF.price===p?'selected':''}>${p}</option>`).join('')}
-      </select>
-      <select class="ct-sort" onchange="dvF.view=this.value;renderDev()">
-        <option value="all">Any view / feature</option>
-        ${UN_VIEWS.map(v=>`<option value="${v}" ${dvF.view===v?'selected':''}>${v}</option>`).join('')}
-      </select>
-      ${anyF?`<span class="fclear" onclick="dvF={...dvF,status:'all',beds:'all',type:'all',price:'all',view:'all'};renderDev()">Clear filters</span>`:''}
+    <div class="filter-row crm-page-filters" id="dvu-filter-row">
+      <button class="crm-filter-field" data-label="Status" onclick="crmFilterField(event,dvuOpenFilters,'dvu-filter-menu','Status')">Status</button>
+      <button class="crm-filter-field" data-label="Beds" onclick="crmFilterField(event,dvuOpenFilters,'dvu-filter-menu','Beds')">Beds</button>
+      <button class="crm-filter-field" data-label="Type" onclick="crmFilterField(event,dvuOpenFilters,'dvu-filter-menu','Type')">Type</button>
+      <button class="crm-filter-field" data-label="Price" onclick="crmFilterField(event,dvuOpenFilters,'dvu-filter-menu','Price')">Price</button>
+      <button class="crm-filter-field" data-label="View & features" onclick="crmFilterField(event,dvuOpenFilters,'dvu-filter-menu','View & features')">View & features</button>
+      ${anyF?`<span class="fclear" onclick="dvuClearF()">Clear all</span>`:''}
+      <div class="filter-menu" id="dvu-filter-menu" style="display:none"></div>
     </div>
     <table class="table">
       <thead><tr><th style="width:26px"></th>${th('id','Unit')}${th('type','Type')}${th('beds','Beds')}${th('floor','Floor')}${th('sqm','Size')}${th('price','Price')}${th('psq','\u20ac/m\u00b2')}${th('status','Status')}<th>Interest</th></tr></thead>
@@ -7791,10 +8395,12 @@ function cmpColsHtml(){
 function cmpDevColHtml(d){
   const sel=trState.items.map(it=>UN(it.unitId)).filter(u=>u&&u.dev===d.name);
   const shots=cmpDevShots(d);
-  const total=UNITS.filter(x=>x.dev===d.name).length;
-  const avail=cmpUnitsLeft(d.name);
-  const from=Math.min(...UNITS.filter(x=>x.dev===d.name&&x.status!=='sold').map(x=>x.price));
-  const row=(k,v)=>`<div class="cmp-row"><span class="k">${k}</span><span class="v">${v}</span></div>`;
+  const ids=[...new Set([...trState.items.map(it=>DEV(UN(it.unitId)?.dev)?.id).filter(Boolean),d.id])];
+  const rows=PMData.devRows(ids,{lens:cmpLens().k,diffOnly:cmpState.diffOnly});
+  const column=ids.indexOf(d.id),from=PMData.stats(d.id).from;
+  const safe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  let group=null;
+  const specs=rows.map(r=>{const heading=r.group!==group?`<div class="cmp-grp">${safe(r.group)}</div>`:'';group=r.group;return heading+`<div class="cmp-row${r.highlight?' hi':''}"><span class="k">${safe(r.label)}</span><span class="v">${safe(r.values[column])}</span></div>`;}).join('');
   return `<div class="cmp-col">
     <div class="cmp-col-head">
       <div class="cmp-render" style="height:150px;cursor:zoom-in" onclick="cmpFsOpen('devs','devs','${d.id}')"><img src="${UN_ASSET+shots[0].img}" alt="" onerror="this.remove()"><span class="plan-hint">Tap to compare \u2197</span><button class="plan-hint act" onclick="event.stopPropagation();cmpSetView('units')">\u21c4 Compare units</button></div>
@@ -7804,17 +8410,9 @@ function cmpDevColHtml(d){
     </div>
     <div class="cmp-shotgrid">${shots.slice(1).map(s=>`<button class="cmp-devgal-t" onclick="cmpFsOpen('devs','devs','${d.id}')"><img src="${UN_ASSET+s.img}" alt="" onerror="this.parentNode.style.display='none'"><span>${s.l}</span></button>`).join('')}</div>
     <div class="cmp-specs">
-      <div class="cmp-grp">Development</div>
-      ${row('Delivery',d.completion)}
-      ${row('Size',total+' units')}
-      ${row('Available',avail+' of '+total)}
-      ${row('Avg \u20ac/m\u00b2',(a=>a?'\u20ac'+Math.round(a).toLocaleString():'\u2014')(cmpDevAvgPsq(d.name)))}
-      ${row('Amenities',(d.amen||[]).slice(0,3).join(', ')||'\u2014')}
-      <div class="cmp-grp">Location</div>
-      ${row('Locality',d.loc)}
-      ${row('Getting around',(d.dist||[]).slice(0,2).map(x=>x[0]+' \u2014 '+x[1]).join('  \u00b7  ')||'\u2014')}
+      ${specs}
     </div>
-    <div class="cmp-total"><span>From</span><b>${fmtEur(from)}</b></div>
+    <div class="cmp-total"><span>From · nonsold stock</span><b>${from===null?'—':fmtEur(from)}</b></div>
     <div class="cmp-actions"><button class="btn-ghost" style="width:100%;justify-content:center" onclick="cmpFsOpen('devs','gallery','${d.id}')">View full gallery</button></div>
   </div>`;
 }
@@ -8214,8 +8812,8 @@ function sbConfirm(title,body,count,s,cb){
 function sbConfirmClose(){sbConfirmEl.classList.remove('on');sbConfirmCb=null;}
 function sbConfirmGo(){const cb=sbConfirmCb;sbConfirmClose();if(cb)cb();}
 function sbClearOnNav(page){
+  if(page!=='developments')dvSelection.clear();
   if(page!=='pipeline'&&typeof pipeSel!=='undefined')pipeSel.clear();
-  if(page!=='deals'&&typeof dealSel!=='undefined')dealSel.clear();
   if(page!=='contacts'&&typeof ctState!=='undefined')ctState.sel.clear();
   // Units selection (trState) persists intentionally via localStorage
 }
@@ -8225,7 +8823,6 @@ function sbCsv(head,rows){return [head.join(',')].concat(rows.map(r=>r.map(v=>`"
 /* ---- Units-page bulk selection Set ---- */
 function pipeToggleSel(id,e){if(e)e.stopPropagation();pipeSel.has(id)?pipeSel.delete(id):pipeSel.add(id);renderRows();}
 function pipeSelAll(){const list=filteredOpps();const all=list.length&&list.every(o=>pipeSel.has(o.id));list.forEach(o=>all?pipeSel.delete(o.id):pipeSel.add(o.id));renderRows();}
-function dealToggleSel(id,e){if(e)e.stopPropagation();dealSel.has(id)?dealSel.delete(id):dealSel.add(id);renderDeals();}
 
 /* ---- Add-to-opportunity (units): jump straight to compare checkout ---- */
 function sbUnitsAddToOpp(){
@@ -8243,12 +8840,27 @@ function sbExportOpps(ids){
   const rows=ids.map(id=>OPPS.find(o=>o.id===id)).filter(Boolean).map(o=>[o.id,o.lead,o.devs.join('; '),o.units.join('; '),o.stage,o.source,money(o).amt,o.rep,(o.tags||[]).join('; ')]);
   sbDownload(sbCsv(['ID','Contact','Development','Unit','Stage','Source','Value k','Rep','Tags'],rows),'bricly-opportunities.csv');
 }
-function sbExportDeals(ids){
-  const rows=ids.map(id=>DEALS.find(d=>d.id===id)).filter(Boolean).map(d=>{const o=dealOpp(d);return [d.id,o.lead,o.units.join('; '),o.devs.join('; '),CLOSED_STEPS[o.closed.step]||'',o.closed.deed,o.value,o.closed.comm,o.closed.paid?'Paid':'Pending'];});
-  sbDownload(sbCsv(['Deal','Contact','Unit','Development','Stage','Expected deed','Value k','Commission k','Commission status'],rows),'bricly-deals.csv');
-}
 
 /* ---- Surface registrations (order + role visibility per design brief) ---- */
+sbRegister({
+  pageId:'p-developments',entity:'development',plural:'developments',
+  count:()=>dvSelection.size,ids:()=>[...dvSelection],
+  clear:()=>dvSelection.clear(),rerender:()=>renderDevs(),
+  actions:[
+    {id:'dv-select-all',label:'Select all',icon:'status',roles:['rep','manager','marketing','owner'],clearAfter:false,
+      enabled:()=>dvFilteredList().some(dev=>!dvSelection.has(dev.id))||'All visible developments selected',
+      run:()=>{dvFilteredList().forEach(dev=>dvSelection.add(dev.id));return{};}},
+    {id:'dv-export',label:'Export',icon:'export',roles:['rep','manager','marketing','owner'],clearAfter:false,
+      run:ids=>{
+        const rows=ids.map(DEV).filter(Boolean).map(dev=>{
+          const stats=dvStats(dev.name);
+          return [dev.name,dev.loc,dev.completion,stats.total,stats.avail,Number.isFinite(stats.min)?stats.min:''];
+        });
+        sbDownload(sbCsv(['Development','Location','Completion','Units','Available','Starting price'],rows),'bricly-developments.csv');
+        return{msg:`Exported ${rows.length} development${rows.length===1?'':'s'} to CSV`};
+      }}
+  ]
+});
 sbRegister({
   pageId:'p-properties', entity:'unit', plural:'units',
   count:()=>trState.items.length, ids:()=>trState.items.map(it=>it.unitId),
@@ -8293,23 +8905,6 @@ sbRegister({
       run:ids=>({msg:`Message sent to ${ids.length} contact${ids.length>1?'s':''}`})},
     {id:'o-export',label:'Export',icon:'export',roles:['rep','manager','owner'],clearAfter:false,
       run:ids=>{sbExportOpps(ids);return{msg:`Exported ${ids.length} to CSV`};}}
-  ]
-});
-sbRegister({
-  pageId:'p-deals', entity:'deal', plural:'deals',
-  count:()=>dealSel.size, ids:()=>[...dealSel],
-  clear:()=>dealSel.clear(), rerender:()=>renderDeals(),
-  actions:[
-    {id:'d-pay',label:'Log payment',icon:'pay',roles:['rep','manager'],confirm:true,
-      confirmTitle:()=>'Log payment',confirmBody:()=>'Marks the next due payment as received on each selected deal.',
-      run:ids=>{let n=0;ids.forEach(id=>{const d=DEALS.find(x=>x.id===id);const o=d&&dealOpp(d);const x=o&&EXT[o.id];const p=x&&x.payments&&x.payments.find(pp=>pp.status!=='paid');if(p){p.status='paid';p.due='Paid today';n++;}});return{msg:`Logged payment on ${n} deal${n!==1?'s':''}`};}},
-    {id:'d-doc',label:'Add document',icon:'doc',roles:['rep','manager'],
-      run:ids=>({msg:`Document request sent for ${ids.length} deal${ids.length>1?'s':''}`})},
-    {id:'d-rep',label:'Reassign rep',icon:'rep',roles:['manager','owner'],
-      menu:()=>sbReps().map(r=>({label:r,value:r,icon:'rep'})),
-      run:(ids,v)=>{const prev=ids.map(id=>{const d=DEALS.find(x=>x.id===id);const o=dealOpp(d);const p=o.rep;o.rep=v;return[o,p];});return{msg:`${ids.length} deal${ids.length>1?'s':''} reassigned to ${v}`,undo:()=>{prev.forEach(([o,p])=>o.rep=p);renderDeals();}};}},
-    {id:'d-export',label:'Export',icon:'export',roles:['manager','owner'],clearAfter:false,
-      run:ids=>{sbExportDeals(ids);return{msg:`Exported ${ids.length} deal${ids.length>1?'s':''} to CSV`};}}
   ]
 });
 sbRegister({
@@ -9124,13 +9719,13 @@ function rpFunnel(){
 // ---- Tab templates ----
 function rpTabsHtml(){
   const tabs=[['revenue','Revenue & Sales'],['pipeline','Pipeline'],['inventory','Inventory'],['agents','Agents'],['forecast','Forecast']];
-  return `<div class="tabs" style="margin-bottom:16px">${tabs.map(([k,l])=>`<button class="tab ${rpState.tab===k?'on':''}" onclick="rpSetTab('${k}')">${l}</button>`).join('')}</div>`;
+  return `<div class="tabs">${tabs.map(([k,l])=>`<button class="tab ${rpState.tab===k?'on':''}" onclick="rpSetTab('${k}')">${l}</button>`).join('')}</div>`;
 }
 function rpRangeSegHtml(){
   return ['3m','6m','12m','ytd'].map(r=>`<button class="${rpState.range===r?'on':''}" onclick="rpSetRange('${r}')">${r.toUpperCase()}</button>`).join('');
 }
 function rpKpiHtml(){
-  return `<div class="ct-stats" style="grid-template-columns:repeat(5,1fr)">${rpKPIs().map(k=>`<div class="ct-stat" style="cursor:default"><div class="v">${k.val}</div><div class="l">${k.label}</div><div class="rp-delta">${k.delta}</div></div>`).join('')}</div>`;
+  return `<div class="ct-stats">${rpKPIs().map(k=>`<div class="ct-stat" style="cursor:default"><div class="v">${k.val}</div><div class="l">${k.label}</div><div class="rp-delta">${k.delta}</div></div>`).join('')}</div>`;
 }
 function rpChartCard(id,title){
   return `<div class="dcard rp-chart-card"><div class="rp-chart-title">${title}</div><div class="rp-chart-wrap"><canvas id="${id}"></canvas></div></div>`;
@@ -9242,12 +9837,13 @@ function rpSetRange(r){rpState.range=r;rpRender();}
 function rpRender(){
   const root=document.getElementById('rp-root');if(!root)return;
   root.innerHTML=`
-    <div class="row-between" style="margin-bottom:16px;align-items:flex-start">
+    <div class="crm-page-heading">
       <div><div class="page-title">Reports</div><div class="page-sub">Performance across revenue, pipeline, inventory and your team</div></div>
-      <div class="seg" id="rp-range-seg">${rpRangeSegHtml()}</div>
     </div>
-    ${rpKpiHtml()}
-    ${rpTabsHtml()}
+    <div class="crm-page-metrics">${rpKpiHtml()}</div>
+    <div class="crm-page-controls">${rpTabsHtml()}
+      <div class="toolbar"><div class="seg" id="rp-range-seg">${rpRangeSegHtml()}</div></div>
+    </div>
     <div id="rp-tabcontent"></div>`;
   rpRenderTabContent();
 }
@@ -9482,7 +10078,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')stwaWizClose();});
 function stRender(){
   const root=document.getElementById('st-root');if(!root)return;
   const activeNavKey=stState.section==='whatsapp'?'integrations':stState.section;
-  root.innerHTML=`<div class="row-between" style="margin-bottom:16px;align-items:flex-start">
+  root.innerHTML=`<div class="crm-page-heading">
       <div><div class="page-title">Settings</div><div class="page-sub">Workspace, team and integrations</div></div>
     </div>
     <div class="st-layout">
@@ -9548,14 +10144,13 @@ function auTemplatesHtml(){
 }
 function auRender(){
   const root=document.getElementById('au-root');if(!root)return;
-  root.innerHTML=`<div class="row-between" style="margin-bottom:16px;align-items:flex-start">
+  root.innerHTML=`<div class="crm-page-heading">
     <div><div class="page-title">Automations</div><div class="page-sub">Rule-based workflows across WhatsApp, email and your marketing channels</div></div>
-    <button class="btn-primary" onclick="auOpenBuilder()">+ New workflow</button>
   </div>
-  <div class="tabs" style="margin-bottom:16px">
+  <div class="crm-page-controls"><div class="tabs">
     <button class="tab ${auState.tab==='active'?'on':''}" onclick="auSetTab('active')">Active (${AU_WORKFLOWS.length})</button>
     <button class="tab ${auState.tab==='templates'?'on':''}" onclick="auSetTab('templates')">Templates</button>
-  </div>
+  </div><div class="toolbar"><button class="btn-primary" onclick="auOpenBuilder()">+ New workflow</button></div></div>
   <div id="au-tabcontent">${auState.tab==='active'?auActiveHtml():auTemplatesHtml()}</div>`;
 }
 function auOnNav(page){if(page==='automations')auRender();}
@@ -11181,37 +11776,72 @@ function renderProjActivityTab(p) {
 }
 
 // ── STUDIO ASSETS ─────────────────────────────────────────
-function renderStudioAssets(filterDev, filterType) {
+const S_ASSET_LIBRARY = [
+  {n:'Exterior — Day View',  d:'Dolphin Court',  meta:'PNG · 4K',    bg:'linear-gradient(135deg,#1a3020,#0a1a10)', c:'#657A32', type:'CGI Render'},
+  {n:'Exterior — Dusk',      d:'Dolphin Court',  meta:'PNG · 4K',    bg:'linear-gradient(135deg,#1a2030,#0a1020)', c:'#3b82f6', type:'CGI Render'},
+  {n:'Aerial — North',       d:'Dolphin Court',  meta:'PNG · 4K',    bg:'linear-gradient(135deg,#201a2d,#0d0d1a)', c:'#8b5cf6', type:'CGI Render'},
+  {n:'Living Area Render',   d:'Dolphin Court',  meta:'PNG · 4K',    bg:'linear-gradient(135deg,#1a3020,#0a1a10)', c:'#657A32', type:'CGI Render'},
+  {n:'Brochure (Digital)',   d:'Dolphin Court',  meta:'PDF · 12MB',  bg:'linear-gradient(135deg,#1a2030,#0a1020)', c:'#3b82f6', type:'Brochure'},
+  {n:'Floor Plan — A1',      d:'Dolphin Court',  meta:'PDF + AI',    bg:'linear-gradient(135deg,#2d1a0d,#1a0d05)', c:'#f97316', type:'Floor Plan'},
+  {n:'Floor Plan — B2',      d:'Dolphin Court',  meta:'PDF + AI',    bg:'linear-gradient(135deg,#2d1a0d,#1a0d05)', c:'#f97316', type:'Floor Plan'},
+  {n:'Instagram × 20 posts', d:'Dolphin Court',  meta:'ZIP · 85MB',  bg:'linear-gradient(135deg,#2a1a30,#150a20)', c:'#8b5cf6', type:'Social'},
+  {n:'Story Templates × 8',  d:'Dolphin Court',  meta:'ZIP · 42MB',  bg:'linear-gradient(135deg,#2a1a30,#150a20)', c:'#8b5cf6', type:'Social'},
+  {n:'Brochure (Print)',      d:'Mercury Towers', meta:'PDF · 28MB',  bg:'linear-gradient(135deg,#1a2030,#0a1020)', c:'#3b82f6', type:'Brochure'},
+  {n:'Logo Pack',             d:'La Lex',         meta:'ZIP · AI+PNG',bg:'linear-gradient(135deg,#2d1a0d,#1a0d05)', c:'#f97316', type:'Brand'},
+  {n:'Colour Palette',        d:'La Lex',         meta:'PDF + ASE',   bg:'linear-gradient(135deg,#2d1a0d,#1a0d05)', c:'#f97316', type:'Brand'},
+  {n:'Cover Render',          d:'Mercury Towers', meta:'PNG · 4K',    bg:'linear-gradient(135deg,#1a3020,#0a1a10)', c:'#657A32', type:'CGI Render'},
+  {n:'Aerial Render',         d:'Mercury Towers', meta:'PNG · 4K',    bg:'linear-gradient(135deg,#201a2d,#0d0d1a)', c:'#8b5cf6', type:'CGI Render'},
+  {n:'Floor Plan — 1 Bed',    d:'Mercury Towers', meta:'PDF + AI',    bg:'linear-gradient(135deg,#2d1a0d,#1a0d05)', c:'#f97316', type:'Floor Plan'},
+];
+S_ASSET_LIBRARY.forEach((a,i)=>a.addedIdx=i); // array position doubles as a simulated "date added" order
+let assetF={dev:[],type:[]};
+sortRegister('assets',{
+  triggerId:'as-sort-trigger', menuId:'as-sort-menu',
+  properties:[
+    {key:'added',label:'Date added',cmp:(a,b)=>a.addedIdx-b.addedIdx,ascLabel:'Oldest first',descLabel:'Newest first'},
+    {key:'name',label:'Name',cmp:(a,b)=>a.n.localeCompare(b.n),ascLabel:'A\u2013Z',descLabel:'Z\u2013A'},
+    {key:'type',label:'Type',cmp:(a,b)=>a.type.localeCompare(b.type),ascLabel:'A\u2013Z',descLabel:'Z\u2013A'},
+  ],
+  rules:[{prop:'added',dir:'desc'}],
+  onchange:()=>renderStudioAssets()
+});
+function asOpenFilters(e){
+  if(e) e.stopPropagation();
+  const m=document.getElementById('as-filter-menu');
+  if(m.style.display==='block'){m.style.display='none';return;}
+  asRenderFilterBody();
+  m.style.display='block';
+}
+function asRenderFilterBody(){
+  const devs=[...new Set(S_ASSET_LIBRARY.map(a=>a.d))].sort();
+  const types=[...new Set(S_ASSET_LIBRARY.map(a=>a.type))].sort();
+  document.getElementById('as-filter-menu').innerHTML=
+    fdGroup('Development',devs,v=>assetF.dev.includes(v),v=>`asPick('dev','${v}')`)
+    +fdGroup('Type',types,v=>assetF.type.includes(v),v=>`asPick('type','${v}')`);
+}
+function asPick(g,v,btn){
+  const a=assetF[g],i=a.indexOf(v);i>=0?a.splice(i,1):a.push(v);
+  if(btn) fdToggleBox(btn); // keep the popover open for the next pick
+  renderStudioAssets();
+}
+function asClearAllF(){assetF.dev=[];assetF.type=[];renderStudioAssets();asRenderFilterBody();}
+function asRenderActiveFilters(){
+  const el=document.getElementById('as-active-filters'); if(!el) return;
+  const any=crmSyncFilterChips('as-filter-row',{Development:assetF.dev,Type:assetF.type});
+  el.innerHTML=any?`<span class="fclear" onclick="asClearAllF()">Clear all</span>`:'';
+  sortSyncTrigger('assets');
+}
+document.addEventListener('click',e=>{
+  const m=document.getElementById('as-filter-menu');
+  if(m&&m.style.display==='block'&&!m.contains(e.target)&&!e.target.closest('#as-filter-row .crm-filter-field')) m.style.display='none';
+});
+function renderStudioAssets() {
   const el = document.getElementById('studio-asset-grid');
   if (!el) return;
-
-  // Populate dev dropdown with S_DEVS if not yet done
-  const devFilter = document.getElementById('asset-dev-filter');
-  if (devFilter && devFilter.options.length === 1) {
-    S_DEVS.forEach(d => { const o = document.createElement('option'); o.textContent = d; devFilter.appendChild(o); });
-  }
-  // Extended assets for library view (superset of S_STUDIO_ASSETS)
-  const ASSETS = [
-    {n:'Exterior — Day View',  d:'Dolphin Court',  meta:'PNG · 4K',    bg:'linear-gradient(135deg,#1a3020,#0a1a10)', c:'#657A32', type:'CGI Render'},
-    {n:'Exterior — Dusk',      d:'Dolphin Court',  meta:'PNG · 4K',    bg:'linear-gradient(135deg,#1a2030,#0a1020)', c:'#3b82f6', type:'CGI Render'},
-    {n:'Aerial — North',       d:'Dolphin Court',  meta:'PNG · 4K',    bg:'linear-gradient(135deg,#201a2d,#0d0d1a)', c:'#8b5cf6', type:'CGI Render'},
-    {n:'Living Area Render',   d:'Dolphin Court',  meta:'PNG · 4K',    bg:'linear-gradient(135deg,#1a3020,#0a1a10)', c:'#657A32', type:'CGI Render'},
-    {n:'Brochure (Digital)',   d:'Dolphin Court',  meta:'PDF · 12MB',  bg:'linear-gradient(135deg,#1a2030,#0a1020)', c:'#3b82f6', type:'Brochure'},
-    {n:'Floor Plan — A1',      d:'Dolphin Court',  meta:'PDF + AI',    bg:'linear-gradient(135deg,#2d1a0d,#1a0d05)', c:'#f97316', type:'Floor Plan'},
-    {n:'Floor Plan — B2',      d:'Dolphin Court',  meta:'PDF + AI',    bg:'linear-gradient(135deg,#2d1a0d,#1a0d05)', c:'#f97316', type:'Floor Plan'},
-    {n:'Instagram × 20 posts', d:'Dolphin Court',  meta:'ZIP · 85MB',  bg:'linear-gradient(135deg,#2a1a30,#150a20)', c:'#8b5cf6', type:'Social'},
-    {n:'Story Templates × 8',  d:'Dolphin Court',  meta:'ZIP · 42MB',  bg:'linear-gradient(135deg,#2a1a30,#150a20)', c:'#8b5cf6', type:'Social'},
-    {n:'Brochure (Print)',      d:'Mercury Towers', meta:'PDF · 28MB',  bg:'linear-gradient(135deg,#1a2030,#0a1020)', c:'#3b82f6', type:'Brochure'},
-    {n:'Logo Pack',             d:'La Lex',         meta:'ZIP · AI+PNG',bg:'linear-gradient(135deg,#2d1a0d,#1a0d05)', c:'#f97316', type:'Brand'},
-    {n:'Colour Palette',        d:'La Lex',         meta:'PDF + ASE',   bg:'linear-gradient(135deg,#2d1a0d,#1a0d05)', c:'#f97316', type:'Brand'},
-    {n:'Cover Render',          d:'Mercury Towers', meta:'PNG · 4K',    bg:'linear-gradient(135deg,#1a3020,#0a1a10)', c:'#657A32', type:'CGI Render'},
-    {n:'Aerial Render',         d:'Mercury Towers', meta:'PNG · 4K',    bg:'linear-gradient(135deg,#201a2d,#0d0d1a)', c:'#8b5cf6', type:'CGI Render'},
-    {n:'Floor Plan — 1 Bed',    d:'Mercury Towers', meta:'PDF + AI',    bg:'linear-gradient(135deg,#2d1a0d,#1a0d05)', c:'#f97316', type:'Floor Plan'},
-  ];
-  const filtered = ASSETS.filter(a =>
-    (!filterDev || filterDev === 'All developments' || a.d === filterDev) &&
-    (!filterType || filterType === 'All types' || a.type.includes(filterType.replace('s','')))
-  );
+  const filtered = S_ASSET_LIBRARY.filter(a =>
+    (!assetF.dev.length || assetF.dev.includes(a.d)) &&
+    (!assetF.type.length || assetF.type.includes(a.type))
+  ).sort(sortComparator('assets'));
   el.innerHTML = filtered.map(a => `
     <div class="s-asset-card" onclick="showToast('Opening ${a.n}...')">
       <div class="s-asset-thumb" style="background:${a.bg}">
@@ -11226,6 +11856,7 @@ function renderStudioAssets(filterDev, filterType) {
         </div>
       </div>
     </div>`).join('');
+  asRenderActiveFilters();
 }
 
 // ── STUDIO INIT ───────────────────────────────────────────
@@ -12406,6 +13037,180 @@ function crReversion(uid){
   const c=crState.cfg[uid]; if(c){c.layout=cfg.layout||c.layout;c.preset=cfg.preset||c.preset;c.pack=cfg.pack||c.pack;c.style=cfg.style||c.style;c.modifier=cfg.modifier||'';}
   crSyncTop(); crState.step=2; crRender();
 }
+</script>
+<script src="present-map.js"></script>
+<script src="present-data.js"></script>
+<script src="present-viewer.js"></script>
+<script src="present-spatial.js"></script>
+<script src="present-neighbourhood.js"></script>
+<script src="present-mode.js"></script>
+<style>
+.tb-search{cursor:pointer;text-align:left;color:var(--on-variant);min-width:0}
+.tb-search:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.gs-placeholder{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+.tb-search .kbd{flex:none;white-space:nowrap}
+.gs-dialog{position:fixed;inset:68px 0 auto;margin:0 auto;width:min(560px,calc(100vw - 32px));max-width:none;max-height:min(540px,calc(100dvh - 92px));padding:0;border:1px solid var(--outline-variant);border-radius:8px;background:var(--surface);color:var(--on-surface);box-shadow:0 3px 5px rgba(0,0,0,.2),0 12px 32px rgba(0,0,0,.1);overflow:hidden;font:inherit;letter-spacing:0}
+.gs-dialog::backdrop{background:transparent}
+.gs-dialog[open]{display:flex;flex-direction:column}
+.gs-head{display:flex;align-items:center;gap:12px;padding:18px 18px 14px;flex:none}
+.gs-head>svg{width:18px;height:18px;flex:none;color:var(--on-variant)}
+.gs-input{flex:1;min-width:0;border:0;outline:none;background:transparent;color:var(--on-surface);font:inherit;font-size:17px}
+.gs-input::placeholder{color:var(--muted)}
+.gs-close{width:26px;height:26px;display:grid;place-items:center;flex:none;border:0;border-radius:4px;background:var(--sc-lowest);color:var(--on-variant);font-size:20px;line-height:1;cursor:pointer}
+.gs-close:hover{background:var(--sc)}
+.gs-toolbar{display:flex;align-items:center;gap:8px;padding:0 16px 18px;flex:none}
+.gs-tabs{display:flex;align-items:center;gap:2px;min-width:0;overflow-x:auto}
+.gs-tab{border:0;background:transparent;color:var(--on-variant);font-size:12px;padding:5px 7px;border-radius:4px;cursor:pointer;white-space:nowrap}
+.gs-tab[aria-pressed="true"]{background:var(--sc-low);color:var(--on-surface)}
+.gs-sort{margin-left:auto;max-width:108px;border:0;background:var(--surface);color:var(--on-variant);font:inherit;font-size:11px;cursor:pointer;padding:4px 0}
+.gs-results{overflow-y:auto;overscroll-behavior:contain;min-height:0;padding:0 16px 16px;scroll-padding:8px}
+.gs-group{font-size:11px;font-weight:400;color:var(--on-variant);padding:16px 0 8px}
+.gs-row{display:flex;align-items:center;gap:15px;padding:11px 14px;min-height:58px;border-radius:6px;cursor:pointer}
+.gs-row[aria-selected="true"]{background:var(--sc-lowest)}
+.gs-icon{width:24px;height:26px;display:flex;align-items:center;justify-content:center;flex:none;color:var(--on-variant)}
+.gs-icon svg{width:18px;height:18px;flex:none}
+.gs-vector{width:18px;height:18px;display:block;background:currentColor;mask-position:center;mask-size:contain;mask-repeat:no-repeat}
+.gs-icon.gs-file{color:#4285ed}
+.gs-copy{min-width:0;flex:1}
+.gs-title{font-size:12.5px;line-height:1.5;overflow-wrap:anywhere}
+.gs-meta{font-size:11.5px;line-height:1.5;color:var(--on-variant);margin-top:2px;overflow-wrap:anywhere}
+.gs-empty{padding:30px 12px 38px;text-align:center;font-size:13px;color:var(--on-variant);overflow-wrap:anywhere}
+.gs-status{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.gs-dialog button:focus-visible,.gs-sort:focus-visible{outline:2px solid var(--primary);outline-offset:1px}
+@media(max-width:600px){.gs-dialog{inset:60px 0 auto;width:calc(100vw - 16px);max-height:calc(100dvh - 76px)}.gs-head{padding:16px 12px}.gs-toolbar{padding:0 10px 10px;gap:4px;flex-wrap:wrap}.gs-tabs{flex:1}.gs-tab{font-size:11px;padding:5px}.gs-sort{max-width:92px}.gs-results{padding:0 10px 10px}.gs-row{padding:10px;gap:10px}.topbar:has(#navSearch){padding:0 8px;gap:6px}.topbar:has(#navSearch) .tb-left{min-width:28px;flex:1;overflow:hidden}.topbar:has(#navSearch) .crumb{overflow:hidden;white-space:nowrap}.topbar:has(#navSearch) .tb-right{min-width:0}.app #navSearch{display:flex;width:32px;min-width:32px;max-width:32px;flex:none;justify-content:center;padding:0;margin:0}.tb-search .kbd,.tb-search .gs-placeholder{display:none}}
+</style>
+<dialog class="gs-dialog" id="globalSearch" aria-label="Search workspace">
+  <div class="gs-head" id="gsHead">
+    <input class="gs-input" id="gsInput" placeholder="Search or jump into" aria-label="Search workspace" role="combobox" aria-autocomplete="list" aria-expanded="true" aria-controls="gsResults" autocomplete="off" spellcheck="false" oninput="gsRender()">
+    <button class="gs-close" type="button" onclick="gsClose()" aria-label="Close search" title="Close search">×</button>
+  </div>
+  <div class="gs-toolbar">
+    <div class="gs-tabs" role="group" aria-label="Search category">
+      <button class="gs-tab" type="button" data-category="all" aria-pressed="true" onclick="gsCategory('all')">All</button>
+      <button class="gs-tab" type="button" data-category="contacts" aria-pressed="false" onclick="gsCategory('contacts')">Contacts</button>
+      <button class="gs-tab" type="button" data-category="properties" aria-pressed="false" onclick="gsCategory('properties')">Properties</button>
+      <button class="gs-tab" type="button" data-category="opportunities" aria-pressed="false" onclick="gsCategory('opportunities')">Opportunities</button>
+      <button class="gs-tab" type="button" data-category="files" aria-pressed="false" onclick="gsCategory('files')">Files</button>
+    </div>
+    <select class="gs-sort" id="gsSort" aria-label="Sort results" onchange="gsRender()">
+      <option value="relevance">Sort</option><option value="az">Name A–Z</option><option value="za">Name Z–A</option>
+    </select>
+  </div>
+  <div class="gs-results" id="gsResults" role="listbox" aria-label="Search results"></div>
+  <div class="gs-status" id="gsStatus" role="status" aria-live="polite"></div>
+</dialog>
+<script>
+const gsState={category:'all',items:[],visible:[],active:-1,returnFocus:null,recents:[]};
+try{
+  const stored=JSON.parse(localStorage.getItem('bricly-search-recents')||'[]');
+  if(Array.isArray(stored))gsState.recents=stored.filter(key=>typeof key==='string').slice(0,8);
+}catch{}
+const gsText=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+const gsNormalize=value=>String(value??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+function gsIndex(){
+  const items=[];
+  CONTACTS.forEach(contact=>items.push({key:'contact:'+contact.id,category:'contacts',icon:'contacts',title:contact.name,meta:['Contact',contact.type,contact.company||contact.email].filter(Boolean).join(' · '),search:[contact.id,contact.phone,contact.interest,contact.ploc,contact.email,contact.company].join(' '),open:()=>openContact(contact.id)}));
+  DEVS.forEach(dev=>{
+    const units=UNITS.filter(unit=>unit.dev===dev.name);
+    items.push({key:'dev:'+dev.id,category:'properties',icon:'developments',title:dev.name,meta:`Development · ${units.length} units · ${units.filter(unit=>unit.status==='available').length} available`,search:dev.loc,open:()=>openDev(dev.id)});
+    (dev.files||[]).forEach((file,index)=>items.push({key:'file:'+dev.id+':'+index,category:'files',icon:'files',title:file.n,meta:`File · ${dev.name} · ${file.s}`,search:dev.loc,open:()=>{openDev(dev.id);dvSetTab('media');gsRevealFile(file.n);}}));
+  });
+  UNITS.forEach(unit=>items.push({key:'unit:'+unit.id,category:'properties',icon:'properties',title:unit.dev+' - '+unit.id,meta:`Property · ${unit.beds} bed · ${new Intl.NumberFormat('en-IE',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(unit.price)} · ${unit.status.charAt(0).toUpperCase()+unit.status.slice(1)}`,search:[unit.type,DEV(unit.dev)?.loc,...(unit.views||[])].join(' '),open:()=>openUnit(unit.id)}));
+  OPPS.forEach(opp=>items.push({key:'opp:'+opp.id,category:'opportunities',icon:'pipeline',title:opp.lead,meta:[opp.id+' Opportunity',...opp.devs,opp.stage].join(' · '),search:[...opp.units,opp.source,opp.rep].join(' '),open:()=>openOpp(opp.id)}));
+  if(WS_APPS.find(app=>app.key==='studio')?.access()){
+    const groups=new Map();
+    S_STUDIO_ASSETS.forEach(asset=>{
+      const key=asset.d+':'+asset.type;
+      if(!groups.has(key))groups.set(key,{dev:asset.d,type:asset.type,names:[]});
+      groups.get(key).names.push(asset.n);
+    });
+    groups.forEach((group,key)=>items.push({key:'assets:'+key,category:'files',icon:'assets',workspace:'studio',title:group.dev+' - Assets',meta:'Studio · '+group.type,search:group.names.join(' '),open:()=>{openWorkspace('studio');openStudioDev(group.dev);window._mediaTypeFilter=group.type;setStudioDevTab('media');}}));
+  }
+  return items;
+}
+function gsRevealFile(name){
+  const target=Array.from(document.querySelectorAll('#dv-tabc .file-row')).find(row=>row.textContent.includes(name));
+  if(target){target.scrollIntoView({block:'center'});target.animate([{background:'var(--primary-low)'},{background:'transparent'}],{duration:1600});}
+}
+function gsIcon(item){
+  const page=item.icon==='assets'?'developments':item.icon;
+  const supplied=document.querySelector('#sidebar [data-page="'+page+'"] .crm-nav-icon');
+  if(supplied)return `<span class="gs-vector" style="mask-image:${gsText(getComputedStyle(supplied).maskImage)}"></span>`;
+  const selector=item.icon==='files'?'#studioApp [data-s="assets"] svg':item.icon==='assets'?'.nav [data-page="developments"] svg':'.nav [data-page="'+item.icon+'"] svg';
+  const icon=document.querySelector(selector)||document.querySelector('#navSearch svg');
+  return icon.outerHTML;
+}
+function gsOpen(){
+  const dialog=document.getElementById('globalSearch');
+  if(dialog.open){document.getElementById('gsInput').focus();return;}
+  gsState.returnFocus=document.activeElement;
+  gsState.items=gsIndex();gsState.category='all';
+  document.getElementById('gsInput').value='';
+  document.getElementById('gsSort').value='relevance';
+  gsRender();dialog.showModal();document.getElementById('gsInput').focus();
+}
+function gsClose(){document.getElementById('globalSearch').close();}
+function gsCategory(category){gsState.category=category;gsRender();document.getElementById('gsInput').focus();}
+function gsRender(){
+  const input=document.getElementById('gsInput');
+  const query=gsNormalize(input.value.trim());
+  const terms=query.split(/\s+/).filter(Boolean);
+  const sort=document.getElementById('gsSort').value;
+  const matches=gsState.items.filter(item=>(gsState.category==='all'||item.category===gsState.category)&&terms.every(term=>gsNormalize([item.title,item.meta,item.search].join(' ')).includes(term)));
+  const score=item=>gsNormalize(item.title)===query?0:gsNormalize(item.title).startsWith(query)?1:gsNormalize(item.title).includes(query)?2:3;
+  matches.sort((first,second)=>sort==='az'?first.title.localeCompare(second.title):sort==='za'?second.title.localeCompare(first.title):score(first)-score(second));
+  const recent=gsState.recents.map(key=>matches.find(item=>item.key===key)).filter(Boolean).slice(0,3);
+  const recentKeys=new Set(recent.map(item=>item.key));
+  const results=matches.filter(item=>!recentKeys.has(item.key));
+  gsState.visible=[...recent,...results];
+  gsState.active=gsState.visible.length?0:-1;
+  document.querySelectorAll('.gs-tab').forEach(tab=>tab.setAttribute('aria-pressed',String(tab.dataset.category===gsState.category)));
+  let offset=0;
+  const group=(label,items)=>items.length?`<div role="group" aria-label="${label}"><div class="gs-group" aria-hidden="true">${label}</div>${items.map(item=>{
+    const index=offset++;
+    return `<div class="gs-row" id="gs-result-${index}" role="option" aria-selected="${index===0}" data-index="${index}" onclick="gsChoose(${index})" onmousemove="gsActivate(${index},false)"><span class="gs-icon ${item.category==='files'?'gs-file':''}" aria-hidden="true">${gsIcon(item)}</span><div class="gs-copy"><div class="gs-title">${gsText(item.title)}</div><div class="gs-meta">${gsText(item.meta)}</div></div></div>`;
+  }).join('')}</div>`:'';
+  document.getElementById('gsResults').innerHTML=group('Recent',recent)+group(query?'Results':'Browse',results)||( `<div class="gs-empty">${query?'No results for &ldquo;'+gsText(input.value.trim())+'&rdquo;':'No items in this category'}</div>`);
+  document.getElementById('gsResults').scrollTop=0;
+  document.getElementById('gsStatus').textContent=matches.length+' results';
+  if(gsState.active>=0)input.setAttribute('aria-activedescendant','gs-result-0');else input.removeAttribute('aria-activedescendant');
+}
+function gsActivate(index,scroll=true){
+  if(!gsState.visible.length)return;
+  gsState.active=(index+gsState.visible.length)%gsState.visible.length;
+  document.querySelectorAll('.gs-row').forEach(row=>row.setAttribute('aria-selected',String(Number(row.dataset.index)===gsState.active)));
+  const row=document.getElementById('gs-result-'+gsState.active);
+  document.getElementById('gsInput').setAttribute('aria-activedescendant',row.id);
+  if(scroll)row.scrollIntoView({block:'nearest'});
+}
+function gsChoose(index){
+  const item=gsState.visible[index];if(!item)return;
+  gsState.recents=[item.key,...gsState.recents.filter(key=>key!==item.key)].slice(0,8);
+  try{localStorage.setItem('bricly-search-recents',JSON.stringify(gsState.recents));}catch{}
+  gsClose();if(!item.workspace&&wsCurrent!=='os')exitWorkspace();item.open();
+}
+document.getElementById('gsHead').prepend(document.querySelector('#navSearch svg').cloneNode(true));
+document.getElementById('gsShortcut').textContent=/Mac|iPhone|iPad/.test(navigator.platform)?'⌘ K':'Ctrl K';
+document.getElementById('globalSearch').addEventListener('close',()=>{if(gsState.returnFocus?.isConnected)gsState.returnFocus.focus();});
+document.getElementById('globalSearch').addEventListener('click',event=>{
+  const bounds=event.currentTarget.getBoundingClientRect();
+  if(event.target===event.currentTarget&&(event.clientX<bounds.left||event.clientX>bounds.right||event.clientY<bounds.top||event.clientY>bounds.bottom))gsClose();
+});
+document.addEventListener('keydown',event=>{
+  const dialog=document.getElementById('globalSearch');
+  if((event.metaKey||event.ctrlKey)&&event.key.toLowerCase()==='k'){
+    event.preventDefault();event.stopImmediatePropagation();if(dialog.open)gsClose();else gsOpen();return;
+  }
+  if(!dialog.open||event.isComposing)return;
+  if(event.key==='Escape'){event.preventDefault();event.stopImmediatePropagation();gsClose();return;}
+  if(event.target!==document.getElementById('gsInput'))return;
+  if(['ArrowDown','ArrowUp','Home','End','Enter'].includes(event.key)){
+    if((event.key==='Home'||event.key==='End')&&!event.ctrlKey)return;
+    event.preventDefault();event.stopImmediatePropagation();
+    if(event.key==='Enter')gsChoose(gsState.active);
+    else gsActivate(event.key==='ArrowDown'?gsState.active+1:event.key==='ArrowUp'?gsState.active-1:event.key==='Home'?0:gsState.visible.length-1);
+  }
+},true);
 </script>
 </body>
 </html>
