@@ -1890,7 +1890,7 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
       <section class="page" id="p-contacts">
         <div class="wrap">
           <div class="crm-page-heading">
-            <div><div class="page-title">Contacts</div><div class="page-sub" id="ct-sub">All the people around your deals — buyers, vendors, suppliers and partners</div></div>
+            <div class="page-title">Contacts</div>
           </div>
           <div class="ct-stats crm-page-metrics" id="ct-stats"></div>
           <div class="row-between crm-page-controls">
@@ -6895,6 +6895,102 @@ function openDev(id){
   document.getElementById('content').scrollTop=0;
 }
 function dvSetTab(t){dvTabCur=t;renderDev();}
+const dvFloorViews={};
+function dvFloorContext(development){
+  const units=UNITS.filter(unit=>unit.dev===development.name);
+  const floors=[...new Set([...units.map(unit=>unit.floor),...(development.floors||[])])].filter(Number.isFinite).sort((left,right)=>left-right);
+  const view=dvFloorViews[development.id]||(dvFloorViews[development.id]={floor:floors[0],zoom:100,editing:false,unitId:''});
+  if(!floors.includes(view.floor)){view.floor=floors[0];view.editing=false;view.unitId='';}
+  const floorUnits=units.filter(unit=>unit.floor===view.floor);
+  if(!floorUnits.some(unit=>unit.id===view.unitId))view.unitId=floorUnits[0]?.id||'';
+  return {view,floors,units:floorUnits,plan:development.floorPlans?.[view.floor]};
+}
+function dvFloorLabel(floor){return floor===0?'Ground floor':floor<0?'Basement '+Math.abs(floor):'Floor '+floor;}
+function dvFloorCanEdit(){return curPersona==='owner'||curPersona==='marketing';}
+function dvFloorHtml(development){
+  const {view,floors,units,plan}=dvFloorContext(development),canEdit=dvFloorCanEdit();
+  if(!canEdit)view.editing=false;
+  const counts=Object.entries(UN_STATUS).map(([status,meta])=>`<span class="dv-floor-status" data-status="${status}"><i></i>${meta.l} ${units.filter(unit=>unit.status===status).length}</span>`).join('');
+  const markers=plan?units.filter(unit=>plan.positions[unit.id]).map(unit=>{
+    const point=plan.positions[unit.id],status=UN_STATUS[unit.status]||{l:'Unknown'};
+    return `<button class="dv-floor-pin" data-unit-id="${unit.id}" data-status="${unit.status}" style="left:${point.x}%;top:${point.y}%;transform:translate(-${point.x}%,-${point.y}%)" aria-label="Open ${unit.id}, ${status.l}" title="${unit.id} - ${status.l}" onclick="event.stopPropagation();openUnPeek('${unit.id}')">${xesc(unit.id)}<span>${status.l}</span></button>`;
+  }).join(''):'';
+  return `<section class="dcard dv-floor-panel" id="dv-floor-panel" aria-labelledby="dv-floor-title"><header><h3 id="dv-floor-title">Floor plans & availability</h3>${floors.length?`<label class="dv-floor-select">Floor<select aria-label="Floor plan level" onchange="dvFloorSelect('${development.id}',this.value)">${floors.map(floor=>`<option value="${floor}" ${floor===view.floor?'selected':''}>${dvFloorLabel(floor)}</option>`).join('')}</select></label>`:''}</header>
+    ${floors.length?`<div class="dv-floor-legend">${counts}</div><div class="dv-floor-tools">${plan?`<div class="dv-floor-zoom"><button class="dv-hub-action" title="Zoom out" aria-label="Zoom out floor plan" onclick="dvFloorZoom('${development.id}',-25)" ${view.zoom<=100?'disabled':''}>−</button><span>${view.zoom}%</span><button class="dv-hub-action" title="Zoom in" aria-label="Zoom in floor plan" onclick="dvFloorZoom('${development.id}',25)" ${view.zoom>=250?'disabled':''}>+</button><button class="btn-ghost" onclick="dvFloorZoom('${development.id}',0)">Fit</button></div>`:''}${canEdit?`<div class="dv-floor-manage"><button class="btn-ghost" onclick="document.getElementById('dv-floor-file').click()">${sbIcon('doc')}${plan?'Replace drawing':'Upload floor plan'}</button><input id="dv-floor-file" type="file" hidden accept="image/png,image/jpeg,image/webp" onchange="dvFloorUpload('${development.id}',${view.floor},this)">${plan&&units.length?`<button class="btn-ghost" onclick="dvFloorEdit('${development.id}')">${sbIcon(view.editing?'status':'tag')}${view.editing?'Done placing':'Place units'}</button>`:''}</div>`:''}</div>
+    ${view.editing&&plan?`<div class="dv-floor-mapping"><label>Unit to place<select aria-label="Unit to place" onchange="dvFloorViews['${development.id}'].unitId=this.value;dvFloorRefresh('${development.id}')">${units.map(unit=>`<option value="${unit.id}" ${view.unitId===unit.id?'selected':''}>${xesc(unit.id)} - ${UN_STATUS[unit.status]?.l||'Unknown'}${plan.positions[unit.id]?' (placed)':''}</option>`).join('')}</select></label><button class="btn-ghost" ${plan.positions[view.unitId]?'':'disabled'} onclick="dvFloorUnplace('${development.id}')">Remove marker</button><form class="dv-floor-coordinates" onsubmit="event.preventDefault();dvFloorPosition('${development.id}',Number(this.elements.horizontal.value),Number(this.elements.vertical.value))"><label>Horizontal %<input name="horizontal" aria-label="Marker horizontal percent" type="number" min="0" max="100" step="0.1" value="${(plan.positions[view.unitId]?.x??50).toFixed(1)}" required></label><label>Vertical %<input name="vertical" aria-label="Marker vertical percent" type="number" min="0" max="100" step="0.1" value="${(plan.positions[view.unitId]?.y??50).toFixed(1)}" required></label><button class="btn-ghost" type="submit">Place marker</button></form></div>`:''}
+    ${plan?`<div class="dv-floor-viewport"><div class="dv-floor-canvas ${view.editing?'is-placing':''}" style="width:${view.zoom}%" onclick="dvFloorPlace(event,'${development.id}')"><img src="${xesc(plan.url)}" alt="${xesc(development.name)} - ${dvFloorLabel(view.floor)} layout" draggable="false">${markers}</div></div><div class="dv-floor-caption">${xesc(plan.name)} · ${units.filter(unit=>plan.positions[unit.id]).length} of ${units.length} units placed</div>`:`<div class="dv-floor-empty"><span class="dv-hub-icon" aria-hidden="true">${sbIcon('doc')}</span><strong>No drawing for ${dvFloorLabel(view.floor).toLowerCase()}</strong><span>${canEdit?'Upload a full-floor PNG, JPEG or WebP drawing.':'The floor drawing has not been added yet.'}</span></div>`}
+    <div class="dv-floor-units">${units.map(unit=>{const status=UN_STATUS[unit.status]||{l:'Unknown',p:'p-paused'};return `<button class="dv-floor-unit" data-unit-id="${unit.id}" onclick="openUnPeek('${unit.id}')"><span><strong>${xesc(unit.id)}</strong><small>${unBedsLabel(unit)} · ${unit.sqm} m²${!plan?.positions[unit.id]?' · Not placed on plan':''}</small></span><span class="pill ${status.p}">${status.l}</span></button>`;}).join('')||'<p class="deal-muted">No units recorded on this floor.</p>'}</div>${canEdit?'<small class="dv-floor-caption">Drawing and marker storage: this browser session only.</small>':''}`:'<div class="dv-floor-empty">No floors recorded for this development.</div>'}<p id="dv-floor-message" role="status"></p></section>`;
+}
+function dvFloorRefresh(developmentId){
+  if(dvCur?.id!==developmentId||dvTabCur!=='overview')return;
+  const panel=document.getElementById('dv-floor-panel');
+  if(panel){
+    const active=document.activeElement,focusLabel=panel.contains(active)?active.getAttribute('aria-label'):null;
+    panel.outerHTML=dvFloorHtml(dvCur);
+    if(focusLabel)Array.from(document.querySelectorAll('#dv-floor-panel [aria-label]')).find(element=>element.getAttribute('aria-label')===focusLabel)?.focus({preventScroll:true});
+  }
+}
+function dvFloorSelect(developmentId,value){
+  const development=DEVS.find(record=>record.id===developmentId);if(!development)return;
+  const {view,floors}=dvFloorContext(development),floor=Number(value);
+  if(!floors.includes(floor))return;
+  Object.assign(view,{floor,zoom:100,editing:false,unitId:''});dvFloorRefresh(developmentId);
+  document.querySelector('#dv-floor-panel select')?.focus();
+}
+function dvFloorZoom(developmentId,delta){
+  const view=dvFloorViews[developmentId];if(!view)return;
+  view.zoom=delta?Math.max(100,Math.min(250,view.zoom+delta)):100;dvFloorRefresh(developmentId);
+}
+function dvFloorEdit(developmentId){
+  if(!dvFloorCanEdit())return;
+  const view=dvFloorViews[developmentId];if(!view)return;
+  view.editing=!view.editing;dvFloorRefresh(developmentId);
+}
+function dvFloorPlace(event,developmentId){
+  if(!dvFloorCanEdit()||event.target.closest('button'))return;
+  const development=DEVS.find(record=>record.id===developmentId);if(!development)return;
+  const {view,plan,units}=dvFloorContext(development);
+  if(!view.editing||!plan||!units.some(unit=>unit.id===view.unitId))return;
+  const bounds=event.currentTarget.getBoundingClientRect();
+  if(!bounds.width||!bounds.height)return;
+  dvFloorPosition(developmentId,(event.clientX-bounds.left)/bounds.width*100,(event.clientY-bounds.top)/bounds.height*100);
+}
+function dvFloorPosition(developmentId,horizontal,vertical){
+  if(!dvFloorCanEdit()||!Number.isFinite(horizontal)||!Number.isFinite(vertical)||horizontal<0||horizontal>100||vertical<0||vertical>100)return;
+  const development=DEVS.find(record=>record.id===developmentId);if(!development)return;
+  const {view,plan,units}=dvFloorContext(development);
+  if(!view.editing||!plan||!units.some(unit=>unit.id===view.unitId))return;
+  plan.positions[view.unitId]={x:horizontal,y:vertical};dvFloorRefresh(developmentId);
+}
+function dvFloorUnplace(developmentId){
+  if(!dvFloorCanEdit())return;
+  const development=DEVS.find(record=>record.id===developmentId);if(!development)return;
+  const {view,plan}=dvFloorContext(development);
+  if(plan&&view.editing){delete plan.positions[view.unitId];dvFloorRefresh(developmentId);}
+}
+async function dvFloorUpload(developmentId,floor,input){
+  if(!dvFloorCanEdit())return;
+  const file=input.files[0];if(!file)return;
+  const development=DEVS.find(record=>record.id===developmentId);if(!development)return;
+  let url;
+  try{
+    if(!['image/png','image/jpeg','image/webp'].includes(file.type)||!file.size||file.size>20*1024*1024)throw new Error('Choose a PNG, JPEG or WebP drawing up to 20 MB.');
+    url=URL.createObjectURL(file);
+    const image=new Image();image.src=url;await image.decode();
+    if(!dvFloorCanEdit()){URL.revokeObjectURL(url);return;}
+    const previous=development.floorPlans?.[floor];
+    if(previous&&!window.confirm('Replace this floor drawing and clear its unit markers?')){URL.revokeObjectURL(url);return;}
+    development.floorPlans=development.floorPlans||{};
+    development.floorPlans[floor]={name:file.name,url,positions:{}};
+    if(previous)URL.revokeObjectURL(previous.url);
+    const view=dvFloorViews[developmentId];
+    if(view?.floor===floor){view.zoom=100;view.editing=false;}
+    dvFloorRefresh(developmentId);
+  }catch(error){
+    if(url)URL.revokeObjectURL(url);
+    if(dvCur?.id===developmentId&&dvFloorViews[developmentId]?.floor===floor){const message=document.getElementById('dv-floor-message');if(message)message.textContent=error.message.startsWith('Choose')?error.message:'The drawing could not be opened. Choose a valid image.';}
+  }finally{input.value='';}
+}
 function dvHubAssets(development){
   const links=development.salesLinks||{},brand=DV_BRAND[development.name]||{};
   const brochure=development.files.find(file=>/brochure/i.test(file.n));
@@ -7042,6 +7138,7 @@ function dvTabHtml(d,s,deals,actDeals){
           <div style="display:flex;gap:5px;flex-wrap:wrap">${d.amen.map(a=>`<span class="tag-chip">${a}</span>`).join('')}</div>
         </div>
         ${dvHubHtml(d)}
+        ${dvFloorHtml(d)}
         <div class="dcard"><h3>Location</h3>
           <div class="dv-map"><iframe src="https://www.google.com/maps?q=${d.lat},${d.lng}&z=15&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="${d.name} location map"></iframe></div>
           <div class="kv-grid" style="grid-template-columns:repeat(2,1fr);margin-top:14px">${d.dist.map(x=>`<div class="kv"><div class="k">${x[0]}</div><div class="v">${x[1]}</div></div>`).join('')}</div>

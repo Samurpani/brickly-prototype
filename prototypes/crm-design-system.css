@@ -65,6 +65,47 @@ html[data-theme="dark"] #dealEventDialog { color-scheme:dark; }
 #dvHubDialog svg { width:14px; height:14px; }
 #dv-hub-error { color:var(--crm-error); }
 @media(max-width:600px){ .crm-resource-row { gap:6px; padding:0 4px; } .crm-resource-primary { gap:8px; } .dv-hub-icon { width:28px; height:28px; } .dv-hub-actions { gap:2px; } }
+.dv-floor-panel header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+.dv-floor-panel h3 { margin:0; }
+.dv-floor-panel select { max-width:100%; min-height:32px; padding:4px 8px; border:1px solid var(--crm-outline); border-radius:4px; background:var(--crm-surface); color:var(--crm-on-surface); font:12px var(--crm-font); }
+.dv-floor-select { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--crm-on-variant); }
+.dv-floor-legend { display:flex; gap:8px 16px; flex-wrap:wrap; margin:16px 0; }
+.dv-floor-status { display:inline-flex; align-items:center; gap:6px; font-size:11px; color:var(--crm-on-variant); }
+.dv-floor-status i { width:8px; height:8px; border-radius:50%; background:var(--floor-status-color,var(--crm-on-variant)); }
+[data-status="available"].dv-floor-status,[data-status="available"].dv-floor-pin { --floor-status-color:var(--crm-success); --floor-status-bg:var(--crm-success-container); }
+[data-status="hold"].dv-floor-status,[data-status="hold"].dv-floor-pin { --floor-status-color:var(--crm-warning); --floor-status-bg:var(--crm-warning-container); }
+[data-status="reserved"].dv-floor-status,[data-status="reserved"].dv-floor-pin { --floor-status-color:var(--crm-info); --floor-status-bg:var(--crm-info-container); }
+[data-status="sold"].dv-floor-status,[data-status="sold"].dv-floor-pin { --floor-status-color:var(--crm-on-error-container); --floor-status-bg:var(--crm-error-container); }
+.dv-floor-tools,.dv-floor-manage,.dv-floor-zoom { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.dv-floor-tools { justify-content:space-between; margin-bottom:12px; }
+.dv-floor-manage { margin-left:auto; }
+.dv-floor-tools svg { width:14px; height:14px; }
+.dv-floor-zoom > span { width:38px; text-align:center; font-size:12px; }
+.dv-floor-mapping { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:12px 0; font-size:12px; }
+.dv-floor-mapping label { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.dv-floor-mapping > span { flex-basis:100%; color:var(--crm-on-variant); }
+.dv-floor-coordinates { display:flex; align-items:flex-end; flex-wrap:wrap; gap:8px; flex-basis:100%; }
+.dv-floor-coordinates label { flex-direction:column; align-items:flex-start; gap:4px; }
+.dv-floor-coordinates input { width:86px; min-height:32px; padding:4px 8px; border:1px solid var(--crm-outline); border-radius:4px; background:var(--crm-surface); color:var(--crm-on-surface); font:12px var(--crm-font); }
+.dv-floor-viewport { max-height:480px; overflow:auto; border:1px solid var(--crm-outline); border-radius:4px; background:var(--crm-surface-lowest); }
+.dv-floor-canvas { position:relative; min-width:100%; }
+.dv-floor-canvas img { display:block; width:100%; height:auto; }
+.dv-floor-canvas.is-placing { cursor:crosshair; }
+.dv-floor-pin { position:absolute; transform:translate(-50%,-50%); display:flex; flex-direction:column; align-items:center; padding:4px 6px; min-width:68px; border:2px solid var(--floor-status-color); border-radius:4px; background:var(--floor-status-bg); color:var(--floor-status-color); font:600 11px/15px var(--crm-font); cursor:pointer; box-shadow:var(--crm-elevation-1); }
+.dv-floor-pin span { font-size:10px; font-weight:400; }
+.dv-floor-pin:hover { z-index:2; box-shadow:var(--crm-elevation-3); }
+.dv-floor-pin:focus-visible,.dv-floor-unit:focus-visible { outline:2px solid var(--crm-primary); outline-offset:3px; z-index:2; }
+.dv-floor-empty { min-height:180px; padding:24px 12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; text-align:center; background:var(--crm-surface-lowest); border:1px dashed var(--crm-outline); border-radius:4px; font-size:13px; }
+.dv-floor-empty > span:last-child { color:var(--crm-on-variant); font-size:12px; }
+.dv-floor-caption { display:block; margin:8px 0; color:var(--crm-on-variant); font-size:11px; overflow-wrap:anywhere; }
+.dv-floor-units { margin-top:12px; }
+.dv-floor-unit { display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%; padding:12px 4px; border:0; border-bottom:1px solid var(--crm-outline-variant); background:transparent; color:var(--crm-on-surface); text-align:left; font:13px var(--crm-font); cursor:pointer; }
+.dv-floor-unit:hover { background:var(--crm-surface-low); }
+.dv-floor-unit > span:first-child { min-width:0; }
+.dv-floor-unit strong { font-weight:500; }
+.dv-floor-unit small { display:block; margin-top:4px; font-size:11px; color:var(--crm-on-variant); overflow-wrap:anywhere; }
+#dv-floor-message { color:var(--crm-error); font-size:12px; margin:0; }
+@media(max-width:600px){ .dv-floor-viewport { max-height:360px; } .dv-floor-pin { min-width:56px; font-size:10px; } }
 :root {
   --crm-background: #FCFBF9;
   --crm-surface: #FFFFFF;
@@ -201,9 +242,9 @@ html[data-theme="dark"] {
 .app .crm-page-controls > .tabs { flex-wrap: wrap; min-width: 0; margin: 0; }
 .app .crm-page-controls .viewtoggle { padding: 0 12px; border: 0; border-left: 1px solid var(--outline); border-right: 1px solid var(--outline); border-radius: 0; background: transparent; }
 .app .filter-row.crm-page-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 24px; min-height: 28px; }
-.app #dv-toolbar { display: flex; flex-wrap: wrap; gap: 12px; }
-.app #dv-toolbar > .toolbar { order: -1; width: 100%; }
-.app #dv-toolbar > .crm-page-filters { width: 100%; margin: 0; }
+.app #dv-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.app #dv-toolbar > .toolbar { flex: 0 0 auto; margin-left: auto; }
+.app #dv-toolbar > .crm-page-filters { flex: 1 1 auto; width: auto; margin: 0; }
 .app .crm-filter-field {
   display: inline-flex; align-items: center; gap: 6px;
   height: 28px; padding: 0 8px; border: 1px solid var(--outline);

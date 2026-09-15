@@ -92,6 +92,93 @@ for(const theme of ['light','dark']){
   }
 }
 
+async function floorDrawingFixture(page){
+  const data=await page.evaluate(()=>{
+    const canvas=document.createElement('canvas');canvas.width=960;canvas.height=600;
+    const context=canvas.getContext('2d');context.fillStyle='#ffffff';context.fillRect(0,0,960,600);
+    context.strokeStyle='#434b48';context.lineWidth=5;context.strokeRect(40,40,880,520);
+    context.strokeRect(40,40,400,440);context.strokeRect(520,40,400,440);
+    context.strokeRect(40,40,200,200);context.strokeRect(520,40,200,200);
+    context.fillStyle='#434b48';context.font='20px sans-serif';context.fillText('TEST FLOOR DRAWING',350,535);
+    return canvas.toDataURL('image/png').split(',')[1];
+  });
+  return {name:'floor-1.png',mimeType:'image/png',buffer:Buffer.from(data,'base64')};
+}
+
+test('Development floor plans link real drawings to current floor inventory',async({page})=>{
+  await page.evaluate(()=>{curPersona='owner';openDev('dolphin');});
+  const panel=page.locator('#dv-floor-panel');
+  await expect(panel).toContainText('No drawing for ground floor');
+  await page.getByLabel('Floor plan level').selectOption('1');
+  await expect(panel.locator('.dv-floor-unit')).toHaveCount(2);
+  await expect(panel).toContainText('Sold 1');
+  await page.locator('#dv-floor-file').setInputFiles(await floorDrawingFixture(page));
+  await expect(panel.locator('.dv-floor-canvas img')).toBeVisible();
+  await page.getByRole('button',{name:'Place units',exact:true}).click();
+  await page.getByLabel('Unit to place').selectOption('#CM1105');
+  await page.getByLabel('Marker horizontal percent').fill('75');
+  await page.getByLabel('Marker vertical percent').fill('45');
+  await page.getByRole('button',{name:'Place marker',exact:true}).click();
+  const sold=panel.locator('.dv-floor-pin[data-unit-id="#CM1105"]');
+  await expect(sold).toHaveAttribute('data-status','sold');
+  await page.getByLabel('Unit to place').selectOption('#CM1201');
+  await panel.locator('.dv-floor-canvas img').click({position:{x:100,y:100}});
+  await expect(panel.locator('.dv-floor-pin')).toHaveCount(2);
+  await page.getByRole('button',{name:'Done placing'}).click();
+  await page.evaluate(()=>{UNITS.find(unit=>unit.id==='#CM1201').status='reserved';dvFloorRefresh('dolphin');});
+  await expect(panel.locator('.dv-floor-pin[data-unit-id="#CM1201"]')).toHaveAttribute('data-status','reserved');
+  await expect(panel).toContainText('Reserved 1');
+  await page.getByRole('button',{name:'Zoom in floor plan',exact:true}).click();
+  await expect(panel.locator('.dv-floor-zoom')).toContainText('125%');
+  expect(await page.evaluate(()=>DEVS.find(record=>record.id==='dolphin').floorPlans[1].positions['#CM1105'])).toEqual({x:75,y:45});
+  await page.getByLabel('Floor plan level').selectOption('2');
+  await expect(panel.locator('.dv-floor-pin')).toHaveCount(0);
+  await expect(panel).toContainText('On hold 1');
+  await page.getByLabel('Floor plan level').selectOption('1');
+  await expect(panel.locator('.dv-floor-pin')).toHaveCount(2);
+  await sold.focus();await page.keyboard.press('Enter');
+  await expect(page.locator('#unPeek')).toHaveClass(/open/);
+});
+
+test('Development floor plans reject invalid files, preserve cancelled replacements and restrict editing',async({page})=>{
+  await page.evaluate(()=>{curPersona='owner';openDev('dolphin');});
+  await page.getByLabel('Floor plan level').selectOption('1');
+  await page.locator('#dv-floor-file').setInputFiles({name:'broken.png',mimeType:'image/png',buffer:Buffer.from('not an image')});
+  await expect(page.locator('#dv-floor-message')).toContainText('could not be opened');
+  const fixture=await floorDrawingFixture(page);
+  await page.locator('#dv-floor-file').setInputFiles(fixture);
+  await expect(page.locator('.dv-floor-canvas img')).toBeVisible();
+  const original=await page.locator('.dv-floor-canvas img').getAttribute('src');
+  page.once('dialog',dialog=>dialog.dismiss());
+  await page.locator('#dv-floor-file').setInputFiles({...fixture,name:'replacement.png'});
+  await expect(page.locator('.dv-floor-canvas img')).toHaveAttribute('src',original);
+  await page.evaluate(()=>{curPersona='rep';renderDev();});
+  await expect(page.getByRole('button',{name:'Replace drawing'})).toHaveCount(0);
+  await expect(page.getByRole('button',{name:'Place units',exact:true})).toHaveCount(0);
+  await page.evaluate(()=>openDev('mercury'));
+  await expect(page.locator('.dv-floor-canvas')).toHaveCount(0);
+});
+
+for(const theme of ['light','dark']){
+  for(const width of [1440,390]){
+    test(`Development floor plans ${theme} fit ${width}`,async({page},testInfo)=>{
+      await page.setViewportSize({width,height:900});
+      await page.evaluate(theme=>{curPersona='owner';document.documentElement.dataset.theme=theme;openDev('dolphin');},theme);
+      await page.getByLabel('Floor plan level').selectOption('1');
+      await page.locator('#dv-floor-file').setInputFiles(await floorDrawingFixture(page));
+      await expect(page.locator('.dv-floor-canvas img')).toBeVisible();
+      await page.evaluate(()=>{const view=dvFloorViews.dolphin;view.editing=true;view.unitId='#CM1105';dvFloorPosition('dolphin',75,45);view.unitId='#CM1201';dvFloorPosition('dolphin',25,45);view.editing=false;dvFloorRefresh('dolphin');});
+      const panel=page.locator('#dv-floor-panel');
+      const bounds=await panel.boundingBox();expect(bounds.x+bounds.width).toBeLessThanOrEqual(width+1);
+      expect(await panel.evaluate(element=>element.scrollWidth<=element.clientWidth)).toBe(true);
+      await panel.screenshot({path:testInfo.outputPath('development-floor-plan.png')});
+      await page.getByRole('button',{name:'Place units',exact:true}).click();
+      expect(await panel.evaluate(element=>element.scrollWidth<=element.clientWidth)).toBe(true);
+      await panel.screenshot({path:testInfo.outputPath('development-floor-mapping.png')});
+    });
+  }
+}
+
 async function openPaymentDeal(page,step=3){
   await page.evaluate(step=>{
     const opportunity=dealOpp(DEALS[0]);
@@ -507,6 +594,13 @@ test('CRM development gallery shares selection with Present and keeps actions ri
     const controls=await page.locator('#dv-toolbar').boundingBox();
     const present=await page.locator('#dv-present').boundingBox();
     expect(Math.abs(controls.x+controls.width-present.x-present.width)).toBeLessThanOrEqual(1);
+    if(width===1440){
+      const presentCenter=present.y+present.height/2;
+      for(const control of await page.locator('#dv-filter-row > .crm-filter-field, #dv-toolbar .viewtoggle button').all()){
+        const bounds=await control.boundingBox();
+        expect(Math.abs(bounds.y+bounds.height/2-presentCenter)).toBeLessThanOrEqual(1);
+      }
+    }
     const overflow=await page.locator('#p-developments').evaluate(node=>node.scrollWidth-node.clientWidth);
     expect(overflow).toBeLessThanOrEqual(1);
     await page.locator('.dv-card-name').first().click();
