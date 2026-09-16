@@ -3,6 +3,9 @@
 The v2 prototype loads `prototypes/crm-design-system.css` after its embedded
 styles. This stylesheet maps the existing CRM components to Bricly DS 1.2.
 
+Page header anatomy, variants and interaction rules are specified in
+[page-header.md](page-header.md).
+
 ## Sources
 
 - Figma file `HcWhi0kT0jK5RYoGDjt6g2`, Components page `6917:2148`.
@@ -75,6 +78,17 @@ which writes the same single rule.
 
 ### Filter dropdown contents (`.fd-item`, `.fd-list`, `.fd-search`)
 
+The shared `.fd-operator` header uses a 260 x 36px border box, 8px padding,
+4px corners and the Surface Container Low background. Its label is Inter
+500 12px/16px with -0.15px tracking and On Surface text. The popover is 278px
+wide including 8px padding and its border, constrained on narrow screens.
+The header describes the current selection rule; its chevron is decorative,
+not a new operator picker. The original `.fm-label` text remains unchanged
+inside it because field shortcuts match that text to open the correct group.
+Filter options retain their own typography, with 36px minimum rows and
+selection shown by the checkbox or checkmark rather than a filled row.
+Sort rows retain their existing dimensions and have no operator header.
+
 Filter menu bodies no longer use free-standing `.fm-opt` pills; each
 `.fm-group` renders a `.fd-list` of `.fd-item` rows via the shared `fdGroup()`
 helper — a checkbox on the left for multi-select fields, a checkmark on the
@@ -110,6 +124,70 @@ The development Marketing & Sales Hub is the reference implementation. Group
 Website, Instagram and Facebook under Online presence; brochures, availability
 and commercial terms under Sales documents; floor plans, imagery and Present
 Mode under Visuals & presentations.
+
+## Development, Unit and Deal Entry
+
+The v2 prototype loads `prototypes/admin-workflows.js` after its core CRM
+scripts. It reuses the CRM tokens and native dialog behavior for staged forms.
+Owner is the Admin persona for these workflows. Permission checks run both at
+entry and at submission; switching personas closes an open workflow.
+
+| Surface | Action | Access | Result |
+| --- | --- | --- | --- |
+| Developments overview | Add development | Owner, Manager | Setup request under an existing agreement |
+| Development detail | Edit development | Owner | Details and render library updated on Save |
+| Development detail / Units overview | Add unit | Owner | Off-market draft, or explicitly published unit |
+| Unit detail | Edit unit | Owner | Specifications, media and mapping updated on Save |
+| Deals overview | Add deal: existing opportunity | Owner, Manager, own opportunities for Rep | POS conversion with existing history retained |
+| Deals overview | Add deal: external | Owner, Manager | Historical or ongoing signed-POS deal with source attribution |
+
+### Development Intake
+
+Development details and setup contact -> source files/links and missing-data
+notes -> existing-agreement review and confirmation. Submission creates a
+`Submitted - scope review` request, not a live development and not a charge.
+Scope outside the agreement requires separate approval before fulfillment.
+Drafts and submitted requests can be reopened from the overview request list.
+
+### Unit Readiness and Editing
+
+Unit details -> mapping -> images/unit floorplan -> review. A unit must belong
+to an existing development and have a unique unit reference. Saving a draft
+keeps it `off_market`. Publishing requires the same Owner to confirm either
+the marker on the appropriate floor drawing or a no-floorplan exemption with
+a reason. A unit-specific PDF/image is distinct from its position on the
+development's floor drawing. Replacing a shared drawing invalidates stored
+mapping confirmations and takes affected available units off market.
+
+The unit editor stages uploads and changes until Save. List-price edits do
+not rewrite signed deal prices. Development/unit identity keys remain read-only;
+the current demo joins records by development name and unit reference. Moving
+a live unit or renaming those identities requires a separate migration flow.
+
+### Deal Entry
+
+Choose source -> buyer and contracted unit -> dated milestones/evidence ->
+confirm inventory effects. Linking converts only the selected contracted unit;
+the previous shortlist is retained as conversion metadata. Existing contacts
+are reused; matching phone, email or name blocks accidental new contacts.
+An existing deal on the same unit blocks another entry. Reconciliation of
+held/reserved/sold external inventory requires an explicit reason.
+
+POS entry reserves the unit. Recorded final deed marks it sold and removes it
+from other open opportunity shortlists, adding activity for those reps. Final
+deed and commission receipt are independent facts. External entry does not
+invent buyer receipts, bank/notary milestones, selling history or consent.
+Unknown evidence can be noted for later collection. Deal drafts are resumable.
+
+### Prototype Boundary
+
+All workflow data, draft lists, audit entries and uploaded object URLs are
+held in the current browser session and are lost on reload. No setup request
+is sent to Bricly, no agreement entitlement is verified, and no payment is
+taken. Production needs durable workspace-scoped storage, authenticated server
+authorization, upload scanning/storage, a setup fulfillment queue, agreement
+coverage validation and transactional uniqueness/inventory checks. The local
+role checks are prototype behavior, not a server security boundary.
 
 ## Validation
 

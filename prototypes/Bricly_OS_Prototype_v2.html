@@ -917,6 +917,17 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
 /* Toast */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--on-surface);color:var(--bg);border-radius:8px;padding:9px 16px;font-size:13px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:200;white-space:nowrap;box-shadow:var(--sh-lg)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.selection-toast{left:auto;right:16px;top:80px;bottom:auto;max-width:calc(100vw - 32px);box-sizing:border-box;white-space:normal;transform:translateY(-10px)}
+.toast.selection-toast.show{transform:translateY(0)}
+#unLink{max-width:100vw}
+#un-link-results .lu-row{width:100%;text-align:left;background:transparent;color:inherit;font:inherit;border-width:0 0 1px;border-color:var(--outline)}
+#un-link-results .lu-row span{overflow-wrap:anywhere}
+.nf-menu{border:1px solid var(--outline);border-radius:8px;background:var(--surface);padding:8px;max-height:260px;overflow:auto;margin-top:6px}
+.nf-menu[hidden]{display:none}
+.nf-picker summary{display:list-item;width:100%;white-space:normal;overflow-wrap:anywhere;box-sizing:border-box;cursor:pointer}
+.nf-menu .fd-item{width:100%;text-align:left;white-space:normal;overflow-wrap:anywhere}
+#oppDrawer{max-width:100vw}
+#oppFormBody .od-field{min-width:0}
 
 /* ---------- Ask panel (drawer) ---------- */
 .ask-panel{position:fixed;top:0;right:0;bottom:0;width:340px;background:var(--surface);border-left:1px solid var(--outline);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .22s cubic-bezier(.4,0,.2,1);z-index:50;box-shadow:var(--sh-xl)}
@@ -1517,7 +1528,7 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
   <!-- ============ SIDEBAR ============ -->
   <aside class="sidebar" id="sidebar">
     <div class="sb-top">
-      <div class="logo">Bricly</div>
+      <div class="logo"><img class="crm-brand-logo" src="assets/bricly-logo.svg" alt="Bricly" width="110" height="33"></div>
       <div class="ws-wrap">
         <button class="ws" onclick="wsToggleMenu(event)" title="Switch workspace">
           <span class="ws-dot"></span><span class="ws-name">Bricly OS</span>
@@ -1601,7 +1612,7 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
       <!-- ===== PIPELINE ===== -->
       <section class="page" id="p-pipeline">
         <div class="wrap">
-          <div class="crm-page-heading"><div class="page-title">Pipeline</div></div>
+          <div class="crm-page-heading"><div class="page-title">Opportunities</div></div>
           <div class="row-between crm-page-controls">
             <div class="tabs">
               <button class="tab on" onclick="setPipeSeg('all',this)">All Items</button>
@@ -1616,6 +1627,8 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
                 <input id="pipe-search" placeholder="Search leads, developments, IDs" oninput="setPipeSearch(this.value)">
               </div>
               <button class="tool" title="Search" onclick="togglePipeSearch()"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg></button>
+              <button class="tool" title="Sort" onclick="sortOpen('pipeline',event)"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 3.5h10M2 7h7M2 10.5h4"/></svg></button>
+              <button class="tool" title="Reverse sort order" onclick="sortFlip('pipeline')"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4.5 11.5v-9M4.5 2.5L2 5M4.5 2.5L7 5M9.5 2.5v9M9.5 11.5L7 9M9.5 11.5L12 9"/></svg></button>
               <button class="btn-ghost" id="pipe-closed-vis" style="font-size:12px;padding:5px 10px" onclick="togglePipeClosed()">Hide closed</button>
               <div class="viewtoggle">
                 <button id="vt-table" onclick="setPipeView('table')" title="Table"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="2.5" width="11" height="9" rx="1.5"/><path d="M1.5 5.5h11M5.5 5.5v6"/></svg></button>
@@ -1660,7 +1673,7 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
       <!-- ===== OPPORTUNITY DETAIL ===== -->
       <section class="page" id="p-opp">
         <div class="wrap">
-          <button class="btn-back" onclick="go('pipeline')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8.5 3L4 7l4.5 4"/></svg>Back to Pipeline</button>
+          <button class="btn-back" onclick="go('pipeline')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8.5 3L4 7l4.5 4"/></svg>Back to Opportunities</button>
           <div id="opp-root"></div>
         </div>
       </section>
@@ -1698,6 +1711,8 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
                 <input id="dl-search" placeholder="Search buyers, units, deal IDs" oninput="dlSetSearch(this.value)">
               </div>
               <button class="tool" title="Search" onclick="dlToggleSearch()"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg></button>
+              <button class="tool" title="Sort" onclick="sortOpen('deals',event)"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 3.5h10M2 7h7M2 10.5h4"/></svg></button>
+              <button class="tool" title="Reverse sort order" onclick="sortFlip('deals')"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4.5 11.5v-9M4.5 2.5L2 5M4.5 2.5L7 5M9.5 2.5v9M9.5 11.5L7 9M9.5 11.5L12 9"/></svg></button>
             </div>
           </div>
           <div class="filter-row crm-page-filters" id="dl-filter-row">
@@ -1778,10 +1793,13 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
                 <button class="tab" onclick="histFilterScope('chats',this)">Chats</button>
                 <button class="tab" onclick="histFilterScope('tasks',this)">Tasks</button>
               </div>
-              <div class="toolbar"><div class="hist-search">
+              <div class="toolbar"><div class="hist-search" id="hist-search-wrap" style="display:none">
                 <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg>
                 <input id="histSearch" placeholder="Search chats & tasks…" oninput="renderHistory()">
               </div>
+              <button class="tool" title="Search" onclick="histToggleSearch()"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg></button>
+              <button class="tool" title="Sort" onclick="sortOpen('chats',event)"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 3.5h10M2 7h7M2 10.5h4"/></svg></button>
+              <button class="tool" title="Reverse sort order" onclick="sortFlip('chats')"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4.5 11.5v-9M4.5 2.5L2 5M4.5 2.5L7 5M9.5 2.5v9M9.5 11.5L7 9M9.5 11.5L12 9"/></svg></button>
               <button class="btn-primary" onclick="chatNew()" style="font-size:12px;padding:5px 12px">+ New chat</button>
               </div>
           </div>
@@ -1820,11 +1838,13 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
           <div class="crm-page-controls">
             <div class="tabs" id="un-tabs"></div>
             <div class="toolbar">
-              <div class="pipe-search-wrap">
+              <div class="pipe-search-wrap" id="un-search-wrap" style="display:none">
                 <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg>
                 <input id="un-search" placeholder="Search unit, development, type" oninput="unSetSearch(this.value)">
               </div>
-              <button class="btn-ghost" onclick="showToast('Availability list exported')">Export list</button>
+              <button class="tool" title="Search" onclick="unToggleSearch()"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg></button>
+              <button class="tool" title="Sort" onclick="sortOpen('units',event)"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 3.5h10M2 7h7M2 10.5h4"/></svg></button>
+              <button class="tool" title="Reverse sort order" onclick="sortFlip('units')"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4.5 11.5v-9M4.5 2.5L2 5M4.5 2.5L7 5M9.5 2.5v9M9.5 11.5L7 9M9.5 11.5L12 9"/></svg></button>
             </div>
           </div>
           <div class="filter-row crm-page-filters" id="un-filter-row">
@@ -1875,7 +1895,7 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
           <div class="crm-page-heading">
             <div class="page-title">Developments</div>
           </div>
-          <div class="dv-toolbar crm-page-controls" id="dv-toolbar"></div>
+          <div id="dv-toolbar"></div>
           <div class="dv-grid" id="dv-grid"></div>
         </div>
       </section>
@@ -1896,10 +1916,13 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
           <div class="row-between crm-page-controls">
             <div class="tabs" id="ct-tabs"></div>
             <div class="toolbar">
-              <div class="pipe-search-wrap">
+              <div class="pipe-search-wrap" id="ct-search-wrap" style="display:none">
                 <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg>
                 <input id="ct-search" placeholder="Search name, email, phone, company" oninput="ctSetSearch(this.value)">
               </div>
+              <button class="tool" title="Search" onclick="ctToggleSearch()"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg></button>
+              <button class="tool" title="Sort" onclick="sortOpen('contacts',event)"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 3.5h10M2 7h7M2 10.5h4"/></svg></button>
+              <button class="tool" title="Reverse sort order" onclick="sortFlip('contacts')"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4.5 11.5v-9M4.5 2.5L2 5M4.5 2.5L7 5M9.5 2.5v9M9.5 11.5L7 9M9.5 11.5L12 9"/></svg></button>
               <button class="btn-ghost" onclick="ctExport()">Export CSV</button>
               <button class="btn-primary" onclick="ctOpenNew()">New contact</button>
             </div>
@@ -2785,6 +2808,7 @@ function money(o){
   const commit = COMMIT_STAGES.includes(o.stage);
   return commit ? {label:'Offer', amt:o.value, approx:false} : {label:'Budget', amt:o.budget, approx:true};
 }
+function moneyText(o){const amount=money(o);return amount.amt==null?'Not specified':`${amount.approx?'~':''}€${amount.amt}k`;}
 // Total no-show attempts across viewing + signing appointments (kept even after rebooking).
 function noShowCount(o){const n=o.noShows;return n?(n.appt||0)+(n.contract||0):0;}
 // Card status chip: no-show tally, lost reason, or nurture note.
@@ -2834,7 +2858,7 @@ function dealPaymentStatus(payment){
 }
 function dealCash(o){
   const x=EXT[o.id], total=o.value*1000;
-  if(x&&x.payments){
+  if(x&&x.payments?.length){
     const t=x.payments.reduce((s,p)=>s+p.amt,0);
     return {paid:Math.round(x.payments.reduce((sum,payment)=>sum+dealReceived(payment),0)*100)/100,total:t};
   }
@@ -3033,7 +3057,8 @@ function fdGroup(label,options,isSelected,mkOnclick,opts={}){ // one .fm-group: 
     return opts.radio?fdRadioItem(text,checked,onclick):fdCheckItem(text,checked,onclick);
   }).join('');
   const search=options.length>=8?fdSearchHtml(`Search ${label.toLowerCase()}`):'';
-  return `<div class="fm-group"><div class="fm-label">${label}</div>${search}<div class="fd-list">${items}</div></div>`;
+  const operator=opts.operator??(opts.radio?'is':'is any of');
+  return `<div class="fm-group"><div class="fd-operator"><span class="fd-operator-title"><span class="fm-label">${label}</span>${operator?` <span>${operator}</span>`:''}</span><span class="fd-chevron" aria-hidden="true"></span></div>${search}<div class="fd-list">${items}</div></div>`;
 }
 
 // ---------- Shared: multi-rule sort (trigger chip + popover) ----------
@@ -3094,6 +3119,12 @@ function sortPick(key,prop,dir){
   const m=document.getElementById(st.menuId); if(m) m.style.display='none';
   sortSyncTrigger(key);
   st.onchange();
+}
+function sortFlip(key){
+  const st=SORT_PAGES[key];
+  const r=st.rules[0];
+  if(!r) return;
+  sortPick(key,r.prop,r.dir==='asc'?'desc':'asc');
 }
 document.addEventListener('click',e=>{
   Object.values(SORT_PAGES).forEach(st=>{
@@ -3159,7 +3190,7 @@ function filteredOpps(){
     if(pipeF.dev.length && !pipeF.dev.some(d=>o.devs.includes(d))) return false;
     if(pipeF.rep.length && !pipeF.rep.includes(o.rep)) return false;
     if(pipeF.source.length && !pipeF.source.includes(o.source)) return false;
-    if(pipeF.budgetMax.length && !pipeF.budgetMax.some(b=>money(o).amt<=b)) return false;
+    if(pipeF.budgetMax.length && (money(o).amt==null||!pipeF.budgetMax.some(b=>money(o).amt<=b))) return false;
     if(pipeF.tags.length && !pipeF.tags.every(t=>o.tags.includes(t))) return false;
     if(pipeF.q){
       const hay=(o.lead+' '+o.devs.join(' ')+' '+o.id+' '+o.units.join(' ')).toLowerCase();
@@ -3169,7 +3200,7 @@ function filteredOpps(){
   });
   return list.slice().sort(sortComparator('pipeline'));
 }
-function unitLabel(o){return o.units.length>1?o.units.length+' units':o.units[0];}
+function unitLabel(o){return o.units.length>1?o.units.length+' units':o.units[0]||'Not specified';}
 // Buyer type dictates the sales process; shown across all opportunities.
 const CR_BUYER_TYPES=['First home','Investment property','Second home','Relocation'];
 function buyerTypeFor(o){
@@ -3208,7 +3239,7 @@ function renderRows(){
       <td class="cell-id">${unitLabel(o)}</td>
       <td><span class="pill ${STAGE_PILL[o.stage]}">${o.stage}</span></td>
       <td>${o.source}</td>
-      <td class="cell-strong">${money(o).approx?'~':''}€${money(o).amt}k <span class="money-lbl">${money(o).label}</span></td>
+      <td class="cell-strong">${moneyText(o)} <span class="money-lbl">${money(o).label}</span></td>
     </tr>`;}).join('');
   const foot=document.getElementById('pipe-count');
   if(foot) foot.textContent = `Showing ${list.length} of ${OPPS.length} entries`;
@@ -3233,7 +3264,7 @@ function renderBoard(){
         <div class="card" draggable="true" ondragstart="cardDragStart(event,'${o.id}')" ondragend="cardDragEnd(event)" onclick="openOpp('${o.id}')">
           <div class="card-head">${o.lead}</div>
           ${noShowBadgeHtml(o)}
-          <div class="card-row"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 2v10M4 4h4.5a1.5 1.5 0 010 3H4M4 7h5"/></svg>${money(o).approx?'~':''}€${money(o).amt}k<span class="money-lbl">${money(o).label}</span></div>
+          <div class="card-row"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 2v10M4 4h4.5a1.5 1.5 0 010 3H4M4 7h5"/></svg>${moneyText(o)}<span class="money-lbl">${money(o).label}</span></div>
           <div class="card-row"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="3" width="10" height="8" rx="1"/></svg>${unitLabel(o)}</div>
           <div class="card-row trunc ${EXT[o.id]&&EXT[o.id].next&&EXT[o.id].next.overdue?'overdue':''}" title="${o.next.t}"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="3" width="10" height="9" rx="1.5"/><path d="M2 6h10"/></svg>${o.next.d} · ${o.next.t}</div>
           ${EXT[o.id]&&EXT[o.id].date?`<div class="card-row ${EXT[o.id].date.tone==='bad'?'overdue':''}"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 2"/></svg>${EXT[o.id].date.label} · ${EXT[o.id].date.in||EXT[o.id].date.value}</div>`:''}
@@ -3337,12 +3368,52 @@ function renderActiveFilters(){
 }
 
 // ---------- Search ----------
+function crmToggleHeaderSearch(id,forceOpen,focus=true){
+  const field=document.getElementById(id),input=field.querySelector('input');
+  let control=field.closest('.crm-header-search');
+  if(!control){
+    const button=field.nextElementSibling;
+    control=document.createElement('div');control.className='crm-header-search';
+    field.before(control);control.append(button,field);
+    field.classList.add('pipe-search-wrap');
+    field.style.removeProperty('display');
+    field.querySelector('svg')?.remove();
+    button.setAttribute('aria-controls',input.id);
+    input.setAttribute('aria-label',input.placeholder);
+    input.addEventListener('keydown',event=>{
+      if(event.key==='Escape'){event.preventDefault();event.stopPropagation();crmToggleHeaderSearch(id);}
+    });
+    control.getBoundingClientRect();
+  }
+  const toolbar=control.parentElement,row=toolbar.closest('.crm-page-controls');
+  const controlBounds=control.getBoundingClientRect();
+  const siblings=[...toolbar.children].filter(element=>{
+    const bounds=element.getBoundingClientRect();
+    return element!==control&&bounds.width>0&&bounds.top<controlBounds.bottom&&bounds.bottom>controlBounds.top;
+  });
+  const gap=parseFloat(getComputedStyle(toolbar).columnGap)||0;
+  const occupied=siblings.reduce((total,element)=>total+element.getBoundingClientRect().width,0)+siblings.length*gap;
+  const rowBounds=row.getBoundingClientRect(),toolbarBounds=toolbar.getBoundingClientRect();
+  const tabs=row.querySelector(':scope > .tabs')?.getBoundingClientRect();
+  const inlineTabs=tabs&&tabs.bottom>toolbarBounds.top&&tabs.top<toolbarBounds.bottom;
+  const available=inlineTabs?rowBounds.right-tabs.right-(parseFloat(getComputedStyle(row).columnGap)||0):rowBounds.width;
+  control.style.setProperty('--search-max-width',Math.max(32,Math.min(180,Math.floor(available-occupied)))+'px');
+  const expanded=typeof forceOpen==='boolean'?control.classList.toggle('is-open',forceOpen):control.classList.toggle('is-open');
+  const button=control.querySelector('button');
+  button.setAttribute('aria-expanded',String(expanded));
+  button.setAttribute('aria-label',expanded?'Close search':'Search');
+  field.inert=!expanded;
+  if(expanded){if(focus)input.focus({preventScroll:true});}
+  else{input.value='';input.dispatchEvent(new Event('input',{bubbles:true}));if(focus)button.focus({preventScroll:true});}
+}
+document.addEventListener('pointerdown',event=>{
+  document.querySelectorAll('.crm-header-search.is-open').forEach(control=>{
+    const field=control.querySelector('.pipe-search-wrap');
+    if(!control.contains(event.target)&&!field.querySelector('input').value.trim())crmToggleHeaderSearch(field.id,false,false);
+  });
+},true);
 function togglePipeSearch(){
-  const w=document.getElementById('pipe-search-wrap');
-  const show = w.style.display==='none';
-  w.style.display = show?'flex':'none';
-  if(show) document.getElementById('pipe-search').focus();
-  else { document.getElementById('pipe-search').value=''; setPipeSearch(''); }
+  crmToggleHeaderSearch('pipe-search-wrap');
 }
 function setPipeSearch(v){ pipeF.q=v; pipeRenderAll(); }
 
@@ -3416,6 +3487,7 @@ function dlOnNav(page){ if(page==='deals') renderDeals(); }
 function openDealForOpp(oppId){ const d=dealFor(oppId); if(d) openDeal(d.id); else openOpp(oppId); }
 
 function renderDeals(){
+  if(typeof awOverviewActions==='function')awOverviewActions();
   const rowsEl=document.getElementById('deals-rows'); if(!rowsEl) return;
   const all=DEALS.map(d=>({d,o:dealOpp(d)})).filter(r=>r.o);
   const act=all.filter(r=>!dealDone(r.o));
@@ -3429,9 +3501,9 @@ function renderDeals(){
       <div class="csum"><div class="v">€${Math.round(out/1000)}k</div><div class="l">Outstanding to deed</div></div>
       <div class="csum"><div class="v">€${comm.toFixed(1)}k</div><div class="l">Commissions pending</div></div>
     </div>`;
-  document.getElementById('dl-tabs').innerHTML=[['all','All Deals'],['active','In Progress'],['done','Completed']].map(([k,l])=>{
+  document.getElementById('dl-tabs').innerHTML=[['all','All Items'],['active','In progress'],['done','Completed']].map(([k,l])=>{
     const n=k==='all'?all.length:all.filter(r=>(k==='done')===dealDone(r.o)).length;
-    return `<button class="tab ${dlTab===k?'on':''}" onclick="dlSetTab('${k}')">${l} <span style="color:var(--muted);font-weight:400">${n}</span></button>`;
+    return `<button class="tab ${dlTab===k?'on':''}" onclick="dlSetTab('${k}')">${l}${k==='all'?'':` <span style="color:var(--muted);font-weight:400">${n}</span>`}</button>`;
   }).join('');
   let list=all;
   if(dlTab==='active') list=list.filter(r=>!dealDone(r.o));
@@ -3463,11 +3535,7 @@ function renderDeals(){
 }
 function dlSetTab(k){dlTab=k;renderDeals();}
 function dlToggleSearch(){
-  const w=document.getElementById('dl-search-wrap');
-  const show=w.style.display==='none';
-  w.style.display=show?'flex':'none';
-  if(show) document.getElementById('dl-search').focus();
-  else { document.getElementById('dl-search').value=''; dlSetSearch(''); }
+  crmToggleHeaderSearch('dl-search-wrap');
 }
 function dlSetSearch(v){dlF.q=v;renderDeals();}
 // ---- Filter popover (inline, anchored under the clicked field chip) ----
@@ -3735,8 +3803,8 @@ function dealRailHtml(o,x,d){
   <div class="dcard">
     <div class="row-between" style="margin-bottom:14px"><div class="side-h" style="margin:0">Contact</div>${ownsFor(o.lead).length&&!isCompleted(o)?'<span class="own-badge">Repeat client</span>':''}</div>
     <div class="rep"><div class="avatar">${initials(o.lead)}</div><div><div style="font-size:13.5px;font-weight:600">${o.lead}</div><div style="font-size:12px;color:var(--muted)">${b.type||'Buyer'}</div></div></div>
-    <div class="side-kv"><div class="k">Email</div><div class="v">${b.email||ctSlug(o.lead)+'@email.com'}</div></div>
-    <div class="side-kv"><div class="k">Phone</div><div class="v">${b.phone||'+356 9912 3456'}</div></div>
+    <div class="side-kv"><div class="k">Email</div><div class="v">${b.email||(o.origin==='external'?'Not recorded':ctSlug(o.lead)+'@email.com')}</div></div>
+    <div class="side-kv"><div class="k">Phone</div><div class="v">${b.phone||(o.origin==='external'?'Not recorded':'+356 9912 3456')}</div></div>
     <div class="side-kv" style="margin:0"><div class="k">Assigned rep</div><div class="v">${o.rep}</div></div>
     ${ct?`<button class="btn-ghost" style="width:100%;margin-top:12px;justify-content:center" onclick="openContact('${ct.id}')">Open contact</button>`:''}
   </div>
@@ -3744,8 +3812,8 @@ function dealRailHtml(o,x,d){
     <div class="side-h">Originating opportunity</div>
     <div class="side-kv"><div class="k">Opportunity</div><div class="v">${o.id} · ${o.source}</div></div>
     <div class="side-kv"><div class="k">POS signed</div><div class="v">${d.pos}</div></div>
-    ${x.bids?`<div class="side-kv"><div class="k">Offer rounds</div><div class="v">${x.bids.length} — final ${x.bids[x.bids.length-1].amt}</div></div>`:''}
-    <button class="btn-ghost" style="width:100%;margin-top:4px;justify-content:center" onclick="openOpp('${o.id}')">View selling history</button>
+    ${x.bids?.length?`<div class="side-kv"><div class="k">Offer rounds</div><div class="v">${x.bids.length} — final ${x.bids[x.bids.length-1].amt}</div></div>`:''}
+    ${o.origin==='external'?'<p class="deal-muted">Recorded externally. No prior selling activity in Bricly.</p>':`<button class="btn-ghost" style="width:100%;margin-top:4px;justify-content:center" onclick="openOpp('${o.id}')">View selling history</button>`}
   </div>
   ${x.keyDates?`<div class="dcard"><div class="side-h">Key dates</div>${x.keyDates.map(k=>`<div class="side-kv"><div class="k">${k.label}</div><div class="v">${k.value}${k.in?` <span style="color:${k.tone==='bad'?'#c23b3e':'var(--muted)'};font-weight:400;font-size:12px">· ${k.in}</span>`:''}</div></div>`).join('')}</div>`:''}
   ${portfolioCardHtml(o.lead)}`;
@@ -3814,6 +3882,7 @@ function dealMilestoneSave(target){
     if(!record||record.id!==context.milestoneId)throw new Error('Record this milestone before advancing.');
     if(!document.getElementById('de-ack')?.checked)throw new Error('Confirm the stage change before advancing.');
     closed.step=step+1;
+    if(step===3&&typeof awDealInventory==='function')awDealInventory(opportunity,'sold');
     if(closed.step===5)opportunity.completed={date:milestones[3]?.date||record.date||'Date not recorded'};
     dealEventLog(target,'Stage confirmed: '+CLOSED_STEPS[step]+' complete; '+(CLOSED_STEPS[step+1]||'deal completed'));return true;
   }
@@ -4058,6 +4127,9 @@ function histFilterScope(scope,el){
   document.querySelectorAll('#histTabs .tab').forEach(t=>t.classList.remove('on'));
   if(el) el.classList.add('on');
   renderHistory();
+}
+function histToggleSearch(){
+  crmToggleHeaderSearch('hist-search-wrap');
 }
 sortRegister('chats',{
   triggerId:'hist-sort-trigger', menuId:'hist-sort-menu',
@@ -4340,9 +4412,10 @@ function aiRespond(text){
 }
 
 // --- Toast ---
-function showToast(msg){
+function showToast(msg,placement='default'){
   let t=document.getElementById('briclyToast');
   if(!t){t=document.createElement('div');t.id='briclyToast';t.className='toast';document.body.appendChild(t);}
+  t.classList.toggle('selection-toast',placement==='selection');t.setAttribute('role','status');
   t.textContent=msg; t.classList.add('show');
   clearTimeout(t._tid); t._tid=setTimeout(()=>t.classList.remove('show'),2800);
 }
@@ -4625,6 +4698,7 @@ function renderLetter(){
 
 function setPersona(p,btn){
   curPersona=p;closeRoom();closeEv();
+  if(typeof awRoleChanged==='function')awRoleChanged();
   document.querySelectorAll('.persona-seg button').forEach(b=>b.classList.toggle('on',b.dataset.p===p));
   const P=PERSONAS[p];
   document.getElementById('uAv').textContent=P.av;
@@ -4871,7 +4945,7 @@ function openOpp(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.getElementById('p-opp').classList.add('on');
   document.querySelectorAll('.ni').forEach(n=>n.classList.toggle('on',n.dataset.page==='pipeline'));
-  document.getElementById('crumb').innerHTML=`<a onclick="go('pipeline')">Pipeline</a><span class="sep">/</span><span class="cur">${xesc(oppCur.lead)}</span>`;
+  document.getElementById('crumb').innerHTML=`<a onclick="go('pipeline')">Opportunities</a><span class="sep">/</span><span class="cur">${xesc(oppCur.lead)}</span>`;
   oppFeedF='all'; oppTabB='activity'; oppArchOpen=false;
   renderOpp();
   document.getElementById('content').scrollTop=0;
@@ -4963,8 +5037,8 @@ function heroHtml(o,x,ji){
     <div class="now-strip">
       <div class="now-cell deal-info">
         <div class="k">${m.label}</div>
-        <div class="v">${m.approx?'~':''}€${m.amt}k</div>
-        <div class="d"><span class="proj-ic" style="background:${PROJ_IC[o.devs[0]]||'#657A32'};display:inline-flex;width:12px;height:12px;border-radius:3px;font-size:8px;align-items:center;justify-content:center;color:#fff;margin-right:4px;vertical-align:-2px">◈</span>${o.devs[0]} · ${unitLabel(o)}</div>
+        <div class="v">${moneyText(o)}</div>
+        <div class="d"><span class="proj-ic" style="background:${PROJ_IC[o.devs[0]]||'#657A32'};display:inline-flex;width:12px;height:12px;border-radius:3px;font-size:8px;align-items:center;justify-content:center;color:#fff;margin-right:4px;vertical-align:-2px">◈</span>${o.devs[0]||'Not specified'} · ${unitLabel(o)}</div>
       </div>
       <div class="now-cell">
         <div class="k">Next action</div>
@@ -5071,13 +5145,7 @@ function portfolioCardHtml(name){
 }
 function newOppFor(name){
   const src=OPPS.find(o=>o.lead===name);
-  openNewOpp();
-  setTimeout(()=>{
-    const lead=document.getElementById('nf-lead'); if(lead)lead.value=name;
-    if(src){const rep=document.getElementById('nf-rep'); if(rep&&[...rep.options].some(o=>o.value===src.rep))rep.value=src.rep;}
-    const srcSel=document.getElementById('nf-source'); if(srcSel){const opt=[...srcSel.options].find(o=>/repeat/i.test(o.value)); if(opt)srcSel.value=opt.value;}
-    const tagBtn=document.querySelector('#nf-tags .fm-opt[data-tag="Repeat Client"]'); if(tagBtn)tagBtn.classList.add('on');
-  },130);
+  openNewOpp({contactId:CONTACTS.find(contact=>contact.name===name)?.id,rep:src?.rep,tags:['Repeat Client']});
 }
 function oppTabsHtml(){
   const t=oppTabB;
@@ -5135,13 +5203,13 @@ function railHtml(o,x,ji){
     <div class="rep"><div class="avatar">${initials(o.lead)}</div><div><div style="font-size:13.5px;font-weight:600">${o.lead}</div><div style="font-size:12px;color:var(--muted)">${b.type||'Buyer'}</div></div></div>
     <div class="side-kv"><div class="k">Email</div><div class="v">${b.email||o.lead.toLowerCase().replace(/\s+/g,'.')+'@email.com'}</div></div>
     <div class="side-kv"><div class="k">Phone</div><div class="v">${b.phone||'+356 9912 3456'}</div></div>
-    <div class="side-kv"><div class="k">Budget</div><div class="v">~€${o.budget}k</div></div>
+    <div class="side-kv"><div class="k">Budget</div><div class="v">${o.budget==null?'Not specified':'~€'+o.budget+'k'}</div></div>
     <div class="side-kv" style="margin:0"><div class="k">Assigned rep</div><div class="v">${o.rep}</div></div>
   </div>
   ${portfolioCardHtml(o.lead)}
   <div class="dcard">
     <div class="side-h">Linked units</div>
-    ${o.units.map((u,i)=>{const cfg=x.unitConfigs&&x.unitConfigs[u];return `<div class="lu-row" ${typeof UN==='function'&&UN(u)?`style="cursor:pointer" onclick="openUnPeek('${u}')"`:''}><span class="cell-id">${u}</span><span class="proj"><span class="proj-ic" style="background:${PROJ_IC[o.devs[i]||o.devs[0]]||'#657A32'}">◈</span>${o.devs[i]||o.devs[0]}${cfg?`<div style="font-size:11px;color:var(--muted);margin-top:2px">${cfg.fin} \u00b7 ${cfg.lay}${cfg.adds.length?' + '+cfg.adds.join(', '):''}</div>`:''}</span><span style="font-weight:500">${cfg?fmtEur(cfg.price):'€'+o.value+'k'}</span></div>`;}).join('')}
+    ${o.units.map((u,i)=>{const cfg=x.unitConfigs&&x.unitConfigs[u];return `<div class="lu-row" ${typeof UN==='function'&&UN(u)?`style="cursor:pointer" onclick="openUnPeek('${u}')"`:''}><span class="cell-id">${u}</span><span class="proj"><span class="proj-ic" style="background:${PROJ_IC[o.devs[i]||o.devs[0]]||'#657A32'}">◈</span>${o.devs[i]||o.devs[0]}${cfg?`<div style="font-size:11px;color:var(--muted);margin-top:2px">${cfg.fin} \u00b7 ${cfg.lay}${cfg.adds.length?' + '+cfg.adds.join(', '):''}</div>`:''}</span><span style="font-weight:500">${cfg?fmtEur(cfg.price):o.value==null?'Not specified':'€'+o.value+'k'}</span></div>`;}).join('')}
   </div>
   ${ji>=jIdx('negotiating')&&x.offer?`<div class="dcard">
     <div class="side-h">Offer</div>
@@ -5380,7 +5448,7 @@ function notePin(i){const c=getExt(oppCur).comms[i]; if(!c) return; c.pinned=!c.
 // ---------- Quick actions, shared assets, automations, stage advance ----------
 function ensureShared(o,x){
   if(!x.shared) x.shared=[
-    {n:'Personalised brochure',d:`${o.devs[0]} · ${o.units[0]}`,eng:'Opened 3× · 12 min on floor plans'},
+    {n:'Personalised brochure',d:`${o.devs[0]||'Not specified'} · ${unitLabel(o)}`,eng:'Opened 3× · 12 min on floor plans'},
     {n:'Buyer microsite',d:'bricly.mt/'+o.lead.toLowerCase().replace(/\s+/g,'-'),eng:'Visited yesterday · saved 2 units'},
     {n:'Present Mode session',d:'Not yet run',eng:null},
   ];
@@ -5605,44 +5673,140 @@ function setPipeView(v){
 function oppTab(tab,el){} // legacy no-op — replaced by renderOpp engine
 
 // ---------- New opportunity drawer ----------
-function openNewOpp(){
+let nfState=null;
+function nfOptions(key){
+  if(key==='units')return UNITS.map(unit=>({value:unit.id,label:unit.id+' - '+unit.dev+' - '+unit.status}));
+  if(key==='devs')return DEVS.map(dev=>({value:dev.name,label:dev.name}));
+  const options={stage:STAGES,source:['',...FILTER_OPTS.source],rep:FILTER_OPTS.rep,tags:FILTER_OPTS.tag};
+  return options[key].map(value=>({value,label:value||'Not specified'}));
+}
+function nfPicker(key,label){
+  const options=nfOptions(key);
+  let group=fdGroup(label,options,value=>Array.isArray(nfState[key])?nfState[key].includes(value):nfState[key]===value,value=>`nfChoose('${key}',${xesc(JSON.stringify(value))})`,{value:option=>option.value,text:option=>xesc(option.label),radio:!Array.isArray(nfState[key])});
+  if((key==='devs'||key==='units')&&options.length<8)group=group.replace('<div class="fd-list">',fdSearchHtml('Search '+label.toLowerCase())+'<div class="fd-list">');
+  return `<div class="od-field"><label>${label}</label><details class="nf-picker" id="nf-${key}"><summary class="fchip" aria-label="${label}">${label}</summary><div class="nf-menu">${group}</div></details></div>`;
+}
+function nfSyncPickers(){
+  for(const key of ['devs','units','stage','source','rep','tags']){
+    const picker=document.getElementById('nf-'+key);
+    const values=Array.isArray(nfState[key])?nfState[key]:[nfState[key]];
+    picker.querySelector('summary').textContent=values.filter(Boolean).join(', ')||'Not specified';
+    picker.querySelectorAll('.fd-item').forEach((button,index)=>{
+      const checked=values.includes(nfOptions(key)[index].value);
+      button.classList.toggle('on',checked);button.setAttribute('aria-pressed',String(checked));
+      const box=button.querySelector('.fd-box');if(box)box.innerHTML=checked?CHECK_SVG:'';
+    });
+  }
+}
+function nfChoose(key,value){
+  if(Array.isArray(nfState[key])){
+    if(nfState[key].includes(value)){
+      nfState[key]=nfState[key].filter(item=>item!==value);
+      if(key==='devs')nfState.units=nfState.units.filter(id=>UN(id).dev!==value);
+    }else{
+      nfState[key].push(value);
+      if(key==='units'&&!nfState.devs.includes(UN(value).dev))nfState.devs.push(UN(value).dev);
+    }
+  }else{nfState[key]=value;document.getElementById('nf-'+key).open=false;}
+  nfSyncPickers();
+}
+function nfContactSearch(){
+  nfState.contactId=null;nfState.creating=false;
+  document.getElementById('nf-contact-fields').hidden=true;
+  const query=document.getElementById('nf-lead').value.trim().toLowerCase();
+  const matches=CONTACTS.filter(contact=>[contact.name,contact.phone,contact.email].join(' ').toLowerCase().includes(query));
+  document.getElementById('nf-contact-results').innerHTML=matches.map(contact=>`<button type="button" class="fd-item" role="option" aria-selected="false" onclick="nfPickContact(${xesc(JSON.stringify(contact.id))})"><span class="fd-label">${xesc(contact.name)}<small style="display:block">${xesc(contact.phone||'')} ${xesc(contact.email||'')}</small></span></button>`).join('')+(!matches.length&&query?'<button type="button" class="fd-item" role="option" onclick="nfCreateContact()">Create new contact</button>':'');
+  document.getElementById('nf-contact-results').hidden=false;
+  document.getElementById('nf-lead').setAttribute('aria-expanded','true');
+}
+function nfCloseContacts(){
+  document.getElementById('nf-contact-results').hidden=true;
+  document.getElementById('nf-lead').setAttribute('aria-expanded','false');
+}
+function nfContactKeys(event){
+  const choices=[...document.querySelectorAll('#nf-contact-results:not([hidden]) button')];
+  if(event.key==='Escape'){nfCloseContacts();document.getElementById('nf-lead').focus();return;}
+  if(event.key==='ArrowDown'||event.key==='ArrowUp'){
+    event.preventDefault();const index=choices.indexOf(document.activeElement);
+    choices[(index+(event.key==='ArrowDown'?1:-1)+choices.length)%choices.length]?.focus();
+  }
+  if(event.key==='Enter'&&document.activeElement.id==='nf-lead'&&choices.length){event.preventDefault();choices[0].click();}
+}
+function nfPickContact(id){
+  const contact=CONTACTS.find(record=>record.id===id);if(!contact)return;
+  nfState.contactId=id;nfState.creating=false;
+  document.getElementById('nf-lead').value=contact.name;
+  document.getElementById('nf-phone').value=contact.phone||'';
+  document.getElementById('nf-email').value=contact.email||'';
+  document.getElementById('nf-contact-fields').hidden=false;nfCloseContacts();
+}
+function nfCreateContact(){
+  nfState.contactId=null;nfState.creating=true;
+  document.getElementById('nf-phone').value='';document.getElementById('nf-email').value='';
+  document.getElementById('nf-contact-fields').hidden=false;
+  nfCloseContacts();document.getElementById('nf-phone').focus();
+}
+function openNewOpp(context={}){
+  nfState={contactId:null,creating:false,devs:context.unitId?[UN(context.unitId).dev]:[],units:context.unitId?[context.unitId]:[],stage:'New Lead',source:'',rep:context.rep||UN_REP,tags:context.tags||[]};
   document.getElementById('oppFormBody').innerHTML = `
-    <div class="od-field"><label>Lead name</label><input id="nf-lead" placeholder="e.g. Ana Bugeja"></div>
-    <div class="od-field"><label>Development(s)</label><div class="chk-row" id="nf-devs">${FILTER_OPTS.dev.map(d=>`<button type="button" class="fm-opt" data-dev="${d}" onclick="this.classList.toggle('on')">${d}</button>`).join('')}</div></div>
-    <div class="od-field"><label>Unit</label><input id="nf-unit" placeholder="e.g. #CM9010"></div>
-    <div class="od-field"><label>Deal value (€k)</label><input id="nf-value" type="number" placeholder="350"></div>
-    <div class="od-field"><label>Stage</label><select id="nf-stage">${STAGES.map(s=>`<option>${s}</option>`).join('')}</select></div>
-    <div class="od-field"><label>Lead source</label><select id="nf-source">${FILTER_OPTS.source.map(s=>`<option>${s}</option>`).join('')}</select></div>
-    <div class="od-field"><label>Assigned rep</label><select id="nf-rep">${FILTER_OPTS.rep.map(r=>`<option>${r}</option>`).join('')}</select></div>
-    <div class="od-field"><label>Tags</label><div class="chk-row" id="nf-tags">${FILTER_OPTS.tag.map(t=>`<button type="button" class="fm-opt" data-tag="${t}" onclick="this.classList.toggle('on')">${t}</button>`).join('')}</div></div>`;
+    <div class="od-field" id="nf-contact" onkeydown="nfContactKeys(event)"><label for="nf-lead">Lead name *</label><input id="nf-lead" required role="combobox" aria-autocomplete="list" aria-controls="nf-contact-results" aria-expanded="false" autocomplete="off" placeholder="Search contacts" oninput="nfContactSearch()" onclick="if(!nfState.contactId&&!nfState.creating)nfContactSearch()"><div id="nf-contact-results" class="nf-menu" role="listbox" aria-label="Contacts" hidden></div></div>
+    <div id="nf-contact-fields" hidden><div class="od-field"><label for="nf-phone">Number *</label><input id="nf-phone" type="tel" required autocomplete="tel"></div><div class="od-field"><label for="nf-email">Contact email *</label><input id="nf-email" type="email" required autocomplete="email"></div></div>
+    ${nfPicker('devs','Developments')}${nfPicker('units','Units')}
+    <div class="od-field"><label for="nf-value">Budget (€k)</label><input id="nf-value" type="number" min="0" step="any" placeholder="Not specified"></div>
+    ${nfPicker('stage','Stage')}${nfPicker('source','Lead source')}${nfPicker('rep','Assigned rep')}${nfPicker('tags','Tags')}
+    <div id="nf-error" role="alert" style="color:var(--error)"></div>`;
+  nfSyncPickers();if(context.contactId)nfPickContact(context.contactId);
   document.getElementById('oppDrawer').classList.add('open');
   document.getElementById('oppScrim').classList.add('on');
-  setTimeout(()=>document.getElementById('nf-lead').focus(),100);
+  document.getElementById('nf-lead').focus();
 }
 function closeNewOpp(){
   document.getElementById('oppDrawer').classList.remove('open');
   document.getElementById('oppScrim').classList.remove('on');
+  nfState=null;
 }
 function submitNewOpp(){
+  if(!nfState)return;
   const lead=document.getElementById('nf-lead').value.trim();
-  if(!lead){ showToast('Lead name is required'); return; }
-  const devs=[...document.querySelectorAll('#nf-devs .fm-opt.on')].map(b=>b.dataset.dev);
-  const tags=[...document.querySelectorAll('#nf-tags .fm-opt.on')].map(b=>b.dataset.tag);
-  const unit=document.getElementById('nf-unit').value.trim() || '#TBC';
-  const value=parseInt(document.getElementById('nf-value').value,10) || 300;
+  const fail=message=>{document.getElementById('nf-error').textContent=message;};
+  if(!lead)return fail('Lead name is required');
+  if(!nfState.contactId&&!nfState.creating)return fail('Select a contact or choose Create new contact');
+  const phone=document.getElementById('nf-phone').value.trim(),email=document.getElementById('nf-email').value.trim();
+  if(phone.replace(/\D/g,'').length<7)return fail('Enter a valid contact number');
+  if(!email||!document.getElementById('nf-email').checkValidity())return fail('Enter a valid contact email');
+  const budgetInput=document.getElementById('nf-value');
+  if(!budgetInput.checkValidity())return fail('Enter a valid non-negative budget');
+  const value=budgetInput.value===''?null:Number(budgetInput.value);
+  const duplicate=CONTACTS.find(contact=>contact.id!==nfState.contactId&&(contact.email?.toLowerCase()===email.toLowerCase()||contact.phone?.replace(/\D/g,'')===phone.replace(/\D/g,'')));
+  if(duplicate)return fail('These details belong to an existing contact. Select '+duplicate.name+'.');
+  const {devs,units,tags,stage,source,rep}=nfState;
+  let contact=CONTACTS.find(record=>record.id===nfState.contactId);
+  const contactId=contact?.id||'CT-'+crypto.randomUUID();
   const o={
-    id:'OPP-'+(1000+OPPS.length+17),
-    lead, devs: devs.length?devs:[FILTER_OPTS.dev[0]], units:[unit],
-    stage:document.getElementById('nf-stage').value,
-    source:document.getElementById('nf-source').value,
-    budget:Math.ceil(value/50)*50, value, tags, rep:document.getElementById('nf-rep').value,
+    id:'OPP-'+crypto.randomUUID(),contactId,
+    lead,devs:[...devs],units:[...units],stage,source,
+    budget:value,value,tags:[...tags],rep,
     next:{d:'—',t:'New opportunity — plan first contact'}, ago:'Today',
   };
+  if(!contact){
+    contact={id:contactId,name:lead,type:'lead',btype:null,company:null,status:'lead',email,phone,nat:'',lang:'',source,ref:null,bmin:null,bmax:value,interest:units.join(', '),ploc:devs.join(', '),finance:null,timeline:null,rep,tags:[...tags],oppIds:[],consent:{wa:false,em:false,sms:false},created:'Today',last:'Today',lastD:0,notesList:[]};
+    CONTACTS.push(contact);
+  }
+  contact.phone=phone;contact.email=email;contact.oppIds.push(o.id);
   OPPS.push(o);
+  getExt(o).buyer={name:contact.name,phone,email,type:contact.btype||'Not specified',budget:value==null?'Not specified':fmtEur(value*1000),finance:contact.finance||'Not specified',timeline:contact.timeline||'Not specified'};
   closeNewOpp();
   pipeRenderAll();
   showToast(`${lead} added to ${o.stage}`);
 }
+document.addEventListener('click',event=>{
+  document.querySelectorAll('.nf-picker[open]').forEach(picker=>{if(!picker.contains(event.target))picker.open=false;});
+  if(!nfState)return;
+  if(!event.target.closest('#nf-contact'))nfCloseContacts();
+});
+document.addEventListener('keydown',event=>{
+  if(event.key==='Escape')document.querySelectorAll('.nf-picker[open]').forEach(picker=>{picker.open=false;picker.querySelector('summary').focus();});
+});
 
 // ask panel functions are defined above in the CHAT section
 
@@ -5812,6 +5976,9 @@ function renderContacts(){
 
 function ctSetTab(t){ctState.tab=t;renderContacts();}
 function ctSetSearch(v){ctState.q=v;renderContacts();}
+function ctToggleSearch(){
+  crmToggleHeaderSearch('ct-search-wrap');
+}
 function ctQuick(k){ctState.quick=ctState.quick===k||k==='null'?null:k;renderContacts();}
 sortRegister('contacts',{
   triggerId:'ct-sort-trigger', menuId:'ct-sort-menu',
@@ -5968,7 +6135,7 @@ function ctDealsHtml(c,close){
     <span class="cell-id">${d.id}</span><span><div style="font-weight:500">${o.units[0]} · ${o.devs[0]}</div><div style="font-size:11px;color:var(--muted)">${dealDone(o)?'Completed '+completedOn(o):closedStepLabel(o).replace(/<[^>]*>/g,'')}</div></span><span style="text-align:right"><div style="font-weight:500">${fmtEur(o.value*1000)}</div><span class="pill ${st.pill}">${st.l}</span></span>
   </div>`;}).join('');
   const oppRows=open.map(o=>`<div class="lu-row" style="cursor:pointer" onclick="${close?'closeCtPeek();':''}openOpp('${o.id}')">
-    <span class="cell-id">${o.id}</span><span class="pill ${STAGE_PILL[o.stage]}">${o.stage}</span><span style="font-weight:500">${money(o).approx?'~':''}€${money(o).amt}k</span>
+    <span class="cell-id">${o.id}</span><span class="pill ${STAGE_PILL[o.stage]}">${o.stage}</span><span style="font-weight:500">${moneyText(o)}</span>
   </div>`).join('');
   return dealRows+oppRows;
 }
@@ -6107,8 +6274,7 @@ function ctAddNote(){
   ctCur.notesList.unshift(v); renderContact(); showToast('Note saved');
 }
 function ctNewOppFor(){
-  openNewOpp();
-  setTimeout(()=>{const i=document.getElementById('nf-lead');if(i)i.value=ctCur.name;},120);
+  openNewOpp({contactId:ctCur.id});
 }
 
 // ---------- New contact drawer ----------
@@ -6264,6 +6430,7 @@ const DEVS=[
    files:[{n:'Onyx Rise — Launch brochure.pdf',s:'7.3 MB',d:'Updated 8 Aug'},{n:'Investor yield pack.pdf',s:'2.6 MB',d:'Updated 8 Aug'},{n:'Launch price list.xlsx',s:'0.2 MB',d:'Updated today'}]},
 ];
 const DEV=n=>DEVS.find(d=>d.name===n)||DEVS.find(d=>d.id===n);
+function awAsset(path){return /^(blob:|data:image\/|https:\/\/)/.test(path||'')?path:UN_ASSET+(path||'');}
 
 // status: available | hold | reserved | sold. days = days since listed (for "new").
 const UNITS=[
@@ -6312,7 +6479,7 @@ const UNITS=[
   {id:'#CM9712',dev:'Onyx Rise',type:'Penthouse',floor:9,beds:3,baths:3,sqm:135,ext:55,price:780000,status:'available',ready:'Q1 2027',views:['City view','Terrace','Pool access'],days:2},
 ];
 const UN=id=>UNITS.find(u=>u.id===id);
-const UN_STATUS={available:{l:'Available',p:'p-av'},hold:{l:'On hold',p:'p-hold'},reserved:{l:'Reserved',p:'p-res'},sold:{l:'Sold',p:'p-sold'}};
+const UN_STATUS={available:{l:'Available',p:'p-av'},hold:{l:'On hold',p:'p-hold'},reserved:{l:'Reserved',p:'p-res'},sold:{l:'Sold',p:'p-sold'},off_market:{l:'Off market',p:'p-paused'}};
 const fmtK=n=>'\u20ac'+Math.round(n/1000)+'k';
 const unBedsLabel=u=>u.beds===0?'Studio':u.beds+' bed';
 function unDealsFor(id){return OPPS.filter(o=>o.units.includes(id)&&o.stage!=='Closed Won');}
@@ -6338,6 +6505,7 @@ function unFiltered(){
     if(s.tab==='available'&&u.status!=='available')return false;
     if(s.tab==='held'&&u.status!=='hold'&&u.status!=='reserved')return false;
     if(s.tab==='sold'&&u.status!=='sold')return false;
+    if(s.tab==='off_market'&&u.status!=='off_market')return false;
     if(s.loc!=='all'&&DEV(u.dev).loc!==s.loc)return false;
     if(s.f.fresh&&u.days>7)return false;
     if(s.f.dev.length&&!s.f.dev.includes(u.dev))return false;
@@ -6364,6 +6532,7 @@ function unIntCell(u){
   return `<span class="un-int" title="${reps}">${act.length} deal${act.length>1?'s':''} \u00b7 ${reps}</span>`;
 }
 function renderUnits(){
+  if(typeof awOverviewActions==='function')awOverviewActions();
   const list=unFiltered();
   // stats
   const av=UNITS.filter(u=>u.status==='available').length,
@@ -6375,7 +6544,7 @@ function renderUnits(){
     <div class="ct-stat ${unState.tab==='held'?'on':''}" onclick="unSetTab('held')"><div class="v">${held}</div><div class="l">On hold / reserved</div></div>
     <div class="ct-stat ${unState.tab==='sold'?'on':''}" onclick="unSetTab('sold')"><div class="v">${sold}</div><div class="l">Sold</div></div>
     <div class="ct-stat ${unState.f.fresh?'on':''}" onclick="unToggleFresh()"><div class="v">${fresh}</div><div class="l">New this week</div></div>`;
-  const tabs=[['all','All'],['available','Available'],['held','Held'],['sold','Sold']];
+  const tabs=[['all','All Items'],['available','Available'],['held','Held'],['sold','Sold'],['off_market','Off market']];
   document.getElementById('un-tabs').innerHTML=tabs.map(([k,l])=>`<button class="tab ${unState.tab===k?'on':''}" onclick="unSetTab('${k}')">${l}</button>`).join('');
   // active filter chips
   const chips=[];
@@ -6417,6 +6586,9 @@ function renderUnits(){
 function unSetTab(t){unState.tab=unState.tab===t&&t!=='all'?'all':t;renderUnits();}
 function unToggleFresh(){unState.f.fresh=!unState.f.fresh;renderUnits();}
 function unSetSearch(v){unState.q=v;renderUnits();}
+function unToggleSearch(){
+  crmToggleHeaderSearch('un-search-wrap');
+}
 function unToggleActions(e){e.stopPropagation();const m=document.getElementById('un-actions-menu');if(m)m.style.display=m.style.display==='none'?'block':'none';}
 document.addEventListener('click',e=>{const m=document.getElementById('un-actions-menu');if(m&&!e.target.closest('.un-actions'))m.style.display='none';});
 function unAct(fn,arg){const m=document.getElementById('un-actions-menu');if(m)m.style.display='none';if(arg!==undefined){window[fn](arg);}else{window[fn]();}if(fn==='trToggle')renderUnit();}
@@ -6469,7 +6641,7 @@ function openUnPeek(id){
   unPeekId=id;
   const u=UN(id),d=DEV(u.dev),st=UN_STATUS[u.status];
   document.getElementById('unPeekBody').innerHTML=`
-    <div class="un-hero"><img src="${UN_ASSET+d.photo}" alt="" onerror="this.remove()"></div>
+    <div class="un-hero"><img src="${xesc(awAsset(d.photo))}" alt="" onerror="this.remove()"></div>
     <div class="row-between" style="align-items:flex-start">
       <div><div style="font-size:17px;font-weight:600">${u.id}</div>
       <div style="font-size:12.5px;color:var(--muted);margin-top:2px">${u.dev} \u2014 ${d.loc} \u00b7 ${u.type}</div></div>
@@ -6488,7 +6660,7 @@ function openUnPeek(id){
     <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px">${u.views.map(v=>`<span class="tag-chip">${v}</span>`).join('')}</div>
     <div style="border:1px solid var(--outline-variant);border-radius:12px;padding:10px;background:var(--sc-lowest)">${unPlanSVG(u,140)}</div>
     <div class="un-devcard">
-      <div class="un-devcard-top"><img src="${UN_ASSET+d.photo}" alt="" onerror="this.style.display='none'"><div><div class="nm">${d.name}</div><div class="lc">${d.loc} \u00b7 ${UNITS.filter(x=>x.dev===u.dev).length} units \u00b7 ${d.completion}</div></div></div>
+      <div class="un-devcard-top"><img src="${xesc(awAsset(d.photo))}" alt="" onerror="this.style.display='none'"><div><div class="nm">${d.name}</div><div class="lc">${d.loc} \u00b7 ${UNITS.filter(x=>x.dev===u.dev).length} units \u00b7 ${d.completion}</div></div></div>
       <div class="un-devcard-about">${d.about}</div>
       <div class="un-devcard-lbl">Amenities</div>
       <div style="display:flex;gap:5px;flex-wrap:wrap">${d.amen.map(a=>`<span class="tag-chip">${a}</span>`).join('')}</div>
@@ -6556,6 +6728,7 @@ function renderUnit(){
     </div>
   </div>
   <div class="crm-page-controls"><div class="toolbar">
+    ${curPersona==='owner'?`<button class="btn-ghost" onclick="awUnit('${u.id}')">Edit unit</button>`:''}
     <div class="cr-actions un-actions">
       <button class="btn-primary cr-actions-btn" onclick="unToggleActions(event)">Actions <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 4.5L6 7.5 9 4.5"/></svg></button>
       <div class="cr-actions-menu" id="un-actions-menu" style="display:none">
@@ -6596,7 +6769,7 @@ function renderUnit(){
         <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:16px">${u.views.map(v=>`<span class="tag-chip">${v}</span>`).join('')}</div>
       </div>
       <div class="dcard"><h3>Floor plan</h3>
-        <div style="border:1px solid var(--outline-variant);border-radius:12px;padding:14px;background:var(--sc-lowest)">${unPlanSVG(u,300)}</div>
+        <div style="border:1px solid var(--outline-variant);border-radius:8px;padding:14px;background:var(--sc-lowest)">${u.unitPlan?`<a href="${xesc(u.unitPlan.url)}" target="_blank" rel="noopener">${xesc(u.unitPlan.name)}</a>${u.unitPlan.type.startsWith('image/')?`<img src="${xesc(u.unitPlan.url)}" alt="Unit floorplan" style="width:100%;height:auto">`:''}`:u.setupState?'<p>No unit floorplan supplied.</p>':unPlanSVG(u,300)}</div>
         <div style="font-size:12px;color:var(--muted);margin-top:10px">Indicative layout \u2014 full architectural plans in the development media library.</div>
       </div>
       <div class="dcard"><h3>Where it sits</h3>
@@ -6612,7 +6785,7 @@ function renderUnit(){
       <div class="dcard">
         <div class="side-h">Development</div>
         <div style="cursor:pointer" onclick="openDvPeek('${d.id}')">
-          <div style="height:92px;border-radius:10px;overflow:hidden;background:linear-gradient(135deg,var(--sc-high),var(--sc-lowest));margin-bottom:10px"><img src="${UN_ASSET+d.photo}" style="width:100%;height:100%;object-fit:cover" onerror="this.remove()"></div>
+          <div style="height:92px;border-radius:10px;overflow:hidden;background:linear-gradient(135deg,var(--sc-high),var(--sc-lowest));margin-bottom:10px"><img src="${xesc(awAsset(d.photo))}" style="width:100%;height:100%;object-fit:cover" onerror="this.remove()"></div>
           <div style="font-size:13.5px;font-weight:600">${d.name}</div>
           <div style="font-size:12px;color:var(--muted);margin:2px 0 8px">${d.loc} \u00b7 ${d.completion==='Ready'?'Ready now':'Completion '+d.completion}</div>
           ${dvBarHtml(s)}
@@ -6636,11 +6809,11 @@ function unSwapMedia(th,img,idx){
   document.querySelectorAll('#un-root .un-media .strip .th').forEach(t=>t.classList.remove('on'));
   th.classList.add('on');
   unGalIdx=idx||0;
-  document.getElementById('un-media-main').innerHTML=`<img src="${UN_ASSET+img}" alt="" onerror="this.remove()">`;
+  document.getElementById('un-media-main').innerHTML=`<img src="${xesc(awAsset(img))}" alt="" onerror="this.remove()">`;
 }
-function unGalList(d){return unGalTab==='ext'?(d.media.renders.ext||[]):(d.media.renders.int||[]);}
-function unGalMainHtml(list){return list.length?`<img src="${UN_ASSET+list[0].img}" alt="" onerror="this.remove()">`:`<div class="placeholder-empty" style="height:100%">No renders yet</div>`;}
-function unGalStripHtml(list){return list.map((g,i)=>`<div class="th ${i===0?'on':''}" onclick="event.stopPropagation();unSwapMedia(this,'${g.img}',${i})" title="${g.cap}"><img src="${UN_ASSET+g.img}" alt="" onerror="this.remove()"></div>`).join('');}
+function unGalList(d){return unCur?.images?unCur.images.filter(image=>(image.category||'ext')===unGalTab):unGalTab==='ext'?(d.media.renders.ext||[]):(d.media.renders.int||[]);}
+function unGalMainHtml(list){return list.length?`<img src="${xesc(awAsset(list[0].img))}" alt="${xesc(list[0].cap||'')}" onerror="this.remove()">`:`<div class="placeholder-empty" style="height:100%">No renders yet</div>`;}
+function unGalStripHtml(list){return list.map((g,i)=>`<div class="th ${i===0?'on':''}" onclick="event.stopPropagation();unSwapMedia(this,'${g.img}',${i})" title="${xesc(g.cap)}"><img src="${xesc(awAsset(g.img))}" alt="" onerror="this.remove()"></div>`).join('');}
 function unSetGalTab(t){
   unGalTab=t; unGalIdx=0;
   const d=DEV(unCur.dev),list=unGalList(d);
@@ -6665,7 +6838,7 @@ function unSitePlanHtml(u,d){
     arr.forEach((x,i)=>{const left=arr.length>1?12+(i/(arr.length-1))*76:50;pts.push({u:x,top,left});});
   });
   return `<div class="vis-search" style="height:240px">
-    <img src="${UN_ASSET+d.photo}" alt="" onerror="this.remove()">
+    <img src="${xesc(awAsset(d.photo))}" alt="" onerror="this.remove()">
     ${pts.map(p=>{
       const mine=p.u.id===u.id;
       const cls=mine?'vis-mine':(p.u.status==='available'?'vis-avail':(p.u.status==='sold'?'vis-sold':'vis-held'));
@@ -6697,28 +6870,50 @@ function unDealsCard(u){
   return `<div class="dcard"><div class="side-h">Deals on this unit</div>${body}</div>`;
 }
 function unNewDeal(id){
-  const u=UN(id); closeUnPeek(); openNewOpp();
-  setTimeout(()=>{
-    const un=document.getElementById('nf-unit'); if(un)un.value=u.id;
-    const b=document.querySelector(`#nf-devs .fm-opt[data-dev="${u.dev}"]`); if(b)b.classList.add('on');
-    const v=document.getElementById('nf-value'); if(v)v.value=Math.round(u.price/1000);
-  },140);
+  closeUnPeek();openNewOpp({unitId:id});
+}
+let unLinkState=null;
+function unLinkAllowed(opportunity,unitId){return opportunity&&UN(unitId)&&opportunity.stage!=='Closed Won'&&!opportunity.units.includes(unitId)&&(unIsMgr()||opportunity.rep===UN_REP);}
+function unLinkFilter(key,value){
+  unLinkState[key]=value;
+  if(key==='scope')unLinkState.rep='';
+  unLinkControls();
+  unLinkResults();
+}
+function unLinkControls(){
+  const group=(key,label,options)=>`<details class="nf-picker"><summary class="fchip" aria-label="${label}">${label}${unLinkState[key]?': '+xesc(unLinkState[key]):''}</summary><div class="nf-menu">${fdGroup(label,['',...options],value=>unLinkState[key]===value,value=>`unLinkFilter('${key}',${xesc(JSON.stringify(value))})`,{radio:true,text:value=>xesc(value||'Any')})}</div></details>`;
+  document.getElementById('un-link-filters').innerHTML=
+    (unIsMgr()?`<details class="nf-picker"><summary class="fchip">${unLinkState.scope==='mine'?'My opportunities':'All opportunities'}</summary><div class="nf-menu">${fdGroup('Scope',['mine','all'],value=>unLinkState.scope===value,value=>`unLinkFilter('scope','${value}')`,{radio:true,text:value=>value==='mine'?'My opportunities':'All opportunities'})}</div></details>`:'')
+    +group('stage','Stage',STAGES)+group('dev','Development',DEVS.map(dev=>dev.name))
+    +(unIsMgr()&&unLinkState.scope==='all'?group('rep','Assigned rep',FILTER_OPTS.rep):'');
+}
+function unLinkResults(){
+  const query=unLinkState.query.trim().toLowerCase();
+  const matches=OPPS.filter(opportunity=>unLinkAllowed(opportunity,unLinkState.unitId)
+    &&(unLinkState.scope==='all'&&unIsMgr()||opportunity.rep===UN_REP)
+    &&(!unLinkState.stage||opportunity.stage===unLinkState.stage)
+    &&(!unLinkState.dev||opportunity.devs.includes(unLinkState.dev))
+    &&(!unLinkState.rep||opportunity.rep===unLinkState.rep)
+    &&[opportunity.lead,opportunity.id,...opportunity.devs,...opportunity.units].join(' ').toLowerCase().includes(query));
+  document.getElementById('un-link-count').textContent=matches.length+' opportunities';
+  document.getElementById('un-link-results').innerHTML=matches.map(opportunity=>`<button type="button" class="lu-row" style="grid-template-columns:minmax(0,1fr) auto" onclick="unAttach(${xesc(JSON.stringify(opportunity.id))},${xesc(JSON.stringify(unLinkState.unitId))})"><span><b>${xesc(opportunity.lead)}</b><span style="display:block;font-size:11.5px;color:var(--muted)">${xesc(opportunity.id)} - ${xesc(opportunity.devs.join(', ')||'Not specified')} - ${xesc(opportunity.rep)}</span></span><span class="pill ${STAGE_PILL[opportunity.stage]}">${opportunity.stage}</span></button>`).join('')||'<div class="fd-empty">No matching opportunities</div>';
 }
 function unLinkDeal(id){
   const u=UN(id);
-  const cands=OPPS.filter(o=>o.stage!=='Closed Won'&&!o.units.includes(id)&&(unIsMgr()||o.rep===UN_REP));
+  if(!u)return;
+  unLinkState={unitId:id,query:'',stage:'',dev:'',rep:'',scope:'mine'};
   document.getElementById('unLinkTitle').textContent='Link '+u.id+' to a deal';
   document.getElementById('unLinkBody').innerHTML=
-    `<div style="font-size:12.5px;color:var(--muted);margin-bottom:12px">${unIsMgr()?'All active deals':'Your active deals'} \u2014 pick one to attach this unit to.</div>`
-    +cands.map(o=>`<div class="lu-row" style="cursor:pointer;grid-template-columns:1fr auto" onclick="unAttach('${o.id}','${id}')">
-      <span style="min-width:0"><b style="font-size:13px">${o.lead}</b><div style="font-size:11.5px;color:var(--muted)">${o.id} \u00b7 ${o.devs[0]} \u00b7 ${o.rep}</div></span>
-      <span class="pill ${STAGE_PILL[o.stage]}">${o.stage}</span></div>`).join('');
+    `<div class="od-field"><label for="un-link-search">Search opportunities</label><input id="un-link-search" type="search" placeholder="Name, opportunity ID, development or unit" oninput="unLinkState.query=this.value;unLinkResults()"></div><div id="un-link-filters"></div><div class="row-between" style="margin:12px 0"><span id="un-link-count" role="status"></span><button type="button" class="btn-ghost" onclick="unLinkDeal(unLinkState.unitId)">Clear filters</button></div><div id="un-link-results"></div>`;
+  unLinkControls();unLinkResults();
   document.getElementById('unLink').classList.add('open');
   document.getElementById('unLinkScrim').classList.add('on');
+  document.getElementById('un-link-search').focus();
 }
 function closeUnLink(){document.getElementById('unLink').classList.remove('open');document.getElementById('unLinkScrim').classList.remove('on');}
 function unAttach(oppId,unitId){
   const o=OPPS.find(x=>x.id===oppId),u=UN(unitId);
+  if(!unLinkAllowed(o,unitId)){showToast('This opportunity is no longer available to link');return;}
   if(!o.units.includes(unitId))o.units.push(unitId);
   if(!o.devs.includes(u.dev))o.devs.push(u.dev);
   getExt(o).comms.unshift({ch:'sys',t:'Just now',text:`${u.id} (${u.dev}) linked to this deal`});
@@ -6745,7 +6940,7 @@ function dvBarHtml(s){
     <i style="width:${pc(s.sold)}%;background:var(--sc-highest)"></i></div>`;
 }
 function dvGallery(d){return [...d.media.renders.ext,...d.media.renders.int,...d.media.photos];}
-let dvListState={view:'card',loc:'all',comp:'all',price:'all'};
+let dvListState={view:'card',tab:'all',q:'',loc:'all',comp:'all',price:'all'};
 const dvSelection=new Set();
 function dvToggleSelection(id){
   dvSelection.has(id)?dvSelection.delete(id):dvSelection.add(id);
@@ -6757,8 +6952,21 @@ function dvToggleSelection(id){
   sbRefresh();
 }
 const DV_PRICE_BANDS={'\u2264 \u20ac250k':p=>p<=250000,'\u20ac250\u2013300k':p=>p>250000&&p<=300000,'\u20ac300k+':p=>p>300000};
+function dvStatusOf(d){
+  const s=dvStats(d.name);
+  return d.status||(s.total>0&&s.sold===s.total?'Sold out':s.avail>0&&s.avail<=2?'Final Units':'Selling');
+}
+function dvTabKey(d){
+  const st=dvStatusOf(d).toLowerCase();
+  if(st.includes('sold'))return 'sold';
+  if(st.includes('coming'))return 'coming';
+  if(st.includes('draft'))return 'draft';
+  return 'available';
+}
 function dvFilteredList(){
   return DEVS.filter(d=>{
+    if(dvListState.tab!=='all'&&dvTabKey(d)!==dvListState.tab)return false;
+    if(dvListState.q&&!(d.name+' '+d.loc).toLowerCase().includes(dvListState.q.toLowerCase()))return false;
     if(dvListState.loc!=='all'&&d.loc!==dvListState.loc)return false;
     if(dvListState.comp!=='all'&&d.completion!==dvListState.comp)return false;
     if(dvListState.price!=='all'&&!DV_PRICE_BANDS[dvListState.price](dvStats(d.name).min))return false;
@@ -6795,10 +7003,32 @@ document.addEventListener('click',e=>{
   if(m&&m.style.display==='block'&&!m.contains(e.target)&&!e.target.closest('#dv-filter-row .crm-filter-field')) m.style.display='none';
 });
 function dvSetListF(k,v){dvListState[k]=v;renderDevs();}
-function dvClearAllF(){dvListState={view:dvListState.view,loc:'all',comp:'all',price:'all'};renderDevs();}
+function dvClearAllF(){dvListState={view:dvListState.view,tab:dvListState.tab,q:dvListState.q,loc:'all',comp:'all',price:'all'};renderDevs();}
 function dvSetView(v){dvListState.view=v;renderDevs();}
+function dvSetListTab(k){dvListState.tab=k;renderDevs();}
+function dvSetSearch(v){dvListState.q=v;dvRenderGrid();}
+function dvToggleSearch(){
+  crmToggleHeaderSearch('dv-search-wrap');
+}
 function renderDevs(){
+  const searchOpen=!!document.getElementById('dv-search-wrap')?.closest('.crm-header-search.is-open')||!!dvListState.q;
+  if(typeof awOverviewActions==='function')awOverviewActions();
   document.getElementById('dv-toolbar').innerHTML=`
+    <div class="row-between crm-page-controls">
+    <div class="tabs">${[['all','All Items'],['available','Available'],['sold','Sold'],['draft','Draft'],['coming','Coming Soon']].map(([k,l])=>`<button class="tab ${dvListState.tab===k?'on':''}" onclick="dvSetListTab('${k}')">${l}</button>`).join('')}</div>
+    <div class="toolbar">
+      <div class="pipe-search-wrap" id="dv-search-wrap" style="display:${dvListState.q?'flex':'none'}">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg>
+        <input id="dv-search" placeholder="Search development, location" value="${xesc(dvListState.q)}" oninput="dvSetSearch(this.value)">
+      </div>
+      <button class="tool" title="Search" onclick="dvToggleSearch()"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg></button>
+      <button class="tool" title="Sort" onclick="sortOpen('developments',event)"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 3.5h10M2 7h7M2 10.5h4"/></svg></button>
+      <button class="tool" title="Reverse sort order" onclick="sortFlip('developments')"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4.5 11.5v-9M4.5 2.5L2 5M4.5 2.5L7 5M9.5 2.5v9M9.5 11.5L7 9M9.5 11.5L12 9"/></svg></button>
+      <div class="viewtoggle">
+      <button class="${dvListState.view==='card'?'on':''}" onclick="dvSetView('card')" title="Card view" aria-label="Card view"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="1.5" width="5" height="5" rx="1"/><rect x="7.5" y="1.5" width="5" height="5" rx="1"/><rect x="1.5" y="7.5" width="5" height="5" rx="1"/><rect x="7.5" y="7.5" width="5" height="5" rx="1"/></svg></button>
+      <button class="${dvListState.view==='list'?'on':''}" onclick="dvSetView('list')" title="List view" aria-label="List view"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1.5 3.5h11M1.5 7h11M1.5 10.5h11"/></svg></button>
+    </div></div>
+    </div>
     <div class="filter-row crm-page-filters" id="dv-filter-row">
     <button class="crm-filter-field" id="dv-sort-trigger" onclick="sortOpen('developments',event)">Sort</button>
     <button class="crm-filter-field" data-label="Location" onclick="crmFilterField(event,dvOpenFilters,'dv-filter-menu','Location')">Location</button>
@@ -6807,10 +7037,7 @@ function renderDevs(){
     <div id="dv-active-filters" style="display:contents"></div>
     <div class="filter-menu sort-menu" id="dv-sort-menu" style="display:none"></div>
     <div class="filter-menu" id="dv-filter-menu" style="display:none"></div>
-    </div><div class="toolbar"><div class="viewtoggle">
-      <button class="${dvListState.view==='card'?'on':''}" onclick="dvSetView('card')" title="Card view" aria-label="Card view"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="1.5" width="5" height="5" rx="1"/><rect x="7.5" y="1.5" width="5" height="5" rx="1"/><rect x="1.5" y="7.5" width="5" height="5" rx="1"/><rect x="7.5" y="7.5" width="5" height="5" rx="1"/></svg></button>
-      <button class="${dvListState.view==='list'?'on':''}" onclick="dvSetView('list')" title="List view" aria-label="List view"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1.5 3.5h11M1.5 7h11M1.5 10.5h11"/></svg></button>
-    </div></div>`;
+    </div>`;
   const any=crmSyncFilterChips('dv-filter-row',{
     Location:dvListState.loc!=='all'?[dvListState.loc]:[],
     Completion:dvListState.comp!=='all'?[dvListState.comp==='Ready'?'Ready now':dvListState.comp]:[],
@@ -6818,6 +7045,10 @@ function renderDevs(){
   });
   document.getElementById('dv-active-filters').innerHTML=any?`<span class="fclear" onclick="dvClearAllF()">Clear all</span>`:'';
   sortSyncTrigger('developments');
+  if(searchOpen)crmToggleHeaderSearch('dv-search-wrap',true,false);
+  dvRenderGrid();
+}
+function dvRenderGrid(){
   const list=dvFilteredList();
   document.getElementById('dv-grid').classList.toggle('list-view',dvListState.view==='list');
   if(typeof sbRefresh==='function')sbRefresh();
@@ -6844,7 +7075,7 @@ function renderDevs(){
     const status=d.status||(s.total>0&&s.sold===s.total?'Sold out':s.avail>0&&s.avail<=2?'Final Units':'Selling');
     const types=[...new Set(units.map(unit=>unit.type))];
     return `<div class="dv-card${dvSelection.has(d.id)?' selected':''}" data-dev-id="${d.id}" tabindex="0" role="link" aria-label="Open ${xesc(d.name)}" onclick="openDev('${d.id}')" onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();openDev('${d.id}');}">
-      <div class="ph"><img src="${UN_ASSET+d.photo}" alt="${xesc(d.name)}" onerror="this.remove()"><span class="dv-card-status ${status.toLowerCase().replaceAll(' ','-')}">${xesc(status)}</span><label class="dv-card-select" onclick="event.stopPropagation()"><input type="checkbox" aria-label="Select ${xesc(d.name)}" ${dvSelection.has(d.id)?'checked':''} onchange="dvToggleSelection('${d.id}')"></label></div>
+      <div class="ph"><img src="${xesc(awAsset(d.photo))}" alt="${xesc(d.name)}" onerror="this.remove()"><span class="dv-card-status ${status.toLowerCase().replaceAll(' ','-')}">${xesc(status)}</span><label class="dv-card-select" onclick="event.stopPropagation()"><input type="checkbox" aria-label="Select ${xesc(d.name)}" ${dvSelection.has(d.id)?'checked':''} onchange="dvToggleSelection('${d.id}')"></label></div>
       <div class="bd">
         <div class="dv-card-name">${xesc(d.name)}</div>
         <div class="dv-card-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M20 10c0 6-8 11-8 11S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>${xesc(d.loc)}</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 18v3m18-3v3M3 11V5h18v6M2 18v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5H2ZM7 11V8h10v3"/></svg>${units.length?(bedMin===bedMax?bedMin:bedMin+'\u2013'+bedMax)+' Bedrooms':'\u2014'}</span></div>
@@ -6863,7 +7094,7 @@ let dvCur=null,dvTabCur='overview',dvAvailabilityView='list',dvF={status:'all',b
 function openDvPeek(id){
   const d=DEVS.find(x=>x.id===id)||DEV(id),s=dvStats(d.name);
   document.getElementById('dvPeekBody').innerHTML=`
-    <div class="un-hero"><img src="${UN_ASSET+d.photo}" alt="" onerror="this.remove()"></div>
+    <div class="un-hero"><img src="${xesc(awAsset(d.photo))}" alt="" onerror="this.remove()"></div>
     <div class="row-between" style="align-items:flex-start">
       <div><div style="font-size:17px;font-weight:600">${d.name}</div>
       <div style="font-size:12.5px;color:var(--muted);margin-top:2px">${d.loc} · ${d.tag}</div></div>
@@ -6918,7 +7149,7 @@ function dvFloorContext(development){
   return {view,floors,units:floorUnits,plan:development.floorPlans?.[view.floor]};
 }
 function dvFloorLabel(floor){return floor===0?'Ground floor':floor<0?'Basement '+Math.abs(floor):'Floor '+floor;}
-function dvFloorCanEdit(){return curPersona==='owner'||curPersona==='marketing';}
+function dvFloorCanEdit(){return curPersona==='owner';}
 function dvFloorHtml(development){
   const {view,floors,units,plan}=dvFloorContext(development),canEdit=dvFloorCanEdit();
   if(!canEdit)view.editing=false;
@@ -6993,6 +7224,7 @@ async function dvFloorUpload(developmentId,floor,input){
     const previous=development.floorPlans?.[floor];
     if(previous&&!window.confirm('Replace this floor drawing and clear its unit markers?')){URL.revokeObjectURL(url);return;}
     development.floorPlans=development.floorPlans||{};
+    if(previous&&typeof awInvalidateFloor==='function')awInvalidateFloor(development,floor);
     development.floorPlans[floor]={name:file.name,url,positions:{}};
     if(previous)URL.revokeObjectURL(previous.url);
     const view=dvFloorViews[developmentId];
@@ -7135,9 +7367,9 @@ function renderDev(){
     <div class="dv-stat"><div class="v">${d.completion==='Ready'?'Ready':d.completion}</div><div class="l">Completion</div></div>
   </div>
   <div class="crm-page-controls"><div class="tabs">${tabs.map(([k,l])=>`<button class="tab ${dvTabCur===k?'on':''}" onclick="dvSetTab('${k}')">${l}</button>`).join('')}</div>
-    <div class="toolbar"><button class="btn-primary" onclick="prOpenDev('${d.id}')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x="2" y="3" width="10" height="7" rx="1"/><path d="M7 10v2M5 12h4"/></svg>Enter present mode</button></div>
+    <div class="toolbar">${curPersona==='owner'?`<button class="btn-ghost" onclick="awEditDevelopment('${d.id}')">Edit development</button><button class="btn-ghost" onclick="awUnit(null,'${d.id}')">+ Add unit</button>`:''}<button class="btn-primary" onclick="prOpenDev('${d.id}')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x="2" y="3" width="10" height="7" rx="1"/><path d="M7 10v2M5 12h4"/></svg>Enter present mode</button></div>
   </div>
-  ${dvTabCur==='overview'?`<div class="dv-hero"><img src="${UN_ASSET+d.photo}" alt="${d.name}" onerror="this.remove()"></div>`:''}
+  ${dvTabCur==='overview'?`<div class="dv-hero"><img src="${xesc(awAsset(d.photo))}" alt="${d.name}" onerror="this.remove()"></div>`:''}
   <div id="dv-tabc">${dvTabHtml(d,s,deals,actDeals)}</div>`;
   if(dvTabCur==='availability')dvuSyncChips();
 }
@@ -7211,7 +7443,7 @@ function dvTabHtml(d,s,deals,actDeals){
     <div class="dcard"><h3>Visual unit finder</h3>
       <p style="font-size:12.5px;color:var(--muted);margin:0 0 14px">Hover the exterior render to see where each unit sits \u2014 click a marker to open it.</p>
       <div class="vis-search">
-        <img src="${UN_ASSET+d.photo}" alt="" onerror="this.remove()">
+        <img src="${xesc(awAsset(d.photo))}" alt="" onerror="this.remove()">
         ${pts.map(p=>{const cls=p.u.status==='available'?'vis-avail':(p.u.status==='sold'?'vis-sold':'vis-held');const stl=UN_STATUS[p.u.status].l;
           return `<div class="vis-dot ${cls}" style="top:${p.top}%;left:${p.left}%" onclick="openUnPeek('${p.u.id}')">
             <div class="vis-tip"><b>${p.u.id}</b> \u00b7 ${unBedsLabel(p.u)} \u00b7 Floor ${p.u.floor===0?'G':p.u.floor}<br>${stl} \u00b7 ${fmtK(p.u.price)}</div>
@@ -7223,7 +7455,7 @@ function dvTabHtml(d,s,deals,actDeals){
     </div>`;
   }
   if(dvTabCur==='media'){
-    const m=d.media,med=(g,cap)=>`<div class="media-it" onclick="showToast('Share link copied \u2014 ${cap}')"><div class="ph"><img src="${UN_ASSET+g.img}" alt="" onerror="this.remove()"></div><div class="cap"><span>${g.cap}</span><span style="color:var(--muted);flex:none">Share</span></div></div>`;
+    const m=d.media,med=(g,cap)=>`<div class="media-it" onclick="showToast('Share link copied \u2014 ${cap}')"><div class="ph"><img src="${xesc(awAsset(g.img))}" alt="" onerror="this.remove()"></div><div class="cap"><span>${g.cap}</span><span style="color:var(--muted);flex:none">Share</span></div></div>`;
     return `
     <div class="dcard"><h3>Renders</h3>
       <div class="med-sub">External</div>
@@ -7745,7 +7977,7 @@ function prLobbyHtml(){
         return `<div class="pr-lcard ${info.ok?'':'off'}" data-card="${d.id}"
           ${info.ok?`onclick="prEnterDev('${d.name}')"`:''}
           onmouseenter="prLobbySync('${d.id}',true)" onmouseleave="prLobbySync('${d.id}',false)">
-          <div class="th"><img src="${UN_ASSET+d.photo}" alt="" onerror="this.remove()"></div>
+          <div class="th"><img src="${xesc(awAsset(d.photo))}" alt="" onerror="this.remove()"></div>
           <div class="bd">
             <div style="font-size:13.5px;font-weight:600">${d.name}</div>
             <div style="font-size:11.5px;color:var(--muted);margin:2px 0 5px">📍 ${d.loc}</div>
@@ -7817,7 +8049,7 @@ function prShowroomHtml(){
   const pts=prHotspotPts(d);
   return `<div class="pr-showroom">
     <div class="pr-sh-hero">
-      <img src="${UN_ASSET+d.photo}" alt="" onerror="this.remove()">
+      <img src="${xesc(awAsset(d.photo))}" alt="" onerror="this.remove()">
       <div class="pr-sh-scrim"></div>
       <div class="pr-sh-top">
         <div class="e">Development showroom</div>
@@ -7893,7 +8125,7 @@ function prShowroomHighlightsHtml(d){
       <div style="display:flex;gap:6px;flex-wrap:wrap">${d.amen.map(a=>`<span class="tag-chip">${a}</span>`).join('')}</div>
     </div>
     <div class="dcard"><div class="side-h">Lifestyle</div>
-      <div class="media-grid">${d.media.photos.map(g=>`<div class="media-it"><div class="ph"><img src="${UN_ASSET+g.img}" alt="" onerror="this.remove()"></div><div class="cap"><span>${g.cap}</span></div></div>`).join('')}</div>
+      <div class="media-grid">${d.media.photos.map(g=>`<div class="media-it"><div class="ph"><img src="${xesc(awAsset(g.img))}" alt="" onerror="this.remove()"></div><div class="cap"><span>${g.cap}</span></div></div>`).join('')}</div>
     </div>`;
 }
 function prOpenUnitFromShowroom(unitId){
@@ -8247,7 +8479,7 @@ function trAdd(id){
   if(trState.items.length>=5){showToast('Compare up to 5 units at a time \u2014 remove one first');return;}
   trState.items.push({unitId:id,config:{fin:'oak',lay:'open',adds:[]}});
   trSave(); trRender(); trRefreshCurrentView();
-  showToast(`${id} added to selection (${trState.items.length})`);
+  showToast(`Unit added to selection (${trState.items.length})`,'selection');
 }
 function trRemove(id){
   const i=trState.items.findIndex(it=>it.unitId===id); if(i<0)return;
@@ -8302,7 +8534,7 @@ function cmpFsSet(mode,devId){cmpFs.mode=mode;if(devId!==undefined)cmpFs.devId=d
 function cmpFsRender(){
   const units=trState.items.map(it=>UN(it.unitId)).filter(Boolean);
   const devs=cmpFsDevs();
-  const shot=s=>`<figure class="cmp-fs-shot"><figcaption>${s.l||''}</figcaption><img src="${UN_ASSET+s.img}" alt="" onerror="this.style.display='none'"></figure>`;
+  const shot=s=>`<figure class="cmp-fs-shot"><figcaption>${s.l||''}</figcaption><img src="${xesc(awAsset(s.img))}" alt="" onerror="this.style.display='none'"></figure>`;
   let title,sub,seg,grid;
   if(cmpFs.ctx==='units'){
     title=cmpFs.mode==='plans'?'Floor plans':'Unit renders';
@@ -8507,12 +8739,12 @@ function cmpDevColHtml(d){
   const specs=rows.map(r=>{const heading=r.group!==group?`<div class="cmp-grp">${safe(r.group)}</div>`:'';group=r.group;return heading+`<div class="cmp-row${r.highlight?' hi':''}"><span class="k">${safe(r.label)}</span><span class="v">${safe(r.values[column])}</span></div>`;}).join('');
   return `<div class="cmp-col">
     <div class="cmp-col-head">
-      <div class="cmp-render" style="height:150px;cursor:zoom-in" onclick="cmpFsOpen('devs','devs','${d.id}')"><img src="${UN_ASSET+shots[0].img}" alt="" onerror="this.remove()"><span class="plan-hint">Tap to compare \u2197</span><button class="plan-hint act" onclick="event.stopPropagation();cmpSetView('units')">\u21c4 Compare units</button></div>
+      <div class="cmp-render" style="height:150px;cursor:zoom-in" onclick="cmpFsOpen('devs','devs','${d.id}')"><img src="${xesc(awAsset(shots[0].img))}" alt="" onerror="this.remove()"><span class="plan-hint">Tap to compare \u2197</span><button class="plan-hint act" onclick="event.stopPropagation();cmpSetView('units')">\u21c4 Compare units</button></div>
       <div class="cmp-id">${d.name}</div>
       <div class="cmp-dev"><span class="proj-ic" style="background:${PROJ_IC[d.name]||'#657A32'}">\u25c8</span>${d.loc} \u00b7 ${d.completion}</div>
       <div class="cmp-sigs">${sel.map(u=>`<span class="cmp-chip">${u.id}</span>`).join('')}</div>
     </div>
-    <div class="cmp-shotgrid">${shots.slice(1).map(s=>`<button class="cmp-devgal-t" onclick="cmpFsOpen('devs','devs','${d.id}')"><img src="${UN_ASSET+s.img}" alt="" onerror="this.parentNode.style.display='none'"><span>${s.l}</span></button>`).join('')}</div>
+    <div class="cmp-shotgrid">${shots.slice(1).map(s=>`<button class="cmp-devgal-t" onclick="cmpFsOpen('devs','devs','${d.id}')"><img src="${xesc(awAsset(s.img))}" alt="" onerror="this.parentNode.style.display='none'"><span>${s.l}</span></button>`).join('')}</div>
     <div class="cmp-specs">
       ${specs}
     </div>
@@ -8530,7 +8762,7 @@ function cmpColHtml(it,u,plan,lens){
   const viewChip=`<button class="plan-hint act" onclick="event.stopPropagation();cmpSetView('renders')">\u21c4 Compare renders</button>`;
   const media=cmpState.media==='plan'
     ?`<div class="cmp-render plan" onclick="cmpPlansFull()">${unPlanSVG(u,214)}<span class="plan-hint">Tap to expand \u2197</span>${viewChip}</div>`
-    :`<div class="cmp-render" style="cursor:zoom-in" onclick="cmpFsOpen('units','renders')"><img src="${UN_ASSET+d.photo}" alt="" onerror="this.remove()"><span class="plan-hint">Tap to expand \u2197</span>${viewChip}</div>`;
+    :`<div class="cmp-render" style="cursor:zoom-in" onclick="cmpFsOpen('units','renders')"><img src="${xesc(awAsset(d.photo))}" alt="" onerror="this.remove()"><span class="plan-hint">Tap to expand \u2197</span>${viewChip}</div>`;
   return `<div class="cmp-col">
     <div class="cmp-col-head">
       <button class="cmp-x" onclick="cmpRemove('${u.id}')" title="Remove">\u00d7</button>
@@ -8551,7 +8783,7 @@ function cmpDevGal(u){
   const shots=[...((m.renders&&m.renders.ext)||[]),...((m.renders&&m.renders.int)||[]),...(m.photos||[])];
   if(!shots.length)return '';
   return `<div class="cmp-devgal"><div class="cmp-devgal-h">${d.name} \u2014 development</div>
-    <div class="cmp-devgal-row">${shots.map(s=>`<button class="cmp-devgal-t" onclick="cmpFsOpen('devs','devs','${d.id}')"><img src="${UN_ASSET+s.img}" alt="" onerror="this.parentNode.style.display='none'"><span>${s.cap||d.name}</span></button>`).join('')}</div></div>`;
+    <div class="cmp-devgal-row">${shots.map(s=>`<button class="cmp-devgal-t" onclick="cmpFsOpen('devs','devs','${d.id}')"><img src="${xesc(awAsset(s.img))}" alt="" onerror="this.parentNode.style.display='none'"><span>${s.cap||d.name}</span></button>`).join('')}</div></div>`;
 }
 function cmpCheckoutHtml(){
   const items=trState.items;
@@ -8758,7 +8990,7 @@ function openLightbox(list,idx){
 }
 function lbRender(){
   const g=lbList[lbIdx];
-  document.getElementById('lb-img').src=UN_ASSET+g.img;
+  document.getElementById('lb-img').src=awAsset(g.img);
   document.getElementById('lb-cap').textContent=g.cap||'';
   document.getElementById('lb-count').textContent=(lbIdx+1)+' / '+lbList.length;
   const multi=lbList.length>1;
@@ -13112,7 +13344,7 @@ function crPackPanelHtml(o,x){
   }
   // Other shared assets — each viewable and editable.
   html+=ensureShared(o,x).map((s,i)=>`
-    <div class="cr-lc" style="margin-top:${(d||sentUids.length)?'10px':'0'}">
+    <div class="cr-lc" style="margin-top:${(d||sentUids.length||i>0)?'10px':'0'}">
       <div class="cr-lc-top" style="font-weight:600">${s.n}</div>
       <div class="cr-lc-meta">${s.d}${s.eng?` · ${s.eng}`:''}</div>
       <div class="cr-lc-actions">${s.eng?`<button class="sh-btn" onclick="shareView(${i})">View</button><button class="sh-btn" onclick="shareEdit(${i})">Edit</button><button class="sh-btn" onclick="shareSend(${i})">Re-send</button>`:`<button class="sh-btn primary" onclick="qaPresent()">Start</button>`}</div>
@@ -13142,6 +13374,7 @@ function crReversion(uid){
   crSyncTop(); crState.step=2; crRender();
 }
 </script>
+<script src="admin-workflows.js"></script>
 <script src="present-map.js"></script>
 <script src="present-data.js"></script>
 <script src="present-viewer.js"></script>

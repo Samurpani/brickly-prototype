@@ -1,6 +1,371 @@
 const {test,expect}=require('@playwright/test');
 const ENTRY_URL='/prototypes/Bricly_OS_Prototype_v2.html';
 
+for(const width of [1440,390]){
+  test(`Header search expands into one control at ${width}`,async({page},testInfo)=>{
+    await page.setViewportSize({width,height:900});
+    await page.emulateMedia({reducedMotion:'no-preference'});
+    const errors=[];page.on('pageerror',error=>errors.push(error.message));
+    for(const [route,prefix]of [['properties','un'],['pipeline','pipe'],['contacts','ct'],['deals','dl'],['developments','dv']]){
+      await page.evaluate(route=>go(route),route);
+      const field=page.locator(`#${prefix}-search-wrap`),input=field.locator('input');
+      const trigger=page.locator(`#p-${route} .crm-page-controls .tool[title="Search"]`);
+      const before=await trigger.evaluate(button=>[...button.parentElement.children].filter(element=>element!==button&&element.getBoundingClientRect().width>0).map(element=>({element:element.tagName,top:element.getBoundingClientRect().top})));
+      await trigger.click();
+      const control=page.locator(`#p-${route} .crm-header-search`);
+      await expect(control).toHaveClass(/is-open/);
+      await expect(input).toBeFocused();
+      await expect(field.locator('svg')).toHaveCount(0);
+      await expect(control.locator('button')).toHaveCount(1);
+      await expect(control).toHaveCSS('transition-duration','0.22s, 0.22s, 0.22s');
+      await expect.poll(async()=> (await control.boundingBox()).width).toBeGreaterThan(32);
+      await expect(input).toHaveCSS('font-size','11px');
+      expect((await control.boundingBox()).width).toBeLessThanOrEqual(180);
+      const after=await control.evaluate(control=>[...control.parentElement.children].filter(element=>element!==control&&element.getBoundingClientRect().width>0).map(element=>({element:element.tagName,top:element.getBoundingClientRect().top})));
+      expect(after).toEqual(before);
+      const bounds=await control.boundingBox();expect(bounds.x).toBeGreaterThanOrEqual(0);expect(bounds.x+bounds.width).toBeLessThanOrEqual(width);
+      await input.fill('Mercury');
+      if(prefix==='un')expect(await page.evaluate(()=>unState.q)).toBe('Mercury');
+      if(prefix==='dv'){
+        await page.evaluate(()=>renderDevs());
+        await expect(control).toHaveClass(/is-open/);await expect(input).toHaveValue('Mercury');
+      }
+      await input.press('Escape');
+      await expect(control).not.toHaveClass(/is-open/);await expect(trigger).toBeFocused();
+      await expect(input).toHaveValue('');await expect(trigger).toHaveAttribute('aria-expanded','false');
+      await expect.poll(async()=> (await control.boundingBox()).width).toBe(32);
+      await trigger.click();await expect(input).toBeFocused();
+      if(prefix==='un'){
+        await expect.poll(async()=> (await control.boundingBox()).width).toBeGreaterThan(32);
+        await page.screenshot({path:testInfo.outputPath(`header-search-${width}.png`)});
+      }
+      await trigger.click();await expect(control).not.toHaveClass(/is-open/);
+      await trigger.click();await input.fill('   ');
+      await page.locator(`#p-${route} .page-title`).first().click();
+      await expect(control).not.toHaveClass(/is-open/);
+      await expect(input).toHaveValue('');
+      await trigger.click();await input.fill('Mercury');
+      await page.locator(`#p-${route} .page-title`).first().click();
+      await expect(control).toHaveClass(/is-open/);
+      await expect(input).toHaveValue('Mercury');
+      await input.press('Escape');
+    }
+    await page.emulateMedia({reducedMotion:'reduce'});
+    await expect(page.locator('#p-developments .crm-header-search')).toHaveCSS('transition-duration','0s');
+    expect(errors).toEqual([]);
+  });
+}
+
+test('Walkthrough updates: new contacts require details and keep optional values empty',async({page})=>{
+  const errors=[];page.on('pageerror',error=>errors.push(error.message));
+  const before=await page.evaluate(()=>({contacts:CONTACTS.length,opps:OPPS.length}));
+  await page.evaluate(()=>openNewOpp());
+  await page.locator('#nf-lead').fill('Walkthrough Buyer');
+  await page.getByRole('option',{name:'Create new contact',exact:true}).click();
+  await page.evaluate(()=>submitNewOpp());
+  await expect(page.locator('#nf-error')).toContainText('number');
+  await page.locator('#nf-phone').fill('+356 79001239');
+  await page.locator('#nf-email').fill('not-an-email');
+  await page.evaluate(()=>submitNewOpp());
+  await expect(page.locator('#nf-error')).toContainText('email');
+  expect(await page.evaluate(()=>CONTACTS.length)).toBe(before.contacts);
+  await page.locator('#nf-email').fill('walkthrough@example.com');
+  await page.evaluate(()=>{submitNewOpp();submitNewOpp();});
+  const saved=await page.evaluate(()=>({contacts:CONTACTS.length,opps:OPPS.length,units:OPPS.at(-1).units,devs:OPPS.at(-1).devs,budget:OPPS.at(-1).budget,linked:CONTACTS.at(-1).oppIds.includes(OPPS.at(-1).id),consent:CONTACTS.at(-1).consent}));
+  expect(saved).toEqual({contacts:before.contacts+1,opps:before.opps+1,units:[],devs:[],budget:null,linked:true,consent:{wa:false,em:false,sms:false}});
+  await page.evaluate(()=>openOpp(OPPS.at(-1).id));
+  await expect(page.locator('#opp-root')).not.toContainText(/undefined|€null|NaN/);
+  await expect(page.locator('#opp-root')).toContainText('walkthrough@example.com');
+  expect(errors).toEqual([]);
+  await page.reload();expect(await page.evaluate(()=>CONTACTS.length)).toBe(before.contacts);
+});
+
+test('Walkthrough updates: existing contacts and unit context share the same drawer',async({page})=>{
+  const fixture=await page.evaluate(()=>({contact:CONTACTS[0],unit:UNITS[0],count:CONTACTS.length}));
+  await page.evaluate(id=>unNewDeal(id),fixture.unit.id);
+  await expect(page.locator('#nf-units summary')).toHaveText(fixture.unit.id);
+  await expect(page.locator('#nf-devs summary')).toHaveText(fixture.unit.dev);
+  await expect(page.locator('#nf-value')).toHaveValue('');
+  await page.locator('#nf-lead').fill(fixture.contact.email);
+  await page.locator('#nf-lead').press('ArrowDown');await page.keyboard.press('Enter');
+  await expect(page.locator('#nf-phone')).toHaveValue(fixture.contact.phone);
+  await expect(page.locator('#nf-email')).toHaveValue(fixture.contact.email);
+  await page.locator('#nf-value').fill('0');
+  await page.evaluate(()=>submitNewOpp());
+  expect(await page.evaluate(()=>({count:CONTACTS.length,contactId:OPPS.at(-1).contactId,budget:OPPS.at(-1).budget,units:OPPS.at(-1).units}))).toEqual({count:fixture.count,contactId:fixture.contact.id,budget:0,units:[fixture.unit.id]});
+  await page.evaluate(()=>openNewOpp());
+  await page.locator('#nf-units summary').click();
+  expect(await page.locator('#nf-units .fd-item').count()).toBe(await page.evaluate(()=>UNITS.length));
+  await page.locator('#nf-units .fd-item').first().click();
+  await expect(page.locator('#nf-units summary')).toHaveText(fixture.unit.id);
+  await page.keyboard.press('Escape');await expect(page.locator('#nf-units')).not.toHaveAttribute('open','');
+  await page.locator('#nf-devs summary').click();
+  expect(await page.locator('#nf-devs .fd-item').count()).toBe(await page.evaluate(()=>DEVS.length));
+  await page.evaluate(({contact,unit})=>{closeNewOpp();openNewOpp({contactId:contact.id,unitId:unit.id});submitNewOpp();openOpp(OPPS.at(-1).id);},fixture);
+  await expect(page.locator('#opp-root')).not.toContainText(/undefined|€null|NaN/);
+});
+
+test('Walkthrough updates: unit links search, filter and enforce ownership',async({page})=>{
+  const fixture=await page.evaluate(()=>{
+    curPersona='rep';const unit=UNITS.find(record=>OPPS.some(opportunity=>unLinkAllowed(opportunity,record.id)));
+    const own=OPPS.find(opportunity=>unLinkAllowed(opportunity,unit.id));
+    const other=OPPS.find(opportunity=>opportunity.rep!==UN_REP&&opportunity.stage!=='Closed Won'&&!opportunity.units.includes(unit.id));
+    unLinkDeal(unit.id);return {unit:unit.id,own,other};
+  });
+  await page.locator('#un-link-search').fill(fixture.other.id);
+  await expect(page.locator('#un-link-results')).toContainText('No matching opportunities');
+  await page.locator('#un-link-search').fill(fixture.own.id);
+  await expect(page.locator('#un-link-results button')).toHaveCount(1);
+  await page.evaluate(stage=>unLinkFilter('stage',stage),fixture.own.stage);
+  await expect(page.locator('#un-link-results button')).toHaveCount(1);
+  await page.evaluate(()=>unLinkFilter('stage','Closed Won'));
+  await expect(page.locator('#un-link-results button')).toHaveCount(0);
+  await page.getByRole('button',{name:'Clear filters',exact:true}).click();
+  await page.locator('#un-link-search').fill(fixture.own.id);
+  await page.locator('#un-link-results button').click();
+  expect(await page.evaluate(({own,unit})=>OPPS.find(opportunity=>opportunity.id===own.id).units.filter(id=>id===unit).length,fixture)).toBe(1);
+  await page.evaluate(({own,unit,other})=>{unAttach(own.id,unit);unAttach(other.id,unit);},fixture);
+  expect(await page.evaluate(({other,unit})=>OPPS.find(opportunity=>opportunity.id===other.id).units.includes(unit),fixture)).toBe(false);
+  await page.evaluate(unit=>{curPersona='manager';unLinkDeal(unit);unLinkFilter('scope','all');},fixture.unit);
+  await page.locator('#un-link-search').fill(fixture.other.id);
+  await expect(page.locator('#un-link-results button')).toHaveCount(1);
+  await page.evaluate(()=>{curPersona='rep';});
+  await page.locator('#un-link-results button').click();
+  expect(await page.evaluate(({other,unit})=>OPPS.find(opportunity=>opportunity.id===other.id).units.includes(unit),fixture)).toBe(false);
+});
+
+test('Walkthrough updates: cancellation, duplicate details and decimal budget',async({page})=>{
+  const before=await page.evaluate(()=>CONTACTS.length);
+  await page.evaluate(()=>openNewOpp());
+  await page.locator('#nf-lead').fill('Cancelled Buyer');
+  await page.getByRole('option',{name:'Create new contact',exact:true}).click();
+  await page.getByRole('button',{name:'Cancel',exact:true}).click();
+  expect(await page.evaluate(()=>CONTACTS.length)).toBe(before);
+  await page.evaluate(()=>openNewOpp());
+  await page.locator('#nf-lead').fill('Duplicate Buyer');
+  await page.getByRole('option',{name:'Create new contact',exact:true}).click();
+  const existing=await page.evaluate(()=>CONTACTS[0]);
+  await page.locator('#nf-phone').fill(existing.phone);
+  await page.locator('#nf-email').fill(existing.email);
+  await page.evaluate(()=>submitNewOpp());
+  await expect(page.locator('#nf-error')).toContainText('existing contact');
+  await page.locator('#nf-lead').fill(existing.email);
+  await page.getByRole('option').first().click();
+  await page.locator('#nf-value').fill('350.75');
+  await page.evaluate(()=>submitNewOpp());
+  expect(await page.evaluate(()=>({count:CONTACTS.length,budget:OPPS.at(-1).budget}))).toEqual({count:before,budget:350.75});
+});
+
+for(const width of [1440,390]){
+  test(`Walkthrough updates: logo, menus, shared gaps and selection clearance at ${width}`,async({page},testInfo)=>{
+    await page.setViewportSize({width,height:900});
+    const errors=[];page.on('pageerror',error=>errors.push(error.message));
+    const logo=page.locator('.crm-brand-logo');
+    await logo.evaluate(image=>image.decode());
+    expect(await logo.evaluate(image=>[image.naturalWidth,image.naturalHeight])).toEqual([73,22]);
+    await page.evaluate(()=>{go('pipeline');openNewOpp();});
+    await page.locator('#nf-devs summary').click();
+    await expect(page.locator('#nf-devs .fd-search input')).toBeVisible();
+    for(const selector of ['#oppDrawer','#nf-devs']){
+      const bounds=await page.locator(selector).boundingBox();expect(bounds.x).toBeGreaterThanOrEqual(0);expect(bounds.x+bounds.width).toBeLessThanOrEqual(width+1);
+    }
+    expect(await page.locator('#nf-devs .fd-item').first().evaluate(element=>getComputedStyle(element).borderTopWidth)).toBe('0px');
+    await page.screenshot({path:testInfo.outputPath(`form-${width}.png`)});
+    await page.evaluate(()=>{closeNewOpp();const opportunity=OPPS.find(record=>record.lead==='Emma Farrugia');openOpp(opportunity.id);});
+    const shared=page.locator('#opp-root .dcard').filter({has:page.locator('.side-h',{hasText:'Shared with client'})});
+    const cards=shared.locator('.cr-lc');
+    const first=await cards.nth(0).boundingBox(),second=await cards.nth(1).boundingBox();
+    expect(second.y-first.y-first.height).toBeGreaterThanOrEqual(10);
+    await expect.poll(async()=> (await page.locator('#oppDrawer').boundingBox()).x).toBeGreaterThanOrEqual(width);
+    await shared.screenshot({path:testInfo.outputPath(`shared-${width}.png`)});
+    await page.evaluate(()=>{go('properties');trClear();trAdd(UNITS.find(unit=>unit.status==='available').id);});
+    await expect(page.locator('.selbar.on')).toBeVisible();
+    await expect(page.locator('#briclyToast')).toHaveClass(/selection-toast/);
+    const toast=await page.locator('#briclyToast').boundingBox(),bar=await page.locator('.selbar.on').boundingBox();
+    expect(toast.x).toBeGreaterThanOrEqual(0);expect(toast.x+toast.width).toBeLessThanOrEqual(width);expect(toast.y+toast.height).toBeLessThan(bar.y);
+    await expect(page.getByRole('button',{name:'Export list',exact:true})).toHaveCount(0);
+    expect(await page.evaluate(()=>sbEl._surface.actions.some(action=>/export/i.test(action.label)))).toBe(true);
+    await page.screenshot({path:testInfo.outputPath(`selection-${width}.png`)});
+    await page.evaluate(()=>showToast('General notification'));
+    await expect(page.locator('#briclyToast')).not.toHaveClass(/selection-toast/);
+    expect(errors).toEqual([]);
+  });
+}
+
+test('Admin workflows: development request permissions, drafts and submission',async({page})=>{
+  await page.goto(ENTRY_URL);
+  await page.evaluate(()=>{curPersona='rep';go('developments');});
+  await expect(page.getByRole('button',{name:'Add development'})).toBeHidden();
+  await page.evaluate(()=>{curPersona='manager';go('developments');});
+  await page.getByRole('button',{name:'Add development'}).click();
+  await page.getByLabel('Development name',{exact:true}).fill('Harbour Extension');
+  await page.getByRole('button',{name:'Save draft',exact:true}).click();
+  await page.locator('.aw-request').click();
+  await expect(page.getByLabel('Development name',{exact:true})).toHaveValue('Harbour Extension');
+  await page.getByLabel('Location',{exact:true}).fill('Sliema');
+  await page.getByLabel('Expected units',{exact:true}).fill('12');
+  await page.getByLabel('Setup contact',{exact:true}).fill('Sam');
+  await page.getByLabel('Contact email',{exact:true}).fill('sam@example.com');
+  await page.getByRole('button',{name:'Continue',exact:true}).click();
+  await page.getByRole('button',{name:'Continue',exact:true}).click();
+  await expect(page.locator('#aw-error')).toContainText('source files');
+  await page.getByLabel('Missing information / delivery plan').fill('Architect will supply plans on Friday.');
+  await page.getByRole('button',{name:'Continue',exact:true}).click();
+  await page.getByLabel('Confirm this setup request').check();
+  const before=await page.evaluate(()=>DEVS.length);
+  await page.getByRole('button',{name:'Submit setup request',exact:true}).click();
+  await expect(page.locator('.aw-request')).toContainText('Submitted - scope review');
+  expect(await page.evaluate(()=>({requests:AW_REQUESTS.length,developments:DEVS.length}))).toEqual({requests:1,developments:before});
+});
+
+test('Admin workflows: new units remain off market until explicit mapping sign-off',async({page})=>{
+  await page.evaluate(()=>{curPersona='owner';go('properties');});
+  await page.getByRole('button',{name:'Add unit',exact:false}).click();
+  await page.getByLabel('Unit reference',{exact:true}).fill('EXT-101');
+  await page.getByLabel('Internal area (m2)',{exact:true}).fill('85');
+  await page.getByLabel('List price (EUR)',{exact:true}).fill('340000');
+  await page.getByRole('button',{name:'Save draft',exact:true}).click();
+  expect(await page.evaluate(()=>UN('EXT-101').status)).toBe('off_market');
+  await page.getByRole('button',{name:'Edit unit',exact:true}).click();
+  await page.getByRole('button',{name:'Continue',exact:true}).click();
+  await page.getByRole('button',{name:'Continue',exact:true}).click();
+  await page.getByRole('button',{name:'Continue',exact:true}).click();
+  await page.getByLabel('Publish as available').check();
+  await page.getByRole('button',{name:'Save unit',exact:true}).click();
+  await expect(page.locator('#aw-error')).toContainText('Confirm floorplan mapping');
+  await page.getByRole('button',{name:'Back',exact:true}).click();
+  await page.getByRole('button',{name:'Back',exact:true}).click();
+  await page.getByLabel('Floorplan mapping',{exact:true}).selectOption('not_applicable');
+  await page.getByLabel('Reason no floorplan applies').fill('Independent garage with no architectural floorplan.');
+  await page.getByLabel('I confirm no floorplan is applicable').check();
+  await page.getByRole('button',{name:'Continue',exact:true}).click();
+  await page.getByRole('button',{name:'Continue',exact:true}).click();
+  await page.getByRole('button',{name:'Save unit',exact:true}).click();
+  expect(await page.evaluate(()=>UN('EXT-101').status)).toBe('available');
+  await page.evaluate(()=>{curPersona='manager';go('properties');});
+  await expect(page.getByRole('button',{name:'Add unit',exact:false})).toBeHidden();
+});
+
+test('Admin workflows: uploaded unit images and confirmed floor placement render after save',async({page})=>{
+  await page.evaluate(()=>{curPersona='owner';awUnit();Object.assign(awState.values,{id:'EXT-102',floor:8,sqm:80,price:300000});awState.step=1;awRender();});
+  await page.getByLabel('Floorplan mapping',{exact:true}).selectOption('mapped');
+  const fixture=await floorDrawingFixture(page);
+  await page.getByLabel('Upload floor drawing',{exact:true}).setInputFiles(fixture);
+  await expect(page.locator('.aw-map img')).toBeVisible();
+  await page.getByLabel('Horizontal position (%)').fill('25');
+  await page.getByLabel('Vertical position (%)').fill('40');
+  await page.getByLabel('I confirm this unit is correctly placed on this floor').check();
+  await page.getByRole('button',{name:'Continue',exact:true}).click();
+  await page.getByLabel('Add images',{exact:true}).setInputFiles(fixture);
+  await expect(page.locator('.aw-images img')).toBeVisible();
+  await page.getByRole('button',{name:'Continue',exact:true}).click();
+  await page.getByLabel('Publish as available').check();
+  await page.getByRole('button',{name:'Save unit',exact:true}).click();
+  expect(await page.evaluate(()=>DEV('dolphin').floorPlans[8].positions['EXT-102'])).toEqual({x:25,y:40});
+  await expect(page.locator('#un-media-main img')).toBeVisible();
+  expect(await page.locator('#un-media-main img').evaluate(image=>image.naturalWidth)).toBeGreaterThan(0);
+  await page.evaluate(()=>awInvalidateFloor(DEV('dolphin'),8));
+  expect(await page.evaluate(()=>UN('EXT-102').status)).toBe('off_market');
+});
+
+test('Admin workflows: development editing saves details without changing unit identities',async({page})=>{
+  await page.evaluate(()=>{curPersona='owner';openDev('dolphin');});
+  await page.getByRole('button',{name:'Edit development',exact:true}).click();
+  await page.getByLabel('About the development',{exact:true}).fill('Updated development description.');
+  await page.getByRole('button',{name:'Continue',exact:true}).click();
+  await page.getByRole('button',{name:'Save development',exact:true}).click();
+  await expect(page.locator('#dv-tabc')).toContainText('Updated development description.');
+  expect(await page.evaluate(()=>UN('#CM1201').dev)).toBe('Dolphin Court');
+});
+
+test('Admin workflows: external completed deal preserves actual history and deduplicates inventory',async({page})=>{
+  const errors=[];page.on('pageerror',error=>errors.push(error.message));
+  const fixture=await page.evaluate(()=>{
+    curPersona='owner';go('deals');
+    const unit=UNITS.find(record=>record.status==='available'&&!DEALS.some(deal=>dealOpp(deal).units.includes(record.id)));
+    return {unit:unit.id,development:DEV(unit.dev).id,before:DEALS.length};
+  });
+  await page.getByRole('button',{name:'Add deal',exact:false}).click();
+  await page.getByLabel('Deal source',{exact:true}).selectOption('external');
+  await page.getByLabel('Sale status',{exact:true}).selectOption('completed');
+  await page.getByRole('button',{name:'Continue',exact:true}).click();
+  await page.getByLabel('Buyer name',{exact:true}).fill('External Buyer');
+  await page.getByLabel('Buyer phone',{exact:true}).fill('+356 79991234');
+  await page.getByLabel('Buyer email',{exact:true}).fill('external@example.com');
+  await page.getByLabel('Development',{exact:true}).selectOption(fixture.development);
+  await page.getByLabel('Contracted unit',{exact:true}).selectOption(fixture.unit);
+  await page.getByLabel('Agreed sale price (EUR)').fill('320000');
+  await page.getByLabel('Commission payable (EUR)').fill('6400');
+  await page.getByRole('button',{name:'Continue',exact:true}).click();
+  await page.getByLabel('POS signed date',{exact:true}).fill('2026-01-01');
+  await page.getByLabel('Final deed signed date',{exact:true}).fill('2026-08-01');
+  await page.getByLabel('Missing evidence / historical notes').fill('Notary will supply archived signed documents.');
+  await page.getByRole('button',{name:'Continue',exact:true}).click();
+  await page.getByLabel('I confirm the signed milestones and inventory change').check();
+  await page.getByRole('button',{name:'Create deal',exact:true}).click();
+  await expect(page.locator('#deal-root')).toContainText('External Buyer');
+  const result=await page.evaluate(unitId=>{
+    const deal=DEALS.at(-1),opportunity=dealOpp(deal);
+    return {count:DEALS.length,status:UN(unitId).status,paid:opportunity.closed.paid,step:opportunity.closed.step,milestones:opportunity.closed.milestones.map(record=>record?.date||null),payments:EXT[opportunity.id].payments,consent:CONTACTS.at(-1).consent};
+  },fixture.unit);
+  expect(result).toEqual({count:fixture.before+1,status:'sold',paid:false,step:4,milestones:['2026-01-01',null,null,'2026-08-01',null],payments:[],consent:{wa:false,em:false,sms:false}});
+  const duplicate=await page.evaluate(()=>{awDeal();Object.assign(awState.values,{origin:'external',saleState:'completed',unitId:DEALS.at(-1)&&dealOpp(DEALS.at(-1)).units[0]});const unit=UN(awState.values.unitId);awState.values.developmentId=DEV(unit.dev).id;try{awValidateDeal(1);}catch(error){return error.message;}});
+  expect(duplicate).toContain('already has a deal');expect(errors).toEqual([]);
+});
+
+test('Admin workflows: reps convert only their own opportunities and preserve existing records',async({page})=>{
+  const fixture=await page.evaluate(()=>{
+    curPersona='rep';go('deals');
+    const opportunity=awEligibleOpportunities()[0];
+    const unit=UNITS.find(record=>record.status==='available'&&!DEALS.some(deal=>dealOpp(deal).units.includes(record.id)));
+    opportunity.units=[unit.id];opportunity.devs=[unit.dev];
+    return {id:opportunity.id,unit:unit.id,count:OPPS.length};
+  });
+  await page.getByRole('button',{name:'Add deal',exact:false}).click();
+  await expect(page.getByLabel('Deal source',{exact:true}).locator('option')).toHaveCount(1);
+  await page.getByLabel('Search opportunities').fill(fixture.id);
+  await page.getByLabel('Opportunity',{exact:true}).selectOption(fixture.id);
+  await page.getByRole('button',{name:'Continue',exact:true}).click();
+  await page.getByLabel('Contracted unit',{exact:true}).selectOption(fixture.unit);
+  await page.getByRole('button',{name:'Continue',exact:true}).click();
+  await page.getByLabel('POS signed date',{exact:true}).fill('2026-08-01');
+  await page.getByLabel('Missing evidence / historical notes').fill('Signed POS copy requested.');
+  await page.getByRole('button',{name:'Continue',exact:true}).click();
+  await page.getByLabel('I confirm the signed milestones and inventory change').check();
+  await page.getByRole('button',{name:'Create deal',exact:true}).click();
+  expect(await page.evaluate(({id,unit})=>({count:OPPS.length,deal:!!dealFor(id),status:UN(unit).status,jstage:getExt(OPPS.find(record=>record.id===id)).jstage}),fixture)).toEqual({count:fixture.count,deal:true,status:'reserved',jstage:'pos'});
+  expect(await page.evaluate(()=>{awDeal();awState.values.origin='external';try{awValidateDeal(0);}catch(error){return error.message;}})).toContain('role');
+});
+
+test('Admin workflows: duplicate contacts and changed permissions block external entry',async({page})=>{
+  const messages=await page.evaluate(()=>{
+    curPersona='manager';awDeal();const unit=UNITS.find(record=>record.status==='available'&&!DEALS.some(deal=>dealOpp(deal).units.includes(record.id)));
+    Object.assign(awState.values,{origin:'external',unitId:unit.id,developmentId:DEV(unit.dev).id,buyerName:'Duplicate Test',phone:CONTACTS[0].phone,value:300000,commission:6000});
+    const messages=[];try{awValidateDeal(1);}catch(error){messages.push(error.message);}
+    curPersona='marketing';try{awValidateDeal(1);}catch(error){messages.push(error.message);}
+    return messages;
+  });
+  expect(messages[0]).toContain('existing contact');expect(messages[1]).toContain('role');
+});
+
+for(const width of [1440,390]){
+  test(`Admin workflows: forms fit ${width}`,async({page},testInfo)=>{
+    await page.setViewportSize({width,height:900});
+    const errors=[];page.on('pageerror',error=>errors.push(error.message));
+    for(const flow of ['development','unit','deal']){
+      await page.evaluate(flow=>{document.getElementById('aw-dialog')?.close();curPersona='owner';if(flow==='development')awDevelopment();if(flow==='unit')awUnit();if(flow==='deal')awDeal();},flow);
+      const dialog=page.locator('#aw-dialog'),bounds=await dialog.boundingBox();
+      expect(bounds.x).toBeGreaterThanOrEqual(0);expect(bounds.x+bounds.width).toBeLessThanOrEqual(width);
+      expect(await dialog.evaluate(element=>element.scrollWidth<=element.clientWidth)).toBe(true);
+      for(const control of await dialog.locator('input:not([type=checkbox]),select,textarea').all()){
+        const box=await control.boundingBox();expect(box.x+box.width).toBeLessThanOrEqual(bounds.x+bounds.width);
+      }
+      await page.screenshot({path:testInfo.outputPath(`${flow}-${width}.png`)});
+    }
+    expect(errors).toEqual([]);
+  });
+}
+
 test.beforeEach(async({page})=>{
   await page.route('https://fonts.googleapis.com/**',route=>route.abort());
   await page.goto(ENTRY_URL);
@@ -453,7 +818,7 @@ for(const theme of ['light','dark']){
     await expect(page.locator('.app .sidebar')).toHaveCSS('width','256px');
     await expect(page.locator('#p-pipeline .card').first()).toHaveCSS('width','256px');
     await expect(page.locator('#p-pipeline .card').first()).toHaveCSS('border-radius','8px');
-    await expect(page.locator('#p-pipeline .btn-primary').first()).toHaveCSS('height','32px');
+    await expect(page.locator('#p-pipeline .btn-primary').first()).toHaveCSS('height','28px');
     await expect(page.locator('.app .ws')).toHaveCSS('color',theme==='light'?'rgb(46, 45, 44)':'rgb(232, 232, 220)');
     await expect(page.locator('#navSearch')).toHaveCSS('border-top-width','0px');
     await expect(page.locator('#p-pipeline .btn-primary').first()).toHaveCSS('background-color',theme==='light'?'rgb(101, 122, 50)':'rgb(127, 148, 77)');
@@ -636,15 +1001,17 @@ test('CRM development gallery shares selection with Present and keeps actions ri
     await page.locator('#selbar').getByRole('button',{name:'Select all',exact:true}).click();
     await expect(page.locator('#dv-grid input:checked')).toHaveCount(5);
     await expect(page.locator('#dv-present')).toHaveText('Present 5 developments');
-    const controls=await page.locator('#dv-toolbar').boundingBox();
+    const controls=await page.locator('#dv-toolbar .crm-page-controls').boundingBox();
     const present=await page.locator('#dv-present').boundingBox();
-    expect(Math.abs(controls.x+controls.width-present.x-present.width)).toBeLessThanOrEqual(1);
     if(width===1440){
+      expect(Math.abs(controls.x+controls.width-present.x-present.width)).toBeLessThanOrEqual(1);
       const presentCenter=present.y+present.height/2;
-      for(const control of await page.locator('#dv-filter-row > .crm-filter-field, #dv-toolbar .viewtoggle button').all()){
+      for(const control of await page.locator('#dv-toolbar .viewtoggle button').all()){
         const bounds=await control.boundingBox();
         expect(Math.abs(bounds.y+bounds.height/2-presentCenter)).toBeLessThanOrEqual(1);
       }
+      const chipRow=await page.locator('#dv-filter-row').boundingBox();
+      expect(chipRow.y).toBeGreaterThanOrEqual(controls.y+controls.height-1);
     }
     const overflow=await page.locator('#p-developments').evaluate(node=>node.scrollWidth-node.clientWidth);
     expect(overflow).toBeLessThanOrEqual(1);
@@ -695,6 +1062,59 @@ test('CRM headers share responsive hierarchy and separate filters',async({page})
       }
     }
   }
+});
+
+for(const theme of ['light','dark']){
+  for(const width of [1440,390]){
+    test(`CRM filter operator ${theme} geometry fits ${width}`,async({page},testInfo)=>{
+      await page.setViewportSize({width,height:900});
+      await page.evaluate(theme=>{document.documentElement.dataset.theme=theme;go('pipeline');},theme);
+      await page.locator('#filter-row .crm-filter-field[data-label="Development"]').click();
+      const menu=page.locator('#filter-menu');
+      const header=menu.locator('.fm-group:visible .fd-operator');
+      await expect(menu.locator('.fm-group:visible')).toHaveCount(1);
+      await expect(header).toHaveText('Development is any of');
+      await expect(header.locator('.fm-label')).toHaveText('Development');
+      for(const [property,value] of Object.entries({width:'260px',height:'36px',padding:'8px','box-sizing':'border-box','border-radius':'4px','font-size':'12px','font-weight':'500','line-height':'16px','letter-spacing':'-0.15px','justify-content':'space-between','align-items':'center'})){
+        await expect(header).toHaveCSS(property,value);
+      }
+      await expect(header).toHaveCSS('font-family',/Inter/);
+      await expect(header).toHaveCSS('color',theme==='light'?'rgb(46, 45, 44)':'rgb(232, 232, 220)');
+      await expect(header).toHaveCSS('background-color',theme==='light'?'rgb(240, 238, 234)':'rgb(28, 28, 26)');
+      const bounds=await menu.boundingBox();
+      expect(bounds.x).toBeGreaterThanOrEqual(0);
+      expect(bounds.x+bounds.width).toBeLessThanOrEqual(width);
+      await menu.locator('.fm-group:visible .fd-item').first().click();
+      await expect(menu).toBeVisible();
+      await page.mouse.move(0,0);
+      await expect(menu.locator('.fm-group:visible .fd-item.on').first()).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
+      await page.screenshot({path:testInfo.outputPath('filter-dropdown.png')});
+      await page.evaluate(()=>go('contacts'));
+      await page.locator('#ct-filter-row .crm-filter-field[data-label="Status"]').click();
+      await expect(page.locator('#ct-filter-menu .fm-group:visible .fd-operator')).toHaveText('Status is');
+    });
+  }
+}
+
+test('CRM filter operator preserves dropdown search and sort styling',async({page})=>{
+  await page.evaluate(()=>go('properties'));
+  await page.locator('#un-filter-row .crm-filter-field[data-label="View & features"]').click();
+  const group=page.locator('#un-filter-menu .fm-group:visible');
+  const search=group.locator('.fd-search input');
+  const label=await group.locator('.fd-label').first().textContent();
+  await search.fill(label);
+  await expect(group.locator('.fd-item:visible')).not.toHaveCount(0);
+  await search.fill('no-such-filter-option');
+  await expect(group.locator('.fd-item:visible')).toHaveCount(0);
+  await expect(group.locator('.fd-empty')).toHaveText('No matches');
+  await search.fill('');
+  await expect(group.locator('.fd-empty')).toHaveCount(0);
+  await page.mouse.click(4,4);
+  await page.locator('#un-filter-row [id$="-sort-trigger"]').click();
+  const sort=page.locator('#un-filter-row .sort-menu');
+  await expect(sort).toBeVisible();
+  await expect(sort.locator('.fd-operator')).toHaveCount(0);
+  await expect(sort.locator('.fd-item').first()).toHaveCSS('min-height','32px');
 });
 
 test('CRM multi-select field chips stay open across picks and merge selections into one chip',async({page})=>{

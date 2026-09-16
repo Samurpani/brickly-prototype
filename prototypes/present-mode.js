@@ -1012,7 +1012,7 @@
   const oldRenderDevs=window.renderDevs;
   window.renderDevs=function(){
     oldRenderDevs();
-    const toolbar=document.querySelector('#dv-toolbar > .toolbar');
+    const toolbar=document.querySelector('#dv-toolbar .crm-page-controls > .toolbar');
     if(toolbar){const button=document.createElement('button');button.className='btn-primary';button.id='dv-present';button.textContent=dvSelection.size?`Present ${dvSelection.size} development${dvSelection.size===1?'':'s'}`:'Enter Present Mode';button.onclick=()=>PM.presentDevelopments([...dvSelection]);toolbar.append(button);}
   };
   const oldToggleDevSelection=window.dvToggleSelection;
