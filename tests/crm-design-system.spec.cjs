@@ -251,6 +251,17 @@ for(const width of [1440,390]){
     const logo=page.locator('.crm-brand-logo');
     await logo.evaluate(image=>image.decode());
     expect(await logo.evaluate(image=>[image.naturalWidth,image.naturalHeight])).toEqual([73,22]);
+    if(width>700){
+      await expect(logo).toBeVisible();
+      expect((await logo.boundingBox()).width).toBe(73);
+      expect(await logo.evaluate(image=>getComputedStyle(image.parentElement).padding)).toBe('0px 3px');
+      const logoBounds=await logo.boundingBox(),labelBounds=await page.locator('#crumb').boundingBox();
+      expect(Math.abs(logoBounds.y+logoBounds.height/2-labelBounds.y-labelBounds.height/2)).toBeLessThanOrEqual(1);
+      const sidebarBounds=await page.locator('#sidebar').boundingBox(),switcherBounds=await page.locator('#sidebar .ws').boundingBox();
+      expect(logoBounds.x-sidebarBounds.x).toBe(15);
+      expect(switcherBounds.y-sidebarBounds.y).toBe(63);
+      await page.screenshot({path:testInfo.outputPath(`logo-${width}.png`)});
+    }else await expect(logo).toBeHidden();
     await page.evaluate(()=>{go('pipeline');openNewOpp();});
     await page.locator('#nf-devs summary').click();
     await expect(page.locator('#nf-devs .fd-search input')).toBeVisible();
