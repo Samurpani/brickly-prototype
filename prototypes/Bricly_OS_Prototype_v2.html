@@ -1559,10 +1559,22 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
       <div class="ni" data-page="settings" onclick="go('settings')" title="Settings"><span class="crm-nav-icon" aria-hidden="true"></span>Settings</div>
     </nav>
     <div class="sb-foot">
-      <div class="user">
+      <button class="user" id="accountTrigger" type="button" popovertarget="accountPopover" aria-haspopup="dialog" aria-controls="accountPopover" aria-expanded="false" aria-label="Account and appearance" title="Account and appearance">
         <div class="avatar" id="uAv">SU</div>
         <div><div class="uname" id="uName">Sam</div><div class="urole" id="uRole">Sales Rep</div></div>
         <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 4.5L6 7.5 9 4.5"/></svg>
+      </button>
+      <div id="accountPopover" popover="auto" role="dialog" aria-label="Account and appearance" onbeforetoggle="accountBeforeToggle(event)" ontoggle="document.getElementById('accountTrigger').setAttribute('aria-expanded',String(event.newState==='open'))">
+        <fieldset class="account-roles"><legend>View as</legend>
+          <label><input type="radio" name="accountPersona" value="rep" onchange="accountChoosePersona(this.value)"><span>Sales Rep</span></label>
+          <label><input type="radio" name="accountPersona" value="manager" onchange="accountChoosePersona(this.value)"><span>Manager</span></label>
+          <label><input type="radio" name="accountPersona" value="marketing" onchange="accountChoosePersona(this.value)"><span>Marketing</span></label>
+          <label><input type="radio" name="accountPersona" value="owner" onchange="accountChoosePersona(this.value)"><span>Owner / Admin</span></label>
+        </fieldset>
+        <fieldset class="account-themes"><legend>Appearance</legend>
+          <label><input type="radio" name="accountTheme" value="light" onchange="accountChooseTheme(this.value)"><span class="account-swatch account-swatch-light" aria-hidden="true"></span><span>Light</span></label>
+          <label><input type="radio" name="accountTheme" value="dark" onchange="accountChooseTheme(this.value)"><span class="account-swatch account-swatch-dark" aria-hidden="true"></span><span>Dark</span></label>
+        </fieldset>
       </div>
     </div>
   </aside>
@@ -1589,12 +1601,6 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
       <section class="page on" id="p-today">
         <div class="t-demo">
           <span class="hint">Demo</span>
-          <div class="seg persona-seg" id="personaSeg">
-            <button class="on" data-p="rep" onclick="setPersona('rep',this)">Rep</button>
-            <button data-p="manager" onclick="setPersona('manager',this)">Manager</button>
-            <button data-p="marketing" onclick="setPersona('marketing',this)">Marketing</button>
-            <button data-p="owner" onclick="setPersona('owner',this)">Owner</button>
-          </div>
           <button class="heat-btn" onclick="triggerHeat()">⚡ Heat</button>
         </div>
         <div class="letter-scroll" id="letterScroll">
@@ -4696,7 +4702,30 @@ function renderLetter(){
   document.getElementById('letter').innerHTML=h;
 }
 
+function accountBeforeToggle(event){
+  if(event.newState!=='open')return;
+  const popover=event.currentTarget,trigger=document.getElementById('accountTrigger'),bounds=trigger.getBoundingClientRect();
+  popover.querySelectorAll('[name="accountPersona"]').forEach(input=>input.checked=input.value===curPersona);
+  popover.querySelectorAll('[name="accountTheme"]').forEach(input=>input.checked=input.value===document.documentElement.dataset.theme);
+  popover.style.left=Math.max(8,Math.min(bounds.left,window.innerWidth-272))+'px';
+  popover.style.bottom=Math.max(8,window.innerHeight-bounds.top+8)+'px';
+}
+function accountChoosePersona(persona){
+  setPersona(persona);
+  document.getElementById('accountPopover').hidePopover();
+  document.getElementById('accountTrigger').focus();
+}
+function accountChooseTheme(theme){
+  if(!['light','dark'].includes(theme))return;
+  if(document.documentElement.dataset.theme!==theme)toggleTheme();
+  if(document.getElementById('p-settings')?.classList.contains('on'))stRender();
+}
+window.addEventListener('resize',()=>{
+  const popover=document.getElementById('accountPopover');
+  if(popover?.matches(':popover-open'))popover.hidePopover();
+});
 function setPersona(p,btn){
+  if(!Object.hasOwn(PERSONAS,p))return;
   curPersona=p;closeRoom();closeEv();
   if(typeof awRoleChanged==='function')awRoleChanged();
   document.querySelectorAll('.persona-seg button').forEach(b=>b.classList.toggle('on',b.dataset.p===p));
@@ -4704,6 +4733,7 @@ function setPersona(p,btn){
   document.getElementById('uAv').textContent=P.av;
   document.getElementById('uName').textContent=P.name;
   document.getElementById('uRole').textContent=P.role;
+  document.querySelectorAll('[name="accountPersona"]').forEach(input=>input.checked=input.value===p);
   renderLetter();
   document.getElementById('letterScroll').scrollTop=0;
   if(typeof renderDash==='function') renderDash();
@@ -7012,7 +7042,6 @@ function dvToggleSearch(){
 }
 function renderDevs(){
   const searchOpen=!!document.getElementById('dv-search-wrap')?.closest('.crm-header-search.is-open')||!!dvListState.q;
-  if(typeof awOverviewActions==='function')awOverviewActions();
   document.getElementById('dv-toolbar').innerHTML=`
     <div class="row-between crm-page-controls">
     <div class="tabs">${[['all','All Items'],['available','Available'],['sold','Sold'],['draft','Draft'],['coming','Coming Soon']].map(([k,l])=>`<button class="tab ${dvListState.tab===k?'on':''}" onclick="dvSetListTab('${k}')">${l}</button>`).join('')}</div>
@@ -7047,6 +7076,7 @@ function renderDevs(){
   sortSyncTrigger('developments');
   if(searchOpen)crmToggleHeaderSearch('dv-search-wrap',true,false);
   dvRenderGrid();
+  if(typeof awOverviewActions==='function')awOverviewActions();
 }
 function dvRenderGrid(){
   const list=dvFilteredList();

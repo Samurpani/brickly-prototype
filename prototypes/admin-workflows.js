@@ -5,8 +5,10 @@ function awCan(kind){return kind==='development'?['owner','manager'].includes(cu
 function awActor(){return PERSONAS[curPersona]?.name||curPersona;}
 function awOverviewActions(){
   for(const [page,kind,label,action] of [['developments','development','Add development','awDevelopment()'],['properties','unit','Add unit','awUnit()'],['deals','deal','Add deal','awDeal()']]){
-    const heading=document.querySelector(`#p-${page} .crm-page-heading`);
+    const heading=document.querySelector(`#p-${page} .crm-page-controls > .toolbar`);
+    if(!heading)continue;
     if(!heading.querySelector('[data-aw-action]'))heading.insertAdjacentHTML('beforeend',`<button class="btn-primary" data-aw-action="${kind}" onclick="${action}">+ ${label}</button>`);
+    heading.appendChild(heading.querySelector('[data-aw-action]'));
   }
   document.querySelectorAll('[data-aw-action]').forEach(button=>button.hidden=!awCan(button.dataset.awAction));
   let requests=document.getElementById('aw-requests');

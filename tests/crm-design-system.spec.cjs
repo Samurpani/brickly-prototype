@@ -2,6 +2,70 @@ const {test,expect}=require('@playwright/test');
 const ENTRY_URL='/prototypes/Bricly_OS_Prototype_v2.html';
 
 for(const width of [1440,390]){
+  test(`Sidebar account switches persona and appearance at ${width}`,async({page},testInfo)=>{
+    await page.setViewportSize({width,height:900});
+    const errors=[];page.on('pageerror',error=>errors.push(error.message));
+    const trigger=page.getByRole('button',{name:'Account and appearance',exact:true});
+    const popup=page.getByRole('dialog',{name:'Account and appearance',exact:true});
+    await expect(page.locator('#p-today .persona-seg')).toHaveCount(0);
+    await page.evaluate(()=>go('developments'));
+    await trigger.focus();await page.keyboard.press('Enter');
+    await expect(trigger).toHaveAttribute('aria-expanded','true');
+    await expect(popup.getByRole('radio',{name:'Sales Rep',exact:true})).toBeChecked();
+    await popup.getByRole('radio',{name:'Owner / Admin',exact:true}).check();
+    await expect(popup).toBeHidden();await expect(trigger).toBeFocused();
+    await expect(page.locator('#p-developments [data-aw-action="development"]')).toBeVisible();
+    await page.evaluate(()=>go('properties'));
+    await expect(page.locator('#p-properties [data-aw-action="unit"]')).toBeVisible();
+    await trigger.click();await popup.getByRole('radio',{name:'Manager',exact:true}).check();
+    await expect(page.locator('#p-properties [data-aw-action="unit"]')).toBeHidden();
+    await page.evaluate(()=>go('developments'));
+    await expect(page.locator('#p-developments [data-aw-action="development"]')).toBeVisible();
+    await trigger.click();await popup.getByRole('radio',{name:'Marketing',exact:true}).check();
+    await expect(page.locator('#p-developments [data-aw-action="development"]')).toBeHidden();
+    await trigger.click();await popup.getByRole('radio',{name:'Sales Rep',exact:true}).check();
+    expect(await page.evaluate(()=>curPersona)).toBe('rep');
+    await expect(page.locator('#uName')).toHaveText('Sam');
+    for(const theme of ['dark','light']){
+      await trigger.click();await popup.getByRole('radio',{name:theme==='dark'?'Dark':'Light',exact:true}).check();
+      await expect(page.locator('html')).toHaveAttribute('data-theme',theme);
+      const bounds=await popup.boundingBox();
+      expect(bounds.x).toBeGreaterThanOrEqual(0);expect(bounds.x+bounds.width).toBeLessThanOrEqual(width);
+      expect(bounds.y).toBeGreaterThanOrEqual(0);expect(bounds.y+bounds.height).toBeLessThanOrEqual(900);
+      expect(await popup.evaluate(element=>element.scrollWidth<=element.clientWidth)).toBe(true);
+      await page.screenshot({path:testInfo.outputPath(`account-${theme}-${width}.png`)});
+      await page.keyboard.press('Escape');await expect(popup).toBeHidden();
+      await expect(trigger).toHaveAttribute('aria-expanded','false');
+    }
+    await trigger.click();await page.locator('#p-developments .page-title').click();
+    await expect(popup).toBeHidden();
+    expect(errors).toEqual([]);
+  });
+}
+
+for(const [route,kind,persona] of [['deals','deal','rep'],['properties','unit','owner'],['developments','development','owner']]){
+for(const width of [1440,390]){
+  test(`${route} Add ${kind} uses the rightmost header action at ${width}`,async({page},testInfo)=>{
+    await page.setViewportSize({width,height:900});
+    await page.evaluate(({route,persona})=>{curPersona=persona;go(route);awOverviewActions();awOverviewActions();if(route==='developments'){dvSetView('list');dvSetView('card');renderDevs();}},{route,persona});
+    const toolbar=page.locator(`#p-${route} .crm-page-controls > .toolbar`);
+    const button=toolbar.locator(`[data-aw-action="${kind}"]`);
+    await expect(button).toHaveCount(1);
+    await expect(button).toBeVisible();
+    await expect(page.locator(`#p-${route} .crm-page-heading [data-aw-action]`)).toHaveCount(0);
+    expect(await button.evaluate(element=>Array.from(element.parentElement.children).filter(sibling=>sibling!==element).every(sibling=>Number(getComputedStyle(sibling).order)<Number(getComputedStyle(element).order)))).toBe(true);
+    const bounds=await button.boundingBox(),parent=await toolbar.boundingBox();
+    expect(Math.abs(bounds.x+bounds.width-parent.x-parent.width)).toBeLessThanOrEqual(1);
+    expect(bounds.x).toBeGreaterThanOrEqual(0);expect(bounds.x+bounds.width).toBeLessThanOrEqual(width);
+    await page.screenshot({path:testInfo.outputPath(`${route}-header-${width}.png`)});
+    await button.click();await expect(page.locator('#aw-dialog')).toBeVisible();
+    await page.evaluate(()=>{document.getElementById('aw-dialog').close();curPersona='marketing';awOverviewActions();});
+    await expect(button).toBeHidden();
+  });
+}
+}
+
+for(const width of [1440,390]){
   test(`Header search expands into one control at ${width}`,async({page},testInfo)=>{
     await page.setViewportSize({width,height:900});
     await page.emulateMedia({reducedMotion:'no-preference'});
