@@ -1,6 +1,30 @@
 const {test,expect}=require('@playwright/test');
 const ENTRY_URL='/prototypes/Bricly_OS_Prototype_v2.html';
 
+for(const width of [1440,1100,768,650,390,320]){
+  test(`Top navigation search stays screen-centred at ${width}`,async({page},testInfo)=>{
+    await page.setViewportSize({width,height:900});
+    await expect(page.locator('#p-today .t-demo, #p-today .heat-btn')).toHaveCount(0);
+    for(const collapsed of [false,true]){
+      await page.evaluate(collapsed=>document.getElementById('sidebar').classList.toggle('collapsed',collapsed),collapsed);
+      for(const route of ['today','developments','pipeline']){
+        await page.evaluate(route=>go(route),route);
+        const search=page.locator('#navSearch');
+        await expect(search).toBeVisible();
+        const bounds=await search.boundingBox();
+        const left=await page.locator('.topbar .tb-left').boundingBox();
+        const right=await page.locator('.topbar .tb-right').boundingBox();
+        expect(Math.abs(bounds.x+bounds.width/2-width/2)).toBeLessThanOrEqual(1);
+        expect(left.x+left.width).toBeLessThanOrEqual(bounds.x);
+        expect(bounds.x+bounds.width).toBeLessThanOrEqual(right.x);
+        await search.click();await expect(page.locator('#globalSearch')).toBeVisible();
+        await page.keyboard.press('Escape');
+      }
+      await page.screenshot({path:testInfo.outputPath(`centred-search-${width}-${collapsed}.png`)});
+    }
+  });
+}
+
 for(const width of [1440,390]){
   test(`Sidebar account switches persona and appearance at ${width}`,async({page},testInfo)=>{
     await page.setViewportSize({width,height:900});
