@@ -1,0 +1,173 @@
+/* Load last among Present styles. Only #pm-shell .sp-* / spatial stage affected.
+ * Mobile controls live in the stage; host may leave its right panel hidden below
+ * 1100px. The stage must stay in document flow and vertically scrollable; do not
+ * apply the photographic stage's absolute positioning to .sp-stage-content.
+ */
+#pm-shell .pm-spatial-stage {
+  display:block; min-width:0; min-height:0; overflow:auto;
+  background:var(--bg,#fcfbf9); color:var(--on-surface,#2e2d2c);
+}
+#pm-shell .pm-spatial-unit-entry {display:flex; gap:8px; flex-wrap:wrap; padding:0 24px 24px;}
+#pm-shell .pm-showroom-floors > .pm-panel {padding:0;}
+#pm-shell .sp-mobile-outline {display:none;}
+#pm-shell .sp-stage-content, #pm-shell .sp-panel {
+  --sp-paper:#f4f3e9; --sp-wall:#e0decb; --sp-roof:#d1d5bd;
+  --sp-line:#7c8975; --sp-ink:#354737; --sp-glass:#819b91;
+  --sp-land:#e2e8d9; --sp-path:#efebdc; --sp-tree:#b5c6a3;
+  --sp-available:#d3dfbe; --sp-hold:#efe0b3; --sp-reserved:#cedbe8;
+  --sp-sold:#ddd6d0; --sp-unknown:#e8e5dc;
+  color:var(--on-surface,#2e2d2c); font-family:var(--font,Arial,sans-serif);
+  line-height:1.5; box-sizing:border-box;
+}
+#pm-shell .sp-stage-content {padding:clamp(16px,2.4vw,32px); width:100%; max-width:1560px; margin:auto;}
+#pm-shell .sp-heading {display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; margin-bottom:18px;}
+#pm-shell .sp-heading h2 {font-size:clamp(23px,2.7vw,36px); font-weight:500; letter-spacing:-.045em; line-height:1.2; margin:5px 0;}
+#pm-shell .sp-kicker {display:block; font-size:10px; font-weight:600; letter-spacing:.15em; text-transform:uppercase; color:var(--primary,#657a32);}
+#pm-shell .sp-button {min-width:44px; min-height:44px; padding:10px 14px; border:1px solid var(--outline,#e5e4e1); border-radius:var(--r-lg,12px); color:var(--on-surface,#2e2d2c); background:var(--surface,#fff); font:inherit; font-size:12px; line-height:1.35; cursor:pointer; text-align:center; transition:background .16s,border-color .16s; overflow-wrap:anywhere;}
+#pm-shell .sp-button:hover:not(:disabled) {background:var(--sc-lowest,#f7f5f0); border-color:var(--primary,#657a32);}
+#pm-shell .sp-button[aria-pressed="true"] {background:var(--sc,#efece7); border-color:var(--primary,#657a32); color:var(--on-surface,#2e2d2c); box-shadow:inset 0 -3px 0 var(--primary,#657a32);}
+#pm-shell .sp-button.sp-primary {background:var(--primary,#657a32); border-color:var(--primary,#657a32); color:var(--on-primary,#faf9f7);}
+#pm-shell .sp-button:disabled {opacity:.55; cursor:not-allowed;}
+#pm-shell .sp-stage-content :focus-visible, #pm-shell .sp-panel :focus-visible {outline:3px solid var(--primary-high,#52671f); outline-offset:3px;}
+#pm-shell .sp-actions, #pm-shell .sp-building-tabs, #pm-shell .sp-view-tabs, #pm-shell .sp-directions, #pm-shell .sp-plan-tools, #pm-shell .sp-floor-chips {display:flex; flex-wrap:wrap; align-items:center; gap:8px;}
+#pm-shell .sp-building-tabs {margin:16px 0;}
+#pm-shell .sp-building-tabs .sp-button {flex:1;}
+#pm-shell .sp-disclosure {display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; background:var(--sc-lowest,#f7f5f0); border:1px solid var(--outline,#e5e4e1); border-radius:var(--r-lg,12px); padding:12px 14px; font-size:11px; color:var(--on-variant,#6d6d62);}
+#pm-shell .sp-disclosure p {flex:1; min-width:180px; margin:0;}
+#pm-shell .sp-demo-badge {padding:5px 8px; border-radius:5px; color:var(--on-surface,#2e2d2c); background:var(--sc,#efece7); text-transform:uppercase; letter-spacing:.1em; font-size:9px; font-weight:600; white-space:nowrap;}
+#pm-shell .sp-disclosure details {flex-basis:100%;}
+#pm-shell .sp-disclosure summary {cursor:pointer; min-height:44px; display:flex; align-items:center; text-decoration:underline; text-underline-offset:3px;}
+#pm-shell .sp-disclosure details[open] p {margin-top:6px; max-width:85ch;}
+#pm-shell .sp-art {border:1px solid var(--outline,#e5e4e1); border-radius:var(--r-xl,16px); overflow:hidden; background:var(--sp-paper); margin:14px 0 12px; position:relative;}
+#pm-shell .sp-diagram {display:block; width:100%; height:auto; max-height:650px; color:var(--sp-ink); font-family:var(--font,Arial,sans-serif);}
+#pm-shell .sp-diagram text, #pm-shell .sp-silhouette text {fill:var(--sp-ink); pointer-events:none;}
+#pm-shell .sp-panorama text {fill:#354338;}
+#pm-shell .sp-paper {fill:var(--sp-paper);}
+#pm-shell .sp-site-land {fill:var(--sp-land); stroke:var(--sp-line); stroke-width:1;}
+#pm-shell .sp-path {stroke:var(--sp-path); stroke-width:40; fill:none;}
+#pm-shell .sp-path-center {stroke:var(--sp-line); stroke-opacity:.3; stroke-dasharray:3 9; fill:none;}
+#pm-shell .sp-roof, #pm-shell .sp-core {fill:var(--sp-roof); stroke:var(--sp-line); stroke-width:2;}
+#pm-shell .sp-roof-detail {fill:none; stroke:var(--sp-line); stroke-width:2;}
+#pm-shell .sp-shadow {fill:#293c2b; opacity:.1; stroke:none;}
+#pm-shell .sp-courtyard {fill:var(--sp-land); stroke:var(--sp-line);}
+#pm-shell .sp-tree circle:not(.sp-shadow) {fill:var(--sp-tree); stroke:var(--sp-line); stroke-opacity:.35;}
+#pm-shell .sp-tree path {fill:none; stroke:var(--sp-line); stroke-opacity:.35;}
+#pm-shell .sp-water {fill:#abc3be; stroke:var(--sp-line);}
+#pm-shell .sp-site-label {fill:var(--sp-paper); stroke:var(--sp-line);}
+#pm-shell .sp-site-building {cursor:pointer;}
+#pm-shell .sp-site-building:hover .sp-roof, #pm-shell .sp-site-building:focus .sp-roof {fill:var(--sp-tree); stroke-width:4;}
+#pm-shell .sp-line {fill:none; stroke:var(--sp-line); stroke-width:2;}
+#pm-shell .sp-wall {fill:var(--sp-wall); stroke:var(--sp-line); stroke-width:1;}
+#pm-shell .sp-glass {fill:var(--sp-glass); stroke:var(--sp-line); stroke-width:1;}
+#pm-shell .sp-balcony {fill:var(--sp-roof); stroke:var(--sp-line); stroke-width:1;}
+#pm-shell .sp-garden-edge {fill:var(--sp-tree); stroke:var(--sp-line);}
+#pm-shell .sp-level-active {fill:var(--sp-available); stroke:var(--primary-high,#52671f); stroke-width:3;}
+#pm-shell .sp-facade-level {cursor:pointer;}
+#pm-shell [data-sp-facade] > :not(.sp-facade-level) {pointer-events:none;}
+#pm-shell .sp-floor-hit {fill:transparent; pointer-events:all;}
+#pm-shell .sp-floor-callout {opacity:0; pointer-events:none;}
+#pm-shell .sp-floor-callout rect {fill:var(--sp-paper); stroke:var(--primary); stroke-width:2;}
+#pm-shell .sp-facade-level:hover .sp-facade-band,
+#pm-shell .sp-facade-level:focus .sp-facade-band {fill:var(--sp-tree); stroke:var(--primary); stroke-width:4;}
+#pm-shell .sp-facade-level:hover .sp-floor-callout,
+#pm-shell .sp-facade-level:focus .sp-floor-callout {opacity:1;}
+#pm-shell .sp-facade-level:focus {outline:none;}
+#pm-shell .sp-level-hint {font-size:12px; color:var(--on-variant); margin:14px 0;}
+#pm-shell .sp-facade-floor-list {display:flex; flex-wrap:wrap; gap:8px; margin-top:14px;}
+#pm-shell .sp-sun {fill:#ece3bf; opacity:.6;}
+#pm-shell .sp-facade-controls {display:flex; align-items:center; gap:8px;}
+#pm-shell .sp-side-tabs {display:flex; flex:1; gap:5px; flex-wrap:wrap;}
+#pm-shell .sp-side-tabs .sp-button {flex:1;}
+#pm-shell .sp-inspector {display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; background:var(--surface,#fff); border:1px solid var(--outline,#e5e4e1); border-radius:var(--r-lg,12px); padding:16px;}
+#pm-shell .sp-inspector p {flex:1; font-size:12px; color:var(--on-variant,#6d6d62);}
+#pm-shell .sp-caption {font-size:11px; color:var(--on-variant,#6d6d62); line-height:1.65; margin:10px 0;}
+#pm-shell .sp-stage-floor-nav {margin:14px 0;}
+#pm-shell .sp-floor-controls {display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px;}
+#pm-shell .sp-floor-controls strong {font-weight:500; font-size:15px; text-align:center;}
+#pm-shell .sp-floor-chips {gap:6px;}
+#pm-shell .sp-floor-chips .sp-button {padding:8px 10px; font-size:11px;}
+#pm-shell .sp-view-tabs {margin:16px 0 8px;}
+#pm-shell .sp-plan-tools span {font-size:10px; color:var(--on-variant,#6d6d62); margin-left:auto;}
+#pm-shell [data-sp-plan] {touch-action:none; cursor:grab; user-select:none; -webkit-user-select:none;}
+#pm-shell [data-sp-plan]:active {cursor:grabbing;}
+#pm-shell .sp-plan-boundary {fill:none; stroke:var(--sp-line); stroke-width:5;}
+#pm-shell .sp-corridor {fill:var(--sp-path); stroke:var(--sp-line); stroke-width:1;}
+#pm-shell .sp-footprint {cursor:pointer;}
+#pm-shell .sp-available {--sp-status:var(--sp-available);}
+#pm-shell .sp-hold {--sp-status:var(--sp-hold);}
+#pm-shell .sp-reserved {--sp-status:var(--sp-reserved);}
+#pm-shell .sp-sold {--sp-status:var(--sp-sold);}
+#pm-shell .sp-unknown {--sp-status:var(--sp-unknown);}
+#pm-shell .sp-unit-fill {fill:var(--sp-status); stroke:var(--sp-line); stroke-width:3; transition:stroke-width .16s;}
+#pm-shell .sp-footprint:hover .sp-unit-fill, #pm-shell .sp-footprint:focus .sp-unit-fill {stroke:var(--primary-high,#52671f); stroke-width:5;}
+#pm-shell .sp-selected .sp-unit-fill {stroke:var(--primary-high,#52671f); stroke-width:6; stroke-dasharray:10 3;}
+#pm-shell .sp-room-line {fill:none; stroke:var(--sp-line); stroke-width:1.4; opacity:.65; pointer-events:none;}
+#pm-shell .sp-terrace {fill:var(--sp-paper); stroke:var(--sp-line); stroke-width:1; pointer-events:none;}
+#pm-shell .sp-unit-id {font-weight:600;}
+#pm-shell .sp-unmapped {fill:var(--sp-path); stroke:var(--sp-line); stroke-dasharray:8 8;}
+#pm-shell .sp-legend {display:flex; flex-wrap:wrap; gap:8px 16px; margin:12px 0; font-size:10px; color:var(--on-variant,#6d6d62);}
+#pm-shell .sp-legend span {display:inline-flex; align-items:center; gap:6px;}
+#pm-shell .sp-status-dot {width:12px; height:12px; border:1px solid var(--sp-line); border-radius:3px; background:var(--sp-status);}
+#pm-shell .sp-panel {display:flex; flex-direction:column; gap:16px; padding:20px; background:var(--surface,#fff); min-width:0;}
+#pm-shell .sp-panel p {font-size:12px; color:var(--on-variant,#6d6d62); margin-top:6px;}
+#pm-shell .sp-panel h3 {font-size:17px; font-weight:500; margin:6px 0;}
+#pm-shell .sp-outline-wrap {background:var(--sp-paper); border:1px solid var(--outline,#e5e4e1); border-radius:var(--r-lg,12px); max-height:330px; overflow:auto; padding:14px 8px;}
+#pm-shell .sp-silhouette {display:block; width:100%; height:auto; min-height:120px; font-family:var(--font,Arial,sans-serif);}
+#pm-shell .sp-unit-detail {padding:18px; border:1px solid var(--outline,#e5e4e1); border-radius:var(--r-xl,16px); background:var(--sc-lowest,#f7f5f0);}
+#pm-shell .sp-unit-detail p {font-size:12px; color:var(--on-variant,#6d6d62); margin:10px 0;}
+#pm-shell .sp-unit-detail h3 {font-size:20px; font-weight:500; margin:6px 0;}
+#pm-shell .sp-unit-title {display:flex; align-items:center; flex-wrap:wrap; gap:8px; justify-content:space-between;}
+#pm-shell .sp-status-pill {font-size:10px; color:var(--sp-ink); background:var(--sp-status); padding:4px 8px; border:1px solid var(--sp-line); border-radius:20px;}
+#pm-shell .sp-price {display:block; font-size:24px; font-weight:500; letter-spacing:-.04em; margin:12px 0;}
+#pm-shell .sp-unit-detail .sp-actions {margin-top:14px;}
+#pm-shell .sp-unit-detail .sp-button {flex:1;}
+#pm-shell .sp-readonly {border-left:3px solid var(--y-ink,#8a6a12); padding-left:10px;}
+#pm-shell .sp-level-units {display:flex; flex-direction:column; gap:8px; margin-top:12px;}
+#pm-shell .sp-level-units .sp-button {text-align:left;}
+#pm-shell .sp-mobile-detail {display:none;}
+html[data-theme="dark"] #pm-shell .sp-stage-content,
+html[data-theme="dark"] #pm-shell .sp-panel,
+#pm-shell[data-theme="dark"] .sp-stage-content,
+#pm-shell[data-theme="dark"] .sp-panel {
+  --sp-paper:#252e28; --sp-wall:#445042; --sp-roof:#52604b; --sp-line:#9ba990;
+  --sp-ink:#edf0df; --sp-glass:#76938a; --sp-land:#334431; --sp-path:#394238;
+  --sp-tree:#637c53; --sp-available:#465e39; --sp-hold:#65582d;
+  --sp-reserved:#3c5266; --sp-sold:#564c45; --sp-unknown:#45483f;
+}
+@media (max-width:1099px) {
+  #pm-shell .sp-mobile-outline {display:block; margin:14px 0;}
+  #pm-shell .sp-mobile-outline summary {min-height:44px; cursor:pointer; padding:10px 0; color:var(--primary);}
+  #pm-shell .sp-mobile-outline .sp-outline-wrap {max-width:340px;}
+  #pm-shell .sp-mobile-detail {display:block; margin:20px 0 4px;}
+  #pm-shell .sp-stage-content {padding:18px;}
+  #pm-shell .sp-facade-controls {flex-wrap:wrap;}
+  #pm-shell .sp-side-tabs {order:3; flex-basis:100%;}
+  #pm-shell .sp-facade-controls > .sp-button {flex:1;}
+}
+@media (max-width:599px) {
+  #pm-shell .sp-stage-content {padding:12px;}
+  #pm-shell .sp-heading .sp-actions {width:100%;}
+  #pm-shell .sp-heading .sp-button {flex:1;}
+  #pm-shell .sp-heading h2 {font-size:25px;}
+  #pm-shell .sp-building-tabs {flex-direction:column; align-items:stretch;}
+  #pm-shell .sp-side-tabs .sp-button {flex:1 0 43%;}
+  #pm-shell .sp-disclosure {padding:10px;}
+  #pm-shell .sp-disclosure p {min-width:0; flex-basis:100%;}
+  #pm-shell .sp-plan-tools span {flex-basis:100%; margin:4px 0;}
+  #pm-shell .sp-floor-controls {flex-wrap:wrap;}
+  #pm-shell .sp-floor-controls strong {order:-1; flex-basis:100%;}
+  #pm-shell .sp-floor-controls .sp-button {flex:1;}
+  #pm-shell .sp-directions .sp-button {flex:1;}
+  #pm-shell .sp-diagram {min-height:230px;}
+  #pm-shell .sp-plan-art .sp-diagram {min-height:290px;}
+  #pm-shell .sp-unit-detail {padding:14px;}
+  #pm-shell .sp-inspector {display:block;}
+  #pm-shell .sp-inspector .sp-button {width:100%; margin-top:12px;}
+}
+@media (prefers-reduced-motion:reduce) {
+  #pm-shell .sp-button, #pm-shell .sp-unit-fill {transition:none;}
+}
+@media (forced-colors:active) {
+  #pm-shell .sp-button[aria-pressed="true"] {outline:2px solid Highlight;}
+  #pm-shell .sp-selected .sp-unit-fill {stroke:Highlight;}
+}
