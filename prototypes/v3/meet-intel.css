@@ -1,0 +1,208 @@
+/* Meeting intelligence: appointment cards, appointment page, call bar, unmatched messages (meet-intel.js) */
+.app .mi-cards { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+.app .mi-card { display: flex; gap: 12px; padding: 12px 14px; border: 1px solid var(--outline); border-radius: 8px; background: var(--surface); cursor: pointer; text-align: left; }
+.app .mi-card:hover { border-color: var(--on-variant); }
+.app .mi-card:focus-visible, .app .mi-row:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.app .mi-card.st-pending { background: color-mix(in srgb, var(--crm-warning-container) 35%, var(--surface)); border-color: color-mix(in srgb, var(--crm-warning) 40%, var(--outline)); }
+.app .mi-card.st-held { background: var(--sc-low); }
+.app .mi-date { flex: none; width: 34px; height: 38px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid var(--outline); border-radius: 6px; background: var(--surface); line-height: 1; }
+.app .mi-date span { font-size: 9px; letter-spacing: .04em; color: var(--on-variant); }
+.app .mi-date b { font-size: 14px; font-weight: 600; margin-top: 2px; }
+.app .mi-cb { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.app .mi-ch { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13.5px; }
+.app .mi-ch b { font-weight: 500; }
+.app .mi-right { margin-left: auto; font-size: 12px; color: var(--on-variant); }
+.app .mi-go { width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--outline); border-radius: 50%; font-size: 13px; color: var(--on-variant); }
+.app .mi-body { font-size: 13px; line-height: 19px; margin-top: 4px; }
+.app .mi-cf { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+.app .mi-acts { display: flex; gap: 6px; flex-wrap: wrap; }
+.app .mi-wr { font-size: 12px; color: var(--crm-on-success-container); background: var(--crm-success-container); padding: 1px 8px; border-radius: 999px; }
+.app .mi-demo { border: 1px dashed var(--outline); background: none; border-radius: 4px; padding: 1px 6px; margin-left: 6px; font: inherit; font-size: 11px; color: var(--on-variant); cursor: pointer; }
+.app .mi-demo:hover { color: var(--on-surface); border-color: var(--on-variant); }
+
+.app .mi-ban { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; padding: 10px 14px; border-radius: 8px; font-size: 13px; line-height: 19px; }
+.app .mi-ban > span { flex: 1; }
+.app .mi-ban.t-warn { background: var(--crm-warning-container); color: var(--crm-on-warning-container); }
+.app .mi-ban.t-ok { background: var(--crm-success-container); color: var(--crm-on-success-container); }
+.app .mi-ban.sm { margin: 0; font-size: 12px; line-height: 18px; }
+.app .mi-ban-a { border: 0; background: none; padding: 0; font: inherit; font-weight: 600; text-decoration: underline; color: inherit; cursor: pointer; white-space: nowrap; }
+.app .mi-ban-x { border: 0; background: none; font-size: 16px; color: inherit; cursor: pointer; }
+
+.app .mi-row { padding: 8px 0; cursor: pointer; }
+.app .mi-row + .mi-row { border-top: 1px solid var(--outline-variant); }
+.app .mi-row:hover .mi-go { border-color: var(--on-variant); color: var(--on-surface); }
+.app .mi-rt { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.app .mi-rt b { font-weight: 500; flex: 1; min-width: 0; }
+.app .mi-rn { font-size: 12px; line-height: 17px; margin-top: 2px; }
+.app .mi-fact { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 10px; padding: 7px 0; font-size: 13px; line-height: 19px; }
+.app .mi-fact + .mi-fact { border-top: 1px solid var(--outline-variant); }
+.app .mi-src { border: 0; background: none; padding: 0; font: inherit; font-size: 12px; color: var(--on-variant); text-decoration: underline; text-decoration-color: var(--outline); cursor: pointer; text-align: left; }
+.app .mi-src:hover { color: var(--on-surface); }
+
+/* Appointment page: same header pattern as the opportunity (title left, tabs + Actions on one row) */
+.app .mi-page-head { margin-bottom: 16px; padding-bottom: 4px; border-bottom: 1px solid var(--outline-variant); }
+.app .mi-page-head .crm-page-heading { margin-bottom: 16px; }
+.app .mi-page-head .page-title { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.app .mi-page-head .crm-page-controls { margin-bottom: 8px; }
+.app .mi-tc { display: inline-block; min-width: 16px; height: 16px; margin-left: 2px; padding: 0 5px; border-radius: 999px; background: var(--sc-high); font-size: 10.5px; line-height: 16px; text-align: center; color: var(--on-variant); }
+.app .tab.on .mi-tc { background: var(--surface); color: var(--on-surface); }
+.app button.mi-tag { font: inherit; font-size: 11.5px; cursor: pointer; }
+.app button.mi-tag:hover { border-color: var(--on-variant); }
+.app .mi-rs { display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.app .mi-rs + .mi-rs { padding-top: 12px; border-top: 1px solid var(--outline-variant); }
+.app .mi-rs .side-h { margin: 0; }
+.app .mi-ru { display: flex; align-items: center; gap: 8px; font-size: 13px; line-height: 18px; }
+.app .mi-ru .in-mu { font-size: 11.5px; }
+.app .mi-card-lite { padding: 14px 16px; border: 1px solid var(--outline); border-radius: 8px; background: var(--surface); font-size: 13px; line-height: 19px; }
+.app .mi-card-lite b { font-weight: 500; font-size: 14px; }
+.app .mi-brief { display: flex; flex-direction: column; gap: 4px; padding: 16px; border: 1px solid color-mix(in srgb, var(--primary) 35%, var(--outline)); border-radius: 8px; background: color-mix(in srgb, var(--primary) 4%, var(--surface)); }
+.app .mi-props.main { padding: 0; background: none; border-radius: 0; }
+.app .mi-props.main .mi-foot { padding-bottom: 8px; }
+.app .mi-det { font-size: 13px; }
+.app .mi-det summary { cursor: pointer; color: var(--on-variant); padding: 6px 0; }
+.app .mi-det .chd-card { margin-top: 10px; }
+.app .mi-task { cursor: pointer; }
+.app .mi-task input { margin-top: 3px; align-self: flex-start; }
+.app .mi-task.done div:first-child { text-decoration: line-through; color: var(--on-variant); }
+.app .mi-link { width: 100%; border: 0; border-top: 1px solid var(--outline-variant); background: none; font: inherit; text-align: left; cursor: pointer; }
+.app .mi-link:hover { background: var(--sc-low); }
+.app .mi-nt { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border: 1px solid var(--outline); border-radius: 8px; background: var(--surface); font-size: 13px; line-height: 19px; }
+.app .mi-nt b { font-weight: 500; }
+.app .mi-nt.mgr { border-color: color-mix(in srgb, var(--crm-warning) 45%, var(--outline)); background: color-mix(in srgb, var(--crm-warning-container) 30%, var(--surface)); }
+.app .mi-hi { align-items: center; }
+.app .mi-ob > .in-mu { margin-bottom: 4px; }
+.app .mi-ob .mi-ta { margin-top: 8px; }
+.app #p-mtg .btn-back { margin-bottom: 10px; }
+.app .mi-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.app .mi-tag { padding: 1px 7px; border: 1px solid var(--outline); border-radius: 4px; background: var(--surface); font-size: 11.5px; }
+.app .mi-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; align-items: start; }
+.app .mi-main { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.app .mi-panel { position: sticky; top: 12px; display: flex; flex-direction: column; gap: 12px; padding: 16px; border: 1px solid var(--outline); border-radius: 8px; background: var(--surface); }
+.app .mi-ph { display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
+.app .mi-ph b { font-weight: 500; }
+.app .mi-skel { display: flex; flex-direction: column; gap: 8px; }
+.app .mi-skel span { height: 46px; border-radius: 6px; background: var(--sc-low); }
+.app .mi-skel span:nth-child(2) { opacity: .7; } .app .mi-skel span:nth-child(3) { opacity: .4; }
+.app .mi-wait { padding: 8px 10px; border-radius: 6px; background: var(--crm-warning-container); color: var(--crm-on-warning-container); font-size: 12px; }
+.app .mi-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.app .mi-choice { display: flex; flex-direction: column; gap: 8px; padding: 16px; border: 1px solid var(--outline); border-radius: 10px; background: var(--surface); font-size: 13px; }
+.app .mi-choice b { font-weight: 500; font-size: 14px; }
+.app .mi-choice > button, .app .mi-row2 { margin-top: auto; }
+.app .mi-row2 { display: flex; gap: 8px; }
+.app .mi-row2 button { flex: 1; }
+.app .mi-ic { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: var(--sc-high); font-size: 14px; }
+.app .mi-line { width: 100%; padding: 10px 14px; border: 1px solid var(--outline); border-radius: 8px; background: var(--surface); font: inherit; font-size: 13px; color: var(--on-variant); text-align: left; cursor: pointer; }
+.app .mi-line:hover { color: var(--on-surface); }
+.app .mi-line.back { width: auto; align-self: flex-start; padding: 0; border: 0; background: none; font-size: 12px; }
+.app .mi-hint { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding-top: 4px; }
+.app .mi-seg { align-self: flex-start; }
+.app .mi-lbl { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--on-variant); }
+.app .mi-in, .app .mi-ta { width: 100%; padding: 8px 10px; border: 1px solid var(--outline); border-radius: 6px; background: var(--surface); font: inherit; font-size: 13px; color: var(--on-surface); box-sizing: border-box; }
+.app .mi-ta { resize: vertical; line-height: 20px; }
+.app .mi-consent { font-size: 13px; }
+.app .mi-acts-r { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+.app .mi-acts-l { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.app .mi-steps { display: flex; flex-direction: column; border: 1px solid var(--outline); border-radius: 8px; background: var(--surface); }
+.app .mi-step { display: flex; gap: 12px; padding: 12px 14px; font-size: 13px; color: var(--on-variant); }
+.app .mi-step + .mi-step { border-top: 1px solid var(--outline-variant); }
+.app .mi-step b { font-weight: 500; }
+.app .mi-step.done, .app .mi-step.cur { color: var(--on-surface); }
+.app .mi-step > div { flex: 1; }
+.app .mi-dot { flex: none; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--outline); border-radius: 50%; font-size: 10px; color: var(--surface); }
+.app .mi-step.done .mi-dot { background: var(--primary); border-color: var(--primary); }
+.app .mi-step.cur .mi-dot { border-color: var(--on-surface); }
+.app .mi-bar { height: 4px; margin-top: 8px; border-radius: 2px; background: var(--sc-high); overflow: hidden; }
+.app .mi-bar span { display: block; height: 100%; background: var(--primary); transition: width .25s; }
+
+/* Transcript + proposals */
+.app .mi-tgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 420px); gap: 0; border: 1px solid var(--outline); border-radius: 8px; background: var(--surface); min-height: 60vh; }
+.app .mi-trans { display: flex; flex-direction: column; gap: 2px; padding: 16px 18px; border-right: 1px solid var(--outline); min-width: 0; }
+.app .mi-trans > .row-between { margin-bottom: 8px; font-size: 13px; }
+.app .mi-trans > .row-between b { font-weight: 500; }
+.app .mi-player { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; padding: 8px 10px; border-radius: 6px; background: var(--sc-low); }
+.app .mi-turn { display: grid; grid-template-columns: 46px 96px minmax(0, 1fr) 30px; gap: 10px; padding: 7px 8px; border-radius: 6px; font-size: 13px; line-height: 19px; }
+.app .mi-turn b { font-weight: 500; }
+.app .mi-turn.hl { background: var(--crm-warning-container); }
+.app .mi-turn.unclear > div { font-style: italic; color: var(--on-variant); }
+.app .mi-turn .in-ts { border: 0; background: none; padding: 2px 0 0; text-align: left; cursor: pointer; }
+.app .mi-turn .in-ts:hover { color: var(--on-surface); text-decoration: underline; }
+.app .mi-ref { align-self: start; padding: 1px 5px; border: 0; border-radius: 4px; background: var(--sc-high); font: inherit; font-size: 10.5px; color: var(--on-variant); cursor: pointer; }
+.app .mi-ref.on { background: var(--on-surface); color: var(--surface); }
+.app .mi-props { display: flex; flex-direction: column; gap: 10px; padding: 16px; min-width: 0; background: var(--bg); border-radius: 0 8px 8px 0; }
+.app .mi-props > * { flex-shrink: 0; }
+.app .mi-hlc { box-shadow: 0 0 0 2px var(--crm-warning); }
+.app .mi-ts { flex: none; padding: 1px 6px; border: 1px solid var(--outline); border-radius: 4px; background: var(--surface); font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: var(--on-variant); cursor: pointer; }
+.app .mi-ts:hover { color: var(--on-surface); border-color: var(--on-variant); }
+.app .mi-q { flex: 1; min-width: 0; }
+.app .chd-cf .chd-b[disabled] { opacity: .45; cursor: not-allowed; }
+.app .mi-edit { display: flex; flex-direction: column; gap: 8px; padding: 10px 14px; }
+.app .mi-not { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border: 1px dashed var(--outline); border-radius: 8px; font-size: 13px; }
+.app .mi-not b { font-weight: 500; }
+.app .mi-not .btn-ghost { align-self: flex-start; }
+.app .mi-foot { position: sticky; bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 10px 0 0; border-top: 1px solid var(--outline-variant); background: var(--bg); }
+
+/* Overview */
+.app .mi-ov { display: flex; flex-direction: column; gap: 14px; }
+.app .mi-sum { margin: 0; font-size: 14px; line-height: 22px; }
+.app .mi-ob { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border: 1px solid var(--outline); border-radius: 8px; background: var(--surface); font-size: 13px; }
+.app .mi-ob > .row-between b, .app .mi-ob > b { font-weight: 500; }
+.app .mi-oi { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 7px 0; border-top: 1px solid var(--outline-variant); line-height: 19px; }
+.app .mi-oi:first-of-type { margin-top: 6px; }
+
+/* Note, WhatsApp, call */
+.app .mi-voice { display: flex; align-items: center; gap: 14px; padding: 14px; border: 1px solid var(--outline); border-radius: 10px; background: var(--surface); font-size: 13px; }
+.app .mi-voice b { font-weight: 500; }
+.app .mi-mic { flex: none; width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--crm-error); color: #fff; font-size: 16px; cursor: pointer; }
+.app .mi-voice.rec .mi-mic { animation: miPulse 1.2s ease-in-out infinite; }
+@keyframes miPulse { 50% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--crm-error) 18%, transparent); } }
+.app .mi-live { min-height: 64px; padding: 12px 14px; border: 1px solid var(--outline-variant); border-radius: 8px; background: var(--sc-low); font-size: 14px; line-height: 22px; }
+.app .mi-live mark { background: var(--crm-info-container); color: var(--crm-on-info-container); border-radius: 3px; padding: 0 2px; }
+.app .mi-wa { display: flex; flex-direction: column; gap: 10px; padding: 14px; border: 1px solid var(--outline); border-radius: 10px; background: var(--sc-low); }
+.app .mi-wa-h { display: flex; gap: 8px; align-items: baseline; font-size: 13px; }
+.app .mi-bub { display: flex; flex-direction: column; gap: 4px; max-width: 86%; padding: 9px 12px; border-radius: 10px; background: var(--surface); font-size: 13px; line-height: 19px; }
+.app .mi-bub.out { align-self: flex-end; background: color-mix(in srgb, var(--primary) 12%, var(--surface)); }
+.app .mi-bub .chd-audio { width: auto; min-width: 0; border: 0; padding: 0; background: none; }
+.app .mi-call { display: flex; align-items: center; gap: 10px; padding: 14px; border: 1px solid var(--outline); border-radius: 10px; background: var(--surface); font-size: 14px; }
+.app .mi-call b { font-weight: 500; }
+.app .mi-cdot { width: 10px; height: 10px; border-radius: 50%; background: var(--primary); }
+.app .mi-cdot.live { background: var(--crm-error); animation: miPulse 1.2s ease-in-out infinite; }
+.app .mi-kv { display: flex; flex-direction: column; border: 1px solid var(--outline); border-radius: 8px; background: var(--surface); }
+.app .mi-kv > div { display: grid; grid-template-columns: 100px minmax(0, 1fr); gap: 12px; padding: 9px 14px; font-size: 13px; line-height: 19px; }
+.app .mi-kv > div + div { border-top: 1px solid var(--outline-variant); }
+.app .mi-callbar { position: fixed; right: 20px; bottom: 20px; z-index: 80; display: flex; align-items: center; gap: 10px; padding: 8px 10px 8px 14px; border: 1px solid var(--outline); border-radius: 999px; background: var(--surface); box-shadow: 0 6px 24px rgba(0,0,0,.12); font-size: 13px; }
+.app .mi-callbar b { font-weight: 500; }
+.app .mi-callbar[hidden] { display: none; }
+
+/* Contacts › Unmatched messages */
+.app .mi-unm-tab .ni-badge { display: inline-block; margin-left: 4px; min-width: 16px; height: 16px; padding: 0 5px; border-radius: 999px; background: var(--on-surface); color: var(--surface); font-size: 10.5px; line-height: 16px; }
+.app .mi-unm { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 16px; align-items: start; margin-top: 16px; }
+.app .mi-unm-list { display: flex; flex-direction: column; border: 1px solid var(--outline); border-radius: 8px; background: var(--surface); overflow: hidden; }
+.app .mi-unm-i { display: flex; flex-direction: column; gap: 3px; padding: 10px 12px; border: 0; background: none; font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+.app .mi-unm-i + .mi-unm-i { border-top: 1px solid var(--outline-variant); }
+.app .mi-unm-i.on { background: var(--sc-high); }
+.app .mi-unm-i b { font-weight: 500; }
+.app .mi-clip { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.app .mi-unm-d { display: flex; flex-direction: column; gap: 10px; }
+.app .mi-unm-d .mi-bub { max-width: none; background: var(--sc-low); }
+
+@media (max-width: 1100px) {
+  .app .mi-grid, .app .mi-tgrid, .app .mi-unm { grid-template-columns: minmax(0, 1fr); }
+  .app .mi-trans { border-right: 0; border-bottom: 1px solid var(--outline); }
+  .app .mi-props { border-radius: 0 0 8px 8px; }
+  .app .mi-panel { position: static; }
+  .app .mi-choices { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Objections (intel.js flow 3) */
+.app .in-objc { font-weight: 500; font-size: 13px; }
+.app .in-objm { width: 22px; height: 22px; border: 1px solid transparent; border-radius: 4px; background: none; font-size: 14px; line-height: 1; color: var(--on-variant); cursor: pointer; }
+.app .in-objm:hover, .app .in-objm[aria-expanded="true"] { border-color: var(--outline); color: var(--on-surface); }
+.app .in-objmenu { display: flex; flex-direction: column; gap: 1px; margin: 4px 0; padding: 6px; border: 1px solid var(--outline); border-radius: 8px; background: var(--surface); box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+.app .in-objmenu .in-mu { padding: 2px 6px 6px; }
+.app .in-objmenu button { display: flex; justify-content: space-between; padding: 5px 8px; border: 0; border-radius: 4px; background: none; font: inherit; font-size: 13px; color: var(--on-surface); text-align: left; cursor: pointer; }
+.app .in-objmenu button:hover, .app .in-objmenu button.on { background: var(--sc-low); }
+.app .in-bar { position: relative; display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+.app .in-bar i { display: block; height: 6px; max-width: 48px; border-radius: 3px; background: color-mix(in srgb, var(--primary) 55%, transparent); }
+
+.app #p-mtg .rail-link { border: 0; background: none; padding: 0; font: inherit; font-size: 12px; color: var(--on-variant); cursor: pointer; }
+.app #p-mtg .rail-link:hover { color: var(--on-surface); }

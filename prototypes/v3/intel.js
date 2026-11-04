@@ -121,133 +121,138 @@ function inBudgetSave(){
   x.comms.unshift({ch:'sys',t:'Just now',text:`Budget corrected €${was}k → €${o.budget}k from the pre-meeting brief`});
   inBriefOpen(); renderOpp();
 }
-// ---------- Meeting recording → proposals (Message intelligence flow 1) ----------
-let inMt=null;
-function inMeetingOpen(){
-  const o=oppCur; inMt={oppId:o.id,mode:'upload',consent:false,file:null,props:{},pick:null,hl:null};
-  inMtRender();
-}
-function inMtData(o){
-  const f=o.lead.split(' ')[0], dev=o.devs[0]||'the development';
-  const devUnits=UNITS.filter(u=>u.dev===dev);
-  const u1=UN(o.units[0])||devUnits[0], u2=UN(o.units[1])||devUnits.find(u=>u.id!==u1.id&&u.status==='available')||u1;
-  const short=id=>id.replace('#CM','');
-  const was=o.budget!=null?o.budget*1000:350000, now=was+30000;
-  const corner=devUnits.filter(u=>u.id!==u1.id&&u.id!==u2.id).slice(0,2);
-  const turns=[['00:42','Sam',`Morning ${f}, thanks for coming in. We’ll start with ${short(u1.id)}, then go up to ${short(u2.id)}.`],
-    ['03:12',o.lead,'The light in here is lovely. The bedrooms feel a bit tight though.','A4'],
-    ['08:55',o.lead,'The terrace up here, that’s what we came for.','A1'],
-    ['12:40',o.lead,`Our budget was ${Math.round(was/1000)}, but we could stretch to ${Math.round(now/1000)} if the payment plan works.`,'A2'],
-    ['14:10','Sam','[Unclear · 14:02 to 15:30 · background noise]',null,true],
-    ['18:05',o.lead,'Thirty percent on signing is too much for us right now.','A3'],
-    ['27:30',o.lead,'When would it be finished? We have to be out of our rental by next September.','A2'],
-    ['31:22','Sam',`I’ll send you the payment plan for ${short(u2.id)} by Monday.`,'A5'],
-    ['36:40',o.lead,'Can you keep it for us until next Friday?','A6'],
-    ['38:02',o.lead,`And the other one on ${corner[0]?'floor '+corner[0].floor:'that floor'}, is that still there?`,'A7']];
-  const props=[
-    ['A1','Log meeting','Log the appointment as held',[['Units shown',`${u1.id} · ${u1.beds} bed, floor ${u1.floor} · ${u2.id}`],['Summary',`Liked the terrace on ${u2.id}. Bedrooms on ${u1.id} felt tight. The payment plan is the open question.`],['Stage','Appointment Completed',o.stage]],'08:55'],
-    ['A2','Update facts',`Update ${f}’s budget and move-in date`,[['Budget',`${fmtEur(now)} if the payment plan works`,fmtEur(was)],['Move in by','Sep 2027','Not known']],'12:40'],
-    ['A3','Log objection','Payment plan: 30% on signing',[['Category','Payment plan'],['Unit',u2.id]],'18:05'],
-    ['A4','Log objection','Size and layout: bedrooms feel tight',[['Category','Size and layout'],['Unit',u1.id]],'03:12'],
-    ['A5','Create task',`Send ${f} the payment plan for ${u2.id}`,[['Due','Monday'],['Owner',o.rep]],'31:22'],
-    ['A6','Request hold',`Hold ${u2.id} until next Friday`,[['Unit',`${u2.id} · ${UN_STATUS[u2.status]?.l||u2.status}`],['Until','Next Friday, 18:00']],'36:40',{gate:'Holds need a manager. This goes to the Approvals queue. The unit isn’t held until a manager approves.'}],
-    ['A7','Add unit','Which unit did they mean?',[],'38:02',{need:true,opts:corner.map(u=>[u.id,`${u.beds} bed · ${u.sqm} m² · ${UN_STATUS[u.status]?.l} · ${IN_K(u.price)}${u.price>now?' · above budget':''}`])}],
-  ];
-  return {turns,props,u1,u2,was,now};
-}
-function inMtRender(){
-  const o=OPPS.find(x=>x.id===inMt.oppId), host=document.querySelector('.app'); let el=document.getElementById('in-meet');
-  if(!el){el=document.createElement('div');el.id='in-meet';el.className='in-meet';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');el.setAttribute('aria-label','Meeting recording');host.appendChild(el);}
-  const head=`<div class="auv-bh"><button type="button" class="auv-x" aria-label="Close" onclick="inMtClose()">×</button><b>Meeting recording · ${xesc(o.lead)}</b><span class="in-mu">${o.id} · ${xesc(o.devs[0]||'')}</span></div>`;
-  if(inMt.mode==='upload'){el.innerHTML=head+`<div class="in-mt-up"><h3 class="in-h">Add the recording</h3><p class="in-mu">Bricly reads the transcript like a long chat message and proposes changes. Nothing is written until you approve.</p>
-    <button type="button" class="in-drop" onclick="inMt.file='viewing_${new Date().toISOString().slice(0,10)}.m4a · 44:12';inMtRender()">${inMt.file?`🎙 ${xesc(inMt.file)}`:'Choose an audio file, or it arrives from the phone app'}</button>
-    <label class="cv-toggle"><input type="checkbox" ${inMt.consent?'checked':''} onchange="inMt.consent=this.checked;inMtRender()"> ${xesc(o.lead.split(' ')[0])} agreed to be recorded. Consent is saved with the file.</label>
-    <div class="in-mu">Transcribing a 44-minute meeting uses 4 credits.</div>
-    <div class="auv-row" style="margin-top:12px"><button class="btn-ghost" onclick="inMtClose()">Cancel</button><button class="btn-primary" ${inMt.file&&inMt.consent?'':'disabled'} onclick="inMtStart()">Start · 4 credits</button></div></div>`;return;}
-  if(inMt.mode==='proc'){const steps=['Uploading','Transcribing · English, Maltese','Matching people and units','Writing proposals'];el.innerHTML=head+`<div class="in-mt-up"><h3 class="in-h">Reading the meeting</h3>${steps.map((s,i)=>`<div class="in-step ${i<inMt.step?'done':i===inMt.step?'cur':''}"><span>${i<inMt.step?'✓':i===inMt.step?'…':'·'}</span>${s}</div>`).join('')}<p class="in-mu">You can leave this page. A notification arrives when the proposals are ready.</p></div>`;return;}
-  const d=inMtData(o), st=id=>inMt.props[id]||(id==='A6'?'gate':id==='A7'&&!inMt.pick?'need':'prop');
-  const needOpen=!inMt.pick&&st('A7')!=='skip';
-  el.innerHTML=head+`<div class="in-mt-body"><div class="in-trans"><div class="in-mu">Transcript · 44:12 · English, Maltese</div>${d.turns.map(([ts,who,txt,ref,unclear])=>`<div class="in-turn ${inMt.hl===ts?'hl':''} ${unclear?'unclear':''}"><span class="in-ts">${ts}</span><div><b>${xesc(who)}</b><div>${xesc(txt)}</div>${ref?`<span class="in-mu">→ ${ref}</span>`:''}</div></div>`).join('')}</div>
-    <div class="in-props"><div class="row-between"><b>${d.props.length} proposals</b><button class="btn-primary" ${needOpen?'disabled title="Pick the unit in A7 first"':''} onclick="inMtApproveAll()">Approve all</button></div>
-    ${d.props.map(([id,verb,title,fields,ts,x={}])=>{const s=st(id);return `<div class="chd-card in-pc ${s}"><div class="chd-ch"><span class="chd-ref">${id}</span><span class="chd-verb">${verb}</span><b>${xesc(title)}</b><span class="chd-chip t-${s==='ok'?'ok':s==='need'?'warn':s==='skip'?'':s==='gate'?'warn':'info'}">${{prop:'Proposed',ok:'Approved',skip:'Skipped',need:'Needs a choice',gate:'Needs approval'}[s]}</span></div>
-      ${x.gate?`<div class="chd-warn">${x.gate}</div>`:''}
-      ${fields.length?`<div class="chd-fields">${fields.map(([k,v,b])=>`<div><span class="chd-mu">${k}</span><span>${b?`<s class="chd-mu">${xesc(b)}</s> → `:''}${xesc(v)}</span></div>`).join('')}</div>`:''}
-      ${x.opts?`<div class="in-opts">${x.opts.map(([u,s2])=>`<button type="button" class="${inMt.pick===u?'on':''}" onclick="inMt.pick='${u}';inMtRender()"><b>${u}</b><span class="in-mu">${xesc(s2)}</span></button>`).join('')}</div>`:''}
-      <div class="chd-cf"><button type="button" class="tq-link" onclick="inMt.hl='${ts}';inMtRender()">▶ ${ts}</button><span class="chd-row">${s==='ok'||s==='skip'?`<button class="btn-ghost chd-b" onclick="delete inMt.props['${id}'];inMtRender()">Undo</button>`:`<button class="btn-ghost chd-b" onclick="inMt.props['${id}']='skip';inMtRender()">Skip</button><button class="btn-primary chd-b" ${id==='A7'&&!inMt.pick?'disabled':''} onclick="inMt.props['${id}']='ok';inMtRender()">${id==='A6'?'Send to Approvals':'Approve'}</button>`}</span></div></div>`;}).join('')}
-    <div class="in-mu">Not proposed: nothing is proposed from unclear audio (14:02 to 15:30).</div>
-    <div class="auv-row" style="justify-content:flex-end"><button class="btn-primary" onclick="inMtFinish()">Write approved changes</button></div></div></div>`;
-}
-function inMtStart(){inMt.mode='proc';inMt.step=0;inMtRender();const tick=()=>{if(!inMt||inMt.mode!=='proc')return;inMt.step++;if(inMt.step>=4){inMt.mode='trans';inMtRender();return;}inMtRender();setTimeout(tick,350);};setTimeout(tick,350);}
-function inMtApproveAll(){['A1','A2','A3','A4','A5','A6','A7'].forEach(id=>{if(inMt.props[id]!=='skip')inMt.props[id]='ok';});inMtRender();}
-function inMtClose(){document.getElementById('in-meet')?.remove();inMt=null;}
-function inMtFinish(){
-  const o=OPPS.find(x=>x.id===inMt.oppId), x=getExt(o), d=inMtData(o), ok=id=>inMt.props[id]==='ok';
-  if(!Object.values(inMt.props).some(v=>v==='ok')){showToast('Approve at least one proposal');return;}
-  const log=[];
-  if(ok('A1')){if(!EXIT_STAGES.includes(o.stage))o.stage='Appointment Completed';x.comms.unshift({ch:'sys',t:'Just now',text:`Appointment held · 44 min · ${d.props[0][3][1][1]}`});log.push('meeting logged');}
-  if(ok('A2')){o.budget=Math.round(d.now/1000);x.buyer=x.buyer||{};x.buyer.timing='Sep 2027';x.comms.unshift({ch:'sys',t:'Just now',text:`Budget ${fmtEur(d.was)} → ${fmtEur(d.now)} if the payment plan works · move in by Sep 2027 · from the transcript, 12:40`});log.push('facts updated');}
-  x.objections=x.objections||[];
-  if(ok('A3'))x.objections.unshift({cat:'Payment plan',q:'“Thirty percent on signing is too much for us right now.”',src:`Appointment · today, 18:05 · ${d.u2.id}`,open:true});
-  if(ok('A4'))x.objections.unshift({cat:'Size and layout',q:'“The bedrooms feel a bit tight though.”',src:`Appointment · today, 03:12 · ${d.u1.id}`,open:true});
-  if(ok('A3')||ok('A4'))log.push('objections logged');
-  if(ok('A5')&&typeof TQ!=='undefined'){tqInit();TQ.unshift({id:'n'+Date.now(),title:`Send ${o.lead.split(' ')[0]} the payment plan for ${d.u2.id}`,rec:o.id,due:cvISO(cvAddDays(cvToday(),3)),time:null,owner:tqMe(),agent:false,source:'from_signal',status:'open',createdBy:'agent',remind:'',fresh:true});tqBadge();log.push('task created');}
-  if(ok('A6')&&typeof apFile==='function'){const r=apFile(o,d.u2.id,'hold');x.hold={unit:d.u2.id,state:'requested'};x.blocker=`Hold on ${d.u2.id} — ${r.id} waiting in Approvals`;log.push('hold sent to Approvals');}
-  if(ok('A7')&&inMt.pick&&!o.units.includes(inMt.pick)){o.units.push(inMt.pick);log.push(`${inMt.pick} added`);}
-  inMtClose(); renderOpp(); if(typeof pipeRenderAll==='function')pipeRenderAll();
-  showToast(`Written to the opportunity · ${log.join(', ')}`);
-}
+// Meeting recording → proposals (flow 1) lives on the appointment page: see meet-intel.js.
 // ---------- Inbound buyer message (flow 2) · Daniel Vella ----------
+// One message carries every variant: two files Bricly recognises, one it can't (B3, 2c), and a question the records
+// can't answer (2b). The draft only uses numbers from listed records; the gap is left out and said so.
 const IN_MSG_OPP='OPP-1004';
+const IN_MSG_FOLDERS=[['Finance','Bank or income document'],['KYC','Identity or address'],['Signed form','Reservation, POS'],['none','Don’t file · kept on the message only']];
 function inMsgSeed(o,x){
   if(o.id!==IN_MSG_OPP||x.inMsg) return;
-  x.inMsg={state:'read',props:{B1:'prop',B2:'prop'},text:`Hi ${o.rep}, thanks, I’ve received the offer letter and your ID.\n\nParking isn’t included with 2702. Garage spaces at Mercury are sold separately at €18,000, and two are still available on level -1.\n\nAfter the promise of sale, the next payment is 20% when the shell is finished, planned for March 2027. I’ll send the full schedule with the POS draft.`.replace(`Hi ${o.rep}`,'Hi Daniel')};
-  x.comms.unshift({ch:'wa',dir:'in',intel:'inMsg',who:'Daniel Vella',t:'Today 11:02',text:'Hi, attached the bank’s offer letter and my ID. Is a parking space included with 2702? And when is the next payment due after the promise of sale?',sub:'📎 HSBC_offer_letter.pdf · 📎 IMG_4410.jpg'});
+  x.inMsg={state:'read',props:{B1:'prop',B2:'prop'},folder:null,b3:'need',gap:'open',answer:'',text:`Hi Daniel, thanks, I’ve received the offer letter and your ID.\n\nParking isn’t included with 2702. Garage spaces at Mercury are sold separately at €18,000, and two are still available on level -1.\n\nAfter the promise of sale, the next payment is 20% (€69,000) when the shell is finished, planned for March 2027. I’ll send the full schedule with the POS draft.`};
+  x.comms.unshift({ch:'wa',dir:'in',intel:'inMsg',who:'Daniel Vella',t:'Today 11:02',text:'Hi, attached the bank’s offer letter and my ID. Is a parking space included with 2702? When is the next payment due after the promise of sale? And can we move in before the pool is finished?',sub:'📎 HSBC_offer_letter.pdf · 📎 IMG_4410.jpg · 📎 scan_0921.pdf'});
 }
 function inMsgProps(){
-  return [['B1','File document','Bank offer letter → Documents · Finance',[['Lender','HSBC Malta'],['Loan amount','€292,000'],['Valid until','Mon 30 Nov 2026']],'From HSBC_offer_letter.pdf, page 1','Finance moves to Approved, and the “Needs finance” blocker clears.'],
+  return [['B1','File document','Bank offer letter → Documents · Finance',[['Lender','HSBC Malta'],['Loan amount','€292,000'],['Valid until','Mon 30 Nov 2026']],'From HSBC_offer_letter.pdf, page 1','Finance moves from In progress to Approved, and the “Needs finance” blocker clears.'],
     ['B2','File document','ID card → Documents · KYC',[['Name','Daniel Vella · matches the contact'],['Expires','Fri 14 Mar 2031']],'From IMG_4410.jpg · stored with restricted access','']];
 }
 function inMsgHtml(o,x){
   inMsgSeed(o,x); const m=x.inMsg; if(!m) return '';
-  if(m.state==='done') return `<div class="dcard in-msg done" id="in-msg"><div class="ll-dh"><span class="ll-ai">✦</span><b>Daniel’s message</b><span class="ll-mu">Today 11:02</span><span class="ll-st t-ok">Approved and sent</span></div><div class="ll-mu">Bank offer letter filed under Finance, ID filed under KYC with restricted access, finance blocker cleared, reply sent as written.</div></div>`;
-  const P=inMsgProps();
-  return `<div class="dcard in-msg" id="in-msg"><div class="ll-dh"><span class="ll-ai">✦</span><b>Bricly read Daniel’s message</b><span class="ll-mu">WhatsApp · today 11:02 · 2 attachments, 2 questions · 1 credit</span></div>
-    ${P.map(([id,verb,title,fields,src,eff])=>{const s=m.props[id];return `<div class="chd-card"><div class="chd-ch"><span class="chd-ref">${id}</span><span class="chd-verb">${verb}</span><b>${title}</b><span class="chd-chip t-${s==='ok'?'ok':s==='skip'?'':'info'}">${{prop:'Proposed',ok:'Approved',skip:'Skipped'}[s]}</span></div><div class="chd-fields">${fields.map(([k,v])=>`<div><span class="chd-mu">${k}</span><span>${v}</span></div>`).join('')}</div>${eff?`<div class="chd-effect">${eff}</div>`:''}<div class="chd-cf"><span class="chd-mu">${src}</span><span class="chd-row">${s==='prop'?`<button class="btn-ghost chd-b" onclick="inMsgSet('${id}','skip')">Skip</button><button class="btn-primary chd-b" onclick="inMsgSet('${id}','ok')">Approve</button>`:`<button class="btn-ghost chd-b" onclick="inMsgSet('${id}','prop')">Undo</button>`}</span></div></div>`;}).join('')}
-    <div class="chd-card"><div class="chd-ch"><span class="chd-ref">B3</span><span class="chd-verb">Reply</span><b>Draft reply to Daniel</b><span class="chd-chip t-info">Proposed</span></div><textarea id="in-msg-text" class="ll-text" rows="6" aria-label="Reply to Daniel" style="border:0;border-radius:0">${xesc(m.text)}</textarea>
-      <div class="chd-effect">Every number comes from a record: Mercury price list (garage €18,000 · 2 available) · Payment plan #CM2702 · Construction programme (shell March 2027).</div></div>
-    <div class="ll-acts"><button class="btn-primary" onclick="inMsgSend()">Approve all and send</button><span class="ll-mu">Nothing is filed or sent until you approve</span></div></div>`;
+  if(m.state==='done') return `<div class="dcard in-msg done" id="in-msg"><div class="ll-dh"><span class="ll-ai">✦</span><b>Daniel’s message</b><span class="ll-mu">Today 11:02</span><span class="ll-st t-ok">Approved and sent</span></div>
+    <div class="chd-fields">${m.done.map(([k,v])=>`<div><span class="chd-mu">${k}</span><span>${xesc(v)}</span></div>`).join('')}</div></div>`;
+  const P=inMsgProps(), B=(l,fn,p,dis)=>`<button class="${p?'btn-primary':'btn-ghost'} chd-b" ${dis?'disabled':''} onclick="${fn}">${l}</button>`;
+  const b3=m.b3==='need'?`<div class="chd-card in-pc need"><div class="chd-ch"><span class="chd-ref">B3</span><span class="chd-verb">File document</span><b>What is scan_0921.pdf?</b><span class="chd-chip t-warn">Needs you</span></div>
+      <div class="chd-warn">It isn’t a bank letter, ID or signed form Bricly recognises. It stays unfiled until you choose. The other proposals can still be approved.</div>
+      <div class="in-opts">${IN_MSG_FOLDERS.map(([k,s])=>`<button type="button" class="${m.folder===k?'on':''}" onclick="inMsgFolder('${k}')"><b>${k==='none'?'Don’t file':k}</b><span class="in-mu">${s}</span></button>`).join('')}</div>
+      <div class="chd-cf"><span class="chd-mu">One page, mostly handwriting</span><span class="chd-row">${B('Confirm','inMsgB3()',1,!m.folder)}</span></div></div>`
+    :`<div class="chd-card"><div class="chd-ch"><span class="chd-ref">B3</span><span class="chd-verb">File document</span><b>scan_0921.pdf → ${m.folder==='none'?'kept on the message':'Documents · '+m.folder}</b><span class="chd-chip t-ok">Decided</span></div><div class="chd-cf"><span class="chd-mu">Chosen by you</span><span class="chd-row">${B('Undo','inMsgFolder(null,1)')}</span></div></div>`;
+  const gap=m.gap==='open'?`<div class="chd-warn">Not in the records: whether buyers can move in before the pool is finished. The draft doesn’t answer it. Add the answer, or ask Operations and the reply waits.<div class="chd-row" style="margin-top:8px">${B('Ask Operations','inMsgGap(\'ask\')')}${B('Add the answer','inMsgGap(\'add\')',1)}</div></div>`
+    :m.gap==='add'?`<div class="chd-warn">Add the answer. It’s saved as a fact on Mercury and used from now on.<input class="mi-in" id="in-gap" style="margin-top:6px" placeholder="e.g. Yes, the pool is finished before handover in Q2 2027"><div class="chd-row" style="margin-top:8px">${B('Cancel','inMsgGap(\'open\')')}${B('Save fact','inMsgGapSave()',1)}</div></div>`
+    :m.gap==='asked'?`<div class="chd-effect">Asked Operations about moving in before the pool is finished · task created. The reply waits until they answer.</div>`
+    :`<div class="chd-effect">Fact saved on Mercury · “${xesc(m.answer)}” · added to the draft.</div>`;
+  return `<div class="dcard in-msg" id="in-msg"><div class="ll-dh"><span class="ll-ai">✦</span><b>Bricly read Daniel’s message</b><span class="ll-mu">WhatsApp · today 11:02 · 3 attachments, 3 questions · 1 credit</span><span class="ll-st t-info">Proposed</span></div>
+    <div class="chd-fields"><div><span class="chd-mu">Sent</span><span>Bank offer letter, ID card and one file Bricly can’t identify</span></div><div><span class="chd-mu">Asks</span><span>Is parking included with #CM2702? When is the next payment after POS? Can they move in before the pool is finished?</span></div></div>
+    ${P.map(([id,verb,title,fields,src,eff])=>{const s=m.props[id];return `<div class="chd-card"><div class="chd-ch"><span class="chd-ref">${id}</span><span class="chd-verb">${verb}</span><b>${title}</b><span class="chd-chip t-${s==='ok'?'ok':s==='skip'?'':'info'}">${{prop:'Proposed',ok:'Approved',skip:'Skipped'}[s]}</span></div><div class="chd-fields">${fields.map(([k,v])=>`<div><span class="chd-mu">${k}</span><span>${v}</span></div>`).join('')}</div>${eff?`<div class="chd-effect">${eff}</div>`:''}<div class="chd-cf"><span class="chd-mu">${src}</span><span class="chd-row">${s==='prop'?`${B('Skip',`inMsgSet('${id}','skip')`)}${B('Approve',`inMsgSet('${id}','ok')`,1)}`:B('Undo',`inMsgSet('${id}','prop')`)}</span></div></div>`;}).join('')}
+    ${b3}
+    <div class="chd-card"><div class="chd-ch"><span class="chd-ref">B4</span><span class="chd-verb">Reply</span><b>Draft reply to Daniel</b><span class="chd-chip t-${m.gap==='asked'?'warn':'info'}">${m.gap==='asked'?'Waits for Operations':'Proposed'}</span></div><textarea id="in-msg-text" class="ll-text" rows="7" aria-label="Reply to Daniel" style="border:0;border-radius:0" oninput="getExt(oppCur).inMsg.text=this.value">${xesc(m.text)}</textarea>
+      ${gap}
+      <div class="chd-effect">Every number comes from a record: Mercury price list (garage €18,000 · 2 available) · Payment plan #CM2702 (10% on POS, 20% at shell) · #CM2702 price €345,000 · Construction programme (shell March 2027).</div></div>
+    <div class="ll-acts"><button class="btn-primary" onclick="inMsgSend()">${m.gap==='asked'?'Approve and file · reply waits':'Approve all and send'}</button><span class="ll-mu">Nothing is filed or sent until you approve</span></div></div>`;
 }
 function inMsgSet(id,v){getExt(oppCur).inMsg.props[id]=v;renderOpp();}
+function inMsgFolder(k,undo){const m=getExt(oppCur).inMsg;m.folder=k;if(undo)m.b3='need';renderOpp();}
+function inMsgB3(){const m=getExt(oppCur).inMsg;if(!m.folder)return;m.b3='done';renderOpp();showToast(m.folder==='none'?'scan_0921.pdf stays on the message':'scan_0921.pdf will be filed under '+m.folder);}
+function inMsgGap(v){
+  const o=oppCur,x=getExt(o),m=x.inMsg;
+  if(v==='ask'){m.gap='asked';x.comms.unshift({ch:'sys',t:'Just now',text:'Asked Operations: can Mercury buyers move in before the pool is finished? · from Daniel’s message'});
+    if(typeof TQ!=='undefined'){tqInit();TQ.unshift({id:'n'+Date.now(),title:'Operations: can Mercury buyers move in before the pool is finished?',rec:o.id,due:cvISO(cvAddDays(cvToday(),1)),time:null,owner:tqMe(),agent:false,source:'from_signal',status:'open',createdBy:'agent',remind:'',fresh:true});tqBadge();}
+    showToast('Asked Operations · task created');}
+  else m.gap=v;
+  renderOpp(); if(v==='add') setTimeout(()=>document.getElementById('in-gap')?.focus(),30);
+}
+function inMsgGapSave(){
+  const o=oppCur,x=getExt(o),m=x.inMsg,v=document.getElementById('in-gap').value.trim(); if(!v){showToast('Type the answer first');return;}
+  m.answer=v; m.gap='answered'; m.text=m.text.replace(/\n\nI’ll send the full schedule/,`\n\nOn the pool: ${v}\n\nI’ll send the full schedule`);
+  if(!m.text.includes(v)) m.text+=`\n\nOn the pool: ${v}`;
+  x.comms.unshift({ch:'sys',t:'Just now',text:`Fact saved on Mercury · “${v}” · added by ${MI_ME}`});
+  renderOpp(); showToast('Fact saved on Mercury and added to the draft');
+}
 function inMsgSend(){
-  const o=oppCur,x=getExt(o),m=x.inMsg,text=document.getElementById('in-msg-text').value.trim();
+  const o=oppCur,x=getExt(o),m=x.inMsg,text=(document.getElementById('in-msg-text')?.value||m.text).trim();
   ['B1','B2'].forEach(id=>{if(m.props[id]==='prop')m.props[id]='ok';});
-  const ds=ensureDocs(o,x);
-  if(m.props.B2==='ok'){const idDoc=ds.find(d=>/Passport|ID/.test(d.label));if(idDoc){idDoc.status='received';idDoc.file={name:'IMG_4410.jpg',size:'1.1 MB'};idDoc.hist.push({t:'Just now',who:'Daniel Vella',act:'Received from client'});}}
-  if(m.props.B1==='ok'){ds.push({id:'dfin',g:'KYC',label:'Bank offer letter · HSBC',flow:'file',status:'filed',file:{name:'HSBC_offer_letter.pdf',size:'0.4 MB'},hist:[{t:'Just now',who:'You',act:'Filed'}]});x.buyer=x.buyer||{};x.buyer.finance='Approved · €292,000 · HSBC Malta';if(x.blocker&&/financ/i.test(x.blocker))x.blocker=null;}
-  x.comms.unshift({ch:'wa',dir:'out',who:'You',t:'Just now',text});
-  m.state='done'; renderOpp(); showToast('Filed 2 documents and sent the reply to Daniel');
+  const ds=ensureDocs(o,x), done=[];
+  if(m.props.B2==='ok'){const idDoc=ds.find(d=>/Passport|ID/.test(d.label));if(idDoc){idDoc.status='received';idDoc.file={name:'IMG_4410.jpg',size:'1.1 MB'};idDoc.hist.push({t:'Just now',who:'Daniel Vella',act:'Received from client'});}done.push('ID card · KYC, restricted');}
+  if(m.props.B1==='ok'){ds.push({id:'dfin',g:'KYC',label:'Bank offer letter · HSBC',flow:'file',status:'filed',file:{name:'HSBC_offer_letter.pdf',size:'0.4 MB'},hist:[{t:'Just now',who:'You',act:'Filed'}]});x.buyer=x.buyer||{};x.buyer.finance='Approved · €292,000 · HSBC Malta';if(x.blocker&&/financ/i.test(x.blocker))x.blocker=null;done.push('Bank offer letter · Finance');}
+  if(m.b3==='done'&&m.folder&&m.folder!=='none'){ds.push({id:'dscan',g:'KYC',label:`scan_0921.pdf · ${m.folder}`,flow:'file',status:'filed',file:{name:'scan_0921.pdf',size:'0.2 MB'},hist:[{t:'Just now',who:'You',act:'Filed'}]});done.push(`scan_0921.pdf · ${m.folder}`);}
+  const waits=m.gap==='asked';
+  if(!waits) x.comms.unshift({ch:'wa',dir:'out',who:'You',t:'Just now',text});
+  m.done=[['Filed',done.join(' · ')||'Nothing filed'],['Unfiled',m.b3==='done'&&m.folder==='none'||m.b3!=='done'?'scan_0921.pdf · kept on the message':'None'],['Finance',m.props.B1==='ok'?'Approved · €292,000 · HSBC Malta · blocker cleared':'Unchanged'],['Reply',waits?'Waiting for Operations to answer the pool question':`Sent on WhatsApp at ${miNowHm()}, as you approved it${m.gap==='answered'?' · includes the pool answer':''}`],['Next action','Send the POS draft']];
+  x.next={label:'Send the POS draft',due:'Due Mon 5 Oct',overdue:false};
+  m.state='done'; renderOpp(); showToast(waits?`Filed ${done.length} document${done.length===1?'':'s'} · the reply waits for Operations`:`Filed ${done.length} document${done.length===1?'':'s'} and sent the reply to Daniel`);
 }
 // ---------- Objections (flow 3) ----------
-const IN_SEED_OBJ={'Maria Borg':[{cat:'Payment plan',q:'“Thirty percent on signing is too much for us right now.”',src:'Appointment · Thu 1 Oct · #CM9703',open:true},{cat:'Size and layout',q:'“The bedrooms feel a bit tight though.”',src:'Appointment · Thu 1 Oct · #CM9703',open:true},{cat:'Price',q:'“The penthouse is more than we planned.”',src:'WhatsApp · Thu 24 Sep · answered by the budget update',open:false}]};
+// One fixed category list on every development so clusters compare. Each objection keeps the buyer's words and its source.
+const IN_SEED_OBJ={'Maria Borg':[{cat:'Price',q:'“The penthouse is more than we planned.”',src:'WhatsApp · Thu 24 Sep · answered by the budget update',open:false}]};
+let inObjMenu=null;
 function inObjHtml(o,x){
   if(!x.objections&&IN_SEED_OBJ[o.lead]) x.objections=IN_SEED_OBJ[o.lead].map(v=>({...v}));
   const l=x.objections||[]; if(!l.length) return '';
-  const open=l.filter(v=>v.open).length;
-  return `<div class="dcard"><div class="row-between rail-h"><div class="side-h">Objections</div><span class="in-mu">${open} open · ${l.length-open} answered</span></div>
-    ${l.map((v,i)=>`<div class="in-obj"><div class="row-between"><select class="in-cat" aria-label="Category" onchange="inObjCat(${i},this.value)">${IN_OBJ_CATS.map(c=>`<option ${c===v.cat?'selected':''}>${c}</option>`).join('')}</select><button type="button" class="chd-chip t-${v.open?'warn':'ok'}" style="border:0;cursor:pointer" onclick="inObjToggle(${i})">${v.open?'Open':'Answered'}</button></div><div>${xesc(v.q)}</div><div class="in-mu">${xesc(v.src)}</div></div>`).join('')}</div>`;
+  const open=l.filter(v=>v.open).length, dev=DEVS.find(d=>d.name===o.devs[0]), mgr=curPersona==='owner'||curPersona==='manager';
+  return `<div class="dcard" id="opp-obj-card"><div class="row-between rail-h"><div class="side-h">Objections</div><span class="in-mu">${open} open · ${l.length-open} answered</span></div>
+    ${l.map((v,i)=>`<div class="in-obj"><div class="row-between"><b class="in-objc">${xesc(v.cat)}</b><span class="chd-row"><button type="button" class="chd-chip t-${v.open?'warn':'ok'}" style="border:0;cursor:pointer" title="Mark as ${v.open?'answered':'open'}" onclick="inObjToggle(${i})">${v.open?'Open':'Answered'}</button><button type="button" class="in-objm" aria-label="Change category" aria-expanded="${inObjMenu===i}" onclick="inObjMenu=inObjMenu===${i}?null:${i};renderOpp()">⋯</button></span></div>
+      ${inObjMenu===i?`<div class="in-objmenu" role="menu"><div class="in-mu">Change the category · same list on every development</div>${IN_OBJ_CATS.map(c=>`<button type="button" role="menuitem" class="${c===v.cat?'on':''}" onclick="inObjCat(${i},'${c}')"><span>${c}</span>${c===v.cat?'✓':''}</button>`).join('')}</div>`:''}
+      <div>${xesc(v.q)}</div><div class="in-mu">${v.apptId?`<button type="button" class="mi-src" onclick="miOpen('${v.oppId}','${v.apptId}','trans','${v.ts}')">${xesc(v.src)}</button>`:xesc(v.src)}</div></div>`).join('')}
+    ${mgr&&dev?`<div class="rail-note"><button type="button" class="rail-link" onclick="openDev('${dev.id}');dvSetTab('objections')">See ${xesc(dev.name)} objections across buyers ›</button></div>`:''}</div>`;
 }
-function inObjCat(i,c){const x=getExt(oppCur);x.objections[i].cat=c;renderOpp();showToast('Category changed to '+c);}
+function inObjCat(i,c){const x=getExt(oppCur),was=x.objections[i].cat;inObjMenu=null;x.objections[i].cat=c;if(was!==c)x.comms.unshift({ch:'sys',t:'Just now',text:`Objection recategorised: ${was} → ${c} · recounted on the development`});renderOpp();showToast('Category changed to '+c);}
 function inObjToggle(i){const x=getExt(oppCur);x.objections[i].open=!x.objections[i].open;renderOpp();}
-const IN_CLUSTERS=[['Payment plan','30% on signing is too high','Penthouses · 2-beds',14,9,3,'Today','↑ from 4'],['Size and layout','Second bedroom feels small','2-beds, floors 5 to 7',9,7,1,'Today','↑ from 6'],['Price','Penthouse above budget','Penthouses',8,6,2,'Mon 28 Sep','same'],['Completion timing','Needs to move in before Q2 2027','All types',6,5,1,'Thu 1 Oct','↓ from 8'],['Parking','No parking space included','2-beds and 3-beds',5,5,0,'Wed 30 Sep','same'],['Payment plan','Deposit too high to reserve','2-beds',4,3,1,'Fri 25 Sep','new'],['View and light','Lower floors are overlooked','Floors 1 to 3',3,3,0,'Tue 22 Sep','same']];
-const IN_QUOTES=[['“Thirty percent on signing is too much for us right now.”','Maria Borg · appointment · Thu 1 Oct · Sam'],['“Can the 30% be split over the first year?”','Ben Zammit · WhatsApp · Mon 28 Sep · Karl Zammit'],['“We’d have to sell our flat first to find 30%.”','Clara Spiteri · call · Tue 22 Sep · Sam'],['“Mercury only asks 10% on the promise of sale.”','Joseph Grech · appointment · Fri 18 Sep · Matthew Vella']];
-function inDevObjHtml(d){
-  const live=OPPS.filter(o=>o.devs.includes(d.name)).flatMap(o=>(getExt(o).objections||[]).map(v=>({...v,o})));
-  const rows=d.name==='Onyx Rise'?IN_CLUSTERS:Object.entries(live.reduce((m,v)=>{(m[v.cat]=m[v.cat]||[]).push(v);return m;},{})).map(([c,l])=>[c,l[0].q.replace(/[“”]/g,''),'—',l.length,new Set(l.map(v=>v.o.id)).size,l.filter(v=>v.open).length,'Today','new']);
-  return `<div class="in-mu" style="margin-bottom:12px">Clustered from objections logged in meetings and messages over the last 90 days. Categories are the same on every development so the clusters compare.</div>
-    ${rows.length?`<div class="auv-table"><div class="auv-tr th in-ob"><span>Category</span><span>What buyers say</span><span>Units</span><span class="r">Mentions</span><span class="r">Opportunities</span><span class="r">Open</span><span>Last</span><span>vs previous 90 days</span></div>
-    ${rows.map((r,i)=>`<div class="auv-tr in-ob" ${d.name==='Onyx Rise'?`style="cursor:pointer" onclick="inQuotes(${i},'${xesc(d.name)}')"`:''}><span><b>${r[0]}</b></span><span>${xesc(r[1])}</span><span class="in-mu">${xesc(r[2])}</span><span class="r">${r[3]}</span><span class="r">${r[4]}</span><span class="r">${r[5]}</span><span>${r[6]}</span><span class="${String(r[7]).startsWith('↑')?'tq-bad':'in-mu'}">${r[7]}</span></div>`).join('')}</div>`:'<div class="tq-empty big"><b>No objections logged yet</b><span>They appear here as reps approve them from meetings and buyer messages.</span></div>'}`;
+// Onyx Rise clusters: [category, name, units, mentions, opportunities, lost after, last, vs previous 90 days, mentions in the last 30 days, Sam's mentions]
+let IN_CLUSTERS=[['Payment plan','30% on signing is too high','Penthouses · 2-beds',14,9,3,'Today','↑ from 4',8,5],['Size and layout','Second bedroom feels small','2-beds, floors 5 to 7',9,7,1,'Today','↑ from 6',4,3],['Price','Penthouse above budget','Penthouses',8,6,2,'Mon 28 Sep','same',3,2],['Completion timing','Needs to move in before Q2 2027','All types',6,5,1,'Thu 1 Oct','↓ from 8',2,2],['Parking','No parking space included','2-beds and 3-beds',5,5,0,'Wed 30 Sep','same',2,1],['Payment plan','Deposit too high to reserve','2-beds',4,3,1,'Fri 25 Sep','new',3,1],['View and light','Lower floors are overlooked','Floors 1 to 3',3,3,0,'Tue 22 Sep','same',1,0]];
+const IN_QUOTES=[['“Thirty percent on signing is too much for us right now.”','Maria Borg · viewing · Thu 1 Oct · Sam','OPP-1008'],['“Can the 30% be split over the first year?”','Ben Zammit · WhatsApp · Mon 28 Sep · Karl Zammit'],['“We’d have to sell our flat first to find 30%.”','Clara Spiteri · call · Tue 22 Sep · Sam'],['“Mercury only asks 10% on the promise of sale.”','Joseph Grech · viewing · Fri 18 Sep · Matthew Vella']];
+let IN_OBJF={period:'90',rep:'all',type:'all'}, IN_MERGE='suggest';
+function inObjRows(d){
+  if(d.name!=='Onyx Rise'){
+    const live=OPPS.filter(o=>o.devs.includes(d.name)).flatMap(o=>(getExt(o).objections||[]).map(v=>({...v,o})));
+    return Object.entries(live.reduce((m,v)=>{(m[v.cat]=m[v.cat]||[]).push(v);return m;},{})).map(([c,l])=>[c,l[0].q.replace(/[“”]/g,''),'—',l.length,new Set(l.map(v=>v.o.id)).size,0,'Today','new',l.length,l.length]);
+  }
+  const t={pent:/Penthouse/i,two:/2-bed/i,three:/3-bed|All types/i}[IN_OBJF.type];
+  return IN_CLUSTERS.map((r,i)=>({r,i})).filter(({r})=>!t||t.test(r[2])||r[2]==='All types')
+    .map(({r,i})=>{const n=IN_OBJF.rep==='sam'?r[9]:IN_OBJF.period==='30'?r[8]:r[3];return {r:[r[0],r[1],r[2],n,Math.min(r[4],n),Math.min(r[5],n),r[6],IN_OBJF.period==='90'&&IN_OBJF.rep==='all'?r[7]:'—'],i};})
+    .filter(({r})=>r[3]>0).sort((p,q)=>q.r[3]-p.r[3]);
 }
-function inQuotes(i,dev){const r=IN_CLUSTERS[i];qaDrawerOpen(`${r[0]} · ${dev}`,`<div class="in-mu" style="margin-bottom:10px">${xesc(r[1])} · ${r[3]} mentions across ${r[4]} opportunities</div>${(i===0?IN_QUOTES:IN_QUOTES.slice(0,2)).map(([q,s])=>`<div class="in-q"><span>${xesc(q)}</span><span class="in-mu">${xesc(s)}</span></div>`).join('')}`,`<button class="btn-primary" onclick="qaDrawerClose()">Done</button>`);}
+function inDevObjHtml(d){
+  const onyx=d.name==='Onyx Rise', rows=onyx?inObjRows(d):inObjRows(d).map((r,i)=>({r,i})), max=Math.max(1,...rows.map(v=>v.r[3]));
+  const sel=(k,opts)=>`<select class="in-cat" aria-label="${k}" onchange="IN_OBJF.${k}=this.value;renderDev()">${opts.map(([v,l])=>`<option value="${v}" ${IN_OBJF[k]===v?'selected':''}>${l}</option>`).join('')}</select>`;
+  const pi=IN_CLUSTERS.findIndex(r=>r[1]==='30% on signing is too high'), di=IN_CLUSTERS.findIndex(r=>r[1]==='Deposit too high to reserve');
+  return `<div class="row-between" style="margin-bottom:12px;gap:12px;flex-wrap:wrap"><div class="in-mu">Clustered from objections approved in meetings and messages. Categories are the same on every development so the clusters compare.</div>
+    ${onyx?`<span class="chd-row">${sel('period',[['90','Last 90 days'],['30','Last 30 days']])}${sel('rep',[['all','All reps'],['sam','Sam']])}${sel('type',[['all','All unit types'],['pent','Penthouses'],['two','2-beds'],['three','3-beds']])}</span>`:''}</div>
+    ${onyx&&IN_MERGE==='suggest'&&pi>=0&&di>=0?`<div class="mi-ban t-warn"><span>“${IN_CLUSTERS[pi][1]}” and “${IN_CLUSTERS[di][1]}” look like the same objection: both are about cash needed up front. You decide; quotes and sources are kept.</span><button type="button" class="mi-ban-a" onclick="inMergeOpen()">Review merge</button></div>`:''}
+    ${rows.length?`<div class="auv-table"><div class="auv-tr th in-ob"><span>Category</span><span>What buyers say</span><span>Units</span><span class="r">Mentions</span><span class="r">Opportunities</span><span class="r">Lost after</span><span>Last</span><span>vs previous 90 days</span></div>
+    ${rows.map(({r,i})=>`<div class="auv-tr in-ob" ${onyx?`role="button" tabindex="0" style="cursor:pointer" onclick="inQuotes(${i},'${xesc(d.name)}')"`:''}><span><b>${r[0]}</b></span><span>${xesc(r[1])}</span><span class="in-mu">${xesc(r[2])}</span><span class="r in-bar"><i style="width:${Math.round(r[3]/max*100)}%"></i>${r[3]}</span><span class="r">${r[4]}</span><span class="r">${r[5]}</span><span>${r[6]}</span><span class="${String(r[7]).startsWith('↑')||r[7]==='new'?'tq-bad':'in-mu'}">${r[7]}</span></div>`).join('')}</div>`:'<div class="tq-empty big"><b>No objections logged yet</b><span>They appear here as reps approve them from meetings and buyer messages.</span></div>'}`;
+}
+function inQuotes(i,dev){
+  const r=IN_CLUSTERS[i], qs=r[0]==='Payment plan'?IN_QUOTES:IN_QUOTES.slice(1,3);
+  const maria=OPPS.find(o=>o.id==='OPP-1008'), mx=maria&&getExt(maria), ap=mx&&(mx.objections||[]).find(v=>v.apptId&&v.cat===r[0]);
+  const where=r[0]==='Payment plan'?[['#CM9712 · penthouse','6'],['#CM9702 · 2-bed','5'],['Other 2-beds','3']]:[[r[2],String(r[3])]];
+  const now=[['Still open',String(Math.max(0,r[4]-r[5]-Math.round(r[4]/4)))],['Moved to nurture',String(Math.round(r[4]/4))],['Lost',`${r[5]}${r[5]?' · reason given: '+r[0].toLowerCase():''}`]];
+  qaDrawerOpen(`${r[0]} · ${r[1]}`,`<div class="in-mu" style="margin-bottom:10px">${dev} · ${r[3]} mentions across ${r[4]} opportunities · ${r[5]} lost after it came up</div>
+    <div class="side-h">What buyers said</div>${qs.map(([q,s,opp])=>`<div class="in-q"><span>${xesc(q)}</span>${opp&&ap?`<button type="button" class="mi-src" onclick="qaDrawerClose();miOpen('${ap.oppId}','${ap.apptId}','trans','${ap.ts}')">${xesc(s)} · open at the line</button>`:`<button type="button" class="mi-src" onclick="showToast('Opens the ${/WhatsApp/.test(s)?'message':'transcript'} at that line')">${xesc(s)}</button>`}</div>`).join('')}
+    <div class="side-h" style="margin-top:16px">Where it comes up</div>${where.map(([k,v])=>`<div class="in-fact"><span>${xesc(k)}</span><span>${v}</span></div>`).join('')}
+    <div class="side-h" style="margin-top:16px">Where those opportunities are now</div>${now.map(([k,v])=>`<div class="in-fact"><span>${k}</span><span>${xesc(v)}</span></div>`).join('')}`,`<button class="btn-primary" onclick="qaDrawerClose()">Close</button>`);
+}
+function inMergeOpen(){
+  const a=IN_CLUSTERS.find(r=>r[1]==='30% on signing is too high'), b=IN_CLUSTERS.find(r=>r[1]==='Deposit too high to reserve'); if(!a||!b) return;
+  const card=r=>`<div class="in-unit"><b>${xesc(r[1])}</b><span class="in-mu">${r[0]} · ${r[3]} mentions · ${r[4]} opportunities · ${r[2]}</span></div>`;
+  qaDrawerOpen('Merge two clusters?',`<div class="in-mu" style="margin-bottom:10px">Bricly thinks these are the same objection. Merging keeps every quote and source; the counts add up.</div>${card(a)}<div class="in-mu" style="text-align:center;margin:6px 0">+</div>${card(b)}
+    <label class="mi-lbl" style="margin-top:14px">Name of the merged cluster<input class="mi-in" id="in-merge-name" value="Too much cash needed up front"></label>`,
+    `<button class="btn-ghost" onclick="IN_MERGE='kept';qaDrawerClose();renderDev();showToast('Kept separate')">Keep separate</button><button class="btn-primary" onclick="inMerge()">Merge</button>`);
+}
+function inMerge(){
+  const ai=IN_CLUSTERS.findIndex(r=>r[1]==='30% on signing is too high'), bi=IN_CLUSTERS.findIndex(r=>r[1]==='Deposit too high to reserve'); if(ai<0||bi<0) return;
+  const a=IN_CLUSTERS[ai], b=IN_CLUSTERS[bi], name=document.getElementById('in-merge-name')?.value.trim()||a[1];
+  IN_CLUSTERS[ai]=['Payment plan',name,'Penthouses · 2-beds',a[3]+b[3],a[4]+b[4],a[5]+b[5],a[6],'↑ from 4',a[8]+b[8],a[9]+b[9]];
+  IN_CLUSTERS.splice(bi,1); IN_MERGE='merged'; qaDrawerClose(); renderDev(); showToast(`Merged into “${name}” · ${a[3]+b[3]} mentions, sources kept`);
+}
 
 // ---------- Opportunity "Bricly found" strip (same cards as the deal page) ----------
 // Collects what Bricly already proposes on this opportunity; the full cards sit inline in Activity.
@@ -263,7 +268,7 @@ function oppSuggestionsHtml(o,x){
         target:`${verb} to ${where}${eff?' · '+eff:''}`,
         acts:`<button type="button" class="btn-primary df-sm" onclick="inMsgSet('${id}','ok')">Approve</button><button type="button" class="btn-ghost df-sm" onclick="inMsgSet('${id}','skip')">Skip</button><button type="button" class="df-link" onclick="oppSuggJump('in-msg')">View in activity</button>`}));
     });
-    cards.push(dfSuggCard({channel:'WhatsApp',time:'Today 11:02',conf:'high',title:`Reply drafted to ${first}’s 2 questions`,preview:m.text.split('\n').filter(Boolean).slice(1,3).join(' '),
+    cards.push(dfSuggCard({channel:'WhatsApp',time:'Today 11:02',conf:'high',title:`Reply drafted to ${first}’s questions`,preview:m.text.split('\n').filter(Boolean).slice(1,3).join(' '),
       from:'Every number comes from a record',target:'Review the reply, then approve and send',
       acts:`<button type="button" class="btn-primary df-sm" onclick="oppSuggJump('in-msg')">Review reply</button>`}));
   }

@@ -1557,6 +1557,8 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
 <link rel="stylesheet" href="client-share.css">
 <link rel="stylesheet" href="appt-book.css">
 <link rel="stylesheet" href="lead-intake.css">
+<link rel="stylesheet" href="meet-intel.css">
+<link rel="stylesheet" href="mgmt-vis.css">
 </head>
 <body>
 <div class="app" id="appShell">
@@ -1714,6 +1716,19 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
         <div class="wrap">
           <button class="btn-back" onclick="go('pipeline')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8.5 3L4 7l4.5 4"/></svg>Back to Opportunities</button>
           <div id="opp-root"></div>
+        </div>
+      </section>
+
+      <!-- ===== APPOINTMENT (meeting intelligence) ===== -->
+      <section class="page" id="p-mtg">
+        <div class="wrap"><div id="mi-root"></div></div>
+      </section>
+
+      <!-- ===== CONTACTS › UNMATCHED MESSAGES ===== -->
+      <section class="page" id="p-unmatched">
+        <div class="wrap">
+          <button class="btn-back" onclick="go('contacts')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8.5 3L4 7l4.5 4"/></svg>Back to Contacts</button>
+          <div id="unm-root"></div>
         </div>
       </section>
 
@@ -5406,7 +5421,7 @@ function oppHeadHtml(o,j,comp){
           <button onclick="crAct('qaPresent')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="3" width="10" height="7" rx="1"/><path d="M7 10v2M5 12h4"/></svg>Present</button>
           <button onclick="crAct('qaViewing')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="2.5" width="10" height="9.5" rx="1.5"/><path d="M2 5.5h10M5 2.5V1M9 2.5V1"/></svg>Book appointment</button>
           <button onclick="crAct('oppHoldRequest')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="3" y="6" width="8" height="6" rx="1"/><path d="M5 6V4.5a2 2 0 014 0V6"/></svg>Put unit on hold</button>
-          <button onclick="crAct('inMeetingOpen')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="5" y="1.5" width="4" height="7" rx="2"/><path d="M3 7a4 4 0 008 0M7 11v1.5"/></svg>Add meeting recording</button>
+          <button onclick="crAct('inMeetingOpen')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="5" y="1.5" width="4" height="7" rx="2"/><path d="M3 7a4 4 0 008 0M7 11v1.5"/></svg>Log meeting</button>
           <button onclick="crAct('oppAddTask')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="2" width="10" height="10" rx="2"/><path d="M4.8 7l1.6 1.6L9.4 5.6"/></svg>Add task</button>
           <button onclick="crAct('oppPosOpen')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M3 11.5l1.5-.3 6-6-1.2-1.2-6 6zM8.5 3.8l1.2 1.2"/><path d="M2 12.5h10"/></svg>Book POS signing</button>
           ${typeof dcCanCreate==='function'&&dcCanCreate(o)?`<button onclick="crAct('dcOpenFromActions')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 1.5l1.6 3.3 3.6.5-2.6 2.5.6 3.6L7 9.7l-3.2 1.7.6-3.6L1.8 5.3l3.6-.5z"/></svg>Create deal</button>`:''}
@@ -14414,6 +14429,8 @@ function crReversion(uid){
 <script src="present-spatial.js"></script>
 <script src="present-neighbourhood.js"></script>
 <script src="present-mode.js"></script>
+<script src="meet-intel.js"></script>
+<script src="mgmt-vis.js"></script>
 <style>
 .tb-search{cursor:pointer;text-align:left;color:var(--on-variant);min-width:0}
 .tb-search:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
