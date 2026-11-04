@@ -5256,13 +5256,13 @@ function openOpp(id){
   document.getElementById('p-opp').classList.add('on');
   document.querySelectorAll('.ni').forEach(n=>n.classList.toggle('on',n.dataset.page==='pipeline'));
   document.getElementById('crumb').innerHTML=`<a onclick="go('pipeline')">Opportunities</a><span class="sep">/</span><span class="cur">${xesc(oppCur.lead)}</span>`;
-  oppFeedF='all'; oppTabB='activity'; oppArchOpen=false;
+  oppFeedF='all'; oppConvF='all'; oppTabB='activity'; oppArchOpen=false;
   renderOpp();
   document.getElementById('content').scrollTop=0;
 }
 
 // ---------- Stage-aware opportunity view ----------
-let oppCur=null, oppFeedF='all', oppComposeCh='wa', oppTabB='activity', oppArchOpen=false;
+let oppCur=null, oppFeedF='all', oppConvF='all', oppComposeCh='wa', oppTabB='activity', oppArchOpen=false;
 const CHECK_SVG='<svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.5 6.5l2.5 2.5 4.5-5"/></svg>';
 function jIdx(k){return JOURNEY.findIndex(j=>j.key===k);}
 function fmtEur(n){return '€'+n.toLocaleString('en-US');}
@@ -5377,6 +5377,7 @@ function handoffHeroHtml(o,dl){
 }
 function oppSetTab(t){oppTabB=t;renderOpp();}
 function oppFeed(k){oppFeedF=k;renderOpp();}
+function oppConv(k){oppConvF=k;renderOpp();}
 function oppCh(k){const ta=document.getElementById('opp-comp');const v=ta?ta.value:'';oppComposeCh=k;renderOpp();const t2=document.getElementById('opp-comp');if(t2){t2.value=v;t2.focus();}}
 function oppSend(){
   const ta=document.getElementById('opp-comp'); const v=ta&&ta.value.trim(); if(!v) return;
@@ -5581,35 +5582,40 @@ function oppTabsHtml(compact=false){
   const t=oppTabB;
   const open=typeof oppTasksFor==='function'&&oppCur?oppTasksFor(oppCur).filter(task=>task.status==='open').length:0;
   const tasksLabel='Tasks'+(open?` · ${open}`:'');
-  const tabs=compact?[['activity','Activity'],['tasks',tasksLabel],['details','Details']]:[['activity','Activity'],['deal','Closing Room'],['details','Details'],['tasks',tasksLabel],['notes','Notes'],['docs','Documents']];
+  const tabs=compact?[['activity','Activity'],['tasks',tasksLabel],['details','Details']]:[['activity','Activity'],['conv','Conversations'],['details','Details'],['tasks',tasksLabel],['notes','Notes'],['docs','Documents'],['deal','Offer Progress']];
   return `<div class="tabs">${tabs.map(([key,label])=>`<button class="tab ${t===key?'on':''}" data-opp-tab="${key}" onclick="oppSetTab('${key}')">${label}</button>`).join('')}</div>`;
 }
 function tabsLayoutHtml(o,x,ji){
   const phaseB=JOURNEY[ji].phase==='B', t=oppTabB;
   return `${t==='activity'?`${typeof oppSuggestionsHtml==='function'?oppSuggestionsHtml(o,x):''}<div class="opp-grid"><div>${feedCard(o,x)}${crPackPanelHtml(o,x)}${oppAutosHtml(o,x)}</div><div>${railHtml(o,x,ji)}</div></div>`:''}
-    ${t==='deal'?(phaseB?dealRoomHtml(o,x,ji):`<div class="dcard oj-lock">The Closing Room unlocks once an offer is accepted.<br>Hold approval, reservation deposit, KYC and POS prep live here — after the POS is signed, the deal takes over.<br><br><button class="ff-chip" onclick="oppSetTab('docs')">Collect KYC &amp; documents now →</button></div>`):''}
+    ${t==='conv'?feedCard(o,x,true):''}
+    ${t==='deal'?(phaseB?dealRoomHtml(o,x,ji):`<div class="dcard oj-lock">Offer Progress unlocks once an offer is accepted.<br>Hold approval, reservation deposit, KYC and POS prep live here — after the POS is signed, the deal takes over.<br><br><button class="ff-chip" onclick="oppSetTab('docs')">Collect KYC &amp; documents now →</button></div>`):''}
     ${t==='details'?detailsHtml(o,x,ji):''}
     ${t==='tasks'?oppTasksTabHtml(o,railHtml(o,x,ji)):''}
     ${t==='notes'?notesTabHtml(o,x,ji):''}
     ${t==='docs'?docsTabHtml(o,x,ji):''}`;
 }
 
-function feedCard(o,x){
-  const chips=[['all','All'],['wa','WhatsApp'],['sms','SMS'],['em','Email'],['note','Notes'],['sys','System']];
+// conv=true renders the Conversations tab: buyer messages only (no notes or system events), full width.
+function feedCard(o,x,conv=false){
+  const chips=conv?[['all','All'],['wa','WhatsApp'],['sms','SMS'],['em','Email']]:[['all','All'],['wa','WhatsApp'],['sms','SMS'],['em','Email'],['note','Notes'],['sys','System']];
   if(typeof inMsgSeed==='function') inMsgSeed(o,x);
-  const list=x.comms.filter(c=>oppFeedF==='all'||c.ch===oppFeedF);
-  const inline=typeof oppFeedInlineAfter==='function';
+  const filt=conv?oppConvF:oppFeedF;
+  if(conv&&oppComposeCh==='note') oppComposeCh='wa';
+  const list=x.comms.filter(c=>(!conv||['wa','sms','em'].includes(c.ch))&&(filt==='all'||c.ch===filt));
+  const inline=!conv&&typeof oppFeedInlineAfter==='function';
   const top=inline&&['all','wa'].includes(oppFeedF)?oppFeedInlineTop(o,x):'';
+  const compCh=conv?[['wa','WhatsApp'],['sms','SMS'],['em','Email']]:[['wa','WhatsApp'],['sms','SMS'],['em','Email'],['note','Note']];
   return `<div class="dcard">
-    <div class="row-between" style="margin-bottom:12px"><h3 style="margin:0">Activity</h3>
-      <div class="ff-chips">${chips.map(([k,l])=>`<button class="ff-chip ${oppFeedF===k?'on':''}" onclick="oppFeed('${k}')">${l}</button>`).join('')}</div>
+    <div class="row-between" style="margin-bottom:12px"><h3 style="margin:0">${conv?'Conversations':'Activity'}</h3>
+      <div class="ff-chips">${chips.map(([k,l])=>`<button class="ff-chip ${filt===k?'on':''}" onclick="${conv?'oppConv':'oppFeed'}('${k}')">${l}</button>`).join('')}</div>
     </div>
     <div class="opp-comp">
-      <div class="oc-ch">${[['wa','WhatsApp'],['sms','SMS'],['em','Email'],['note','Note']].map(([k,l])=>`<button class="ff-chip ${oppComposeCh===k?'on':''}" onclick="oppCh('${k}')">${l}</button>`).join('')}</div>
+      <div class="oc-ch">${compCh.map(([k,l])=>`<button class="ff-chip ${oppComposeCh===k?'on':''}" onclick="oppCh('${k}')">${l}</button>`).join('')}</div>
       <textarea id="opp-comp" rows="2" placeholder="Message ${o.lead.split(' ')[0]} on ${CH_META[oppComposeCh].label}…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();oppSend()}"></textarea>
       <div class="oc-foot"><button class="ai-chip" style="margin-right:auto" onclick="oppDraft()">✦ AI draft</button><button class="btn-primary" style="padding:5px 12px;font-size:12px" onclick="oppSend()">Send</button></div>
     </div>
-    <div class="feed">${top}${list.map(c=>feedItem(c)+(inline?oppFeedInlineAfter(o,x,c):'')).join('')||'<div class="col-empty">No activity in this channel yet</div>'}</div>
+    <div class="feed">${top}${list.map(c=>feedItem(c)+(inline?oppFeedInlineAfter(o,x,c):'')).join('')||`<div class="col-empty">${conv?'No messages in this channel yet':'No activity in this channel yet'}</div>`}</div>
   </div>`;
 }
 function feedItem(c){
@@ -5723,7 +5729,7 @@ function dealRoomHtml(o,x,ji){ // pre-POS closing room — full payment/deed tra
     </details>`;
   }
   const closed='';
-  return `<div class="dcard"><h3>Closing room</h3>${kd}${pay}${docs}${closed}${bidsHtml}</div>`;
+  return `<div class="dcard"><h3>Offer progress</h3>${kd}${pay}${docs}${closed}${bidsHtml}</div>`;
 }
 
 let oppDetailsPickerOpen=null,oppDetailsFocusTag=null;
@@ -6438,7 +6444,7 @@ function ojAdvance(){
     return;
   }
   renderOpp(); pipeRenderAll();
-  if(crossedGate){ ojConfetti(); showToast('🎉 Offer accepted — closing room open'); }
+  if(crossedGate){ ojConfetti(); showToast('🎉 Offer accepted — Offer Progress open'); }
   else showToast(`${o.lead} → ${nj.label}`);
 }
 function ojConfetti(){

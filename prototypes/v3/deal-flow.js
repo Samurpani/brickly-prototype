@@ -136,7 +136,7 @@ function dfLinkRegister(o,x,df){
   Object.entries(DF_SLOTS).forEach(([id,def])=>{
     if(!def.match||df.slots[id]) return;
     const doc=docs.find(d=>d.file&&def.match.test(d.label)&&['verified','signed','filed'].includes(d.status));
-    if(doc) df.slots[id]={state:'accepted',docId:doc.id,file:doc.file.name,size:doc.file.size,at:doc.hist?.at(-1)?.t||'',via:'Carried over from the closing room',by:doc.hist?.at(-1)?.who||''};
+    if(doc) df.slots[id]={state:'accepted',docId:doc.id,file:doc.file.name,size:doc.file.size,at:doc.hist?.at(-1)?.t||'',via:'Carried over from Offer Progress',by:doc.hist?.at(-1)?.who||''};
   });
   dfPayments(o).forEach(r=>{
     if(dealReceived(r.p)<r.p.amt) return;
@@ -1488,7 +1488,7 @@ function dfConvertRender(){
     <div class="df-grid2"><label class="df-field"><span>Agreed price (€)</span><input id="dfc-price" inputmode="decimal" value="${DFS.price}" oninput="dfSplitRecalc()"></label><label class="df-field"><span>POS signed</span><input id="dfc-pos" type="date" value="${DFC.pos}" max="${dealToday()}"></label></div>
     <div class="df-field"><span>Funding type</span><div class="df-seg" role="radiogroup" aria-label="Funding type">${Object.entries(DF_FUND).map(([k,l])=>`<button type="button" role="radio" aria-checked="${k===DFC.funding}" class="${k===DFC.funding?'on':''}" onclick="dfConvFunding('${k}')">${l}</button>`).join('')}</div>
       <span class="df-mu">Step 2 will be ${dfEsc(DF_TPL.steps[1].label(DFC.funding))}.</span></div>
-    <div class="df-eyebrow">Step 1 documents · carried over from the closing room</div>
+    <div class="df-eyebrow">Step 1 documents · carried over from Offer Progress</div>
     ${carry.map(([l,ok])=>`<div class="df-att"><span class="df-dot ${ok?'on':''}"></span><span>${l}</span><span class="df-mu">${ok?'On file':'Missing · stays on the next-step card'}</span></div>`).join('')}
     <div class="df-eyebrow">Sales team &amp; commission</div>
     <div id="dfs-team">${dfSplitTeamHtml()}</div>`,
@@ -1509,7 +1509,7 @@ function dfConvertSave(){
   const df=dfState(o); df.funding=DFC.funding;
   const devs=dfSplitApply(o,'');
   x.comms.unshift({ch:'sys',t:'Just now',text:'POS signed — deal '+d.id+' created'});
-  dfAfter(o,'Documents carried over from the closing room');
+  dfAfter(o,'Documents carried over from Offer Progress');
   DFC=null; DFS=null; qaDrawerClose();
   if(origin==='journey'&&typeof renderOpp==='function'&&document.getElementById('p-opp')?.classList.contains('on')){renderOpp();if(typeof ojConfetti==='function')ojConfetti();}
   pipeRenderAll(); if(typeof renderDeals==='function') renderDeals();

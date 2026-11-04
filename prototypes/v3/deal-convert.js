@@ -383,7 +383,7 @@ function dcCreate(){
 
   if(pending) dcFileRequest(o,d,c,pre);
   else dcActivate(o,d,dfIsManager()&&!dcUnitState(o,v.unit).reserved?`${me} · manager`:null);
-  dfAfter(o,'Documents carried over from the closing room');
+  dfAfter(o,'Documents carried over from Offer Progress');
 
   DCV=null; qaDrawerClose();
   if(typeof renderOpp==='function'&&document.getElementById('p-opp')?.classList.contains('on')){renderOpp();if(!pending&&typeof ojConfetti==='function')ojConfetti();}
