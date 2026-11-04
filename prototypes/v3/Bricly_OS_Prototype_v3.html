@@ -5737,7 +5737,23 @@ function oppDtPicker(o,field,label,options,value,multi=false){
   const opts=options.map(option=>typeof option==='string'?{value:option,label:option}:option);
   const group=fdGroup(label,opts,v=>selected.includes(v),v=>`oppDtChoose('${o.id}','${field}',${xesc(JSON.stringify(v))})`,{value:option=>option.value,text:option=>xesc(option.label),radio:!multi});
   const summary=opts.filter(option=>selected.includes(option.value)).map(option=>option.label).join(', ')||'Not specified';
-  return `<div class="od-field"><label>${label}</label><details class="nf-picker" data-opp-picker="${field}" ${oppDetailsPickerOpen===field?'open':''}><summary aria-label="${label}">${xesc(summary)}</summary><div class="nf-menu">${opts.length?group:'<div class="fd-empty">No options available</div>'}</div></details></div>`;
+  const shown=(field==='units'||field==='devs')&&selected.length?oppDtChips(o,field,opts,selected):xesc(summary);
+  return `<div class="od-field"><label>${label}</label><details class="nf-picker" data-opp-picker="${field}" ${oppDetailsPickerOpen===field?'open':''}><summary aria-label="${label}">${shown}</summary><div class="nf-menu">${opts.length?group:'<div class="fd-empty">No options available</div>'}</div></details></div>`;
+}
+// Selected units and developments render as the same pills used on opportunity cards, each with its own remove button.
+function oppDtChips(o,field,opts,selected){
+  const noun=field==='units'?'unit':'development';
+  return `<span class="opp-unit-refs opp-dt-unit-chips">${selected.map(id=>{
+    const full=opts.find(option=>option.value===id)?.label||String(id);
+    let text,cls='',tip=full;
+    if(field==='units'){
+      const ref=String(id).replace(/^#/,'').trim(),unit=UN(id),state=oppUnitState(o,id);
+      text=`${xesc(ref)}${unit?.price?`<span class="unit-ref-price">${fmtK(unit.price)}</span>`:''}`;
+      cls=state?' is-'+state:'';if(state)tip+=` · Unit ${state}`;
+    }else text=xesc(id);
+    const name=field==='units'?String(id).replace(/^#/,''):id;
+    return `<span class="unit-ref unit-ref-sel${cls}" title="${xesc(tip)}">${text}<button type="button" class="unit-ref-x" aria-label="Remove ${noun} ${xesc(name)}" onclick="event.preventDefault();event.stopPropagation();oppDtChoose('${o.id}','${field}',${xesc(JSON.stringify(id))},false)">${sbIcon('x')}</button></span>`;
+  }).join('')}</span>`;
 }
 function oppDtTagList(o,field){
   if(field==='tags')return o.tags;
@@ -5866,7 +5882,7 @@ function oppDetailsApply(id,field,value){
   if(!oppDetailsRecord(o,label,before,after))return;
   oppDetailsRerender(o);
 }
-function oppDtChoose(id,field,value){
+function oppDtChoose(id,field,value,keepOpen=true){
   const o=OPPS.find(item=>item.id===id),contact=o&&oppDetailsContact(o);
   if(!o||!contact){showToast('Opportunity or associated contact not found');return;}
   if(field==='devs'||field==='units'){
@@ -5882,7 +5898,7 @@ function oppDtChoose(id,field,value){
     oppDetailsRecord(o,'unit selection',beforeUnits,o.units);
     contact.ploc=o.devs.join(', ');
     contact.interest=`${o.units.join(', ')||'No units selected'} · ${o.devs.join(', ')||'No developments selected'}`;
-    setTimeout(()=>oppDetailsRerender(o,field));
+    setTimeout(()=>oppDetailsRerender(o,keepOpen?field:null));
     return;
   }
   if(field==='consent'){
@@ -5910,18 +5926,6 @@ function detailsHtml(o,x,ji){
   return `<div class="opp-details-wrap">
     <div class="opp-details-intro"><div><h2>Details</h2><p>Edit the opportunity and buyer record directly. Changes save automatically and are logged to Activity.</p></div><span class="opp-detail-record-id">${xesc(o.id)}</span></div>
     <div class="opp-details-grid">
-      <section class="dcard opp-details-card"><h3>Opportunity</h3>
-        ${oppDtPicker(o,'stage','Pipeline stage',STAGES,o.stage)}
-        ${oppDtPicker(o,'source','Lead source',sourceOptions,o.source)}
-        ${oppDtPicker(o,'rep','Assigned rep',repOptions,o.rep)}
-        ${oppDtPicker(o,'devs','Developments',devOptions,o.devs,true)}
-        ${oppDtPicker(o,'units','Units',unitOptions,o.units,true)}
-        ${oppDtText(o,'nextAction','Next action',oppNextAction(o))}
-        ${oppDtTags(o,'tags','Tags','tag')}
-        <div class="opp-detail-readonly"><span>Created</span><b>${xesc(contact.created||'—')}</b></div>
-        <div class="opp-detail-readonly"><span>Last activity</span><b>${xesc(o.ago||'—')}</b></div>
-      </section>
-      ${typeof liSourceCardHtml==='function'?liSourceCardHtml(o):''}
       <section class="dcard opp-details-card"><h3>Buyer</h3>
         ${oppDtText(o,'name','Name',contact.name||o.lead)}
         ${oppDtText(o,'email','Email',contact.email||'','email','Add email')}
@@ -5934,6 +5938,17 @@ function detailsHtml(o,x,ji){
         ${oppDtPicker(o,'preferredChannel','Preferred channel',['WhatsApp','Email','SMS','Call'],contact.preferredChannel||'')}
         ${oppDtPicker(o,'consent','Contact consent',consentOptions,consent,true)}
       </section>
+      <section class="dcard opp-details-card"><h3>Opportunity</h3>
+        ${oppDtPicker(o,'stage','Pipeline stage',STAGES,o.stage)}
+        ${oppDtPicker(o,'source','Lead source',sourceOptions,o.source)}
+        ${oppDtPicker(o,'rep','Assigned rep',repOptions,o.rep)}
+        ${oppDtPicker(o,'devs','Developments',devOptions,o.devs,true)}
+        ${oppDtPicker(o,'units','Units',unitOptions,o.units,true)}
+        ${oppDtText(o,'nextAction','Next action',oppNextAction(o))}
+        ${oppDtTags(o,'tags','Tags','tag')}
+        <div class="opp-detail-readonly"><span>Created</span><b>${xesc(contact.created||'—')}</b></div>
+        <div class="opp-detail-readonly"><span>Last activity</span><b>${xesc(o.ago||'—')}</b></div>
+      </section>
       <section class="dcard opp-details-card"><h3>Requirements</h3>
         <div class="od-field"><label for="opp-dt-budgetMin">Budget</label><div class="opp-dt-budget">${oppDtBudgetInput(o,'budgetMin','Min',budget.min)}<span class="opp-dt-budget-sep" aria-hidden="true">–</span>${oppDtBudgetInput(o,'budgetMax','Max',budget.max)}</div></div>
         ${oppDtPicker(o,'finance','Finance status',financeOptions,contact.finance||'')}
@@ -5941,6 +5956,7 @@ function detailsHtml(o,x,ji){
         ${oppDtTags(o,'mustHaves','Must-haves','requirement')}
         ${oppDtPicker(o,'timeline','Move-in timeline',timelineOptions,contact.timeline||'')}
       </section>
+      ${typeof liSourceCardHtml==='function'?liSourceCardHtml(o):''}
     </div>
   </div>`;
 }
