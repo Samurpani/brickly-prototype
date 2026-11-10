@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bricly · Unit renders, views and finishes · Developer handoff</title>
+<style>
+  :root { --ink:#1d1f1a; --mu:#5f6357; --line:#e3e1d8; --bg:#faf9f5; --card:#fff; --pri:#56652a; --pri-c:#eef1e2; --warn:#fbeed5; --warn-ink:#6b4a0c; --bad:#fbe1dc; --bad-ink:#7a1f12; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif; }
+  header.top { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 28px; background: rgba(250,249,245,.94); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); }
+  header.top b { font-size: 15px; }
+  header.top a.btn { padding: 7px 14px; border-radius: 8px; background: var(--pri); color: #fff; text-decoration: none; font-size: 13px; font-weight: 600; }
+  .wrap { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 40px; max-width: 1240px; margin: 0 auto; padding: 32px 28px 80px; }
+  nav.toc { position: sticky; top: 72px; align-self: start; font-size: 13px; }
+  nav.toc a { display: block; padding: 4px 0; color: var(--mu); text-decoration: none; }
+  nav.toc a:hover { color: var(--pri); }
+  nav.toc .sub { padding-left: 12px; }
+  main { min-width: 0; }
+  h1 { margin: 0 0 6px; font-size: 30px; line-height: 1.2; }
+  h2 { margin: 56px 0 12px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 22px; }
+  h3 { margin: 32px 0 8px; font-size: 17px; }
+  p { margin: 0 0 10px; max-width: 760px; }
+  .meta { color: var(--mu); font-size: 13px; }
+  .links { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 8px; }
+  .links a { padding: 8px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); text-decoration: none; font-size: 13px; font-weight: 600; }
+  .links a.pri { background: var(--pri); border-color: var(--pri); color: #fff; }
+  table { width: 100%; margin: 10px 0 16px; border-collapse: collapse; background: var(--card); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; font-size: 13.5px; }
+  th, td { padding: 9px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  th { background: #f3f2ec; font-weight: 600; font-size: 12.5px; }
+  tr:last-child td { border-bottom: 0; }
+  code { padding: 1px 5px; border-radius: 4px; background: #efeee7; font: 12.5px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  ol.proc { margin: 8px 0 16px; padding-left: 0; list-style: none; counter-reset: s; }
+  ol.proc > li { position: relative; margin: 0 0 10px; padding-left: 36px; counter-increment: s; max-width: 760px; }
+  ol.proc > li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 24px; height: 24px; border-radius: 50%; background: var(--pri); color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  ol.proc > li .res { display: block; color: var(--mu); font-size: 13.5px; }
+  .note, .caution, .warning { margin: 12px 0 16px; padding: 10px 14px; border-radius: 8px; max-width: 760px; font-size: 14px; }
+  .note { background: var(--pri-c); }
+  .caution { background: var(--warn); color: var(--warn-ink); }
+  .warning { background: var(--bad); color: var(--bad-ink); }
+  .note b, .caution b, .warning b { display: block; font-size: 12px; letter-spacing: .06em; }
+  figure { margin: 14px 0 24px; }
+  figure img { display: block; max-width: 100%; border: 1px solid var(--line); border-radius: 10px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+  figure.drawer img { max-width: 600px; }
+  figure.phone img { max-width: 390px; }
+  figcaption { margin-top: 6px; color: var(--mu); font-size: 12.5px; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; align-items: start; }
+  .grid2 figure { margin: 0; }
+  .tag { display: inline-block; padding: 1px 8px; border-radius: 999px; background: var(--pri-c); color: var(--pri); font-size: 11.5px; font-weight: 700; }
+  .formula { padding: 12px 16px; border-left: 3px solid var(--pri); background: var(--card); font: 13px/1.8 ui-monospace, SFMono-Regular, Menlo, monospace; max-width: 760px; }
+  @media (max-width: 900px) { .wrap { grid-template-columns: 1fr; } nav.toc { position: static; } }
+</style>
+</head>
+<body>
+<header class="top"><b>Bricly · Unit renders, views and finishes · Developer handoff</b><a class="btn" href="../../../prototypes/v3/Bricly_OS_Prototype_v3.html" target="_blank" rel="noopener">Open the v3 prototype</a></header>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a href="#purpose">1. Purpose</a>
+  <a href="#changes">2. Summary of changes</a>
+  <a href="#terms">3. Terms</a>
+  <a href="#entry">4. Entry points</a>
+  <a href="#p1">5. Procedure 1 · Set up the interiors catalogue</a>
+  <a href="#p2">6. Procedure 2 · Add renders to a unit</a>
+  <a href="#p3">7. Procedure 3 · Add views</a>
+  <a href="#p4">8. Procedure 4 · Bulk upload</a>
+  <a href="#p5">9. Procedure 5 · Publish</a>
+  <a href="#p6">10. Procedure 6 · Present Mode</a>
+  <a href="#rules">11. Rules</a>
+  <a class="sub" href="#r-pick">11.1 Render selection</a>
+  <a class="sub" href="#r-names">11.2 Filename tags</a>
+  <a href="#data">12. Data model</a>
+  <a href="#code">13. Files and functions</a>
+  <a href="#test">14. Test procedure</a>
+  <a href="#open">15. Open items</a>
+</nav>
+<main>
+<h1>Unit renders, views and finishes</h1>
+<p class="meta">Prototype: Bricly OS v3 · Language: ASD-STE100 Simplified Technical English · Date: 10 November 2026</p>
+<div class="links">
+  <a class="pri" href="../../../prototypes/v3/Bricly_OS_Prototype_v3.html" target="_blank" rel="noopener">Open the live v3 prototype</a>
+  <a href="review.html">Step-by-step review page</a>
+  <a href="capture.cjs">Screenshot script (capture.cjs)</a>
+</div>
+<h2 id="purpose">1. Purpose</h2>
+<p>This document tells developers how to build unit renders and views.</p>
+<p>A unit can have many renders. Each render shows one room. A room can have different renders for each layout, finish pack and style. The user tags each render with these values. Present Mode then shows the correct render for the buyer's choice.</p>
+<p>All unit imagery comes from the development content in Edit development. Present Mode does not have hard-coded imagery.</p>
+<div class="note"><b>NOTE</b>A user does not need to upload a render for every combination. When a combination has no render, Present Mode keeps the default render for that room.</div>
+<h2 id="changes">2. Summary of changes</h2>
+<table><thead><tr><th>Area</th><th>Before</th><th>After</th></tr></thead><tbody><tr><td>Edit development → Finishes (ED06)</td><td>Finish packs only. Pack data was different from the custom-pack data.</td><td>Finishes, interiors &amp; extras. The new Interiors catalogue sets rooms, layouts and styles. Each pack sets the styles it offers. One pack list for the editor, Present Mode and custom packs.</td></tr><tr><td>Unit drawer → Media tab</td><td>A list of linked assets. No room, layout, finish or style.</td><td>Renders tab: one row per room, a buyer preview bar and a tagging sheet. Views tab: direction, room and floor range.</td></tr><tr><td>Media asset</td><td>Free-text room. Pack names as text.</td><td>Room ID, plus <code>layouts</code>, <code>packs</code>, <code>styles</code> ID lists. An empty list means “any”. Views have <code>orient</code>, <code>fmin</code>, <code>fmax</code>.</td></tr><tr><td>Uploads (ED13) and Media (ED07)</td><td>Images went to Media without tags.</td><td>Bricly reads the filename and fills room, finish, style, layout, unit type and unit.</td></tr><tr><td>Present Mode → unit → Renders</td><td>Fixed images. The style was a CSS colour filter.</td><td>Images from the published renders. The picker shows only options that have renders.</td></tr><tr><td>Present Mode → unit → Views, plan, finishes</td><td>Fixed data per development.</td><td>Views, plan image and finish packs come from the published content.</td></tr><tr><td>Selection and checkout</td><td>Finish and style.</td><td>Finish, layout and style. The layout name goes to the opportunity.</td></tr></tbody></table>
+<h2 id="terms">3. Terms</h2>
+<table><thead><tr><th>Term</th><th>Meaning</th></tr></thead><tbody><tr><td>Render</td><td>A CGI image of a room in a unit.</td></tr><tr><td>View</td><td>An image of what the windows look out on.</td></tr><tr><td>Room</td><td>A space in a unit, for example Kitchen. Each development sets its rooms.</td></tr><tr><td>Layout</td><td>A version of the unit floor plan, for example Open-plan kitchen.</td></tr><tr><td>Finish pack</td><td>A set of materials with a price, for example Dusk. Also “pack” or “finish”.</td></tr><tr><td>Style</td><td>The furniture and decoration in a render, for example Coastal.</td></tr><tr><td>Rule</td><td>When a room or layout applies: every unit, 1+, 2+ or 3+ bedrooms, or outdoor space.</td></tr><tr><td>Scope</td><td>Which units use a render: one unit, all units of a type, or the whole development.</td></tr><tr><td>Draft</td><td>Unpublished edits in Edit development. Present Mode shows the published content only.</td></tr></tbody></table>
+<h2 id="entry">4. Entry points</h2>
+<table><thead><tr><th>Entry point</th><th>Use</th><th>Function</th></tr></thead><tbody><tr><td>Edit development → <b>Finishes, interiors &amp; extras</b></td><td>Rooms, layouts, styles, packs</td><td><code>deFinishesHtml()</code>, <code>deInteriorsHtml()</code></td></tr><tr><td>Edit development → Units → unit → <b>Renders</b></td><td>Renders for one unit</td><td><code>deUnitRendersHtml()</code></td></tr><tr><td>Edit development → Units → unit → <b>Views</b></td><td>Views for one unit</td><td><code>deUnitViewsHtml()</code></td></tr><tr><td>Edit development → <b>Upload history</b> or <b>Media &amp; documents</b></td><td>Bulk upload</td><td><code>deUploadFiles()</code> → <code>deRoute()</code></td></tr><tr><td>Present → unit → <b>Renders</b>, <b>Views</b>, <b>Finishes</b></td><td>Buyer presentation</td><td><code>present-v3-unit.js</code></td></tr></tbody></table>
+<h2 id="p1">5. Procedure 1 · Set up the interiors catalogue</h2>
+<p>Do this procedure one time for each development.</p>
+<ol class="proc"><li>Open Developments → a development → Edit → <b>Finishes, interiors &amp; extras</b>.<span class="res">Result: The Interiors catalogue shows rooms, layouts and styles (Figure 1).</span></li><li>Add or rename the rooms. For each room, set the rule.<span class="res">Result: Each unit shows only the rooms that apply to it.</span></li><li>Add the layouts. Set the rule and the price for each layout.<span class="res">Result: The default layout has no price.</span></li><li>Click a finish pack. Select the styles that the pack offers.<span class="res">Result: Present Mode offers only these styles with the pack (Figure 2).</span></li></ol>
+<div class="grid2"><figure><img src="img/01-catalogue.png" alt="Interiors catalogue: rooms, layouts and styles" loading="lazy"><figcaption>Figure 1. Interiors catalogue: rooms, layouts and styles.</figcaption></figure><figure><img src="img/02-pack.png" alt="Finish pack drawer with the styles it offers" loading="lazy"><figcaption>Figure 2. Finish pack drawer with the styles it offers.</figcaption></figure></div>
+<div class="caution"><b>CAUTION</b>When the user removes a room, layout or style, Bricly removes that tag from all renders. The toast tells the user how many renders changed.</div>
+<h2 id="p2">6. Procedure 2 · Add renders to a unit</h2>
+<ol class="proc"><li>Open Edit development → <b>Units &amp; availability</b>. Click a unit (Figure 3).<span class="res">Result: The unit drawer opens.</span></li><li>Click the <b>Renders</b> tab.<span class="res">Result: The tab shows the buyer preview bar and one row per room (Figure 4). A green frame shows the renders that a buyer sees for the current choice.</span></li><li>In the preview bar, select a layout, finish or style.<span class="res">Result: Rooms that have no render for this choice show a blue note (Figure 5). The buyer keeps the default render in that room.</span></li><li>In a room row, click <b>+ Upload</b>. Select one or more images.<span class="res">Result: The tagging sheet opens (Figure 6). The room and the preview choices are filled. Tags from the filename are filled.</span></li><li>Select <b>Applies to</b>. The default is all units of the same type.<span class="res">Result: The render applies to this scope.</span></li><li>Check the tags. Click <b>Add</b>.<span class="res">Result: The render shows in the room row (Figure 7). The render is in the draft.</span></li><li>To change a render, click it.<span class="res">Result: The asset drawer opens (Figure 8). The user can change the room, tags, scope, alt text and cover.</span></li></ol>
+<div class="grid2"><figure><img src="img/03-units.png" alt="Units and availability" loading="lazy"><figcaption>Figure 3. Units and availability.</figcaption></figure><figure><img src="img/04-renders-tab.png" alt="Unit drawer, Renders tab" loading="lazy"><figcaption>Figure 4. Unit drawer, Renders tab.</figcaption></figure></div>
+<div class="grid2"><figure><img src="img/05-gap.png" alt="No render for the Dusk finish in the kitchen" loading="lazy"><figcaption>Figure 5. No render for the Dusk finish in the kitchen.</figcaption></figure><figure><img src="img/06-tag-sheet.png" alt="Tagging sheet with tags from the filename" loading="lazy"><figcaption>Figure 6. Tagging sheet with tags from the filename.</figcaption></figure></div>
+<div class="grid2"><figure><img src="img/07-added.png" alt="The new render in the Kitchen row" loading="lazy"><figcaption>Figure 7. The new render in the Kitchen row.</figcaption></figure><figure><img src="img/08-asset.png" alt="Asset drawer: room, tags and scope" loading="lazy"><figcaption>Figure 8. Asset drawer: room, tags and scope.</figcaption></figure></div>
+<h2 id="p3">7. Procedure 3 · Add views</h2>
+<ol class="proc"><li>In the unit drawer, click <b>Views</b>.<span class="res">Result: The tab shows the views for this unit (Figure 9).</span></li><li>Click <b>Upload views</b>. Set the direction, the room it is seen from and the floor range.<span class="res">Result: The view shows on the units in scope and on the floors in range.</span></li><li>To use a view from the library, click <b>Link to this unit</b>.<span class="res">Result: The view shows on this unit.</span></li></ol>
+<figure><img src="img/09-views.png" alt="Unit drawer, Views tab" loading="lazy"><figcaption>Figure 9. Unit drawer, Views tab.</figcaption></figure>
+<h2 id="p4">8. Procedure 4 · Bulk upload</h2>
+<ol class="proc"><li>Open <b>Upload history</b>. Drop many files.<span class="res">Result: Bricly reads each filename (Figure 10). For example, <code>kitchen_dusk_coastal_2-bed.jpg</code> becomes Kitchen, Dusk, Coastal, all 2-bed units.</span></li><li>Find files with no room in the name.<span class="res">Result: These files go to Media with no room. The user tags them in Media.</span></li></ol>
+<figure><img src="img/10-bulk.png" alt="Bulk upload with tags from filenames" loading="lazy"><figcaption>Figure 10. Bulk upload with tags from filenames.</figcaption></figure>
+<h2 id="p5">9. Procedure 5 · Publish</h2>
+<ol class="proc"><li>Open <b>Review &amp; publish</b>.<span class="res">Result: Must-fix items block publishing (Figure 11). Every image must have alt text. Bricly writes alt text for tagged uploads.</span></li><li>Fix each item. Click <b>Publish</b>.<span class="res">Result: Present Mode shows the new content (Figure 12).</span></li></ol>
+<div class="grid2"><figure><img src="img/11-review.png" alt="Review and publish with a must-fix item" loading="lazy"><figcaption>Figure 11. Review and publish with a must-fix item.</figcaption></figure><figure><img src="img/11b-review-ready.png" alt="Review and publish, ready" loading="lazy"><figcaption>Figure 12. Review and publish, ready.</figcaption></figure></div>
+<h2 id="p6">10. Procedure 6 · Present Mode</h2>
+<ol class="proc"><li>Open a unit in Present Mode. Click <b>Renders</b>.<span class="res">Result: The first room with renders shows (Figure 13).</span></li><li>Click the layout, finish and style chip at the bottom left.<span class="res">Result: The panel shows only options that have renders (Figure 14). A group with one option does not show.</span></li><li>Select an option. Go to a room.<span class="res">Result: The room shows the render for that option (Figure 15). The price on the card includes the finish.</span></li><li>Go to a room with no render for that option.<span class="res">Result: The room keeps the default render (Figure 16).</span></li><li>Click <b>Views</b>, then <b>Finishes</b>.<span class="res">Result: Views show for this unit and floor (Figure 17). All finish packs show (Figure 18).</span></li><li>Click <b>Add to selection</b>.<span class="res">Result: The selection keeps the layout, finish and style (Figure 19).</span></li></ol>
+<div class="grid2"><figure><img src="img/12-present-renders.png" alt="Present Mode, Renders" loading="lazy"><figcaption>Figure 13. Present Mode, Renders.</figcaption></figure><figure><img src="img/13-picker.png" alt="Layout, finish and style picker" loading="lazy"><figcaption>Figure 14. Layout, finish and style picker.</figcaption></figure></div>
+<div class="grid2"><figure><img src="img/14-dusk-kitchen.png" alt="Dusk kitchen render" loading="lazy"><figcaption>Figure 15. Dusk kitchen render.</figcaption></figure><figure><img src="img/15-fallback.png" alt="Room with no Dusk render keeps the default" loading="lazy"><figcaption>Figure 16. Room with no Dusk render keeps the default.</figcaption></figure></div>
+<div class="grid2"><figure><img src="img/16-views.png" alt="Present Mode, Views" loading="lazy"><figcaption>Figure 17. Present Mode, Views.</figcaption></figure><figure><img src="img/17-finishes.png" alt="Present Mode, Finishes" loading="lazy"><figcaption>Figure 18. Present Mode, Finishes.</figcaption></figure></div>
+<div class="grid2"><figure><img src="img/18-selection.png" alt="Selection with finish and style" loading="lazy"><figcaption>Figure 19. Selection with finish and style.</figcaption></figure><figure><img src="img/19-no-renders.png" alt="Unit with no renders: the Renders tab does not show" loading="lazy"><figcaption>Figure 20. Unit with no renders: the Renders tab does not show.</figcaption></figure></div>
+<h2 id="rules">11. Rules</h2>
+<h3 id="r-pick">11.1 Render selection</h3>
+<p>Function: <code>UM.pick(content, unit, room, choice)</code>. Bricly uses these steps for each room:</p>
+<ol class="proc">
+<li>Find all renders with this room that apply to the unit.<span class="res">Scope order: unit, then unit type, then whole development.</span></li>
+<li>For layout, finish and style: if no render has a tag for the chosen value, use the default value.<span class="res">This keeps the room the same when no render exists.</span></li>
+<li>Keep renders whose tags match the value or are empty. If none match, ignore style, then finish, then layout.</li>
+<li>Keep only the highest scope. Put exact tag matches first.<span class="res">These renders are the angles in the room carousel.</span></li>
+</ol>
+<ul>
+<li>The Renders tab shows only when the unit has one or more rooms with renders. The Views tab shows only when the unit has views.</li>
+<li>The picker shows a value only when it is the default or a render has its tag (<code>UM.axes</code>).</li>
+<li>The Finishes tab shows all packs. The buyer can select a pack that has no renders.</li>
+<li>Rooms and layouts with a rule show only on units that match the rule (<code>UM.fits</code>).</li>
+</ul>
+<h3 id="r-names">11.2 Filename tags</h3>
+<p>Function: <code>UM.guess(content, units, filename)</code>. Bricly splits the name at non-letters. It matches each part to room names and aliases, pack names, style names, layout names, unit types and unit references. “view”, “outlook” or “vista” makes the file a view. Direction words and abbreviations (N, NE …) set the direction. The user checks the tags before saving.</p>
+<h2 id="data">12. Data model</h2>
+<p>All data is in the development content. Edits go to the draft. <b>Publish</b> copies the draft to live.</p>
+<table><thead><tr><th>Record</th><th>Fields</th></tr></thead><tbody><tr><td><code>interiors.rooms[]</code></td><td><code>id</code>, <code>n</code> (name), <code>rule</code> (empty, <code>beds1</code>, <code>beds2</code>, <code>beds3</code>, <code>outdoor</code>)</td></tr><tr><td><code>interiors.layouts[]</code></td><td><code>id</code>, <code>n</code>, <code>d</code>, <code>price</code>, <code>rule</code>, <code>def</code></td></tr><tr><td><code>interiors.styles[]</code></td><td><code>id</code>, <code>n</code></td></tr><tr><td><code>packs[]</code></td><td><code>id</code>, <code>n</code>, <code>d</code>, <code>price</code>, <code>mode</code> (Included or Addition), <code>def</code>, <code>retired</code>, <code>styles[]</code> (empty = all), <code>mats[]</code>, <code>spec[]</code></td></tr><tr><td><code>assets[]</code> (Render)</td><td><code>cat</code> = Render, <code>room</code> (empty = exterior), <code>layouts[]</code>, <code>packs[]</code>, <code>styles[]</code>, <code>units[]</code>, <code>types[]</code>, <code>img</code>, <code>n</code>, <code>alt</code>, <code>label</code>, <code>src</code></td></tr><tr><td><code>assets[]</code> (View)</td><td><code>cat</code> = View, <code>orient</code>, <code>room</code> (seen from), <code>fmin</code>, <code>fmax</code>, <code>units[]</code>, <code>types[]</code></td></tr><tr><td><code>plans[unitId]</code></td><td><code>file</code>, <code>staged</code>, <code>url</code> (image shown on the Present plan)</td></tr><tr><td>Present selection item</td><td><code>uid</code>, <code>finish</code>, <code>layout</code>, <code>style</code>. The opportunity gets <code>unitConfigs[uid].lay</code> = layout name.</td></tr></tbody></table>
+<h2 id="code">13. Files and functions</h2>
+<p>All files are in <code>prototypes/v3/</code>.</p>
+<table><thead><tr><th>File</th><th>Change</th></tr></thead><tbody><tr><td><code>unit-media.js</code> (new)</td><td>The model. <code>UM.seedPacks</code>, <code>seedInteriors</code>, <code>seedAssets</code>, <code>defaults</code>, <code>roomsFor</code>, <code>rendersFor</code>, <code>pick</code>, <code>resolve</code>, <code>axes</code>, <code>viewsFor</code>, <code>guess</code>, <code>autoAlt</code>, <code>tagText</code>, <code>scopeText</code>.</td></tr><tr><td><code>dev-editor.js</code></td><td>Interiors catalogue: <code>deInteriorsHtml</code>, <code>deIntAdd</code>, <code>deIntDel</code>, <code>dePackStyle</code>. Unit tabs: <code>deUnitRendersHtml</code>, <code>deUnitViewsHtml</code>. Tagging: <code>deTagStart</code>, <code>deTagDrawer</code>, <code>deTagSave</code>. Asset drawer: <code>deAssetDrawer</code>. Routing: <code>deRoute</code>, <code>deUploadRoute</code>.</td></tr><tr><td><code>dev-editor.css</code></td><td>Catalogue rows, preview bar, room rows, thumbnails, tagging sheet.</td></tr><tr><td><code>present-v3-data.js</code></td><td>Reads the live content: <code>finishesFor</code>, <code>stylesFor</code>, <code>renderRooms</code>, <code>renderAxes</code>, <code>viewsFor</code>, <code>planImg</code>.</td></tr><tr><td><code>present-v3-unit.js</code></td><td>Renders tab, picker (<code>finPop</code>), tab visibility (<code>tabsFor</code>), actions <code>layout</code>, <code>finish</code>, <code>style</code>.</td></tr><tr><td><code>present-v3.js</code>, <code>present-v3-brochure.js</code>, <code>present-v3-checkout.js</code></td><td><code>P.unitLayout</code>, <code>P.combo</code>. The selection and checkout carry the layout.</td></tr><tr><td><code>Bricly_OS_Prototype_v3.html</code></td><td>Loads <code>unit-media.js</code> before <code>dev-editor.js</code>, and the Present Mode v3 files.</td></tr></tbody></table>
+<h2 id="test">14. Test procedure</h2>
+<p><code>npx playwright test tests/present-v3.spec.cjs --reporter=line</code></p>
+<table><thead><tr><th>Test</th><th>Checks</th></tr></thead><tbody><tr><td>Unit renders: tag in Edit development, publish, and Present shows them by room, finish and style</td><td>Gap note, upload into a room, filename tags, publish, picker options, Dusk render in the kitchen, Views count.</td></tr><tr><td>Present v3 availability, unit page, selection, compare and checkout link</td><td>Finish price, selection, compare, checkout and buyer link with finish and style.</td></tr></tbody></table>
+<p>To make the screenshots again, start a static server at the repository root on port 4310. Then use this command:</p>
+<p><code>NODE_PATH=&lt;repo&gt;/node_modules node docs/handoff/unit-renders/capture.cjs</code></p>
+<h2 id="open">15. Open items</h2>
+<table><thead><tr><th>Item</th><th>Status</th></tr></thead><tbody><tr><td>In a room with no render for the chosen finish, the chip shows the default finish. The card shows the chosen finish. Decide the chip text.</td><td>Decision necessary</td></tr><tr><td>Layout prices are in the catalogue. They are not added to the unit price.</td><td>Decision necessary</td></tr><tr><td>Rooms, layouts and styles are set for each development. Decide if a developer shares them across developments.</td><td>Decision necessary</td></tr><tr><td>An upload with no room in the filename goes to Media. It blocks publishing until it has alt text.</td><td>Decision necessary</td></tr><tr><td>Edit development content is in browser memory. A page reload resets it.</td><td>Prototype limit</td></tr></tbody></table>
+
+</main>
+</div>
+</body>
+</html>

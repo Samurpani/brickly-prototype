@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Unit renders flow · review</title>
+<style>
+  :root { --ink:#1b1d18; --mu:#5d6157; --line:#dcdcd2; --bg:#f6f5f0; --card:#fff; --acc:#4d5b3a; --warn:#8a5a00; --warnbg:#fbf1dc; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 "Inter",system-ui,-apple-system,"Segoe UI",sans-serif; }
+  header.top { position:sticky; top:0; z-index:5; display:flex; flex-wrap:wrap; align-items:center; gap:8px 18px; padding:10px 24px; background:var(--card); border-bottom:1px solid var(--line); }
+  header.top b { font-size:15px; }
+  header.top nav { display:flex; gap:14px; font-size:14px; flex:1; }
+  header.top a { color:var(--acc); text-decoration:none; }
+  button { font:inherit; font-size:14px; padding:6px 12px; border:1px solid var(--acc); border-radius:8px; background:var(--acc); color:#fff; cursor:pointer; }
+  button.ghost { background:#fff; color:var(--acc); }
+  main { max-width:1240px; margin:0 auto; padding:32px 24px 96px; }
+  h1 { margin:0 0 6px; font-size:30px; }
+  .lede { margin:0 0 20px; color:var(--mu); }
+  .chain { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:0 0 28px; padding:14px; background:var(--card); border:1px solid var(--line); border-radius:12px; font-size:14px; }
+  .chain span { padding:4px 10px; border-radius:20px; background:#ecefe4; }
+  .chain i { color:var(--mu); font-style:normal; }
+  .part { margin:48px 0 8px; padding-top:8px; border-top:2px solid var(--ink); font-size:13px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; }
+  .part small { display:block; margin-top:2px; font-weight:400; letter-spacing:0; text-transform:none; color:var(--mu); font-size:14px; }
+  .step { margin:22px 0; padding:20px; background:var(--card); border:1px solid var(--line); border-radius:14px; }
+  .step h2 { display:flex; align-items:center; gap:10px; margin:0 0 4px; font-size:19px; }
+  .n { flex:none; display:inline-grid; place-items:center; width:30px; height:30px; border-radius:50%; background:var(--ink); color:#fff; font-size:14px; }
+  .where { margin:0 0 12px; color:var(--mu); font-size:13px; }
+  .grid { display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:20px; align-items:start; }
+  @media (max-width:820px) { .grid { grid-template-columns:1fr; } }
+  .shot { display:block; border:1px solid var(--line); border-radius:10px; overflow:hidden; background:#eee; }
+  .shot img { display:block; width:100%; height:auto; }
+  ol.do { margin:0 0 12px; padding-left:20px; }
+  ol.do li { margin:4px 0; }
+  .check { margin:12px 0 0; padding:10px 12px; border-left:3px solid var(--warn); background:var(--warnbg); font-size:14px; }
+  .check b { color:var(--warn); letter-spacing:.04em; }
+  details.fb { margin-top:12px; }
+  details.fb summary { cursor:pointer; color:var(--acc); font-size:14px; }
+  details.fb textarea { width:100%; min-height:70px; margin-top:6px; padding:8px; font:inherit; font-size:14px; border:1px solid var(--line); border-radius:8px; }
+  .has-fb summary::after { content:" · note saved"; color:var(--warn); }
+  .rules, .open { padding:20px; background:var(--card); border:1px solid var(--line); border-radius:14px; }
+  .rules li, .open li { margin:6px 0; }
+  .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); padding:10px 16px; border-radius:10px; background:var(--ink); color:#fff; font-size:14px; opacity:0; transition:opacity .2s; pointer-events:none; }
+  .toast.on { opacity:1; }
+</style>
+</head>
+<body>
+<header class="top">
+  <b>Unit renders flow</b>
+  <nav><a href="#p1">1 · Set up</a><a href="#p2">2 · Upload</a><a href="#p3">3 · Present</a><a href="#rules">Rules</a><a href="#open">Open questions</a></nav>
+  <a href="index.html" style="font-size:14px">Developer handoff →</a><button class="ghost" id="clear">Clear notes</button><button id="copy">Copy all notes</button>
+</header>
+<main>
+  <h1>Unit renders: upload to Present</h1>
+  <p class="lede">Read each step. Check the screen. Add a note if anything is wrong. Notes save in this browser. Copy all notes when done and send them back.</p>
+  <div class="chain"><span>Set up lists</span><i>→</i><span>Open unit</span><i>→</i><span>Upload and tag</span><i>→</i><span>Publish</span><i>→</i><span>Present shows it</span></div>
+  <div id="steps"></div>
+
+  <h2 id="rules" class="part">Rules<small>How the system decides. Read once.</small></h2>
+  <div class="rules"><ul>
+    <li>Every render has a room. Layout, finish and style are optional. Blank means any.</li>
+    <li>Every render has a scope: one unit, all units of a type, or the whole development.</li>
+    <li>Priority: unit beats type beats development. Exact tag beats any.</li>
+    <li>Several matches in one room become the angles in that room.</li>
+    <li>Option with no render of its own: that room keeps the default image.</li>
+    <li>Present only offers options that have renders. Finishes tab always lists every pack.</li>
+    <li>No renders at all: Renders tab is hidden. No views: Views tab is hidden.</li>
+    <li>Nothing reaches Present until Publish.</li>
+  </ul></div>
+
+  <h2 id="open" class="part">Open questions<small>My calls. Confirm or change each one.</small></h2>
+  <div class="open"><ol>
+    <li><b>Chip wording.</b> A room with no Dusk render shows the default image. The chip then says Stone while the card says Dusk package. Keep, or show "Dusk · no render here"?</li>
+    <li><b>Layout price.</b> Layouts carry a price in the catalogue. It is not added to the unit price yet. Add it?</li>
+    <li><b>Default scope.</b> Upload defaults to all units of the same type. Right default?</li>
+    <li><b>Lists per development.</b> Rooms, layouts and styles are set per development. Share them across a developer instead?</li>
+    <li><b>Untagged files.</b> A file with no room lands in Media and blocks publish until it has alt text. Block, or park it out of the way?</li>
+    <li><b>Approval.</b> Managers request review. Owners publish. Same for renders, or let marketing publish renders alone?</li>
+  </ol></div>
+</main>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const PARTS = [
+  {id:'p1', title:'Part 1 · Set up', sub:'Once per development. Defines the lists every render is tagged from.'},
+  {id:'p2', title:'Part 2 · Upload for a unit', sub:'In Edit development. Tag each render. Publish.'},
+  {id:'p3', title:'Part 3 · Present', sub:'What the rep and buyer see.'},
+];
+const STEPS = [
+  {p:'p1', t:'Define the lists', where:'Developments → Edit → Finishes, interiors & extras', img:'01-catalogue',
+   do:['Find Interiors catalogue.','Check the rooms. Add or rename.','Set a rule per room: every unit, 1+ beds, 2+ beds or outdoor.','Check layouts and styles.'],
+   check:'Is any room, layout or style missing? Is the rule list enough?'},
+  {p:'p1', t:'Set styles per pack', where:'Finishes, interiors & extras → click a pack', img:'02-pack',
+   do:['Open a pack.','Tick the styles it offers.','Untick to remove a style from that pack.'],
+   check:'Should a pack limit its styles at all?'},
+
+  {p:'p2', t:'Open the unit', where:'Edit development → Units & availability → click a unit', img:'03-units',
+   do:['Click the unit.','Pick the Renders tab.'],
+   check:'Is this the right place to start? Or from the Present screen?'},
+  {p:'p2', t:'Read the Renders tab', where:'Unit drawer → Renders', img:'04-renders-tab',
+   do:['Top: preview bar. Layout, finish, style.','Below: one row per room.','Green frame: buyer sees this.','Faded: in the library. Not shown for this choice.'],
+   check:'Is it clear what the buyer sees? Anything missing from a row?'},
+  {p:'p2', t:'Find the gap', where:'Renders → change the preview finish', img:'05-gap',
+   do:['Pick a finish in the preview bar.','Blue note: no render for that finish.','Buyer keeps the default image in that room.'],
+   check:'Is the note clear? Should it warn louder?'},
+  {p:'p2', t:'Upload into the room', where:'Room row → + Upload', img:'06-tag-sheet',
+   do:['Click + Upload on the room.','Pick the files.','Tag sheet opens. Room and preview options are filled.','Filename fills tags too. Check them.','Choose Applies to: this unit, all units of the type, or whole development.','Add.'],
+   check:'Too many fields? Is Applies to easy to understand?'},
+  {p:'p2', t:'Confirm it landed', where:'Renders → room row', img:'07-added',
+   do:['Row shows the new render.','Count goes up.','It is shown for the chosen option.','It sits in the draft. Not live yet.'],
+   check:'Do you trust that it is in the right place?'},
+  {p:'p2', t:'Change the tags later', where:'Click any render', img:'08-asset',
+   do:['Change room, layout, finish or style.','Change which units or types it applies to.','Fill alt text. Required to publish.','Remove or set as cover.'],
+   check:'Is this screen too heavy for a small change?'},
+  {p:'p2', t:'Add views', where:'Unit drawer → Views', img:'09-views',
+   do:['Open Views.','Upload. Set direction and the room it is seen from.','Limit to a floor range if needed.','Link a view from the library.'],
+   check:'Is direction plus room plus floor range enough?'},
+  {p:'p2', t:'Upload in bulk', where:'Edit development → Upload history', img:'10-bulk',
+   do:['Drop many files.','Filenames route each one to a room, finish and style.','Example: kitchen_dusk_coastal_2-bed.jpg.','No room in the name: file lands in Media. Tag it there.'],
+   check:'Is the filename rule easy enough to follow? Show the rule on screen?'},
+  {p:'p2', t:'Clear blockers', where:'Review & publish', img:'11-review',
+   do:['Publish is blocked until every image has alt text.','Click Fix on each item.'],
+   check:'Should Bricly write alt text for the user?'},
+  {p:'p2', t:'Publish', where:'Review & publish', img:'11b-review-ready',
+   do:['Read the list of changes.','Click Publish.','Present now shows the new renders.'],
+   check:'Is it clear that nothing is live before this step?'},
+
+  {p:'p3', t:'Open the unit', where:'Present → unit → Renders', img:'12-present-renders',
+   do:['Tabs: Plan, Renders, Views, Finishes.','Renders opens on the first room.','Bottom-right: up and down arrows change room. The room name shows the next render in that room.'],
+   check:'Is the first image right? Should it open on the living room?'},
+  {p:'p3', t:'Pick layout, finish, style', where:'Bottom-left chip', img:'13-picker',
+   do:['Click the chip.','Only options with renders appear.','One option only: that row is hidden.'],
+   check:'Should every option show, even with no renders?'},
+  {p:'p3', t:'See the choice', where:'Pick Dusk → next room', img:'14-dusk-kitchen',
+   do:['Pick Dusk.','Go to Kitchen.','The Dusk render shows.','Price on the card includes Dusk.'],
+   check:'Does the swap feel instant and obvious?'},
+  {p:'p3', t:'No render for the choice', where:'Pick Dusk → go to a room with no Dusk render', img:'15-fallback',
+   do:['The room keeps its default image.','Nothing breaks. Nothing goes blank.','Chip still shows the default finish.'],
+   check:'Open question 1. Is the chip wording right?'},
+  {p:'p3', t:'Views tab', where:'Unit → Views', img:'16-views',
+   do:['Shows views that apply to this unit and floor.','Chips: name and direction.','Arrows move between views.'],
+   check:'Is anything missing? Compass? Floor height?'},
+  {p:'p3', t:'Finishes tab', where:'Unit → Finishes', img:'17-finishes',
+   do:['Every pack is listed. Render or not.','Select a pack. Price changes.','Renders follow where they exist.'],
+   check:'Should packs with no renders say so?'},
+  {p:'p3', t:'Add to selection', where:'Unit → Add to selection', img:'18-selection',
+   do:['Selection keeps layout, finish and style.','They go to the opportunity.','They appear in the buyer link.'],
+   check:'Is anything else a buyer must see here?'},
+  {p:'p3', t:'Nothing to show', where:'Unit with no renders', img:'19-no-renders',
+   do:['Renders tab is hidden.','Plan opens first.','Same rule for Views.'],
+   check:'Is a hidden tab right? Or show the tab with an empty state?'},
+];
+
+const KEY = 'unit-renders-flow-notes';
+let notes = {}; try { notes = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let n = 0, html = '';
+PARTS.forEach(p => {
+  html += `<h2 class="part" id="${p.id}">${esc(p.title)}<small>${esc(p.sub)}</small></h2>`;
+  STEPS.filter(s => s.p === p.id).forEach(s => {
+    n++; s.n = n;
+    html += `<section class="step" id="s${n}"><h2><span class="n">${n}</span>${esc(s.t)}</h2><p class="where">${esc(s.where)}</p>
+      <div class="grid"><a class="shot" href="img/${s.img}.png" target="_blank" rel="noopener"><img src="img/${s.img}.png" alt="${esc(s.t)}" loading="lazy"></a>
+      <div><ol class="do">${s.do.map(d => `<li>${esc(d)}</li>`).join('')}</ol><div class="check"><b>CHECK</b> ${esc(s.check)}</div>
+      <details class="fb ${notes[n] ? 'has-fb' : ''}" ${notes[n] ? 'open' : ''}><summary>Note</summary><textarea data-n="${n}" placeholder="Feedback on step ${n}">${esc(notes[n] || '')}</textarea></details></div></div></section>`;
+  });
+});
+document.getElementById('steps').innerHTML = html;
+
+const toast = t => { const el = document.getElementById('toast'); el.textContent = t; el.classList.add('on'); setTimeout(() => el.classList.remove('on'), 1800); };
+document.addEventListener('input', e => {
+  const t = e.target.closest('textarea[data-n]'); if (!t) return;
+  if (t.value.trim()) notes[t.dataset.n] = t.value; else delete notes[t.dataset.n];
+  localStorage.setItem(KEY, JSON.stringify(notes));
+  t.closest('.fb').classList.toggle('has-fb', !!notes[t.dataset.n]);
+});
+document.getElementById('copy').onclick = async () => {
+  const out = STEPS.filter(s => notes[s.n]).map(s => `Step ${s.n} · ${s.t}\n${notes[s.n]}`).join('\n\n');
+  if (!out) { toast('No notes yet'); return; }
+  try { await navigator.clipboard.writeText(out); toast('Notes copied'); } catch (e) { prompt('Copy your notes', out); }
+};
+document.getElementById('clear').onclick = () => { if (!Object.keys(notes).length || !confirm('Clear all notes?')) return; notes = {}; localStorage.removeItem(KEY); document.querySelectorAll('textarea[data-n]').forEach(t => t.value = ''); document.querySelectorAll('.has-fb').forEach(d => d.classList.remove('has-fb')); };
+</script>
+</body>
+</html>

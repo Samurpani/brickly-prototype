@@ -2,18 +2,18 @@
 // as a new content version, and a separate inventory batch for unit changes that never rides along with a publish.
 // Admins (owner) publish and apply batches; managers and marketing save drafts and request review.
 
-const DE={devId:null,section:'overview',drawer:null,modal:null,sel:{},fStatus:'all',fType:'all',mediaTab:'All',fSide:'front',fSel:null,floor:null,imp:null,pendingNav:null};
+const DE={devId:null,section:'overview',drawer:null,modal:null,sel:{},fStatus:'all',fType:'all',mediaTab:'All',fSide:'front',fSel:null,floor:null,level:null,imp:null,pendingNav:null};
 const DE_NAV=[
   {id:'overview',label:'Overview',code:'ED01'},
   {group:'Development'},{id:'details',label:'Details & location',code:'ED02'},{id:'lifestyle',label:'Lifestyle, amenities & team',code:'ED03'},
-  {group:'Inventory'},{id:'units',label:'Units & availability',code:'ED04'},{id:'plans',label:'Plans & property views',code:'ED05'},{id:'facade',label:'Facade mapping',code:'ED05'},{id:'finishes',label:'Finishes, packs & extras',code:'ED06'},
+  {group:'Inventory'},{id:'units',label:'Units & availability',code:'ED04'},{id:'plans',label:'Plans & property views',code:'ED05'},{id:'facade',label:'Facade mapping',code:'ED05'},{id:'finishes',label:'Finishes, interiors & extras',code:'ED06'},
   {group:'Sales content'},{id:'media',label:'Media & documents',code:'ED07'},{id:'payment',label:'Payment terms',code:'ED08'},{id:'timeline',label:'Timeline & delivery',code:'ED09'},{id:'presentation',label:'Presentation, brand & links',code:'ED10'},
   {group:'Publish'},{id:'review',label:'Review & publish',code:'ED11'},{id:'history',label:'History',code:'ED11'},
   {group:'Uploads'},{id:'uploads',label:'Upload history',code:'ED13'},
 ];
-const DE_SECTION_KEYS={details:['name','tagline','about','logo','loc','street','locality','country','lat','lng','dests'],lifestyle:['amen','stories','team'],finishes:['packs','extras'],
-  media:['assets','docs','video'],payment:['pay','financing'],timeline:['timeline'],presentation:['chapters','logoDark','colors','fontH','fontB','voice','links'],facade:['facades'],plans:['plans']};
-const DE_LABEL={details:'Details & location',lifestyle:'Lifestyle, amenities & team',finishes:'Finishes, packs & extras',media:'Media & documents',payment:'Payment terms',timeline:'Timeline & delivery',presentation:'Presentation, brand & links',facade:'Facade mapping',plans:'Plans & property views'};
+const DE_SECTION_KEYS={details:['name','tagline','about','logo','loc','street','locality','country','lat','lng','dests'],lifestyle:['amen','stories','team'],finishes:['packs','interiors','extras'],
+  media:['assets','docs','video'],payment:['pay','financing'],timeline:['timeline'],presentation:['chapters','logoDark','colors','fontH','fontB','voice','links'],facade:['facades'],plans:['plans','levels','placements']};
+const DE_LABEL={details:'Details & location',lifestyle:'Lifestyle, amenities & team',finishes:'Finishes, interiors & extras',media:'Media & documents',payment:'Payment terms',timeline:'Timeline & delivery',presentation:'Presentation, brand & links',facade:'Facade mapping',plans:'Plans & property views'};
 
 function deDev(){return DEVS.find(d=>d.id===DE.devId);}
 function deCode(d){return 'DEV-'+String(140+Math.max(0,DEVS.indexOf(d))).padStart(4,'0');}
@@ -29,10 +29,13 @@ function deTypeKey(u){return u.type==='Studio'?'Studio':u.type==='Penthouse'?'Pe
 // ---------- content model: live snapshot + draft ----------
 function deSeedContent(d){
   const lalex=d.id==='lalex', units=deUnits(d), [street,locality]=lalex?['14–18 Triq Manwel Dimech','Sliema SLM 1051']:['',d.loc];
+  // Unit renders and views come from the interiors model in unit-media.js; tags left empty mean "any".
+  const packs=UM.seedPacks(d), interiors=UM.seedInteriors(d), roomRenders=UM.seedAssets(d,units,packs), tags={packs:[],layouts:[],styles:[],fmin:null,fmax:null};
   const assets=[
-    ...d.media.renders.ext.map((r,i)=>({id:'r'+i,n:r.cap,img:r.img,cat:'Render',label:'Render',alt:r.cap,cover:i===0,units:[],types:[],packs:[],room:'',orient:'',src:'Studio render'})),
-    ...d.media.renders.int.map((r,i)=>({id:'i'+i,n:r.cap,img:r.img,cat:'Render',label:'Representative',alt:r.cap,cover:false,units:[],types:[...new Set(units.filter(u=>u.beds===2).map(deTypeKey))].slice(0,1),packs:[],room:'Living',orient:'',src:'Studio render'})),
-    ...d.media.photos.map((p,i)=>({id:'p'+i,n:p.cap,img:p.img,cat:'Photo',label:'Photo',alt:lalex&&/café|caf\u00e9/i.test(p.cap)?'':p.cap,cover:false,units:[],types:[],packs:[],room:'',orient:'',src:'Photo · 3 May 2026'})),
+    ...d.media.renders.ext.map((r,i)=>({id:'r'+i,n:r.cap,img:r.img,cat:'Render',label:'Render',alt:r.cap,cover:i===0,units:[],types:[],...tags,room:'',orient:'',src:'Studio render'})),
+    ...d.media.renders.int.filter(r=>!roomRenders.some(a=>a.img===r.img)).map((r,i)=>({id:'i'+i,n:r.cap,img:r.img,cat:'Render',label:'Representative',alt:r.cap,cover:false,units:[],types:[...new Set(units.filter(u=>u.beds===2).map(deTypeKey))].slice(0,1),...tags,room:/kitchen/i.test(r.cap)?'kitchen':'living',orient:'',src:'Studio render'})),
+    ...roomRenders,
+    ...d.media.photos.map((p,i)=>({id:'p'+i,n:p.cap,img:p.img,cat:'Photo',label:'Photo',alt:lalex&&/café|caf\u00e9/i.test(p.cap)?'':p.cap,cover:false,units:[],types:[],...tags,room:'',orient:'',src:'Photo · 3 May 2026'})),
   ];
   const cat=n=>/pool|gym|spa|garden|courtyard|terrace|trail/i.test(n)?'Outdoor':/park|garage|ev/i.test(n)?'Parking':/lift|concierge|security|valet|hotel/i.test(n)?'Access':/storage|cellar/i.test(n)?'Storage':/facade|heritage/i.test(n)?'Heritage':'Lifestyle';
   const sample=units.filter(u=>u.status==='available').map(u=>u.price).sort((a,b)=>a-b);
@@ -43,9 +46,7 @@ function deSeedContent(d){
     stories:lalex?[{h:'Sliema at your door',c:'Cafés on Bisazza Street, the seafront promenade and the Valletta ferry, all within a few minutes on foot.',img:'cafe.jpg',aud:'Everyone'},{h:'A restored entrance',c:'Terrazzo floors and the original stair, kept and restored.',img:'cine-lobby.jpg',aud:'Everyone'}]
       :[{h:d.tag||d.name,c:d.about.split('.')[0]+'.',img:d.photo,aud:'Everyone'}],
     team:[{ini:'VH',n:'Vella Holdings',role:'Developer · shared profile',note:'Bio · logo · 3 credentials'},{ini:'AC',n:'Anna Cassar Architects',role:lalex?'Architect · heritage restoration':'Architect',note:'Logo missing'},{ini:'BC',n:'Borg Construction',role:'Contractor',note:'Bio hidden in buyer view'}],
-    packs:[{n:'Classic oak',d:'Oak floors, white oak joinery, brushed nickel fittings',price:0,mode:'Included',def:true,dl:'30 Nov 2026',mats:[{room:'Floors',name:'White oak engineered',finish:'Matte lacquer',sw:'#c8a97e'},{room:'Kitchen',name:'Oak veneer fronts',finish:'Natural oil',sw:'#b89068'},{room:'Bathroom',name:'Porcelain 60×120',finish:'Warm grey',sw:'#bdb6ab'},{room:'Fittings',name:'Brushed nickel',finish:'Satin',sw:'#a7a9a8'}]},
-      {n:'Warm stone',d:'Limestone floors, travertine bath, bronze fittings',price:6500,mode:'Addition',def:false,dl:'30 Nov 2026',mats:[{room:'Floors',name:'Maltese limestone',finish:'Honed',sw:'#d9cfbf'},{room:'Bathroom',name:'Travertine',finish:'Filled, honed',sw:'#cbb89c'},{room:'Fittings',name:'Bronze',finish:'Brushed',sw:'#8a6a45'}]},
-      {n:'Noir',d:'Dark oak, black marble, matte black fittings',price:9800,mode:'Addition',def:false,dl:'30 Nov 2026',mats:[{room:'Floors',name:'Smoked oak',finish:'Matte',sw:'#4a3a2e'},{room:'Kitchen',name:'Nero Marquina marble',finish:'Honed',sw:'#1f1f1f'},{room:'Fittings',name:'Matte black',finish:'PVD',sw:'#2b2b2b'}]}],
+    packs,interiors,
     extras:[{n:'Cellar storage unit',note:'3 of 6 left',price:'€9,500'},{n:'Smart home package',note:'Includes smart lighting · don’t charge twice',price:'€4,200'},{n:'Bespoke joinery',note:'Adds ~4 weeks',price:'Quote required'}],
     docs:d.files.map((f,i)=>({n:f.n,meta:`${f.s} · ${f.d}`,vis:/notes|internal|yield/i.test(f.n)?'Internal':'Public',kind:/xlsx/i.test(f.n)?'XLS':'PDF'})),
     video:'',assets,
@@ -59,6 +60,7 @@ function deSeedContent(d){
     links:{web:'',ig:lalex?'http://instagram.com/lalexsliema':'',fb:''},
     facades:deSeedFacades(d,units),
     plans:{},
+    levels:LP.seed(d,units),placements:{},
   };
 }
 function deSeedFacades(d,units){
@@ -95,7 +97,7 @@ function deChanges(d){
   return out;
 }
 function deChangeText(k,a,b){
-  const names={name:'Display name',tagline:'Tagline',about:'About',logo:'Project logo',loc:'Location label',street:'Street address',locality:'Locality',country:'Country',lat:'Latitude',lng:'Longitude',dests:'Nearby destinations',amen:'Amenities',stories:'Lifestyle stories',team:'Project team',packs:'Finish packs',extras:'Extras',assets:'Media',docs:'Documents',video:'Hero video',pay:'Payment milestones',financing:'Financing content',timeline:'Timeline',chapters:'Presentation chapters',logoDark:'Dark logo',colors:'Brand colours',fontH:'Heading typeface',fontB:'Body typeface',voice:'Voice',links:'Links',facades:'Facade markers',plans:'Unit plans'};
+  const names={name:'Display name',tagline:'Tagline',about:'About',logo:'Project logo',loc:'Location label',street:'Street address',locality:'Locality',country:'Country',lat:'Latitude',lng:'Longitude',dests:'Nearby destinations',amen:'Amenities',stories:'Lifestyle stories',team:'Project team',packs:'Finish packs',interiors:'Interiors catalogue',extras:'Extras',assets:'Media',docs:'Documents',video:'Hero video',pay:'Payment milestones',financing:'Financing content',timeline:'Timeline',chapters:'Presentation chapters',logoDark:'Dark logo',colors:'Brand colours',fontH:'Heading typeface',fontB:'Body typeface',voice:'Voice',links:'Links',facades:'Facade markers',plans:'Unit plans',levels:'Level plans',placements:'Unit positions on level plans'};
   if(typeof a==='string'&&typeof b==='string'&&a.length<60&&b.length<60) return `${names[k]}: “${a||'—'}” → “${b||'—'}”`;
   if(Array.isArray(a)&&Array.isArray(b)&&a.length!==b.length) return `${names[k]}: ${a.length} → ${b.length}`;
   return `${names[k]} edited`;
@@ -117,6 +119,7 @@ function deWarnings(d){
   if(dr.name!==st.live.name) out.push(`Rename to “${dr.name}”: previously sent PDFs keep “${st.live.name}”. Links stay attached via ${deCode(d)}.`);
   if(!dr.video) out.push(`No hero video. The ${dr.assets.find(a=>a.cover)?.n||'cover image'} will show instead.`);
   dr.assets.filter(a=>a.label==='Representative').forEach(a=>out.push(`${a.n} is representative. It’s labelled as such${a.types.length?' on '+a.types.join(', ')+' units':''}.`));
+  const unplaced=LP.issues(dr,deUnits(d)); if(unplaced.length) out.push(`${unplaced.length} unit${unplaced.length===1?' isn’t':'s aren’t'} placed on a level plan (${unplaced.map(x=>x.u.id).join(', ')}). ${unplaced.length===1?'It':'They'} won’t show in visual search or Present’s floor view.`);
   return out;
 }
 function deSecFix(d,sec){return deMustFix(d).filter(m=>m.sec===sec).length;}
@@ -132,7 +135,7 @@ function deMount(){
 function deOpen(id,section='overview'){
   const d=DEVS.find(x=>x.id===id); if(!d) return;
   if(!deCanEdit()){showToast('Only admins, managers and marketing can edit developments');return;}
-  DE.devId=id; DE.section=section; DE.drawer=null; DE.modal=null; DE.sel={}; DE.floor=null; DE.fSel=null; DE.imp=null;
+  DE.devId=id; DE.section=section; DE.drawer=null; DE.modal=null; DE.sel={}; DE.floor=null; DE.level=null; DE.fSel=null; DE.imp=null;
   deState(d); deMount();
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.getElementById('p-devedit').classList.add('on');
@@ -298,7 +301,7 @@ function deUnitDeal(u){
 function deBatchFor(u){return deState(deDev()).batch.filter(b=>b.unit===u.id);}
 function deUnitsHtml(d,st){
   const units=deUnits(d).filter(u=>(DE.fStatus==='all'||u.status===DE.fStatus)&&(DE.fType==='all'||u.type===DE.fType));
-  const sel=Object.keys(DE.sel).filter(k=>DE.sel[k]), admin=deAdmin(), types=[...new Set(deUnits(d).map(u=>u.type))];
+  const sel=Object.keys(DE.sel).filter(k=>DE.sel[k]), admin=deAdmin(), types=[...new Set(deUnits(d).map(u=>u.type))], unplaced=new Set(LP.issues(st.draft,deUnits(d)).map(x=>x.u.id));
   return deHead('ED04','Units & availability','Unit changes collect in an inventory batch. Publishing content never applies them.')+`
   ${st.batch.length?`<div class="de-card de-batch"><div class="row-between"><b>Inventory batch · ${st.batch.length} proposed change${st.batch.length===1?'':'s'} · not live</b>
       <span class="de-acts"><button type="button" class="btn-ghost df-sm" onclick="deBatchDiscard()">Discard batch</button>${admin?`<button type="button" class="btn-primary df-sm" onclick="DE.modal='apply';deRender()">Review & apply changes</button>`:`<button type="button" class="btn-primary df-sm" onclick="deBatchSubmit()">Submit for approval</button>`}</span></div>
@@ -315,7 +318,7 @@ function deUnitsHtml(d,st){
   <div class="de-table de-units">
     <div class="de-tr de-th"><input type="checkbox" aria-label="Select all" ${units.length&&units.every(u=>DE.sel[u.id])?'checked':''} onchange="units_all(this.checked)"><span>Unit</span><span>Type</span><span>Beds</span><span>Floor</span><span>Size</span><span>Listing price</span><span>€/m²</span><span>Status</span></div>
     ${units.map(u=>{const pend=deBatchFor(u);return `<div class="de-tr ${pend.length?'pending':''}"><input type="checkbox" aria-label="Select ${deEsc(u.id)}" ${DE.sel[u.id]?'checked':''} onchange="DE.sel['${u.id}']=this.checked;deRender()">
-      <button type="button" class="de-link-btn" onclick="DE.drawer={k:'unit',id:'${u.id}',tab:'details'};deRender()"><b>${deEsc(u.id)}</b>${pend.length?`<span class="de-mu"> Proposed: ${pend.map(b=>deEsc(b.newTxt)).join(', ')}</span>`:''}</button>
+      <button type="button" class="de-link-btn" onclick="DE.drawer={k:'unit',id:'${u.id}',tab:'details'};deRender()"><b>${deEsc(u.id)}</b>${pend.length?`<span class="de-mu"> Proposed: ${pend.map(b=>deEsc(b.newTxt)).join(', ')}</span>`:''}${unplaced.has(u.id)?' <span class="de-chip warn">Not on level plan</span>':''}</button>
       <span>${deEsc(u.type)}</span><span>${u.beds===0?'Studio':u.beds+' bed'} · ${u.baths||1} bath</span><span>${u.floor===0?'G':u.floor}</span><span>${u.sqm} m²${u.ext?' + '+u.ext:''}</span><span>${fmtEur(u.price)}</span><span>€${Math.round(u.price/u.sqm).toLocaleString('en-US')}</span><span class="de-st ${u.status}">${UN_STATUS[u.status]?.l||u.status}</span></div>`;}).join('')||'<div class="de-mu" style="padding:12px">No units match these filters.</div>'}
   </div>
   <p class="de-mu">Prices in EUR. Reserved, held and sold units change only through their deal.</p>`;
@@ -420,37 +423,126 @@ function deImpApply(mode){
 }
 
 // ---------- ED05 plans & property views ----------
-function deFloors(d){
-  const fl=[...new Set(deUnits(d).map(u=>u.floor))].sort((a,b)=>a-b);
-  return fl.map(f=>({f,label:f===0?'Ground floor':'Floor '+f,units:deUnits(d).filter(u=>u.floor===f),ver:(d.floorPlans?.[f]?.version)||(f<2?'v2':'v1'),img:d.floorPlans?.[f]?.img||null}));
+// ---------- ED05 level plans: one drawing per floor range, units placed on outlines ----------
+function deLvlUnits(){return deUnits(deDev());}
+function deLvlFloors(l){const fl=[...new Set(deLvlUnits().filter(u=>LP.covers(l,u.floor)).map(u=>u.floor))].sort((a,b)=>a-b);return fl.length?fl:[l.from];}
+// The plan as an SVG: outlines coloured by status, the focused unit highlighted, free outlines dashed.
+// mode 'pick' makes outlines clickable for one unit; 'open' opens the unit drawer; draw mode lets the user drag an outline.
+function deLvlSvg(l,f,{focus=null,mode='open',draw=false}={}){
+  const dr=deDraft(), units=deLvlUnits(), map=LP.floor(dr,units,f), occ={}, drawn=[];
+  map.forEach((p,id)=>{if(p.level?.id!==l.id) return;if(p.slot) occ[p.slot.id]=id;else if(p.rect) drawn.push([id,p]);});
+  const fill=id=>{const u=UNITS.find(x=>x.id===id);return id===focus?'focus':u?.status||'available';};
+  const box=(r,cls,label,sub,act,aria)=>`<g class="de-lv-s ${cls}" ${act?`role="button" tabindex="0" aria-label="${deEsc(aria)}" onclick="${act}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();${act}}"`:''}>
+    <rect x="${r[0]}" y="${r[1]}" width="${r[2]}" height="${r[3]}" rx="3"/><text x="${r[0]+r[2]/2}" y="${r[1]+r[3]/2-(sub?4:-4)}" text-anchor="middle">${deEsc(label)}</text>${sub?`<text class="sub" x="${r[0]+r[2]/2}" y="${r[1]+r[3]/2+14}" text-anchor="middle">${deEsc(sub)}</text>`:''}</g>`;
+  const slots=l.slots.map(s=>{const id=occ[s.id], act=mode==='pick'&&!draw?`deLocPick('${s.id}')`:mode==='open'&&id?`deLocOpen('${id}')`:'';
+    const sub=!id?'Free':LP.norm(id)===LP.norm(s.label)?(id===focus?'This unit':UN_STATUS[UNITS.find(x=>x.id===id)?.status]?.l||''):LP.short(id);
+    return box(s.r,id?fill(id):'free',s.label,sub,act,id?`${LP.short(id)} at ${s.label}${id===focus?', this unit':''}`:`Free outline ${s.label}`);}).join('');
+  const own=drawn.map(([id,p])=>box(p.rect,fill(id)+' own',LP.short(id),'Own outline',mode==='open'?`deLocOpen('${id}')`:'',`${LP.short(id)}, own outline`)).join('');
+  const bg=l.img?`<image href="${deEsc(awAsset(l.img))}" x="0" y="0" width="${l.w}" height="${l.h}" preserveAspectRatio="xMidYMid slice" opacity=".5"/>`:`<rect class="frame" x="${LP.FRAME[0]}" y="${LP.FRAME[1]}" width="${LP.FRAME[2]}" height="${LP.FRAME[3]}"/>`;
+  const core=l.core?`<rect class="core" x="${l.core[0]}" y="${l.core[1]}" width="${l.core[2]}" height="${l.core[3]}"/><text class="core-t" x="${l.core[0]+l.core[2]/2}" y="${l.core[1]+l.core[3]/2+4}" text-anchor="middle">CORE · LIFTS</text>`:'';
+  return `<div class="de-lv ${draw?'drawing':''}"><svg viewBox="0 0 ${l.w} ${l.h}" role="group" aria-label="${deEsc(l.n)} · ${LP.floorLabel(f)}" ${draw?'onpointerdown="deLocDraw(event,0)" onpointermove="deLocDraw(event,1)" onpointerup="deLocDraw(event,2)"':''}>${bg}${core}${slots}${own}<rect id="de-lv-draft" class="draft" x="0" y="0" width="0" height="0"/></svg></div>`;
 }
 function dePlansHtml(d,st){
-  const floors=deFloors(d); if(DE.floor===null&&floors.length) DE.floor=floors[0].f;
-  const cur=floors.find(x=>x.f===DE.floor)||floors[0], stg=st.staged&&st.staged.floor===cur?.f?st.staged:null;
-  const types=[...new Set(deUnits(d).map(deTypeKey))], dr=st.draft;
-  const pos=(u,i)=>d.floorPlans?.[cur.f]?.positions?.[u.id]||{x:25+(i%3)*25,y:35+Math.floor(i/3)*25};
-  return deHead('ED05','Plans & property views',`${deEsc(d.name)} › Floor › Unit. Floor drawings power visual search; unit plans show in each unit.`)+`
-  <div class="de-floors">${floors.map(f=>`<button type="button" class="de-floor ${f.f===cur?.f?'on':''}" onclick="DE.floor=${f.f};deRender()"><b>${f.label}</b><span class="de-mu">${f.units.length} unit${f.units.length===1?'':'s'} · drawing ${f.ver} · ${st.staged?.floor===f.f?'staged '+st.staged.ver:'live'}</span></button>`).join('')}</div>
-  ${cur?`<div class="de-card"><div class="row-between"><b>${cur.label} · general arrangement ${cur.ver}</b>${stg?'':`<button type="button" class="btn-ghost df-sm" onclick="this.nextElementSibling.click()">Replace drawing</button><input type="file" hidden accept="application/pdf,image/png,image/jpeg" onchange="deStageDrawing(${cur.f},this)">`}</div>
-    ${stg?`<div class="de-note">${stg.ver} is staged, not live. Buyers still see ${cur.ver}. Confirm each unit’s position on the new drawing, then release. Reserved and sold units keep their status.</div>`:''}
-    <div class="de-plan">${stg?.url||cur.img?`<img src="${deEsc(stg?.url||awAsset(cur.img))}" alt="${cur.label} drawing">`:`<div class="de-plan-ph">${cur.label} · ${stg?stg.ver:cur.ver}</div>`}
-      ${cur.units.map((u,i)=>{const p=pos(u,i);return `<span class="de-pin ${u.status} ${stg&&!stg.ok[u.id]?'unconfirmed':''}" style="left:${p.x}%;top:${p.y}%">${deEsc(u.id.replace('#',''))}</span>`;}).join('')}</div>
-    ${stg?`<div class="de-tr-list">${cur.units.map(u=>`<div class="de-tr"><b>${deEsc(u.id)}</b><span class="de-mu">${UN_STATUS[u.status]?.l} · ${stg.ok[u.id]?'Position confirmed on '+stg.ver:'Same position as '+cur.ver+' · confirm on the new drawing'}</span>${stg.ok[u.id]?'<span class="de-chip ok">Confirmed</span>':`<button type="button" class="btn-ghost df-sm" onclick="deState(deDev()).staged.ok['${u.id}']=true;deRender()">Confirm position</button>`}</div>`).join('')}</div>
-      <div class="de-acts"><button type="button" class="btn-ghost df-sm" onclick="deState(deDev()).staged=null;deRender();deToast('Staged drawing discarded')">Discard ${stg.ver}</button>${cur.units.every(u=>stg.ok[u.id])?`<button type="button" class="btn-primary df-sm" onclick="deReleaseDrawing()">Release ${stg.ver}</button>`:'<span class="de-mu">Confirm every unit to release</span>'}</div>`:''}
-  </div>`:''}
+  const dr=st.draft, units=deUnits(d), types=[...new Set(units.map(deTypeKey))];
+  const L=dr.levels; if(!L.some(l=>l.id===DE.level)) DE.level=(L.find(l=>units.some(u=>LP.covers(l,u.floor)))||L[0])?.id;
+  const cur=L.find(l=>l.id===DE.level), floors=cur?deLvlFloors(cur):[]; if(cur&&!floors.includes(DE.floor)) DE.floor=floors[0];
+  const iss=LP.issues(dr,units), li=cur?LP.levelsFor(dr,DE.floor).length:0;
+  const count=l=>{const us=units.filter(u=>LP.covers(l,u.floor)), ok=us.filter(u=>{const p=LP.place(dr,units,u);return p.level?.id===l.id&&!p.issue&&p.how!=='none';}).length;return `${us.length?`${ok} of ${us.length} unit${us.length===1?'':'s'} placed`:'No units recorded'}`;};
+  const list=cur?units.filter(u=>u.floor===DE.floor):[], fmap=cur?LP.floor(dr,units,DE.floor):new Map();
+  return deHead('ED05','Plans & property views',`Level plans place each unit on its floor for visual search and Present Mode. Bricly matches units to the outlines on each drawing; fix the exceptions here or from the unit.`)+`
+  ${iss.length?`<div class="de-card de-attn"><b>Needs placing · ${iss.length}</b>${iss.map(({u,p})=>`<div class="de-tr"><b>${deEsc(u.id)}</b><span class="de-mu de-grow">${LP.floorLabel(u.floor)} · ${deEsc(LP.ISSUE[p.issue])}${p.with?' ('+deEsc(p.with)+')':''}</span><button type="button" class="btn-ghost df-sm" onclick="deLocOpen('${u.id}')">Place ${deEsc(u.id)}</button></div>`).join('')}</div>`:''}
+  <div class="de-floors">${L.map(l=>`<button type="button" class="de-floor ${l.id===cur?.id?'on':''}" onclick="DE.level='${l.id}';deRender()"><b>${deEsc(l.n)}</b><span class="de-mu">${l.n===LP.range(l)?'':LP.range(l)+' · '}${l.ver} · ${l.slots.length} outline${l.slots.length===1?'':'s'}</span><span class="de-mu">${count(l)}</span></button>`).join('')}</div>
+  ${cur?`<div class="de-card"><div class="row-between"><b>${deEsc(cur.n)} · general arrangement ${cur.ver}</b><span class="de-acts"><button type="button" class="btn-ghost df-sm" onclick="this.nextElementSibling.click()">Replace drawing</button><input type="file" hidden accept="application/pdf,image/png,image/jpeg" aria-label="Replace drawing" onchange="deLvlReplace('${cur.id}',this)"></span></div>
+    <div class="de-g3">${deField('Plan name',`<input value="${deEsc(cur.n)}" oninput="deLvlSet('n',this.value)">`)}${deField('From floor',`<input type="number" value="${cur.from}" onchange="deLvlSet('from',this.value)">`)}${deField('To floor',`<input type="number" value="${cur.to}" onchange="deLvlSet('to',this.value)">`)}</div>
+    <p class="de-mu">${deEsc(cur.file||'Drawing')} · ${cur.from===cur.to?'used by one floor':`shared by ${cur.to-cur.from+1} floors; outline changes apply to all of them`}${li>1?` · <span class="de-bad">${li} plans cover ${LP.floorLabel(DE.floor).toLowerCase()}; units match the first one</span>`:''}</p>
+    ${floors.length>1?`<label class="de-mini">Show units on<select aria-label="Floor shown" onchange="DE.floor=Number(this.value);deRender()">${floors.map(f=>`<option value="${f}" ${f===DE.floor?'selected':''}>${LP.floorLabel(f)}</option>`).join('')}</select></label>`:''}
+    ${deLvlSvg(cur,DE.floor)}
+    <div class="de-lv-key"><span><i class="available"></i>Available</span><span><i class="hold"></i>Held or reserved</span><span><i class="sold"></i>Sold</span><span><i class="free"></i>Free outline</span></div>
+    <div class="de-tr-list">${list.map(u=>{const p=fmap.get(u.id);return `<div class="de-tr"><b>${deEsc(u.id)}</b><span class="de-mu de-grow">${p.how==='none'?'Not on a level plan'+(p.reason?' · '+deEsc(p.reason):''):p.issue?deEsc(LP.ISSUE[p.issue]):`${deEsc(p.label)} on ${deEsc(p.level.n)}`}</span><span class="de-chip ${p.issue?'warn':p.how==='auto'?'ok':''}">${p.issue?'Needs placing':LP.HOW[p.how]}</span><button type="button" class="df-link" onclick="deLocOpen('${u.id}')">Edit</button></div>`;}).join('')||'<p class="de-mu">No units recorded on this floor.</p>'}</div></div>`:'<div class="de-card de-mu">No level plans yet.</div>'}
   <div class="de-card"><b>Unit plans</b>${types.map(t=>{const us=deUnits(d).filter(u=>deTypeKey(u)===t);return `<div class="de-tr"><span><b>${deEsc(t)} — type plan</b></span><span class="de-mu">${us.length>2?us.length+' units':us.map(u=>u.id).join(', ')} · ${/2-bed/.test(t)?'dimensions unverified':'rooms labelled'}</span><button type="button" class="df-link" onclick="DE.drawer={k:'unit',id:'${us[0].id}',tab:'plan'};deRender()">Open</button></div>`;}).join('')}</div>
-  <div class="de-card"><b>Property views</b>${dr.assets.filter(a=>a.cat!=='Photo').map(a=>`<div class="de-tr"><span><b>${deEsc(a.n)}</b></span><span class="de-mu">${a.units.length?a.units.join(', '):a.types.length?'All '+a.types.join(', ')+' units':'Development-wide'} · ${deEsc(a.room||a.cat)}</span><span class="de-chip ${a.label==='Actual'?'ok':''}">${deEsc(a.label)}</span><button type="button" class="df-link" onclick="DE.drawer={k:'asset',id:'${a.id}'};deRender()">Edit</button></div>`).join('')}</div>`;
+  <div class="de-card"><b>Property views</b>${dr.assets.filter(a=>a.cat==='View').map(a=>`<div class="de-tr"><span><b>${deEsc(a.n)}</b></span><span class="de-mu">${deEsc(UM.scopeText(a))} · ${deEsc(UM.roomName(dr,a.room)||a.cat)}${a.cat==='Render'&&UM.tagText(dr,a)?' · '+deEsc(UM.tagText(dr,a)):''}</span><span class="de-chip ${a.label==='Actual'?'ok':''}">${deEsc(a.label)}</span><button type="button" class="df-link" onclick="DE.drawer={k:'asset',id:'${a.id}'};deRender()">Edit</button></div>`).join('')}</div>`;
 }
-function deStageDrawing(f,input){
+function deLvlSet(k,v){
+  const l=deDraft().levels.find(x=>x.id===DE.level); if(!l) return;
+  if(k==='n'){l.n=v;deMark();return;}
+  const n=Math.round(Number(v)); if(!Number.isFinite(n)){deRender();return;}
+  l[k]=n; if(l.from>l.to){if(k==='from') l.to=n;else l.from=n;}
+  deMark(); deRender(); deToast(`${l.n} now covers ${LP.range(l).toLowerCase()} · units re-matched`);
+}
+function deLvlReplace(id,input){
   const file=input.files[0]; if(!file) return;
-  const d=deDev(), cur=deFloors(d).find(x=>x.f===f), n=Number(cur.ver.replace('v',''))+1;
-  deState(d).staged={floor:f,ver:'v'+n,ok:{},url:/image/.test(file.type)?URL.createObjectURL(file):null,file:file.name};
-  deRender(); deToast(`${file.name} staged as v${n} · confirm each unit to release`);
+  const l=deDraft().levels.find(x=>x.id===id), next='v'+(Number(String(l.ver).replace(/\D/g,''))+1||2);
+  l.ver=next; l.file=file.name; if(/^image\//.test(file.type)) l.img=URL.createObjectURL(file);
+  deMark(); deRender(); deToast(`${file.name} added as ${next} · outlines kept · check the plan before publishing`);
 }
-function deReleaseDrawing(){
-  const d=deDev(), st=deState(d), s=st.staged;
-  d.floorPlans=d.floorPlans||{}; d.floorPlans[s.floor]={...(d.floorPlans[s.floor]||{}),version:s.ver,img:s.url||d.floorPlans[s.floor]?.img||null,positions:d.floorPlans[s.floor]?.positions||{}};
-  st.staged=null; deRender(); deToast(`${s.ver} released · visual search uses the new drawing`);
+
+// ---------- unit drawer · Location: level plan position and facade ----------
+function deLocOpen(id){DE.drawer={k:'unit',id,tab:'location'};deRender();}
+function deLocMine(u){return LP.place(deDraft(),deLvlUnits(),u);}
+function deLocSave(u,val,msg){
+  const dr=deDraft(); dr.placements||={};
+  if(val) dr.placements[u.id]={...val,by:deMe(),at:'today '+deNow()}; else delete dr.placements[u.id];
+  if(DE.drawer.loc) DE.drawer.loc={}; deMark(); deRender(); if(msg) deToast(msg);
+}
+function deLocPick(slotId){
+  const u=UNITS.find(x=>x.id===DE.drawer.id), L=DE.drawer.loc||={}, l=deDraft().levels.find(x=>x.id===L.level)||deLocMine(u).level||LP.levelsFor(deDraft(),u.floor)[0]; if(!l||L.draw) return;
+  const other=LP.occupant(deDraft(),deLvlUnits(),l,u.floor,slotId), s=l.slots.find(x=>x.id===slotId);
+  if(other===u.id) return;
+  if(other){L.swap={level:l.id,slot:slotId,other};deRender();return;}
+  deLocSave(u,{level:l.id,slot:slotId},`${u.id} placed at ${s.label} · in the draft`);
+}
+function deLocSwap(){
+  const u=UNITS.find(x=>x.id===DE.drawer.id), sw=DE.drawer.loc.swap, mine=deLocMine(u), dr=deDraft(); dr.placements||={};
+  const o=UNITS.find(x=>x.id===sw.other), stamp={by:deMe(),at:'today '+deNow()};
+  dr.placements[o.id]=mine.slot&&mine.level?.id===sw.level?{level:sw.level,slot:mine.slot.id,...stamp}:{level:sw.level,slot:null,...stamp};
+  deLocSave(u,{level:sw.level,slot:sw.slot},mine.slot?`${u.id} and ${o.id} swapped`:`${u.id} placed · ${o.id} now needs a position`);
+}
+function deLocLevel(id){
+  const u=UNITS.find(x=>x.id===DE.drawer.id);
+  if(id==='__none'){DE.drawer.loc={none:true};deRender();return;}
+  const l=deDraft().levels.find(x=>x.id===id), s=l.slots.find(x=>LP.matches(x.label,u));
+  const auto=LP.levelsFor(deDraft(),u.floor)[0]?.id===id&&s;
+  deLocSave(u,auto?null:{level:id,slot:s?.id||null},auto?`${u.id} back on ${l.n} · matched automatically`:s?`${u.id} moved to ${l.n} at ${s.label}`:`${u.id} moved to ${l.n} · choose a position`);
+}
+function deLocNone(){const r=document.getElementById('du-loc-why')?.value.trim();if(!r){deToast('Give a reason');return;}deLocSave(UNITS.find(x=>x.id===DE.drawer.id),{none:true,reason:r},'Marked as not on a level plan');}
+// Drag on the plan to draw an outline for this unit only. Coordinates convert from screen to the drawing's box.
+function deLocDraw(e,phase){
+  const L=DE.drawer.loc; if(!L?.draw) return;
+  const svg=e.currentTarget, m=svg.getScreenCTM(); if(!m) return;
+  const pt=new DOMPoint(e.clientX,e.clientY).matrixTransform(m.inverse()), el=svg.querySelector('#de-lv-draft');
+  if(phase===0){L.start=[pt.x,pt.y];svg.setPointerCapture(e.pointerId);return;}
+  if(!L.start) return;
+  const r=[Math.min(L.start[0],pt.x),Math.min(L.start[1],pt.y),Math.abs(pt.x-L.start[0]),Math.abs(pt.y-L.start[1])].map(Math.round);
+  if(phase===1){el.setAttribute('x',r[0]);el.setAttribute('y',r[1]);el.setAttribute('width',r[2]);el.setAttribute('height',r[3]);return;}
+  L.start=null;
+  if(r[2]<20||r[3]<20){deToast('Drag a larger area to draw the outline');return;}
+  const u=UNITS.find(x=>x.id===DE.drawer.id), l=deDraft().levels.find(x=>x.id===L.level)||deLocMine(u).level||LP.levelsFor(deDraft(),u.floor)[0]; if(!l) return;
+  deLocSave(u,{level:l.id,rect:r},`Outline drawn for ${u.id} · only this unit uses it`);
+}
+function deLocationHtml(u,d,dr){
+  const p=deLocMine(u), L=DE.drawer.loc||={}, cover=LP.levelsFor(dr,u.floor), others=dr.levels.filter(l=>!cover.includes(l));
+  const l=dr.levels.find(x=>x.id===L.level)||p.level||cover[0];
+  const chip=p.how==='none'?['','Not on a plan']:p.issue?['warn','Needs placing']:p.how==='auto'?['ok','Automatic']:['',LP.HOW[p.how]];
+  const why=p.how==='none'?`Not shown on any level plan${p.reason?' · '+deEsc(p.reason):''}.`
+    :p.issue?deEsc(LP.ISSUE[p.issue])+(p.with?` (${deEsc(p.with)})`:'')+'. It won’t show in visual search or Present’s floor view until it’s placed.'
+    :p.how==='auto'?`Matched outline <b>${deEsc(p.label)}</b> on ${deEsc(p.level.n)} ${p.level.ver} from the drawing’s labels.`
+    :p.how==='drawn'?`Uses its own outline on ${deEsc(p.level.n)}. The shared plan is unchanged.`
+    :`Placed at <b>${deEsc(p.label)}</b> on ${deEsc(p.level.n)}.`;
+  const by=p.by?`<span class="de-mu"> · ${deEsc(p.by)}, ${deEsc(p.at)}</span>`:'';
+  const opt=x=>`<option value="${x.id}" ${x.id===l?.id&&!L.none&&p.how!=='none'?'selected':''}>${deEsc(x.n)}${x.n===LP.range(x)?'':' · '+LP.range(x)} · ${x.ver}${LP.covers(x,u.floor)?'':' · doesn’t cover this floor'}</option>`;
+  const fac=Object.entries(dr.facades).filter(([,f])=>!f.na);
+  return `<div class="de-loc ${chip[0]}"><div class="row-between"><b>Level plan position</b><span class="de-chip ${chip[0]}">${chip[1]}</span></div><p>${why}${p.how!=='auto'?by:''}</p>
+      ${p.how!=='auto'||p.issue&&dr.placements?.[u.id]?`<button type="button" class="btn-ghost df-sm" onclick="deLocSave(UNITS.find(x=>x.id==='${u.id}'),null,'${deEsc(u.id)} back to automatic placement')">Reset to automatic</button>`:''}</div>
+    ${deField('Level plan',`<select aria-label="Level plan" onchange="deLocLevel(this.value)">${cover.length?`<optgroup label="Covers ${LP.floorLabel(u.floor).toLowerCase()}">${cover.map(opt).join('')}</optgroup>`:''}${others.length?`<optgroup label="Other plans">${others.map(opt).join('')}</optgroup>`:''}<option value="__none" ${L.none||p.how==='none'?'selected':''}>Not shown on a level plan</option></select>`)}
+    ${L.none?`<div class="de-note">${deField('Reason · required',`<input id="du-loc-why" placeholder="e.g. Garage, not on the residential floors">`)}<div class="de-acts"><button type="button" class="btn-ghost df-sm" onclick="DE.drawer.loc={};deRender()">Cancel</button><button type="button" class="btn-primary df-sm" onclick="deLocNone()">Mark as not on a plan</button></div></div>`
+    :l?`${L.swap?`<div class="de-note">${deEsc(L.swap.other)} is already at ${deEsc(l.slots.find(s=>s.id===L.swap.slot)?.label||'')} on ${LP.floorLabel(u.floor).toLowerCase()}. <div class="de-acts"><button type="button" class="btn-ghost df-sm" onclick="DE.drawer.loc={};deRender()">Cancel</button><button type="button" class="btn-primary df-sm" onclick="deLocSwap()">${p.slot?'Swap the two units':'Move '+deEsc(L.swap.other)+' off'}</button></div></div>`:''}
+      ${deField('Position',`<select aria-label="Position on plan" onchange="if(this.value)deLocPick(this.value)"><option value="">${p.slot&&p.level?.id===l.id?'':p.rect?'Own outline':'Choose a position'}</option>${l.slots.map(s=>{const o=LP.occupant(dr,deLvlUnits(),l,u.floor,s.id);return `<option value="${s.id}" ${p.slot?.id===s.id&&p.level?.id===l.id?'selected':''}>${deEsc(s.label)} · ${o===u.id?'this unit':o?deEsc(o):'free'}</option>`;}).join('')}</select>`)}
+      ${deLvlSvg(l,u.floor,{focus:u.id,mode:'pick',draw:!!L.draw})}
+      <div class="row-between"><span class="de-mu">${L.draw?'Drag on the plan to draw the outline. Only this unit uses it.':`Click an outline to move ${deEsc(u.id)} there. Showing ${LP.floorLabel(u.floor).toLowerCase()}.`}</span><button type="button" class="btn-ghost df-sm" onclick="DE.drawer.loc.draw=!DE.drawer.loc.draw;deRender()" aria-pressed="${!!L.draw}">${L.draw?'Cancel drawing':'Draw outline'}</button></div>
+      ${l.from!==l.to?`<p class="de-mu">${deEsc(l.n)} is shared by ${LP.range(l).toLowerCase()}. Moving this unit doesn’t move units on other floors.</p>`:''}`
+    :'<p class="de-mu">No level plans yet. Add one in Plans & property views.</p>'}
+    <h4 class="de-sub">Facade</h4>
+    ${fac.map(([k,f])=>`<div class="de-tr"><span class="de-grow"><b>${deEsc(f.label)}</b><div class="de-mu">${f.m[u.id]?`Placed at x ${f.m[u.id][0]}% · y ${f.m[u.id][1]}%`:'Not placed on this facade'}</div></span><button type="button" class="btn-ghost df-sm" onclick="DE.drawer=null;DE.fSide='${k}';DE.fSel='${u.id}';deGo('facade')">Edit position on facade</button></div>`).join('')}${fac.every(([,f])=>!f.m[u.id])?'<p class="de-mu">Not placed on any facade yet, so it won’t appear in visual search.</p>':''}`;
 }
 
 // ---------- ED05 facade mapping ----------
@@ -482,10 +574,11 @@ function deFacadeAdd(){const F=deDraft().facades,k='side'+Object.keys(F).length;
 // ---------- ED06 finishes, packs & extras ----------
 function deFinishesHtml(d,st){
   const dr=st.draft, units=deUnits(d), def=dr.packs.find(p=>p.def&&!p.retired);
-  return deHead('ED06','Finishes, packs & extras','One pricing source for Present Mode. Signed specs and accepted quotes keep the version they were agreed on.')+`
+  return deHead('ED06','Finishes, interiors & extras','One pricing source for Present Mode. Signed specs and accepted quotes keep the version they were agreed on.')+`
   <div class="de-card"><div class="row-between"><b>Finish packs</b><span class="de-mu">Default scope: all ${deEsc(d.name)} units</span></div>
-    ${dr.packs.map((p,i)=>`<button type="button" class="de-pack ${p.retired?'retired':''}" onclick="DE.drawer={k:'pack',i:${i}};deRender()"><span class="de-sw">${(p.mats||[]).slice(0,4).map(m=>`<i style="background:${m.sw}"></i>`).join('')}</span><span class="de-grow"><b>${deEsc(p.n)}</b>${p.def?' <span class="de-chip ok">Default</span>':''}${p.retired?' <span class="de-chip">Retired</span>':''}<span class="de-mu"> · ${deEsc(p.d)}</span></span><b>${p.price?'+'+fmtEur(p.price):'Included'}</b></button>`).join('')}
-    <button type="button" class="btn-ghost df-sm" onclick="deListAdd('packs',{n:'New pack',d:'',price:0,mode:'Addition',def:false,dl:'30 Nov 2026',mats:[]});DE.drawer={k:'pack',i:deDraft().packs.length-1};deRender()">+ Add pack</button></div>
+    ${dr.packs.map((p,i)=>`<button type="button" class="de-pack ${p.retired?'retired':''}" onclick="DE.drawer={k:'pack',i:${i}};deRender()"><span class="de-sw">${(p.mats||[]).slice(0,4).map(m=>`<i style="background:${m.sw}"></i>`).join('')}</span><span class="de-grow"><b>${deEsc(p.n)}</b>${p.def?' <span class="de-chip ok">Default</span>':''}${p.retired?' <span class="de-chip">Retired</span>':''}<span class="de-mu"> · ${deEsc(p.d)} · ${deRenderCount(dr,'packs',p.id)}</span></span><b>${p.price?'+'+fmtEur(p.price):'Included'}</b></button>`).join('')}
+    <button type="button" class="btn-ghost df-sm" onclick="deListAdd('packs',{id:UM.uid('pk'),n:'New pack',d:'',price:0,mode:'Addition',def:false,dl:'30 Nov 2026',mats:[],styles:[]});DE.drawer={k:'pack',i:deDraft().packs.length-1};deRender()">+ Add pack</button></div>
+  ${deInteriorsHtml(dr)}
   <div class="de-card"><b>Applicability & overrides</b>
     ${units[0]?`<div class="de-tr"><b>${deEsc(units[0].id)}</b><span class="de-mu">${deEsc(dr.packs[1]?.n||'Upgrade')} included at no charge</span><span class="de-chip">Unit override</span></div>`:''}
     ${units[2]?`<div class="de-tr"><b>${deEsc(units[2].id)}</b><span class="de-mu">${deEsc(dr.packs[2]?.n||'Pack')} · accepted quote Q-0911 at ${fmtEur(dr.packs[2]?.price||0)} · locked</span><span class="de-chip ok">Accepted · v2</span></div>`:''}
@@ -494,11 +587,38 @@ function deFinishesHtml(d,st){
     ${dr.extras.map((x,i)=>`<div class="de-tr de-extra"><input aria-label="Extra" value="${deEsc(x.n)}" oninput="deSet('extras.${i}.n',this.value)"><input aria-label="Note" value="${deEsc(x.note)}" oninput="deSet('extras.${i}.note',this.value)"><input aria-label="Price" value="${deEsc(x.price)}" oninput="deSet('extras.${i}.price',this.value)"><button type="button" class="tool" aria-label="Remove" onclick="deListDel('extras',${i})">×</button></div>`).join('')}</div>`;
 }
 
+// ---------- ED06 interiors catalogue: the pick-lists every unit render is tagged against ----------
+function deRenderCount(dr,key,id){const n=dr.assets.filter(a=>a.cat==='Render'&&(key==='room'?a.room===id:a[key].includes(id))).length;return n?`${n} render${n===1?'':'s'}`:'no renders yet';}
+function deInteriorsHtml(dr){
+  const I=dr.interiors, rule=(path,v)=>`<select aria-label="Shown in" onchange="deSet('${path}',this.value,true)">${UM.RULES.map(([k,l])=>`<option value="${k}" ${k===v?'selected':''}>${l}</option>`).join('')}</select>`;
+  const del=(kind,i,n)=>`<button type="button" class="tool" aria-label="Remove ${deEsc(n)}" onclick="deIntDel('${kind}',${i})">×</button>`;
+  return `<div class="de-card"><div class="row-between"><b>Interiors catalogue</b><span class="de-mu">Every unit render is tagged with a room, and optionally a layout, finish and style from these lists</span></div>
+    <div class="de-int"><div class="de-int-h"><b>Rooms</b><span class="de-mu">Shown in</span></div>
+      ${I.rooms.map((r,i)=>`<div class="de-tr de-int-row"><input aria-label="Room name" value="${deEsc(r.n)}" oninput="deSet('interiors.rooms.${i}.n',this.value)">${rule(`interiors.rooms.${i}.rule`,r.rule)}<span class="de-mu">${deRenderCount(dr,'room',r.id)}</span>${del('rooms',i,r.n)}</div>`).join('')}
+      <button type="button" class="btn-ghost df-sm" onclick="deIntAdd('rooms',{id:UM.uid('rm'),n:'New room',rule:''})">+ Add room</button></div>
+    <div class="de-int"><div class="de-int-h"><b>Layouts</b><span class="de-mu">Available in · price against base</span></div>
+      ${I.layouts.map((l,i)=>`<div class="de-tr de-int-row lay"><input aria-label="Layout name" value="${deEsc(l.n)}" oninput="deSet('interiors.layouts.${i}.n',this.value)">${rule(`interiors.layouts.${i}.rule`,l.rule)}<input aria-label="Layout price" type="number" min="0" step="500" value="${l.price||0}" onchange="deSet('interiors.layouts.${i}.price',Number(this.value)||0)"><span class="de-mu">${l.def?'<span class="de-chip ok">Default</span> ':''}${deRenderCount(dr,'layouts',l.id)}</span>${l.def?'<span></span>':del('layouts',i,l.n)}</div>`).join('')}
+      <button type="button" class="btn-ghost df-sm" onclick="deIntAdd('layouts',{id:UM.uid('ly'),n:'New layout',d:'',price:0,rule:'',def:false})">+ Add layout</button></div>
+    <div class="de-int"><div class="de-int-h"><b>Styles</b><span class="de-mu">Furnishing mood · choose which packs offer each style in the pack</span></div>
+      ${I.styles.map((s,i)=>`<div class="de-tr de-int-row"><input aria-label="Style name" value="${deEsc(s.n)}" oninput="deSet('interiors.styles.${i}.n',this.value)"><span class="de-mu">${dr.packs.filter(p=>!p.styles?.length||p.styles.includes(s.id)).map(p=>deEsc(p.n)).join(', ')||'No pack offers it'}</span><span class="de-mu">${deRenderCount(dr,'styles',s.id)}</span>${del('styles',i,s.n)}</div>`).join('')}
+      <button type="button" class="btn-ghost df-sm" onclick="deIntAdd('styles',{id:UM.uid('st'),n:'New style'})">+ Add style</button></div>
+    <p class="de-mu">Present Mode only offers a layout, finish or style on the render screen when a render exists for it. Buyers can still choose any option on the Finishes screen.</p></div>`;
+}
+function deIntAdd(kind,item){deDraft().interiors[kind].push(item);deMark();deRender();}
+function deIntDel(kind,i){
+  const dr=deDraft(), item=dr.interiors[kind][i], key={rooms:'room',layouts:'layouts',styles:'styles'}[kind];
+  let n=0; dr.assets.forEach(a=>{if(key==='room'){if(a.room===item.id){a.room='';n++;}}else if(a[key].includes(item.id)){a[key]=a[key].filter(x=>x!==item.id);n++;}});
+  if(kind==='styles') dr.packs.forEach(p=>{if(p.styles) p.styles=p.styles.filter(x=>x!==item.id);});
+  dr.interiors[kind].splice(i,1); deMark(); deRender();
+  deToast(n?`${item.n} removed · ${n} render${n===1?'':'s'} untagged, check them in Media`:`${item.n} removed`);
+}
+
 // ---------- ED07 media & documents ----------
 function deMediaHtml(d,st){
   const dr=st.draft, tabs=['All','Render','Photo','View'], list=dr.assets.filter(a=>DE.mediaTab==='All'||a.cat===DE.mediaTab);
-  const linkTxt=a=>{const l=[...a.units,...a.types,...a.packs.map(p=>p+' pack')];return l.length?'Linked: '+l.join(' · '):a.cat==='Photo'?'Development-wide':'Not linked to units yet';};
-  return deHead('ED07','Media & documents','One library. Link renders and views to units, unit types or finish packs and they show there automatically.')+`
+  const linkTxt=a=>a.cat==='Photo'?'Development-wide':a.cat==='Render'&&!a.room?'Exterior · development gallery'
+    :[UM.roomName(dr,a.room)||(a.cat==='View'?'View':''),a.cat==='View'?a.orient:UM.tagText(dr,a),UM.scopeText(a)].filter(Boolean).join(' · ');
+  return deHead('ED07','Media & documents','One library. Tag renders with a room, layout, finish and style, link them to units or unit types, and Present Mode shows them automatically. Name files like kitchen_riviera_coastal_2-bed.jpg to tag them on upload.')+`
   <button type="button" class="de-drop big" onclick="this.nextElementSibling.click()"><b>Drop files or click to upload</b><span class="de-mu">Images JPG, PNG, WebP up to 20 MB · Video MP4, MOV up to 500 MB · Documents PDF, XLSX up to 50 MB</span></button>
   <input type="file" hidden multiple onchange="deUploadFiles(this,'media')">
   ${deUploadList(st)}
@@ -588,7 +708,7 @@ function dePublish(){
     Object.assign(d,{name:dr.name,tag:dr.tagline,about:dr.about,loc:dr.loc,lat:Number(dr.lat),lng:Number(dr.lng),logo:dr.logo,
       dist:dr.dests.filter(x=>x.n).map(x=>[x.n,`${x.v} ${x.mode.toLowerCase()}`.trim()]),amen:dr.amen.filter(a=>a.n).map(a=>a.n),
       files:dr.docs.map(x=>({n:x.n,s:x.meta.split(' · ')[0],d:x.meta.split(' · ')[1]||'Updated today'}))});
-    d.media.renders={ext:dr.assets.filter(a=>a.cat==='Render'&&a.label!=='Representative'&&a.img).map(a=>({img:a.img,cap:a.n})),int:dr.assets.filter(a=>a.cat==='Render'&&a.label==='Representative'&&a.img).map(a=>({img:a.img,cap:a.n}))};
+    d.media.renders={ext:dr.assets.filter(a=>a.cat==='Render'&&!a.room&&a.img).map(a=>({img:a.img,cap:a.n})),int:dr.assets.filter(a=>a.cat==='Render'&&a.room&&a.img).map(a=>({img:a.img,cap:a.n}))};
     d.media.photos=dr.assets.filter(a=>a.cat!=='Render'&&a.img).map(a=>({img:a.img,cap:a.n,tag:a.cat==='View'?'Views':'Lifestyle'}));
     const cover=dr.assets.find(a=>a.cover&&a.img); if(cover) d.photo=cover.img;
     st.version++; d.version=st.version; st.publishedBy=deMe(); st.publishedAt='today '+deNow();
@@ -616,7 +736,11 @@ function deRoute(d,f){
   if(/\.(xlsx|xls|csv)$/i.test(n)) return {kind:'sheet',msg:'Sheet → Documents · use Import data to change prices'};
   if(/\.(mp4|mov)$/i.test(n)) return {kind:'video',msg:'Video → Media · hero film'};
   if(/plan|fp[_-]/i.test(n)) return hit?{kind:'plan',unit:hit.id,msg:`Plan → ${hit.id} · staged as a new plan version`}:{kind:'nomatch',msg:'Plan, but the name matched no unit'};
-  if(/\.(png|jpe?g|webp)$/i.test(n)) return {kind:'image',msg:'Image → Media · needs alt text'};
+  if(/\.(png|jpe?g|webp)$/i.test(n)){
+    const g=UM.guess(deState(d).draft,units,n), dr=deState(d).draft, tg=UM.tagText(dr,{...g,layouts:g.layouts,packs:g.packs,styles:g.styles});
+    if(g.cat==='View') return {kind:'image',g,msg:`View → Media${g.orient?' · '+g.orient:''}${g.units.length?' · '+g.units.join(', '):g.types.length?' · '+g.types.join(', ')+' units':' · link it to units'}`};
+    return g.room?{kind:'image',g,msg:`Render → ${UM.roomName(dr,g.room)}${tg?' · '+tg:''} · ${g.units.length?g.units.join(', '):g.types.length?'all '+g.types.join(', ')+' units':'whole development'}`}:{kind:'image',g,msg:'Image → Media · no room in the filename, tag it in Media'};
+  }
   if(/\.pdf$/i.test(n)) return {kind:'doc',msg:'PDF → Documents'};
   return {kind:'reject',msg:'Unsupported file type'};
 }
@@ -630,7 +754,8 @@ function deUploadFiles(input,where){
 function deUploadRoute(rows,where){
   const d=deDev(), st=deState(d), dr=st.draft; let routed=[];
   rows.forEach(r=>{
-    if(r.kind==='image'){dr.assets.push({id:'u'+Date.now()+Math.random().toString(36).slice(2,5),n:r.n.replace(/\.\w+$/,'').replace(/[-_]/g,' '),img:r.url,cat:'Render',label:'Render',alt:'',cover:false,units:[],types:[],packs:[],room:'',orient:'',src:'Uploaded today'});routed.push('image');}
+    if(r.kind==='image'){const g=r.g, a=UM.asset(g.cat,g.room,g.cat==='Render'&&g.room?UM.roomName(dr,g.room):r.n.replace(/\.\w+$/,'').replace(/[-_]/g,' '),r.url,{units:g.units,types:g.units.length?[]:g.types,packs:g.packs,layouts:g.layouts,styles:g.styles,orient:g.orient});
+      a.src='Uploaded today'; a.alt=g.room||g.cat==='View'?UM.autoAlt(dr,a):''; dr.assets.push(a); routed.push('image');}
     else if(r.kind==='doc'||r.kind==='sheet'){dr.docs.push({n:r.n,meta:`${r.size} · uploaded today`,vis:'Internal',kind:r.kind==='sheet'?'XLS':'PDF'});routed.push('doc');}
     else if(r.kind==='video'){dr.video=`${r.n} · ${r.size}`;routed.push('video');}
     else if(r.kind==='plan'){dr.plans[r.unit]={file:r.n,staged:true};routed.push('plan');}
@@ -646,7 +771,7 @@ function deUploadList(st){
 }
 function deUploadsHtml(d,st){
   const units=deUnits(d);
-  return deHead('ED13','Uploads','Drop files in bulk. Bricly reads filenames and routes each file: plans to units, renders to media, sheets to documents. When it can’t tell, it asks here.',`<button type="button" class="btn-primary df-sm" onclick="this.nextElementSibling.click()">Upload files</button><input type="file" hidden multiple onchange="deUploadFiles(this,'uploads')">`)+`
+  return deHead('ED13','Uploads','Drop files in bulk. Bricly reads filenames and routes each file: plans to units, renders to rooms with their finish and style, sheets to documents. When it can’t tell, it asks here.',`<button type="button" class="btn-primary df-sm" onclick="this.nextElementSibling.click()">Upload files</button><input type="file" hidden multiple onchange="deUploadFiles(this,'uploads')">`)+`
   ${deUploadList(st)}
   ${st.fixup.length?`<div class="de-card"><b>Needs a unit · ${st.fixup.length}</b><p class="de-mu">These floor plans were uploaded but their names didn’t match a unit. They aren’t shown anywhere and nothing is linked until you choose a unit.</p>
     ${st.fixup.map((f,i)=>`<div class="de-tr"><span class="de-grow"><b>${deEsc(f.n)}</b><div class="de-mu">${deEsc(f.size)} · uploaded by ${deEsc(f.who)} · left for later</div></span>
@@ -660,16 +785,16 @@ function deUploadsHtml(d,st){
 // ---------- drawers ----------
 function deDrawerHtml(d,st){
   const k=DE.drawer.k;
-  const body={unit:deUnitDrawer,bulk:deBulkDrawer,asset:deAssetDrawer,pack:dePackDrawer,import:deImpDrawer,fixup:deFixDrawer}[k];
+  const body={unit:deUnitDrawer,bulk:deBulkDrawer,asset:deAssetDrawer,pack:dePackDrawer,import:deImpDrawer,fixup:deFixDrawer,tag:deTagDrawer}[k];
   if(!body) return '';
   const r=body(d,st);
-  return `<div class="de-scrim" onclick="DE.drawer=null;deRender()"></div><aside class="de-drawer ${k==='import'?'wide':''}" id="de-drawer" role="dialog" aria-label="${deEsc(r.title)}">
-    <header><div><h3>${r.title}</h3>${r.sub?`<div class="de-mu">${r.sub}</div>`:''}</div><button type="button" class="tool" aria-label="Close" onclick="DE.drawer=null;deRender()">×</button></header>
+  return `<div class="de-scrim" onclick="DE.tag=null;DE.drawer=null;deRender()"></div><aside class="de-drawer ${k==='import'||k==='tag'?'wide':''}" id="de-drawer" role="dialog" aria-label="${deEsc(r.title)}">
+    <header><div><h3>${r.title}</h3>${r.sub?`<div class="de-mu">${r.sub}</div>`:''}</div><button type="button" class="tool" aria-label="${DE.drawer.back?'Back':'Close'}" onclick="${k==='tag'?'DE.tag=null;':''}deDrawerClose()">${DE.drawer.back?'←':'×'}</button></header>
     <div class="de-dbody">${r.body}</div><footer>${r.foot}</footer></aside>`;
 }
 function deUnitDrawer(d,st){
-  const u=UNITS.find(x=>x.id===DE.drawer.id), tab=DE.drawer.tab||'details', prot=DE_PROTECTED.includes(u.status), deal=deUnitDeal(u), t=deTypeKey(u), dr=st.draft;
-  const tabs=[['details','Details'],['plan','Plan'],['media','Media'],['facade','Facade']];
+  const u=UNITS.find(x=>x.id===DE.drawer.id), tab=DE.drawer.tab==='facade'?'location':DE.drawer.tab||'details', prot=DE_PROTECTED.includes(u.status), deal=deUnitDeal(u), t=deTypeKey(u), dr=st.draft;
+  const tabs=[['details','Details'],['plan','Unit plan'],['location','Location'],['renders','Renders'],['views','Views']];
   const pend=deBatchFor(u), sides=Object.entries(dr.facades).filter(([,f])=>!f.na);
   let body=`<div class="de-tabs">${tabs.map(([k,l])=>`<button type="button" class="ff-chip ${tab===k?'on':''}" onclick="DE.drawer.tab='${k}';deRender()">${l}</button>`).join('')}</div>
     ${pend.length?`<div class="de-note">In the inventory batch: ${pend.map(b=>`${deEsc(b.field)} → ${deEsc(b.newTxt)}`).join(' · ')}</div>`:''}`;
@@ -686,18 +811,91 @@ function deUnitDrawer(d,st){
       <label class="df-task"><input type="radio" name="du-del" id="du-exc" onchange="document.getElementById('du-excf').hidden=false"><span>Unit-specific exception</span></label>
       <div id="du-excf" hidden class="de-g2">${deField('Expected handover',`<input id="du-when" placeholder="e.g. Q1 2027">`)}${deField('Reason · required',`<input id="du-why">`)}</div></div>`;
   if(tab==='plan'){const up=dr.plans[u.id];body+=`<div class="de-tr"><span class="de-grow"><b>${deEsc(t)} type plan</b><div class="de-mu">v2 PDF + PNG · uploaded 12 Jun 2026 by Anna Cassar Architects</div></span><button type="button" class="btn-ghost df-sm" onclick="deToast('Demo file · nothing to download in this session')">Download</button></div>
-    ${up?`<div class="de-note">${deEsc(up.file)} uploaded as a unit-specific plan. Buyers still see the type plan until you confirm the rooms and publish. <button type="button" class="df-link" onclick="delete deDraft().plans['${u.id}'];deMark();deRender()">Remove</button></div>`:`<button type="button" class="btn-ghost df-sm" onclick="this.nextElementSibling.click()">Upload unit-specific plan</button><input type="file" hidden accept="application/pdf,image/*" onchange="deDraft().plans['${u.id}']={file:this.files[0].name,staged:true};deMark();deRender()">`}
+    ${up?`<div class="de-note">${deEsc(up.file)} uploaded as a unit-specific plan. Buyers still see the type plan until you confirm the rooms and publish${up.url?', then Present Mode shows this drawing':''}. <button type="button" class="df-link" onclick="delete deDraft().plans['${u.id}'];deMark();deRender()">Remove</button></div>`:`<button type="button" class="btn-ghost df-sm" onclick="this.nextElementSibling.click()">Upload unit-specific plan</button><input type="file" hidden accept="application/pdf,image/*" onchange="deDraft().plans['${u.id}']={file:this.files[0].name,staged:true,url:/^image\//.test(this.files[0].type)?URL.createObjectURL(this.files[0]):null};deMark();deRender()">`}
     <div class="de-table">${(({Studio:[['Living / sleeping','28.4'],['Kitchen','6.2'],['Bath','4.1']],'1-bed':[['Living / kitchen','30.2'],['Bedroom','12.8'],['Bath','5.0']],'2-bed':[['Living / kitchen','38.5'],['Bedroom 1','14.2'],['Bedroom 2','11.0'],['Bath / en suite','8.4']]})[t]||[['Living','34.0'],['Kitchen / dining','22.5'],['Bedroom 1','16.1'],['Bedroom 2','12.4'],['Bedroom 3','10.2']]).map(([r,a])=>`<div class="de-tr"><span class="de-grow">${r}</span><span>${a} m²</span><span class="de-chip ok">Mapped</span></div>`).join('')}</div>
     <p class="de-mu">Dimensions are shown to buyers as “approx.” until the architect confirms them.</p>`;}
-  if(tab==='media'){const linked=dr.assets.filter(a=>a.units.includes(u.id)||a.types.includes(t)), rest=dr.assets.filter(a=>!linked.includes(a)&&a.cat!=='Photo');
-    body+=`<b>Shows on this unit</b>${linked.map(a=>`<div class="de-tr"><span class="de-grow"><b>${deEsc(a.n)}</b><div class="de-mu">${a.units.includes(u.id)?'Linked directly':'Via '+deEsc(t)+' type'} · ${deEsc(a.label)}</div></span>${a.units.includes(u.id)?`<button type="button" class="btn-ghost df-sm" onclick="deAssetLink('${a.id}','units','${u.id}',false)">Unlink</button>`:''}</div>`).join('')||'<p class="de-mu">No views or renders yet. Buyers see the type plan and development gallery.</p>'}
-    <b>Link from library</b>${rest.map(a=>`<div class="de-tr"><span class="de-grow">${deEsc(a.n)} <span class="de-mu">· ${deEsc(a.cat)}</span></span><button type="button" class="btn-ghost df-sm" onclick="deAssetLink('${a.id}','units','${u.id}',true)">Link</button></div>`).join('')}
-    <p class="de-mu">Renders linked to the ${deEsc(t)} type show on every unit of that type. Link directly for unit-specific views.</p>`;}
-  if(tab==='facade') body+=sides.map(([k,f])=>`<div class="de-tr"><span class="de-grow"><b>${deEsc(f.label)}</b><div class="de-mu">${f.m[u.id]?`Placed at x ${f.m[u.id][0]}% · y ${f.m[u.id][1]}%`:'Not placed on this facade'}</div></span><button type="button" class="btn-ghost df-sm" onclick="DE.drawer=null;DE.fSide='${k}';DE.fSel='${u.id}';deGo('facade')">Edit position on facade</button></div>`).join('')+(sides.every(([,f])=>!f.m[u.id])?'<p class="de-mu">Not placed on any facade yet, so it won’t appear in visual search.</p>':'');
+  if(tab==='renders') body+=deUnitRendersHtml(u,dr);
+  if(tab==='views') body+=deUnitViewsHtml(u,dr);
+  if(tab==='location'||tab==='facade') body+=deLocationHtml(u,d,dr);
   return {title:`${u.id}`,sub:`${deEsc(u.type)} · floor ${u.floor===0?'G':u.floor} · ${u.beds===0?'studio':u.beds+' bed'} · ${deEsc(t)} type`,body,
     foot:tab==='details'?`<span class="de-mu">Adds to the inventory batch</span><button type="button" class="btn-ghost" onclick="DE.drawer=null;deRender()">Cancel</button><button type="button" class="btn-primary" onclick="deUnitSave('${u.id}')">Save proposed change</button>`:`<button type="button" class="btn-primary" onclick="DE.drawer=null;deRender()">Done</button>`};
 }
 function deAssetLink(id,key,val,on){const a=deDraft().assets.find(x=>x.id===id);a[key]=on?[...new Set([...a[key],val])]:a[key].filter(x=>x!==val);deMark();deRender();}
+
+// ---------- unit renders & views: tag by room / layout / finish / style, preview what buyers see ----------
+const DE_AXIS={layout:'layouts',pack:'packs',style:'styles'};
+function deDrawerClose(){DE.drawer=DE.drawer?.back||null;deRender();}
+function deAssetOpen(id){DE.drawer={k:'asset',id,back:{...DE.drawer}};deRender();}
+function dePv(u,dr){const p=DE.drawer?.pv||{}, def=UM.defaults(dr,u,p.pack);return {layout:p.layout||def.layout,pack:p.pack||def.pack,style:p.style||def.style};}
+function dePvSet(k,v){const u=UNITS.find(x=>x.id===DE.drawer.id);DE.drawer.pv={...dePv(u,deDraft()),[k]:v};deRender();}
+function deThumb(a,title,sub,on){return `<button type="button" class="de-thumb ${on?'on':''}" onclick="deAssetOpen('${a.id}')" aria-label="Edit ${deEsc(a.n)}"><img src="${deEsc(awAsset(a.img))}" alt=""><span><b>${deEsc(title)}</b><small>${deEsc(sub)}</small></span></button>`;}
+function deUnitRendersHtml(u,dr){
+  const pv=dePv(u,dr), def=UM.defaults(dr,u,pv.pack), t=deTypeKey(u), rooms=UM.roomsFor(dr,u), packs=UM.livePacks(dr), pack=packs.find(p=>p.id===pv.pack);
+  const lists={layout:dr.interiors.layouts.filter(l=>UM.fits(l.rule,u)),pack:packs,style:dr.interiors.styles.filter(s=>!pack?.styles?.length||pack.styles.includes(s.id))};
+  const name=(k,id)=>({layout:dr.interiors.layouts,pack:packs,style:dr.interiors.styles})[k].find(x=>x.id===id)?.n||id;
+  const sel=(k,label)=>`<label class="de-mini">${label}<select aria-label="Preview ${label.toLowerCase()}" onchange="dePvSet('${k}',this.value)">${lists[k].map(x=>`<option value="${x.id}" ${x.id===pv[k]?'selected':''}>${deEsc(x.n)}${x.id===def[k]?' · default':''}</option>`).join('')}</select></label>`;
+  const total=rooms.reduce((n,r)=>n+UM.rendersFor(dr,u,r.id).length,0);
+  return `<p class="de-mu">Tag each render with its room, plus the layout, finish or style it shows. Leave a tag on “Any” when it suits every option. Renders for the ${deEsc(t)} type show on every ${deEsc(t)} unit, so upload to this unit only when it differs.</p>
+  <div class="de-pv"><b>Preview as a buyer sees it</b><div class="de-pv-row">${sel('layout','Layout')}${sel('pack','Finish')}${sel('style','Style')}</div></div>
+  <div class="row-between"><span class="de-mu">${total} render${total===1?'':'s'} across ${rooms.length} rooms</span><button type="button" class="btn-ghost df-sm" onclick="this.nextElementSibling.click()">Upload renders</button><input type="file" hidden multiple accept="image/*" aria-label="Upload renders" onchange="deTagStart(this,'Render','')"></div>
+  ${rooms.map(r=>{
+    const all=UM.rendersFor(dr,u,r.id), res=UM.pick(dr,u,r.id,pv), shown=new Set(res.renders.map(a=>a.id));
+    const fell=res.fell.filter(k=>all.some(a=>a[DE_AXIS[k]].length)).map(k=>`No ${deEsc(name(k,pv[k]))} version · buyers keep seeing ${deEsc(name(k,res.eff[k]))}`);
+    return `<section class="de-room" aria-label="${deEsc(r.n)} renders"><div class="de-room-h"><b>${deEsc(r.n)}</b><span class="de-mu de-grow">${all.length?`${all.length} render${all.length===1?'':'s'} · ${shown.size} shown for this choice`:'No renders · room hidden in Present Mode'}</span>
+      <button type="button" class="btn-ghost df-sm" onclick="this.nextElementSibling.click()" aria-label="Upload ${deEsc(r.n)} renders">+ Upload</button><input type="file" hidden multiple accept="image/*" onchange="deTagStart(this,'Render','${r.id}')"></div>
+      ${fell.length?`<div class="de-note">${fell.join('<br>')}</div>`:''}
+      ${all.length?`<div class="de-thumbs">${all.sort((a,b)=>shown.has(b.id)-shown.has(a.id)).map(a=>deThumb(a,UM.tagText(dr,a)||'Any layout, finish & style',UM.scopeText(a,u)+(shown.has(a.id)?' · shown':''),shown.has(a.id))).join('')}</div>`:''}</section>`;}).join('')}`;
+}
+function deFloorTxt(a){return a.fmin==null&&a.fmax==null?'':`floors ${a.fmin??'G'}–${a.fmax??'top'}`;}
+function deUnitViewsHtml(u,dr){
+  const mine=UM.viewsFor(dr,u), others=dr.assets.filter(a=>a.cat==='View'&&a.img&&!mine.includes(a));
+  const out=a=>(a.fmin!=null&&u.floor<a.fmin)||(a.fmax!=null&&u.floor>a.fmax);
+  return `<p class="de-mu">Views show what the windows look out on. Link a view to a unit type or the whole development and narrow it by floor, or upload one just for this unit.</p>
+  <div class="row-between"><b>Shows on ${deEsc(u.id)} · ${mine.length}</b><button type="button" class="btn-ghost df-sm" onclick="this.nextElementSibling.click()">Upload views</button><input type="file" hidden multiple accept="image/*" aria-label="Upload views" onchange="deTagStart(this,'View','')"></div>
+  ${mine.length?`<div class="de-thumbs">${mine.map(a=>deThumb(a,`${a.n}${a.orient?' · '+a.orient:''}`,[UM.roomName(dr,a.room)&&'From '+UM.roomName(dr,a.room).toLowerCase(),UM.scopeText(a,u),deFloorTxt(a)].filter(Boolean).join(' · '),true)).join('')}</div>`
+    :'<p class="de-mu">No views yet. The Views tab is hidden in Present Mode for this unit.</p>'}
+  ${others.length?`<b>Other views in the library</b>${others.map(a=>`<div class="de-tr"><span class="de-grow">${deEsc(a.n)}<div class="de-mu">${deEsc([UM.scopeText(a),deFloorTxt(a)].filter(Boolean).join(' · '))}</div></span>${out(a)?`<button type="button" class="btn-ghost df-sm" onclick="deAssetOpen('${a.id}')">Outside floor range · edit</button>`:`<button type="button" class="btn-ghost df-sm" onclick="deAssetLink('${a.id}','units','${u.id}',true)">Link to this unit</button>`}</div>`).join('')}`:''}`;
+}
+function deTagStart(input,cat,room){
+  const files=[...input.files].filter(f=>/^image\//.test(f.type)&&f.size<=20*1024*1024);
+  if(files.length<input.files.length) deToast('Some files were skipped · images up to 20 MB only');
+  if(!files.length) return;
+  const dr=deDraft(), u=UNITS.find(x=>x.id===DE.drawer.id), pv=dePv(u,dr), def=UM.defaults(dr,u,pv.pack);
+  // Uploading while previewing a non-default option pre-tags the files with it; filenames win over the preview.
+  const pre=k=>cat==='Render'&&pv[k]!==def[k]?[pv[k]]:[];
+  const items=files.map(f=>{const g=UM.guess(dr,deUnits(deDev()),f.name), tag=k=>cat==='View'?[]:g[DE_AXIS[k]].length?g[DE_AXIS[k]].slice(0,1):pre(k);
+    const rid=room||g.room||(cat==='View'?'living':'');
+    return {n:cat==='Render'&&rid?UM.roomName(dr,rid):f.name.replace(/\.\w+$/,'').replace(/[-_]+/g,' '),url:URL.createObjectURL(f),room:rid,
+      layouts:tag('layout'),packs:tag('pack'),styles:tag('style'),orient:g.orient,fmin:null,fmax:null,guessed:!!(g.room||g.packs.length||g.styles.length||g.layouts.length||g.orient)};});
+  DE.tag={cat,unit:u.id,scope:'type',items}; DE.drawer={k:'tag',back:{...DE.drawer}}; deRender();
+}
+function deTagSet(i,k,v){const it=DE.tag.items[i];it[k]=['layouts','packs','styles'].includes(k)?(v?[v]:[]):['fmin','fmax'].includes(k)?(v===''?null:Number(v)):v;if(k!=='n')deRender();}
+function deTagDrawer(d,st){
+  const T=DE.tag, dr=st.draft, u=UNITS.find(x=>x.id===T.unit), t=deTypeKey(u), view=T.cat==='View', word=view?'view':'render', n=T.items.length;
+  const nType=deUnits(d).filter(x=>deTypeKey(x)===t).length, missing=T.items.filter(i=>!i.room).length;
+  const opts=(list,v,any)=>`${any!==null?`<option value="">${any}</option>`:''}${list.map(x=>`<option value="${x.id}" ${x.id===v?'selected':''}>${deEsc(x.n)}</option>`).join('')}`;
+  const sel=(i,k,label,list,v,any)=>deField(label,`<select onchange="deTagSet(${i},'${k}',this.value)" ${k==='room'&&!v?'class="de-invalid"':''}>${opts(list,v,any)}</select>`);
+  const scopes=[['unit',`This unit only · ${u.id}`],['type',`All ${t} units · ${nType}`],['dev',`Whole development · ${deUnits(d).length} units`]];
+  return {title:`Tag ${n} ${word}${n===1?'':'s'}`,sub:`${deEsc(u.id)} · ${deEsc(t)} type`,body:`
+    <div class="de-field"><span>Applies to</span>${scopes.map(([k,l])=>`<label class="df-task"><input type="radio" name="tag-scope" ${T.scope===k?'checked':''} onchange="DE.tag.scope='${k}'"><span>${deEsc(l)}</span></label>`).join('')}</div>
+    ${T.items.map((it,i)=>`<div class="de-tag"><img src="${deEsc(it.url)}" alt=""><div>
+      ${deField('Title',`<input value="${deEsc(it.n)}" oninput="deTagSet(${i},'n',this.value)">`)}
+      <div class="de-g2">${sel(i,'room',view?'Seen from':'Room · required',dr.interiors.rooms,it.room,view?'—':'Choose a room')}
+      ${view?`${sel(i,'orient','Direction',UM.DIRS.map(([n])=>({id:n,n})),it.orient,'—')}${deField('From floor',`<input type="number" min="0" value="${it.fmin??''}" placeholder="Any" onchange="deTagSet(${i},'fmin',this.value)">`)}${deField('To floor',`<input type="number" min="0" value="${it.fmax??''}" placeholder="Any" onchange="deTagSet(${i},'fmax',this.value)">`)}`
+        :`${sel(i,'layouts','Layout',dr.interiors.layouts,it.layouts[0],'Any layout')}${sel(i,'packs','Finish',UM.livePacks(dr),it.packs[0],'Any finish')}${sel(i,'styles','Style',dr.interiors.styles,it.styles[0],'Any style')}`}</div>
+      ${it.guessed?'<small class="de-mu">Tags filled in from the filename · check them</small>':''}</div></div>`).join('')}`,
+    foot:`<span class="de-mu">${missing?`Choose a room for ${missing} ${word}${missing===1?'':'s'}`:'Added to the draft · live when you publish'}</span><button type="button" class="btn-ghost" onclick="DE.tag=null;deDrawerClose()">Cancel</button><button type="button" class="btn-primary" ${missing?'disabled':''} onclick="deTagSave()">Add ${n} ${word}${n===1?'':'s'}</button>`};
+}
+function deTagSave(){
+  const T=DE.tag, dr=deDraft(), u=UNITS.find(x=>x.id===T.unit);
+  if(T.cat==='Render'&&T.items.some(i=>!i.room)) return;
+  T.items.forEach(it=>{
+    const a=UM.asset(T.cat,it.room,it.n,it.url,{units:T.scope==='unit'?[u.id]:[],types:T.scope==='type'?[deTypeKey(u)]:[],packs:it.packs,layouts:it.layouts,styles:it.styles,orient:it.orient,fmin:it.fmin,fmax:it.fmax});
+    a.src='Uploaded today by '+deMe(); a.alt=UM.autoAlt(dr,a); dr.assets.push(a);
+  });
+  const n=T.items.length, word=T.cat==='View'?'view':'render'; DE.tag=null; DE.drawer=DE.drawer.back; deMark(); deRender();
+  deToast(`${n} ${word}${n===1?'':'s'} added to the draft · in Present Mode once published`);
+}
 function deBulkDrawer(d,st){
   const ids=Object.keys(DE.sel).filter(k=>DE.sel[k]);
   return {title:`Bulk edit ${ids.length} units`,sub:'Only ticked fields change',body:`
@@ -708,17 +906,27 @@ function deBulkDrawer(d,st){
     foot:`<button type="button" class="btn-ghost" onclick="DE.drawer=null;deRender()">Cancel</button><button type="button" class="btn-primary" onclick="deBulkSave()">Add to inventory batch</button>`};
 }
 function deAssetDrawer(d,st){
-  const a=st.draft.assets.find(x=>x.id===DE.drawer.id); if(!a){DE.drawer=null;return {title:'',body:'',foot:''};}
-  const i=st.draft.assets.indexOf(a), units=deUnits(d), types=[...new Set(units.map(deTypeKey))], sel=(key,opts)=>`<select onchange="deSet('assets.${i}.${key}',this.value,true)">${opts.map(o=>`<option ${o===a[key]?'selected':''}>${o}</option>`).join('')}</select>`;
-  const chk=(key,list)=>list.map(v=>`<label class="df-task"><input type="checkbox" ${a[key].includes(v)?'checked':''} onchange="deAssetLink('${a.id}','${key}','${v}',this.checked)"><span>${deEsc(v)}</span></label>`).join('');
-  return {title:deEsc(a.n),sub:`${deEsc(a.cat)} · ${deEsc(a.label)}`,body:`
-    <div class="de-asset-img big">${a.img?`<img src="${deEsc(/^blob:/.test(a.img)?a.img:awAsset(a.img))}" alt="${deEsc(a.alt)}">`:'<span class="de-mu">Preview still processing</span>'}</div>
+  const dr=st.draft, a=dr.assets.find(x=>x.id===DE.drawer.id); if(!a){DE.drawer=null;return {title:'',body:'',foot:''};}
+  const i=dr.assets.indexOf(a), units=deUnits(d), types=[...new Set(units.map(deTypeKey))], sel=(key,opts)=>`<select onchange="deSet('assets.${i}.${key}',this.value,true)">${opts.map(o=>`<option ${o===a[key]?'selected':''}>${o}</option>`).join('')}</select>`;
+  const selV=(key,pairs,num)=>`<select onchange="deSet('assets.${i}.${key}',${num?'this.value===\'\'?null:Number(this.value)':'this.value'},true)">${pairs.map(([v,l])=>`<option value="${v}" ${String(v)===String(a[key]??'')?'selected':''}>${deEsc(l)}</option>`).join('')}</select>`;
+  const chk=(key,list)=>list.map(v=>{const [id,n]=Array.isArray(v)?v:[v,v];return `<label class="df-task"><input type="checkbox" ${a[key].includes(id)?'checked':''} onchange="deAssetLink('${a.id}','${key}','${id}',this.checked)"><span>${deEsc(n)}</span></label>`;}).join('');
+  const rooms=dr.interiors.rooms.map(r=>[r.id,r.n]), floor=k=>`<input type="number" min="0" placeholder="Any" value="${a[k]??''}" onchange="deSet('assets.${i}.${k}',this.value===''?null:Number(this.value),true)">`;
+  const tags=a.cat==='Render'?`
+    ${deField('Room',selV('room',[['','Not a room · exterior or development-wide'],...rooms]),a.room?'':'Only renders with a room show on unit pages in Present Mode.')}
+    ${a.room?`<b>Shows when the buyer picks</b> <span class="de-mu">Leave a group unticked when the render suits any option</span>
+    <div class="de-tagset"><span class="de-mu">Layout</span><div class="de-checks">${chk('layouts',dr.interiors.layouts.map(l=>[l.id,l.n]))}</div>
+      <span class="de-mu">Finish</span><div class="de-checks">${chk('packs',dr.packs.filter(p=>!p.retired).map(p=>[p.id,p.n]))}</div>
+      <span class="de-mu">Style</span><div class="de-checks">${chk('styles',dr.interiors.styles.map(s=>[s.id,s.n]))}</div></div>`:''}`
+    :a.cat==='View'?`<div class="de-g2">${deField('Direction',selV('orient',[['','—'],...UM.DIRS.map(([n])=>[n,n])]))}${deField('Seen from',selV('room',[['','—'],...rooms]))}${deField('From floor',floor('fmin'))}${deField('To floor',floor('fmax'))}</div>`:'';
+  return {title:deEsc(a.n),sub:`${deEsc(a.cat)}${a.label!==a.cat?' · '+deEsc(a.label):''}${a.cat==='Render'&&a.room?' · '+deEsc(UM.roomName(dr,a.room)):''}`,body:`
+    <div class="de-asset-img big">${a.img?`<img src="${deEsc(awAsset(a.img))}" alt="${deEsc(a.alt)}">`:'<span class="de-mu">Preview still processing</span>'}</div>
     ${deField('Display title',`<input value="${deEsc(a.n)}" oninput="deSet('assets.${i}.n',this.value)">`)}
     ${deField('Alt text · required to publish',`<input id="de-alt" class="${a.alt?'':'de-invalid'}" value="${deEsc(a.alt)}" oninput="deSet('assets.${i}.alt',this.value);this.classList.toggle('de-invalid',!this.value.trim())">`)}
-    <div class="de-g2">${deField('Category',sel('cat',['Render','Photo','View']))}${deField('Buyer label',sel('label',['Render','Photo','Actual','Representative','Illustrative']))}${deField('Room / space',sel('room',['','Living','Kitchen','Bedroom 1','Bedroom 2','Terrace','Balcony']))}${deField('Orientation',sel('orient',['','North','East','South-east','South','West']))}</div>
+    <div class="de-g2">${deField('Category',sel('cat',['Render','Photo','View']))}${deField('Buyer label',sel('label',['Render','Photo','Actual','Representative','Illustrative']))}</div>
+    ${tags}
     ${deField('Source & date',`<input value="${deEsc(a.src)}" oninput="deSet('assets.${i}.src',this.value)">`)}
-    ${a.cat==='Photo'?'<p class="de-mu">Photography is development-wide. Change the category to View to link it to units.</p>':`<b>Linked units</b><div class="de-checks">${chk('units',units.map(u=>u.id))}</div><b>Unit types · shows on every unit of the type</b><div class="de-checks">${chk('types',types)}</div><b>Finish packs</b><div class="de-checks">${chk('packs',st.draft.packs.map(p=>p.n))}</div>`}`,
-    foot:`<button type="button" class="btn-ghost" ${a.cover||!a.img?'disabled':''} onclick="deDraft().assets.forEach(x=>x.cover=x.id==='${a.id}');deMark();deRender();deToast('Set as cover')">Set as cover</button><button type="button" class="btn-ghost" onclick="deDraft().assets.splice(${i},1);DE.drawer=null;deMark();deRender()">Remove</button><button type="button" class="btn-primary" onclick="DE.drawer=null;deRender()">Done</button>`};
+    ${a.cat==='Photo'?'<p class="de-mu">Photography is development-wide. Change the category to View to link it to units.</p>':`<b>Applies to</b> <span class="de-mu">Leave units and types empty to show on every unit</span><b class="de-sub">Unit types · every unit of the type</b><div class="de-checks">${chk('types',types)}</div><b class="de-sub">Individual units</b><div class="de-checks">${chk('units',units.map(u=>u.id))}</div>`}`,
+    foot:`<button type="button" class="btn-ghost" ${a.cover||!a.img?'disabled':''} onclick="deDraft().assets.forEach(x=>x.cover=x.id==='${a.id}');deMark();deRender();deToast('Set as cover')">Set as cover</button><button type="button" class="btn-ghost" onclick="deDraft().assets.splice(${i},1);deMark();deDrawerClose()">Remove</button><button type="button" class="btn-primary" onclick="deDrawerClose()">Done</button>`};
 }
 function dePackDrawer(d,st){
   const i=DE.drawer.i, p=st.draft.packs[i], base=deUnits(d)[0]?.price||0;
@@ -728,9 +936,16 @@ function dePackDrawer(d,st){
     ${deField('Selection deadline',`<input value="${deEsc(p.dl)}" oninput="deSet('packs.${i}.dl',this.value)">`)}
     <div class="de-card"><b>Preview on ${deEsc(deUnits(d)[0]?.id||'a unit')}</b><div class="de-tr"><span class="de-grow">Listing price</span><span>${fmtEur(base)}</span></div><div class="de-tr"><span class="de-grow">${deEsc(p.n)}</span><span>${p.price?'+'+fmtEur(p.price):'Included'}</span></div><div class="de-tr"><b class="de-grow">Total</b><b>${fmtEur(base+(p.mode==='Addition'?p.price:0))}</b></div></div>
     <div class="row-between"><b>Materials</b><button type="button" class="btn-ghost df-sm" onclick="deDraft().packs[${i}].mats.push({room:'Floors',name:'',finish:'',sw:'#cccccc'});deMark();deRender()">+ Add material</button></div>
-    ${(p.mats||[]).map((m,j)=>`<div class="de-tr de-mat"><input type="color" value="${m.sw}" aria-label="Swatch" onchange="deSet('packs.${i}.mats.${j}.sw',this.value,true)"><select aria-label="Room" onchange="deSet('packs.${i}.mats.${j}.room',this.value)">${['Floors','Kitchen','Bathroom','Joinery','Fittings','Walls'].map(r=>`<option ${r===m.room?'selected':''}>${r}</option>`).join('')}</select><input aria-label="Material" value="${deEsc(m.name)}" oninput="deSet('packs.${i}.mats.${j}.name',this.value)"><input aria-label="Finish" value="${deEsc(m.finish)}" oninput="deSet('packs.${i}.mats.${j}.finish',this.value)"><button type="button" class="tool" aria-label="Remove" onclick="deDraft().packs[${i}].mats.splice(${j},1);deMark();deRender()">×</button></div>`).join('')}
-    <p class="de-mu">Applies to units inheriting from the development. Unit overrides and accepted quotes keep the version they were agreed on.</p>`,
+    ${(p.mats||[]).map((m,j)=>`<div class="de-tr de-mat"><input type="color" value="${m.sw}" aria-label="Swatch" onchange="deSet('packs.${i}.mats.${j}.sw',this.value,true)"><select aria-label="Room" onchange="deSet('packs.${i}.mats.${j}.room',this.value)">${[...new Set(['Floors','Kitchen','Bathroom','Joinery','Fittings','Walls',m.room])].map(r=>`<option ${r===m.room?'selected':''}>${r}</option>`).join('')}</select><input aria-label="Material" value="${deEsc(m.name)}" oninput="deSet('packs.${i}.mats.${j}.name',this.value)"><input aria-label="Finish" value="${deEsc(m.finish)}" oninput="deSet('packs.${i}.mats.${j}.finish',this.value)"><button type="button" class="tool" aria-label="Remove" onclick="deDraft().packs[${i}].mats.splice(${j},1);deMark();deRender()">×</button></div>`).join('')}
+    <b>Styles offered with this pack</b><div class="de-checks">${st.draft.interiors.styles.map(s=>`<label class="df-task"><input type="checkbox" ${!p.styles?.length||p.styles.includes(s.id)?'checked':''} onchange="dePackStyle(${i},'${s.id}',this.checked)"><span>${deEsc(s.n)}</span></label>`).join('')}</div>
+    <p class="de-mu">${deRenderCount(st.draft,'packs',p.id)} tagged with this pack. Applies to units inheriting from the development. Unit overrides and accepted quotes keep the version they were agreed on.</p>`,
     foot:`<button type="button" class="btn-ghost" ${p.def?'disabled':''} onclick="deDraft().packs.forEach((x,j)=>x.def=j===${i});deMark();deRender()">Set as default</button><button type="button" class="btn-ghost" ${p.def?'disabled title="Choose another default first"':''} onclick="deSet('packs.${i}.retired',!deDraft().packs[${i}].retired,true)">${p.retired?'Restore pack':'Retire pack'}</button><button type="button" class="btn-primary" onclick="DE.drawer=null;deRender()">Done</button>`};
+}
+function dePackStyle(i,id,on){
+  const p=deDraft().packs[i], all=deDraft().interiors.styles.map(s=>s.id), cur=p.styles?.length?p.styles:all;
+  const next=on?[...new Set([...cur,id])]:cur.filter(x=>x!==id);
+  if(!next.length){deToast('A pack needs at least one style');deRender();return;}
+  p.styles=next.length===all.length?[]:next; deMark(); deRender();
 }
 function deFixDrawer(d,st){
   const f=st.fixup[DE.drawer.i], units=deUnits(d), pick=f.pick, u=units.find(x=>x.id===pick);

@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bricly · Level plans · Developer handoff</title>
+<style>
+  :root { --ink:#1d1f1a; --mu:#5f6357; --line:#e3e1d8; --bg:#faf9f5; --card:#fff; --pri:#56652a; --pri-c:#eef1e2; --warn:#fbeed5; --warn-ink:#6b4a0c; --bad:#fbe1dc; --bad-ink:#7a1f12; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif; }
+  header.top { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 28px; background: rgba(250,249,245,.94); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); }
+  header.top b { font-size: 15px; }
+  header.top a.btn { padding: 7px 14px; border-radius: 8px; background: var(--pri); color: #fff; text-decoration: none; font-size: 13px; font-weight: 600; }
+  .wrap { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 40px; max-width: 1240px; margin: 0 auto; padding: 32px 28px 80px; }
+  nav.toc { position: sticky; top: 72px; align-self: start; font-size: 13px; }
+  nav.toc a { display: block; padding: 4px 0; color: var(--mu); text-decoration: none; }
+  nav.toc a:hover { color: var(--pri); }
+  nav.toc .sub { padding-left: 12px; }
+  main { min-width: 0; }
+  h1 { margin: 0 0 6px; font-size: 30px; line-height: 1.2; }
+  h2 { margin: 56px 0 12px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 22px; }
+  h3 { margin: 32px 0 8px; font-size: 17px; }
+  p { margin: 0 0 10px; max-width: 760px; }
+  .meta { color: var(--mu); font-size: 13px; }
+  .links { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 8px; }
+  .links a { padding: 8px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); text-decoration: none; font-size: 13px; font-weight: 600; }
+  .links a.pri { background: var(--pri); border-color: var(--pri); color: #fff; }
+  table { width: 100%; margin: 10px 0 16px; border-collapse: collapse; background: var(--card); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; font-size: 13.5px; }
+  th, td { padding: 9px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  th { background: #f3f2ec; font-weight: 600; font-size: 12.5px; }
+  tr:last-child td { border-bottom: 0; }
+  code { padding: 1px 5px; border-radius: 4px; background: #efeee7; font: 12.5px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  ol.proc { margin: 8px 0 16px; padding-left: 0; list-style: none; counter-reset: s; }
+  ol.proc > li { position: relative; margin: 0 0 10px; padding-left: 36px; counter-increment: s; max-width: 760px; }
+  ol.proc > li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 24px; height: 24px; border-radius: 50%; background: var(--pri); color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  ol.proc > li .res { display: block; color: var(--mu); font-size: 13.5px; }
+  .note, .caution, .warning { margin: 12px 0 16px; padding: 10px 14px; border-radius: 8px; max-width: 760px; font-size: 14px; }
+  .note { background: var(--pri-c); }
+  .caution { background: var(--warn); color: var(--warn-ink); }
+  .warning { background: var(--bad); color: var(--bad-ink); }
+  .note b, .caution b, .warning b { display: block; font-size: 12px; letter-spacing: .06em; }
+  figure { margin: 14px 0 24px; }
+  figure img { display: block; max-width: 100%; border: 1px solid var(--line); border-radius: 10px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+  figure.drawer img { max-width: 600px; }
+  figure.phone img { max-width: 390px; }
+  figcaption { margin-top: 6px; color: var(--mu); font-size: 12.5px; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; align-items: start; }
+  .grid2 figure { margin: 0; }
+  .tag { display: inline-block; padding: 1px 8px; border-radius: 999px; background: var(--pri-c); color: var(--pri); font-size: 11.5px; font-weight: 700; }
+  .formula { padding: 12px 16px; border-left: 3px solid var(--pri); background: var(--card); font: 13px/1.8 ui-monospace, SFMono-Regular, Menlo, monospace; max-width: 760px; }
+  @media (max-width: 900px) { .wrap { grid-template-columns: 1fr; } nav.toc { position: static; } }
+</style>
+</head>
+<body>
+<header class="top"><b>Bricly · Level plans · Developer handoff</b><a class="btn" href="../../../prototypes/v3/Bricly_OS_Prototype_v3.html" target="_blank" rel="noopener">Open the v3 prototype</a></header>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a href="#purpose">1. Purpose</a>
+  <a href="#changes">2. Summary of changes</a>
+  <a href="#terms">3. Terms</a>
+  <a href="#entry">4. Entry points</a>
+  <a href="#p1">5. Procedure 1 · Check automatic placement</a>
+  <a href="#p2">6. Procedure 2 · Place a unit</a>
+  <a href="#p3">7. Procedure 3 · Plan settings and publish</a>
+  <a href="#p4">8. Procedure 4 · Present Mode</a>
+  <a href="#rules">9. Rules</a>
+  <a class="sub" href="#r-match">9.1 Automatic match</a>
+  <a class="sub" href="#r-status">9.2 Status</a>
+  <a href="#data">10. Data model</a>
+  <a href="#code">11. Files and functions</a>
+  <a href="#test">12. Test procedure</a>
+  <a href="#open">13. Open items</a>
+</nav>
+<main>
+<h1>Level plans: unit position on the floor</h1>
+<p class="meta">Prototype: Bricly OS v3 · Language: ASD-STE100 Simplified Technical English · Date: 10 November 2026</p>
+<div class="links">
+  <a class="pri" href="../../../prototypes/v3/Bricly_OS_Prototype_v3.html" target="_blank" rel="noopener">Open the live v3 prototype</a>
+  <a href="review.html">Step-by-step review page</a>
+  <a href="capture.cjs">Screenshot script (capture.cjs)</a>
+</div>
+<h2 id="purpose">1. Purpose</h2>
+<p>This document tells developers how units get a position on a level plan, and how a user changes that position from the unit.</p>
+<p>A level plan is one floor drawing. It can serve many floors. Each unit outline on the drawing has a label. Bricly reads the labels and matches each unit to an outline. The user fixes only the units that do not match.</p>
+<div class="note"><b>NOTE</b>This update covers editing. The upload flow (outline detection and label reading from a new drawing) is the next update.</div>
+<h2 id="changes">2. Summary of changes</h2>
+<table><thead><tr><th>Area</th><th>Before</th><th>After</th></tr></thead><tbody><tr><td>Edit development → Plans &amp; property views (ED05)</td><td>One drawing for each floor. Unit pins at x/y percent. Each new drawing needed a manual check of each unit.</td><td>Level plans with a floor range and labelled outlines. Units match automatically. A box lists the units that need placing.</td></tr><tr><td>Unit drawer → Facade tab</td><td>Facade positions only.</td><td>Location tab: level plan position and facade positions.</td></tr><tr><td>Units &amp; availability</td><td>No placement status.</td><td>An amber chip shows on units that are not on a level plan.</td></tr><tr><td>Review &amp; publish</td><td>No placement check.</td><td>A warning lists units that are not placed. Changes show as “Unit positions on level plans”.</td></tr><tr><td>Present Mode → By floor</td><td>Fixed outlines for Miami Tropic. A simple strip for other developments.</td><td>Outlines and core from the published level plan. Labels from the drawing.</td></tr><tr><td>Present Mode → unit → Where it sits</td><td>Position from fixed data.</td><td>Position label from the level plan.</td></tr></tbody></table>
+<h2 id="terms">3. Terms</h2>
+<table><thead><tr><th>Term</th><th>Meaning</th></tr></thead><tbody><tr><td>Level plan</td><td>One floor drawing (general arrangement) with unit outlines. It covers a floor range.</td></tr><tr><td>Floor range</td><td>The floors that use the drawing. Example: Typical floor, floors 2–40.</td></tr><tr><td>Outline</td><td>The area of one unit position on the drawing. It has a label, for example <code>03</code> or <code>CM1207</code>.</td></tr><tr><td>Placement</td><td>How a unit maps to an outline: automatic, manual, own outline or not on a plan.</td></tr><tr><td>Own outline</td><td>An outline that the user draws for one unit. The shared plan does not change.</td></tr></tbody></table>
+<h2 id="entry">4. Entry points</h2>
+<table><thead><tr><th>Entry point</th><th>Use</th><th>Function</th></tr></thead><tbody><tr><td>Edit development → <b>Plans &amp; property views</b></td><td>Plans, floor range, units that need placing</td><td><code>dePlansHtml()</code></td></tr><tr><td>Edit development → Units → unit → <b>Location</b></td><td>Position of one unit</td><td><code>deLocationHtml()</code></td></tr><tr><td>Plans &amp; property views → <b>Place</b> or a unit outline</td><td>Opens the unit on Location</td><td><code>deLocOpen(unitId)</code></td></tr><tr><td>Present → Units and Availability → <b>By floor</b></td><td>Buyer floor view</td><td><code>floorView()</code> in <code>present-v3-brochure.js</code></td></tr></tbody></table>
+<h2 id="p1">5. Procedure 1 · Check automatic placement</h2>
+<ol class="proc"><li>Open Edit development → <b>Plans &amp; property views</b>.<span class="res">Result: One card shows for each level plan (Figure 1). Each card shows the floor range, version, outlines and units placed.</span></li><li>Select a plan. If the plan has many floors, select a floor in <b>Show units on</b>.<span class="res">Result: The plan shows the units on that floor.</span></li><li>Read the <b>Needs placing</b> box.<span class="res">Result: Each unit shows with the reason (Figure 2).</span></li><li>Open <b>Units &amp; availability</b>.<span class="res">Result: Units that are not placed have an amber chip (Figure 3).</span></li></ol>
+<div class="grid2"><figure><img src="img/01-plans.png" alt="Plans and property views, Miami Tropic" loading="lazy"><figcaption>Figure 1. Plans and property views, Miami Tropic.</figcaption></figure><figure><img src="img/02-needs.png" alt="Needs placing, La Lex" loading="lazy"><figcaption>Figure 2. Needs placing, La Lex.</figcaption></figure></div>
+<figure><img src="img/03-units-flag.png" alt="Units list with the Not on level plan chip" loading="lazy"><figcaption>Figure 3. Units list with the Not on level plan chip.</figcaption></figure>
+<h2 id="p2">6. Procedure 2 · Place a unit</h2>
+<ol class="proc"><li>Click <b>Place</b>, or open the unit and click <b>Location</b>.<span class="res">Result: The status box shows Needs placing (Figure 4). Dashed outlines are free.</span></li><li>Click a free outline, or select it in <b>Position</b>.<span class="res">Result: The unit moves to the outline (Figure 5). The status is Set manually, with the name and time.</span></li><li>Click an outline that has a unit.<span class="res">Result: A note shows the other unit (Figure 6). Click <b>Swap the two units</b> or <b>Cancel</b>.</span></li><li>Click <b>Draw outline</b>. Drag on the plan (Figure 7).<span class="res">Result: The outline applies to this unit only (Figure 8). The shared plan does not change.</span></li><li>In <b>Level plan</b>, select <b>Not shown on a level plan</b>. Type a reason. Click <b>Mark as not on a plan</b>.<span class="res">Result: The unit does not show in the floor view (Figure 9).</span></li><li>Click <b>Reset to automatic</b>.<span class="res">Result: Bricly removes the manual placement. The automatic match applies again.</span></li></ol>
+<div class="grid2"><figure class="drawer"><img src="img/04-location-needs.png" alt="Location tab, Needs placing" loading="lazy"><figcaption>Figure 4. Location tab, Needs placing.</figcaption></figure><figure class="drawer"><img src="img/05-placed.png" alt="Unit placed on a free outline" loading="lazy"><figcaption>Figure 5. Unit placed on a free outline.</figcaption></figure></div>
+<div class="grid2"><figure class="drawer"><img src="img/06-swap.png" alt="Outline in use: swap or cancel" loading="lazy"><figcaption>Figure 6. Outline in use: swap or cancel.</figcaption></figure><figure class="drawer"><img src="img/07-drawing.png" alt="Draw outline mode" loading="lazy"><figcaption>Figure 7. Draw outline mode.</figcaption></figure></div>
+<div class="grid2"><figure class="drawer"><img src="img/08-drawn.png" alt="Own outline saved" loading="lazy"><figcaption>Figure 8. Own outline saved.</figcaption></figure><figure class="drawer"><img src="img/09-none.png" alt="Not shown on a level plan, with a reason" loading="lazy"><figcaption>Figure 9. Not shown on a level plan, with a reason.</figcaption></figure></div>
+<figure class="drawer"><img src="img/10-auto.png" alt="Automatic match on a shared plan" loading="lazy"><figcaption>Figure 10. Automatic match on a shared plan.</figcaption></figure>
+<div class="caution"><b>CAUTION</b>A plan can serve many floors. A change to one unit does not move units on other floors.</div>
+<h2 id="p3">7. Procedure 3 · Plan settings and publish</h2>
+<ol class="proc"><li>On the plan card, change <b>From floor</b> or <b>To floor</b>.<span class="res">Result: Units on those floors match again immediately (Figure 11).</span></li><li>Click <b>Replace drawing</b>. Select the new file.<span class="res">Result: The version goes up by one. The outlines stay.</span></li><li>Open <b>Review &amp; publish</b>.<span class="res">Result: A warning lists the units that are not placed (Figure 12). The warning does not block publishing.</span></li><li>Click <b>Publish</b>.<span class="res">Result: Present Mode uses the new positions.</span></li></ol>
+<div class="grid2"><figure><img src="img/11-range.png" alt="Plan name and floor range" loading="lazy"><figcaption>Figure 11. Plan name and floor range.</figcaption></figure><figure><img src="img/12-review.png" alt="Review and publish with the placement warning" loading="lazy"><figcaption>Figure 12. Review and publish with the placement warning.</figcaption></figure></div>
+<h2 id="p4">8. Procedure 4 · Present Mode</h2>
+<ol class="proc"><li>Open Present → a development → <b>Units and Availability</b> → <b>By floor</b>.<span class="res">Result: Units show on their outlines (Figure 13). Colour shows the status.</span></li><li>Select a floor on a shared plan.<span class="res">Result: The same outlines show for each floor in the range (Figure 14). The labels come from the drawing.</span></li></ol>
+<div class="grid2"><figure><img src="img/13-present-floor.png" alt="Present By floor, La Lex floor 1 after placement" loading="lazy"><figcaption>Figure 13. Present By floor, La Lex floor 1 after placement.</figcaption></figure><figure><img src="img/14-present-mt.png" alt="Present By floor, Miami Tropic floor 32" loading="lazy"><figcaption>Figure 14. Present By floor, Miami Tropic floor 32.</figcaption></figure></div>
+<h2 id="rules">9. Rules</h2>
+<h3 id="r-match">9.1 Automatic match</h3>
+<p>Function: <code>LP.matches(label, unit)</code>. Bricly removes all characters that are not letters or digits, then compares in upper case.</p>
+<ul>
+<li>Match when the label equals the unit reference. <code>CM1207</code> matches <code>#CM1207</code>.</li>
+<li>Match when the reference ends with the two-digit floor number followed by the label. <code>03</code> on floor 32 matches <code>AP.3203</code>.</li>
+<li>Bricly uses the first plan that covers the unit's floor.</li>
+<li>A manual placement replaces the automatic match.</li>
+<li>One outline holds one unit on each floor. Two units on one outline is a clash.</li>
+</ul>
+<h3 id="r-status">9.2 Status</h3>
+<table><thead><tr><th>Status</th><th>When</th><th>Shown in Present</th></tr></thead><tbody><tr><td>Automatic</td><td>A label matches.</td><td>Yes</td></tr><tr><td>Set manually</td><td>The user selected an outline.</td><td>Yes</td></tr><tr><td>Own outline</td><td>The user drew an outline.</td><td>Yes</td></tr><tr><td>Not on a plan</td><td>The user selected Not shown on a level plan, with a reason.</td><td>No</td></tr><tr><td>Needs placing · no plan</td><td>No plan covers the floor.</td><td>No</td></tr><tr><td>Needs placing · no match</td><td>No label matches.</td><td>No</td></tr><tr><td>Needs placing · not set</td><td>The user selected a plan but no outline.</td><td>No</td></tr><tr><td>Needs placing · clash</td><td>Two units use one outline.</td><td>First unit only</td></tr><tr><td>Needs placing · wrong floor</td><td>The selected plan does not cover the floor.</td><td>No</td></tr></tbody></table>
+<h2 id="data">10. Data model</h2>
+<table><thead><tr><th>Record</th><th>Fields</th></tr></thead><tbody><tr><td><code>levels[]</code></td><td><code>id</code>, <code>n</code>, <code>from</code>, <code>to</code>, <code>w</code>, <code>h</code> (drawing box), <code>img</code>, <code>ver</code>, <code>file</code>, <code>core</code> ([x, y, w, h] or null), <code>slots[]</code></td></tr><tr><td><code>levels[].slots[]</code></td><td><code>id</code>, <code>label</code> (text on the drawing), <code>r</code> ([x, y, w, h] in the drawing box)</td></tr><tr><td><code>placements[unitId]</code></td><td>Manual: <code>level</code>, <code>slot</code>. Own outline: <code>level</code>, <code>rect</code>. Not on a plan: <code>none</code>, <code>reason</code>. All: <code>by</code>, <code>at</code>. No record = automatic.</td></tr></tbody></table>
+<p>Both keys are in the development draft. They publish with the content, not with the inventory batch. Present scales the drawing box to its 880 × 420 plate (<code>LP.toPlate</code>).</p>
+<h2 id="code">11. Files and functions</h2>
+<p>All files are in <code>prototypes/v3/</code>.</p>
+<table><thead><tr><th>File</th><th>Change</th></tr></thead><tbody><tr><td><code>level-plans.js</code> (new)</td><td>The model. <code>LP.seed</code>, <code>matches</code>, <code>levelsFor</code>, <code>own</code>, <code>floor</code> (placements for one floor, with clash check), <code>place</code>, <code>issues</code>, <code>occupant</code>, <code>toPlate</code>.</td></tr><tr><td><code>dev-editor.js</code></td><td>Plan canvas <code>deLvlSvg</code>. ED05 <code>dePlansHtml</code>, <code>deLvlSet</code>, <code>deLvlReplace</code>. Location tab <code>deLocationHtml</code>, <code>deLocPick</code>, <code>deLocSwap</code>, <code>deLocLevel</code>, <code>deLocNone</code>, <code>deLocDraw</code>, <code>deLocSave</code>. Units chip and publish warning.</td></tr><tr><td><code>dev-editor.css</code></td><td>Plan canvas, status colours, Location status box.</td></tr><tr><td><code>present-v3-data.js</code></td><td><code>plate</code>, <code>levelOf</code>, <code>position</code> read the live level plans.</td></tr><tr><td><code>present-v3-brochure.js</code>, <code>present-v3-unit.js</code></td><td>By floor uses the plan outlines and core. Where it sits uses the position label.</td></tr></tbody></table>
+<h2 id="test">12. Test procedure</h2>
+<p><code>npx playwright test tests/present-v3.spec.cjs -g "Level plans" --reporter=line</code></p>
+<table><thead><tr><th>Test</th><th>Checks</th></tr></thead><tbody><tr><td>Level plans: units match outlines automatically, exceptions are placed from the unit, Present reads the result</td><td>Automatic match, Needs placing, place, swap, reset, draw outline, publish, Present plate.</td></tr></tbody></table>
+<p>To make the screenshots again, start a static server at the repository root on port 4310. Then use this command:</p>
+<p><code>NODE_PATH=&lt;repo&gt;/node_modules node docs/handoff/level-plans/capture.cjs</code></p>
+<h2 id="open">13. Open items</h2>
+<table><thead><tr><th>Item</th><th>Status</th></tr></thead><tbody><tr><td>Upload flow: detect outlines, read labels, match units, show the result before saving.</td><td>Next update</td></tr><tr><td>Development → Availability → Floor plans and the Add unit wizard use the old pin model (<code>d.floorPlans</code>). Move them to level plans.</td><td>Not changed</td></tr><tr><td>A user cannot change the shape of a shared outline. A user can draw an outline for one unit.</td><td>Decision necessary</td></tr><tr><td>Units that are not placed give a warning. Decide if they block publishing.</td><td>Decision necessary</td></tr><tr><td>Outlines are rectangles. L-shaped units need polygons.</td><td>Decision necessary</td></tr><tr><td>Miami Tropic has 5 units in the CRM. Other outlines show as free in the editor. Present shows all units.</td><td>Prototype limit</td></tr></tbody></table>
+
+</main>
+</div>
+</body>
+</html>
