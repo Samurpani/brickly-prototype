@@ -40,6 +40,10 @@
 
 ## 2. How the link works
 
+![Diagram](proposal-screens/flow-link.jpg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
 ```mermaid
 flowchart LR
   A[CRM records] --> B[Rep builds the pack<br/>Custom pack wizard]
@@ -51,6 +55,8 @@ flowchart LR
   G --> H[Page renders from the snapshot]
   H --> I[Buyer actions sent back<br/>to the opportunity timeline]
 ```
+
+</details>
 
 | Step | Where it lives today |
 | --- | --- |
@@ -64,6 +70,10 @@ flowchart LR
 ## 3. How the buyer moves through the page
 
 The page is short. Details open in a **side panel** so the buyer never loses their place.
+
+![Diagram](proposal-screens/flow-journey.jpg)
+
+<details><summary>Diagram source (Mermaid)</summary>
 
 ```mermaid
 flowchart TD
@@ -83,6 +93,8 @@ flowchart TD
   Next -- Reserve this home --> Reserve
   Float([Floating button]) -.-> Reserve
 ```
+
+</details>
 
 ---
 
@@ -142,6 +154,10 @@ flowchart TD
 | Paragraphs | Rep writes them in the pack builder. 80 words or fewer |
 | Signature | Rep first name |
 
+![Diagram](proposal-screens/flow-letter-opening.jpg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
 ```mermaid
 flowchart LR
   L[Last touchpoint on<br/>the opportunity] --> V{Type?}
@@ -149,6 +165,8 @@ flowchart LR
   V -- Call --> B["Mike, thanks for the call on Saturday."]
   V -- Enquiry --> C["Mike, thanks for getting in touch<br/>about Dolphin Court."]
 ```
+
+</details>
 
 ---
 
@@ -169,6 +187,10 @@ flowchart LR
 | Name · beds · m² · level · view | Unit record |
 | Price | Unit price **when the link was sent**, in the development's currency (`COMMERCE`) |
 
+![Diagram](proposal-screens/flow-home-status.jpg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
 ```mermaid
 flowchart LR
   S{Home status} --> R[Reserved for you]
@@ -176,6 +198,8 @@ flowchart LR
   S --> H[On hold for you]
   S --> A[Available]
 ```
+
+</details>
 
 Order of checks: reserved for this buyer → buyer sent a request → unit is on hold → available.
 
@@ -233,6 +257,10 @@ This section changes with the reservation state. It's one of the 2 live things o
 | --- | --- | --- |
 | ![Choose a home](proposal-screens/08-next-step.jpg) | ![Confirming](proposal-screens/15-next-requested.jpg) | ![Book promise of sale](proposal-screens/16-next-reserved.jpg) |
 
+![Diagram](proposal-screens/flow-next-step-states.jpg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
 ```mermaid
 stateDiagram-v2
   [*] --> NothingReserved
@@ -243,6 +271,8 @@ stateDiagram-v2
   RequestSent: Rep is confirming (button disabled)
   Reserved: Book your promise of sale
 ```
+
+</details>
 
 | On screen | Comes from |
 | --- | --- |
@@ -273,6 +303,10 @@ stateDiagram-v2
 
 **Floating button:** appears after the cover and hides when the Next step section is on screen. Its label follows the deal:
 
+![Diagram](proposal-screens/flow-floating-button.jpg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
 ```mermaid
 flowchart LR
   X{State} -- Reserved --> P[Book promise of sale]
@@ -281,17 +315,25 @@ flowchart LR
   X -- Otherwise --> O[Reserve unit<br/>scrolls to Next step]
 ```
 
+</details>
+
 ---
 
 ## 5. Development panel
 
 Opens when the buyer taps a development. The panel uses the development's brand. The strip at the top switches to any development or home in the proposal.
 
+![Diagram](proposal-screens/flow-development-panel.jpg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
 ```mermaid
 flowchart LR
   O[Overview] --> A[Amenities] --> L[Location] --> P[Progress] --> H[Your homes]
   H -- tap a home --> HP[[Home panel]]
 ```
+
+</details>
 
 | Overview | Amenities |
 | --- | --- |
@@ -321,11 +363,17 @@ flowchart LR
 
 Opens when the buyer taps a home. The bottom bar always shows the price, availability, **Ask Sam** and **Reserve this home**.
 
+![Diagram](proposal-screens/flow-home-panel.jpg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
 ```mermaid
 flowchart LR
   O[Overview] --> R[Renders and views] --> F[Floor plan] --> B[In the building] --> P[Payment plan] --> I[Investment or Value<br/>only for investors]
   P -.-> RS[[Reserve this home]]
 ```
+
+</details>
 
 | Overview | Renders and views |
 | --- | --- |
@@ -366,6 +414,10 @@ flowchart LR
 | --- | --- |
 | ![Reserve](proposal-screens/13-reserve.jpg) | ![Sent](proposal-screens/14-reserve-sent.jpg) |
 
+![Diagram](proposal-screens/flow-reserve.jpg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
 ```mermaid
 sequenceDiagram
   actor Buyer
@@ -383,6 +435,8 @@ sequenceDiagram
   Page->>Buyer: Book your promise of sale
 ```
 
+</details>
+
 | On screen | Comes from |
 | --- | --- |
 | Photo, price, beds, m², hold date | Unit, hold record |
@@ -398,6 +452,10 @@ sequenceDiagram
 
 The opportunity's buyer type picks the wording, the comparison rows and one extra home tab. Everything else stays the same.
 
+![Diagram](proposal-screens/flow-buyer-type.jpg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
 ```mermaid
 flowchart TD
   T{Buyer type} --> F[First home]
@@ -408,6 +466,8 @@ flowchart TD
   I --> IT[+ Investment tab<br/>rent, yield, occupancy]
   G --> GT[+ Value tab<br/>price per m² over time]
 ```
+
+</details>
 
 | Buyer type | CRM value | Compare rows | Location title |
 | --- | --- | --- | --- |
@@ -423,10 +483,16 @@ flowchart TD
 
 Every action is sent to the opportunity timeline. In the prototype, open **Prototype → What Sam sees**.
 
+![Diagram](proposal-screens/flow-tracking.jpg)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
 ```mermaid
 flowchart LR
   B[Buyer action] --> E[Event] --> T[Opportunity timeline] --> N[Rep notification<br/>+ suggested next step]
 ```
+
+</details>
 
 | Event | When |
 | --- | --- |
@@ -443,29 +509,20 @@ flowchart LR
 
 ## 10. Where data comes from: the CRM records
 
-```mermaid
-flowchart LR
-  subgraph CRM
-    OPP[Opportunity]
-    CON[Contact]
-    REP[Rep]
-    DEVR[Developer]
-    DEV[Development]
-    UNIT[Unit]
-    UM[Unit media]
-    LP[Level plans]
-    STD[Pack standards]
-  end
-  CON --> Cover & Letter
-  OPP --> Cover & Letter & Persona[Buyer type]
-  REP --> Letter & NextStep[Next step]
-  DEVR --> Intro & Cover & Trust[Built on trust]
-  DEV --> Selection & Compare & DevPanel[Development panel]
-  UNIT --> Selection & Compare & HomePanel[Home panel]
-  UM --> Selection & HomePanel
-  LP --> HomePanel
-  STD --> Cover & Footer
-```
+Which record feeds which screen (✓ = used):
+
+| Record ↓ / Screen → | Intro | Cover | Letter | Selection | Compare | Trust | Next step | Footer | Dev panel | Home panel |
+| --- | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
+| Opportunity | | ✓ | ✓ | ✓ | ✓ | | ✓ | | ✓ | ✓ |
+| Contact | ✓ | ✓ | ✓ | | | | | ✓ | | |
+| Rep | ✓ | ✓ | ✓ | | | | ✓ | | | ✓ |
+| Developer | ✓ | ✓ | | | | ✓ | ✓ | ✓ | | |
+| Development | | ✓ | | ✓ | ✓ | | | | ✓ | ✓ |
+| Unit | | | | ✓ | ✓ | | ✓ | | ✓ | ✓ |
+| Unit media | | | | ✓ | ✓ | | | | ✓ | ✓ |
+| Level plans | | | | | | | | | | ✓ |
+| Pack standards | | ✓ | | | | | | ✓ | | |
+| Issue | | ✓ | ✓ | ✓ | | | | ✓ | | ✓ |
 
 | Record | What it gives | Prototype reference |
 | --- | --- | --- |
