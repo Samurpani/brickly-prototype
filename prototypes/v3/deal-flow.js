@@ -1342,8 +1342,31 @@ function dfSplitCollect(){
   const p=document.getElementById('dfc-price'); if(p) DFS.price=Number(p.value.replace(/[^\d.]/g,''))||DFS.price;
   document.querySelectorAll('.dfs-row').forEach(row=>{
     const s=DFS.shares[+row.dataset.i]; if(!s) return;
-    s.name=row.querySelector('.dfs-name').value; s.role=row.querySelector('.dfs-role').value; s.pct=+row.querySelector('.dfs-pct').value;
+    const nm=row.querySelector('.dfs-name'); if(nm) s.name=nm.value==='__new'?'':nm.value;
+    const nn=row.querySelector('.dfs-nn'); if(nn) s.draft=nn.value;
+    s.role=row.querySelector('.dfs-role').value; s.pct=+row.querySelector('.dfs-pct').value;
   });
+}
+// External people: agents and agencies first, then any other contact who referred the buyer.
+function dfSplitExtOpts(val){
+  const o=OPPS.find(r=>r.id===DFS.oppId), all=typeof CONTACTS!=='undefined'?CONTACTS:[];
+  const agents=all.filter(c=>c.type==='partner'), others=all.filter(c=>!['partner','supplier'].includes(c.type)&&c.name!==o?.lead);
+  const op=(c,l)=>`<option value="${dfEsc(c.name)}" ${c.name===val?'selected':''}>${dfEsc(l)}</option>`;
+  const known=all.some(c=>c.name===val);
+  return `<option value="">Choose…</option>${val&&!known?`<option selected>${dfEsc(val)}</option>`:''}
+    <optgroup label="Agents & partners">${agents.map(c=>op(c,`${c.name}${c.company?' · '+c.company:''}`)).join('')}</optgroup>
+    <optgroup label="Contacts">${others.map(c=>op(c,c.name)).join('')}</optgroup>
+    <option value="__new">+ New contact…</option>`;
+}
+function dfSplitNew(i){dfSplitCollect();DFS.shares[i].creating=true;dfSplitRerender(false);document.querySelector(`.dfs-row[data-i="${i}"] .dfs-nn`)?.focus();}
+function dfSplitNewSave(i){
+  const row=document.querySelector(`.dfs-row[data-i="${i}"]`), name=row.querySelector('.dfs-nn').value.trim(), phone=row.querySelector('.dfs-np').value.trim();
+  if(!name){showToast('Enter a name for the new contact');return;}
+  dfSplitCollect();
+  const s=DFS.shares[i], existing=dfContact(name);
+  const c=existing||(typeof dcNewContact==='function'?dcNewContact({name,phone,kind:s.role==='External agency'?'agent':'contact'}):null);
+  s.name=c?c.name:name; s.creating=false; delete s.draft;
+  dfSplitRerender(false); showToast(existing?`${name} is already a contact · linked`:`${name} added to Contacts`);
 }
 function dfSplitIssues(){
   const sum=Math.round(DFS.shares.reduce((a,s)=>a+(+s.pct||0),0)*100)/100, issues=[];
@@ -1368,14 +1391,15 @@ function dfSplitTeamHtml(){
     <div class="df-split-rows" role="list" aria-label="Sales team">
       ${DFS.shares.map((s,i)=>`<div class="dfs-row" role="listitem" data-i="${i}">
         <span class="df-av ${s.kind}" aria-hidden="true">${s.name?initials(s.name):'?'}</span>
-        <select class="dfs-name" aria-label="Person" onchange="dfSplitRerender()">${s.kind==='internal'?opt(dfReps().map(r=>[r,r]),s.name):opt(dfAgents().map(c=>[c.name,`${c.name} · ${c.company}`]),s.name)}</select>
+        ${s.creating?`<span class="dfs-new"><input class="dfs-nn" placeholder="New contact name" aria-label="New contact name" value="${dfEsc(s.draft||'')}"><input class="dfs-np" type="tel" placeholder="Phone · optional" aria-label="Phone"><button type="button" class="btn-primary df-sm" onclick="dfSplitNewSave(${i})">Add</button></span>`
+          :`<select class="dfs-name" aria-label="Person" onchange="this.value==='__new'?dfSplitNew(${i}):dfSplitRerender()">${s.kind==='internal'?opt(dfReps().map(r=>[r,r]),s.name):dfSplitExtOpts(s.name)}</select>`}
         <select class="dfs-role" aria-label="Role" onchange="dfSplitRerender()">${DF_ROLES[s.kind].map(r=>`<option ${r===s.role?'selected':''}>${r}</option>`).join('')}</select>
         <span class="dfs-pctw"><input class="dfs-pct" type="number" min="0" max="100" step="1" value="${s.pct}" aria-label="Share percent" oninput="dfSplitRecalc()">%</span>
         <b class="dfs-amt">${fmtEur(Math.round(total*(+s.pct||0))/100)}</b>
         ${DFS.shares.length>1?`<button type="button" class="tool" aria-label="Remove ${dfEsc(s.name||'row')}" onclick="dfSplitRemove(${i})">${sbIcon('x')}</button>`:'<span></span>'}
       </div>`).join('')}
     </div>
-    <div class="df-acts"><button type="button" class="btn-ghost df-sm" onclick="dfSplitAdd('internal')">+ Add rep</button><button type="button" class="btn-ghost df-sm" onclick="dfSplitAdd('external')">+ Add external agent</button></div>
+    <div class="df-acts"><button type="button" class="btn-ghost df-sm" onclick="dfSplitAdd('internal')">+ Add rep</button><button type="button" class="btn-ghost df-sm" onclick="dfSplitAdd('external')">+ Add external agent</button><button type="button" class="btn-ghost df-sm" onclick="dfSplitAdd('external','Referrer')">+ Add referral</button></div>
     <div id="dfs-check" class="df-split-check ${issues.length?'bad':'ok'}">${issues.length?dfEsc(issues[0]):`Shares total ${sum}% ✓`}</div>
     <div id="dfs-rule" class="df-split-rule ${devs.length?'warn':''}">${devs.length
       ?`<b>Differs from the default:</b> ${dfEsc(devs.join(' · '))}. ${mgr?'You’re a manager, so it’s agreed on save and logged.':`Goes to ${DF_COMM_RULE.approver} for approval. Commission shows Awaiting approval until then; the deal itself isn’t held up.`}`
@@ -1393,11 +1417,11 @@ function dfSplitRecalc(){
   r.innerHTML=devs.length?`<b>Differs from the default:</b> ${dfEsc(devs.join(' · '))}. ${dfIsManager()?'You’re a manager, so it’s agreed on save and logged.':`Goes to ${DF_COMM_RULE.approver} for approval. Commission shows Awaiting approval until then; the deal itself isn’t held up.`}`:`Matches the default rule (${DF_COMM_RULE.rate}%, 100% to the deal owner, earned at final deed). Agreed on save.`;
 }
 function dfSplitRerender(collect=true){if(collect)dfSplitCollect();const el=document.getElementById('dfs-team');if(el)el.innerHTML=dfSplitTeamHtml();}
-function dfSplitAdd(kind){
+function dfSplitAdd(kind,role){
   dfSplitCollect();
-  const owner=DFS.shares.find(s=>s.role==='Deal owner'), give=kind==='external'?50:30;
+  const owner=DFS.shares.find(s=>s.role==='Deal owner'), give=role==='Referrer'?10:kind==='external'?50:30;
   if(owner&&owner.pct>give) owner.pct=+owner.pct-give;
-  DFS.shares.push({kind,name:'',role:kind==='external'?'External agency':'Co-rep',pct:owner?give:0,paid:0});
+  DFS.shares.push({kind,name:'',role:role||(kind==='external'?'External agency':'Co-rep'),pct:owner?give:0,paid:0});
   dfSplitRerender(false);
 }
 function dfSplitRemove(i){

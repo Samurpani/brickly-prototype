@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bricly · Create deal flow · Developer handoff</title>
+<style>
+  :root { --ink:#1d1f1a; --mu:#5f6357; --line:#e3e1d8; --bg:#faf9f5; --card:#fff; --pri:#56652a; --pri-c:#eef1e2; --warn:#fbeed5; --warn-ink:#6b4a0c; --bad:#fbe1dc; --bad-ink:#7a1f12; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif; }
+  header.top { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 28px; background: rgba(250,249,245,.94); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); }
+  header.top b { font-size: 15px; }
+  header.top a.btn { padding: 7px 14px; border-radius: 8px; background: var(--pri); color: #fff; text-decoration: none; font-size: 13px; font-weight: 600; }
+  .wrap { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 40px; max-width: 1240px; margin: 0 auto; padding: 32px 28px 80px; }
+  nav.toc { position: sticky; top: 72px; align-self: start; font-size: 13px; }
+  nav.toc a { display: block; padding: 4px 0; color: var(--mu); text-decoration: none; }
+  nav.toc a:hover { color: var(--pri); }
+  nav.toc .sub { padding-left: 12px; }
+  main { min-width: 0; }
+  h1 { margin: 0 0 6px; font-size: 30px; line-height: 1.2; }
+  h2 { margin: 56px 0 12px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 22px; }
+  h3 { margin: 32px 0 8px; font-size: 17px; }
+  p { margin: 0 0 10px; max-width: 760px; }
+  .meta { color: var(--mu); font-size: 13px; }
+  .links { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 8px; }
+  .links a { padding: 8px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); text-decoration: none; font-size: 13px; font-weight: 600; }
+  .links a.pri { background: var(--pri); border-color: var(--pri); color: #fff; }
+  table { width: 100%; margin: 10px 0 16px; border-collapse: collapse; background: var(--card); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; font-size: 13.5px; }
+  th, td { padding: 9px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  th { background: #f3f2ec; font-weight: 600; font-size: 12.5px; }
+  tr:last-child td { border-bottom: 0; }
+  code { padding: 1px 5px; border-radius: 4px; background: #efeee7; font: 12.5px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  ol.proc { margin: 8px 0 16px; padding-left: 0; list-style: none; counter-reset: s; }
+  ol.proc > li { position: relative; margin: 0 0 10px; padding-left: 36px; counter-increment: s; max-width: 760px; }
+  ol.proc > li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 24px; height: 24px; border-radius: 50%; background: var(--pri); color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  ol.proc > li .res { display: block; color: var(--mu); font-size: 13.5px; }
+  .note, .caution, .warning { margin: 12px 0 16px; padding: 10px 14px; border-radius: 8px; max-width: 760px; font-size: 14px; }
+  .note { background: var(--pri-c); }
+  .caution { background: var(--warn); color: var(--warn-ink); }
+  .warning { background: var(--bad); color: var(--bad-ink); }
+  .note b, .caution b, .warning b { display: block; font-size: 12px; letter-spacing: .06em; }
+  figure { margin: 14px 0 24px; }
+  figure img { display: block; max-width: 100%; border: 1px solid var(--line); border-radius: 10px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+  figure.drawer img { max-width: 600px; }
+  figure.phone img { max-width: 390px; }
+  figcaption { margin-top: 6px; color: var(--mu); font-size: 12.5px; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; align-items: start; }
+  .grid2 figure { margin: 0; }
+  .tag { display: inline-block; padding: 1px 8px; border-radius: 999px; background: var(--pri-c); color: var(--pri); font-size: 11.5px; font-weight: 700; }
+  .formula { padding: 12px 16px; border-left: 3px solid var(--pri); background: var(--card); font: 13px/1.8 ui-monospace, SFMono-Regular, Menlo, monospace; max-width: 760px; }
+  @media (max-width: 900px) { .wrap { grid-template-columns: 1fr; } nav.toc { position: static; } }
+</style>
+</head>
+<body>
+<header class="top"><b>Bricly · Create deal flow · Developer handoff</b><a class="btn" href="../../../prototypes/v3/Bricly_OS_Prototype_v3.html" target="_blank" rel="noopener">Open the v3 prototype</a></header>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a href="#purpose">1. Purpose</a>
+  <a href="#changes">2. Summary of changes</a>
+  <a href="#terms">3. Terms</a>
+  <a href="#entry">4. Entry points</a>
+  <a href="#p1">5. Procedure 1 · Deal from an opportunity</a>
+  <a href="#p2">6. Procedure 2 · Sale outside Bricly</a>
+  <a href="#p3">7. Procedure 3 · Convert an early opportunity</a>
+  <a href="#p4">8. Procedure 4 · Add a referral later</a>
+  <a href="#rules">9. Rules</a>
+  <a class="sub" href="#r-money">9.1 Commission calculation</a>
+  <a class="sub" href="#r-approval">9.2 Approval</a>
+  <a class="sub" href="#r-valid">9.3 Validation</a>
+  <a href="#data">10. Data that the flow writes</a>
+  <a href="#mobile">11. Small screens</a>
+  <a href="#code">12. Files and functions</a>
+  <a href="#test">13. Test procedure</a>
+  <a href="#open">14. Open items</a>
+</nav>
+<main>
+<h1>Create deal flow</h1>
+<p class="meta">Prototype: Bricly OS v3 · Language: ASD-STE100 Simplified Technical English · Date: 10 November 2026</p>
+<div class="links">
+  <a class="pri" href="../../../prototypes/v3/Bricly_OS_Prototype_v3.html" target="_blank" rel="noopener">Open the live v3 prototype</a>
+  <a href="capture.cjs">Screenshot script (capture.cjs)</a>
+</div>
+
+<h2 id="purpose">1. Purpose</h2>
+<p>This document tells developers how to build the Create deal flow.</p>
+<p>The prototype has one Create deal flow. All entry points use this flow. The flow uses the same records as the deal page, the approvals queue and the payouts.</p>
+<p>Before this update, the Deals page used an old dialog. That dialog did not record splits, referrals, funding or dates. It did not use the approvals queue.</p>
+<div class="note"><b>NOTE</b>Keep the number of questions low. The flow asks only for the data that makes a deal live. The user adds all other data on the deal page later.</div>
+
+<h2 id="changes">2. Summary of changes</h2>
+<table>
+  <thead><tr><th>Area</th><th>Before</th><th>After</th></tr></thead>
+  <tbody>
+    <tr><td>Deals → + Add deal</td><td>Old dialog with 4 steps and a different style.</td><td>Opens the Create deal flow. A Buyer step comes first.</td></tr>
+    <tr><td>Opportunity → Actions</td><td>“Create deal” shows only from the Negotiating stage.</td><td>“Convert to deal” shows at all open stages.</td></tr>
+    <tr><td>Sale outside Bricly</td><td>Separate form. No approval.</td><td>The user selects a buyer and a unit. The deal goes to manager approval.</td></tr>
+    <tr><td>Referral</td><td>Yes/No control and a long list.</td><td>One toggle. The user links an agent, a contact or a team member. The user can add a new contact in the flow.</td></tr>
+    <tr><td>Money</td><td>Total commission only.</td><td>The breakdown shows the referral, the team pool, each share and “We keep”.</td></tr>
+    <tr><td>Dates</td><td>POS signed date only.</td><td>Optional target final deed date. Optional loan approval deadline for bank loans.</td></tr>
+    <tr><td>Deal page split editor</td><td>Agents only.</td><td>“+ Add referral” and “+ New contact…” are added.</td></tr>
+    <tr><td>Approvals link on the deal</td><td>“View request” opened the Decided tab. The request did not show.</td><td>“View request” opens the request on the Open tab.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="terms">3. Terms</h2>
+<table>
+  <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+  <tbody>
+    <tr><td>Opportunity</td><td>A buyer and one or more units before the sale.</td></tr>
+    <tr><td>Deal</td><td>A sale after the Promise of Sale (POS) is signed.</td></tr>
+    <tr><td>POS</td><td>Promise of Sale. The signed contract that starts a deal.</td></tr>
+    <tr><td>Sale outside Bricly</td><td>A sale with no opportunity in Bricly. The flow makes an external opportunity for it.</td></tr>
+    <tr><td>Referral</td><td>A contact who sent the buyer to the agency. The contact gets a fee.</td></tr>
+    <tr><td>Shared deal</td><td>A deal with an agent from a different agency. The agent gets a share.</td></tr>
+    <tr><td>Team pool</td><td>The commission that stays after the referral fee. The team splits this amount.</td></tr>
+    <tr><td>We keep</td><td>The commission that stays in the agency after payments to people outside the team.</td></tr>
+    <tr><td>Manager</td><td>A user with the Owner or Manager role. A manager can approve deals and splits.</td></tr>
+    <tr><td>Rep</td><td>A sales user. A rep cannot approve.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="entry">4. Entry points</h2>
+<p>There are two entry points. Both open the same flow in the right drawer.</p>
+<table>
+  <thead><tr><th>Entry point</th><th>Steps</th><th>Function</th></tr></thead>
+  <tbody>
+    <tr><td>Deals page → <b>+ Add deal</b></td><td>Buyer · Sale · Commission · Review</td><td><code>dcStart()</code></td></tr>
+    <tr><td>Opportunity → <b>Actions</b> → <b>Convert to deal</b></td><td>Sale · Commission · Review</td><td><code>dcOpenFromActions()</code> → <code>dcOpen(oppId,'actions')</code></td></tr>
+  </tbody>
+</table>
+<div class="grid2">
+  <figure><img src="img/a1-deals-add-deal.png" alt="Deals page with the + Add deal button marked"><figcaption>Figure 1. Deals page. The + Add deal button is marked.</figcaption></figure>
+  <figure><img src="img/a2-opportunity-convert.png" alt="Opportunity Actions menu with Convert to deal marked"><figcaption>Figure 2. Opportunity Actions menu. Convert to deal is marked.</figcaption></figure>
+</div>
+
+<h2 id="p1">5. Procedure 1 · Create a deal from an existing opportunity</h2>
+<p>Use this procedure when the opportunity is in Bricly. In this example, an owner creates the deal. A second agent shares the deal.</p>
+<h3>5.1 Buyer step</h3>
+<ol class="proc">
+  <li>On the Deals page, click <b>+ Add deal</b>.<span class="res">Result: The drawer opens on the Buyer step (Figure 3).</span></li>
+  <li>Type a buyer name, an opportunity ID, a development or a unit in the search field.<span class="res">Result: The list shows matching open opportunities (Figure 4). The latest stage is at the top.</span></li>
+  <li>Click the opportunity.<span class="res">Result: The Sale step opens. Data from the opportunity fills the fields.</span></li>
+</ol>
+<div class="note"><b>NOTE</b>The Buyer step has no Next button in this mode. A click on an opportunity moves to the next step. A rep sees only the rep's own opportunities.</div>
+<div class="grid2">
+  <figure class="drawer"><img src="img/b1-buyer-step.png" alt="Buyer step"><figcaption>Figure 3. Buyer step.</figcaption></figure>
+  <figure class="drawer"><img src="img/b2-buyer-search.png" alt="Buyer step with a search"><figcaption>Figure 4. Buyer step with a search.</figcaption></figure>
+</div>
+<h3>5.2 Sale step</h3>
+<ol class="proc">
+  <li>Make sure that the unit is correct.<span class="res">If the opportunity has more than one unit, select the unit. The flow disables units that other buyers hold.</span></li>
+  <li>If necessary, add co-buyers.</li>
+  <li>If the development has finish packs or layouts, select them.<span class="res">Result: The price box adds the cost of the options.</span></li>
+  <li>Make sure that the final agreed price is correct.<span class="res">The hint shows the difference from the list price. A price below the floor price gets a flag.</span></li>
+  <li>Enter the POS signed date and the deposit paid.<span class="res">The deposit starts at 10% of the price.</span></li>
+  <li>Select the funding: Cash, Bank loan or Mixed.</li>
+  <li>Optional: enter the target final deed date.</li>
+  <li>Optional: for Bank loan or Mixed, enter the loan approval deadline.</li>
+  <li>Select <b>Upload now</b> or <b>Add later</b> for the signed POS document.</li>
+  <li>Click <b>Next</b>.</li>
+</ol>
+<div class="grid2">
+  <figure class="drawer"><img src="img/b3-sale-step.png" alt="Sale step"><figcaption>Figure 5. Sale step.</figcaption></figure>
+  <figure class="drawer"><img src="img/b4-sale-dates.png" alt="Sale step with funding and optional dates"><figcaption>Figure 6. Funding and optional dates.</figcaption></figure>
+</div>
+<h3>5.3 Commission step</h3>
+<ol class="proc">
+  <li>Keep <b>Default · 2%</b>, or select <b>Custom</b>.<span class="res">For Custom, enter a rate or a fixed amount. Enter a reason.</span></li>
+  <li>If an agent shares the deal or a contact referred the buyer, set the <b>Referral or shared deal</b> toggle to on (Figure 8).</li>
+  <li>Search for the agent, the contact or the team member. Click the result.</li>
+  <li>If the person is not in Contacts, click <b>Add “name” as a new contact</b> (Figure 9).</li>
+  <li>For a new contact, select <b>Agent or agency</b> or <b>Contact</b>. Enter the name. The phone and the agency are optional.</li>
+  <li>Click <b>Add &amp; link</b>.<span class="res">Result: Bricly adds the contact to Contacts. The flow links the contact (Figure 10).</span></li>
+  <li>Enter their share as a percentage of the commission or as a fixed amount.</li>
+  <li>If a team member shares the deal, set the <b>Split with a team member</b> toggle to on. Select the person and the percentages (Figure 11).</li>
+  <li>Read the breakdown. Make sure that “We keep” is correct.</li>
+  <li>Click <b>Next</b>.</li>
+</ol>
+<div class="note"><b>NOTE</b>If the buyer's contact already has a “referred by” value, the toggle starts on and the referrer is linked.</div>
+<div class="grid2">
+  <figure class="drawer"><img src="img/b5-commission-default.png" alt="Commission step with default values"><figcaption>Figure 7. Commission step with default values.</figcaption></figure>
+  <figure class="drawer"><img src="img/b6-referral-search.png" alt="Referral toggle on with the search"><figcaption>Figure 8. Referral toggle on. Search for a person.</figcaption></figure>
+  <figure class="drawer"><img src="img/b7-referral-new-contact.png" alt="New contact form in the flow"><figcaption>Figure 9. Add a new contact in the flow.</figcaption></figure>
+  <figure class="drawer"><img src="img/b8-referral-linked.png" alt="Agent linked with the breakdown"><figcaption>Figure 10. Agent linked. The breakdown shows “We keep”.</figcaption></figure>
+  <figure class="drawer"><img src="img/b9-team-split.png" alt="Team split and breakdown"><figcaption>Figure 11. Team split and breakdown.</figcaption></figure>
+</div>
+<h3>5.4 Review step</h3>
+<ol class="proc">
+  <li>Read the summary. Make sure that the data is correct.</li>
+  <li>Read the list “Still needed on the deal”. The deal page tracks these items. They do not stop the deal.</li>
+  <li>Optional: type a note for the deal team.</li>
+  <li>Click <b>Create deal</b>.<span class="res">Result: Bricly makes the deal and opens the deal page (Figure 13). The unit changes to Reserved.</span></li>
+</ol>
+<div class="note"><b>NOTE</b>The button shows <b>Submit for approval</b> when the deal needs manager approval. Refer to <a href="#r-approval">9.2</a>.</div>
+<div class="grid2">
+  <figure class="drawer"><img src="img/b10-review-create.png" alt="Review step"><figcaption>Figure 12. Review step.</figcaption></figure>
+</div>
+<figure><img src="img/b11-deal-created.png" alt="Deal page after create"><figcaption>Figure 13. Deal page after create.</figcaption></figure>
+<figure><img src="img/b12-deal-commission-card.png" alt="Deal page commission card and key dates"><figcaption>Figure 14. The Sales team &amp; commission card shows each share. Key dates show the target final deed.</figcaption></figure>
+
+<h2 id="p2">6. Procedure 2 · Record a sale outside Bricly</h2>
+<p>Use this procedure when the buyer has no opportunity in Bricly. In this example, a rep records the sale.</p>
+<ol class="proc">
+  <li>On the Deals page, click <b>+ Add deal</b>.</li>
+  <li>Click <b>No opportunity in Bricly?</b> (Figure 15).</li>
+  <li>Search for the buyer. If the buyer is not in Contacts, click <b>Add “name” as a new contact</b> (Figure 16).</li>
+  <li>Enter the name. The phone is optional. Click <b>Add &amp; link</b>.</li>
+  <li>Select the development and the unit (Figure 17).<span class="res">The list disables units that are on hold or reserved.</span></li>
+  <li>Click <b>Next</b>. Do the Sale and Commission steps. Refer to 5.2 and 5.3.</li>
+  <li>On the Review step, click <b>Submit for approval</b> (Figure 18).<span class="res">Result: The deal shows “Awaiting approval” (Figure 19). The approvals queue gets a “Deal from POS” request (Figure 20).</span></li>
+</ol>
+<div class="caution"><b>CAUTION</b>The flow makes an external opportunity when you click Next on the Buyer step. If you close the drawer before the deal is made, the flow deletes this opportunity. It also deletes a contact that it added. Keep this cleanup in the build.</div>
+<div class="grid2">
+  <figure class="drawer"><img src="img/c1-outside-sale.png" alt="Sale outside Bricly form"><figcaption>Figure 15. Sale outside Bricly.</figcaption></figure>
+  <figure class="drawer"><img src="img/c2-new-buyer.png" alt="New buyer contact"><figcaption>Figure 16. Add the buyer as a new contact.</figcaption></figure>
+  <figure class="drawer"><img src="img/c3-outside-sale-filled.png" alt="Buyer and unit selected"><figcaption>Figure 17. Buyer and unit selected.</figcaption></figure>
+  <figure class="drawer"><img src="img/c4-review-approval.png" alt="Review step with approval"><figcaption>Figure 18. Review step. The deal needs approval.</figcaption></figure>
+</div>
+<figure><img src="img/c5-deal-awaiting-approval.png" alt="Deal page awaiting approval"><figcaption>Figure 19. Deal page. The banner shows that the deal waits for approval.</figcaption></figure>
+<figure><img src="img/c6-approvals-queue.png" alt="Approvals queue with the Deal from POS request"><figcaption>Figure 20. Approvals queue. The manager approves or rejects the deal.</figcaption></figure>
+<ol class="proc">
+  <li>The manager clicks <b>Approve</b>.<span class="res">Result: The deal changes to Active. The unit changes to Reserved. Bricly declines other hold requests on the unit.</span></li>
+  <li>Or, the manager clicks <b>Reject</b> and gives a reason.<span class="res">Result: Bricly deletes the deal. The opportunity goes back to its last stage. The unit does not change.</span></li>
+</ol>
+
+<h2 id="p3">7. Procedure 3 · Convert an opportunity at an early stage</h2>
+<p>Use this procedure when the buyer signed the POS outside Bricly, and the opportunity is at an early stage.</p>
+<ol class="proc">
+  <li>Open the opportunity.</li>
+  <li>Click <b>Actions</b>. Click <b>Convert to deal</b> (Figure 2).<span class="res">Result: The Sale step opens. A message shows the stages that the flow will skip (Figure 21).</span></li>
+  <li>Do the Sale, Commission and Review steps. Refer to 5.2 to 5.4.</li>
+</ol>
+<div class="note"><b>NOTE</b>The flow marks each skipped stage as “Skipped — POS recorded” in the opportunity activity. If the unit is not reserved for this buyer, a rep must get manager approval. A manager's deal goes live and Bricly logs it.</div>
+<figure class="drawer"><img src="img/d1-convert-early-stage.png" alt="Convert at an early stage with the skipped stages message"><figcaption>Figure 21. Convert at an early stage.</figcaption></figure>
+
+<h2 id="p4">8. Procedure 4 · Add a referral after the deal exists</h2>
+<ol class="proc">
+  <li>Open the deal.</li>
+  <li>On the Sales team &amp; commission card, click <b>Edit team &amp; split</b>.</li>
+  <li>Click <b>+ Add referral</b>.<span class="res">Result: A new row shows with the role Referrer and 10%. The deal owner's share decreases by 10%.</span></li>
+  <li>Select a person. If the person is not in Contacts, select <b>+ New contact…</b> (Figure 22).</li>
+  <li>Enter the name. The phone is optional. Click <b>Add</b> (Figure 23).</li>
+  <li>Make sure that the shares total 100%.</li>
+  <li>Type a reason. Click <b>Save split</b>.</li>
+</ol>
+<div class="grid2">
+  <figure class="drawer"><img src="img/e1-split-new-contact.png" alt="Split editor with a new contact row"><figcaption>Figure 22. Add a new contact in the split editor.</figcaption></figure>
+  <figure class="drawer"><img src="img/e2-split-referral-added.png" alt="Split editor with the referral added"><figcaption>Figure 23. Referral added.</figcaption></figure>
+</div>
+
+<h2 id="rules">9. Rules</h2>
+<h3 id="r-money">9.1 Commission calculation</h3>
+<div class="formula">
+total&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= price × rate ÷ 100 &nbsp;&nbsp;(or the fixed amount)<br>
+referral&nbsp;&nbsp;= total × referral % ÷ 100 &nbsp;&nbsp;(or the fixed amount)<br>
+pool&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= total − referral<br>
+member&nbsp;&nbsp;&nbsp;&nbsp;= pool × member % ÷ 100<br>
+we keep&nbsp;&nbsp;&nbsp;= pool &nbsp;&nbsp;(when the referrer is outside the team)<br>
+we keep&nbsp;&nbsp;&nbsp;= total &nbsp;(when the referrer is a team member)
+</div>
+<p>The deal record stores each share as a percentage of the total. The referral share is first. The team shares use the remaining percentage. Rounding goes to the deal owner.</p>
+<table>
+  <thead><tr><th>Linked person</th><th>Share kind</th><th>Share role</th></tr></thead>
+  <tbody>
+    <tr><td>Agent or agency (contact type partner)</td><td>external</td><td>External agency</td></tr>
+    <tr><td>Contact</td><td>external</td><td>Referrer</td></tr>
+    <tr><td>Team member</td><td>internal</td><td>Referrer</td></tr>
+  </tbody>
+</table>
+
+<h3 id="r-approval">9.2 Approval</h3>
+<table>
+  <thead><tr><th>Approval</th><th>When it is necessary</th><th>Effect until approval</th></tr></thead>
+  <tbody>
+    <tr><td>Deal (“Deal from POS”)</td><td>The user is a rep, and the unit is not reserved for this buyer. This includes all sales outside Bricly from a rep.</td><td>The deal shows “Awaiting approval”. The unit does not change.</td></tr>
+    <tr><td>Commission split</td><td>The user is a rep, and the split is different from the default. Differences are: rate not 2%, more than one person, an external person, or a deal owner below 100%.</td><td>The deal is live. The commission shows “Awaiting approval”.</td></tr>
+  </tbody>
+</table>
+<div class="note"><b>NOTE</b>A manager does not need approval. Bricly logs the manager's decision on the deal.</div>
+<p>The flow adds a flag for review when the price is below the floor price, the commission is custom, or a layout needs developer sign-off. Flags do not stop the deal.</p>
+
+<h3 id="r-valid">9.3 Validation</h3>
+<p>The flow shows the first error under the step. The Next button is disabled until the step has no errors.</p>
+<table>
+  <thead><tr><th>Step</th><th>Rule</th><th>Message</th></tr></thead>
+  <tbody>
+    <tr><td>Buyer (outside sale)</td><td>Buyer is necessary.</td><td>Choose the buyer or add them as a new contact.</td></tr>
+    <tr><td>Buyer (outside sale)</td><td>Unit is necessary.</td><td>Choose the unit.</td></tr>
+    <tr><td>Sale</td><td>The unit must be free for this buyer.</td><td>&lt;unit&gt; can’t be used: &lt;reason&gt;.</td></tr>
+    <tr><td>Sale</td><td>Price must be more than 0.</td><td>Enter the final agreed price.</td></tr>
+    <tr><td>Sale</td><td>POS date is necessary and cannot be in the future.</td><td>Add the POS signed date. / The POS signed date can’t be in the future.</td></tr>
+    <tr><td>Sale</td><td>Deposit is from €0 to the price.</td><td>The deposit must be between €0 and the final price.</td></tr>
+    <tr><td>Sale</td><td>Target final deed and loan deadline are after the POS date.</td><td>The target deed date must be after the POS. / The loan deadline must be after the POS.</td></tr>
+    <tr><td>Commission</td><td>Custom rate is not more than 10%. Custom needs a reason.</td><td>A commission above 10% isn’t allowed. / Add a reason for the custom commission.</td></tr>
+    <tr><td>Commission</td><td>When the toggle is on, a person and a fee are necessary. The fee is less than the total.</td><td>Link who referred the buyer or shares the deal. / Enter the referral fee.</td></tr>
+    <tr><td>Commission</td><td>Team shares total 100%. Each person shows one time.</td><td>Team shares add up to N%. They must total 100%.</td></tr>
+    <tr><td>New contact</td><td>Name is necessary. A name or phone that exists links the existing contact.</td><td>Enter a name for the new contact. / &lt;name&gt; is already a contact · linked</td></tr>
+  </tbody>
+</table>
+
+<h2 id="data">10. Data that the flow writes</h2>
+<table>
+  <thead><tr><th>Record</th><th>Fields</th></tr></thead>
+  <tbody>
+    <tr><td>Deal</td><td><code>status</code> (active or pending), <code>unit</code>, <code>buyers</code>, <code>deposit</code>, <code>pos</code>, <code>skipped</code>, <code>flags</code>, <code>origin</code> (external for outside sales), <code>approvalReq</code>, <code>options</code>, <code>note</code></td></tr>
+    <tr><td>Deal flow state <code>dfState(o)</code></td><td><code>funding</code>, <code>appt.target</code> (target final deed), <code>loanBy</code>, <code>extraTasks</code> (“Upload the signed POS”, “Loan approval due by …”)</td></tr>
+    <tr><td>Commission <code>dfState(o).comm</code></td><td><code>total</code>, <code>rate</code>, <code>basis</code>, <code>customReason</code>, <code>shares[]</code> (kind, name, role, pct), <code>referral</code> (name, kind, contactId, basis, val, amount), <code>state</code>, <code>approval</code></td></tr>
+    <tr><td>Opportunity</td><td><code>stage</code> = Closed Won, <code>value</code>, <code>units</code> (selected unit first), journey stage = POS, key dates (Final deed, Loan approval deadline), activity lines for skipped stages</td></tr>
+    <tr><td>Buyer contact</td><td><code>ref</code> = referrer name (only if empty and the referrer is not a team member), <code>oppIds</code></td></tr>
+    <tr><td>Referrer contact</td><td><code>oppIds</code> gets the opportunity. A new contact gets <code>source</code> = “Added from a deal”.</td></tr>
+    <tr><td>Approvals</td><td>A “deal” request when approval is necessary. A “commission” request when the split needs approval.</td></tr>
+    <tr><td>Unit</td><td><code>status</code> = reserved when the deal is active.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="mobile">11. Small screens</h2>
+<p>The drawer uses the full width on small screens. The indent under each toggle is removed below 520 px.</p>
+<figure class="phone"><img src="img/f1-mobile-commission.png" alt="Commission step at 390 px"><figcaption>Figure 24. Commission step at 390 px.</figcaption></figure>
+
+<h2 id="code">12. Files and functions</h2>
+<p>All files are in <code>prototypes/v3/</code>. The same changes are in the v2 files in <code>prototypes/</code>.</p>
+<table>
+  <thead><tr><th>File</th><th>Change</th></tr></thead>
+  <tbody>
+    <tr><td><code>deal-convert.js</code></td><td>The Create deal flow. <code>dcStart</code>, <code>dcStep0</code>, <code>dcStartExternal</code>, <code>dcDropTemp</code> (Buyer step). <code>dcPplHtml</code>, <code>dcPplCreate</code>, <code>dcNewContact</code> (people picker and new contact). <code>dcComm</code> (adds <code>keep</code>). <code>dcCanCreate</code> (all open stages). <code>dcViewRequest</code> (opens a request on the Open tab).</td></tr>
+    <tr><td><code>deal-convert.css</code></td><td>Styles for the question title, lists, toggles, people picker and “We keep” row.</td></tr>
+    <tr><td><code>deal-flow.js</code></td><td>Split editor: <code>dfSplitExtOpts</code>, <code>dfSplitNew</code>, <code>dfSplitNewSave</code>, and <code>dfSplitAdd(kind, role)</code> for “+ Add referral”.</td></tr>
+    <tr><td><code>admin-workflows.js</code></td><td>The Deals “+ Add deal” button calls <code>dcStart()</code>. The old <code>awDeal()</code> dialog stays in the code but has no entry point.</td></tr>
+    <tr><td><code>Bricly_OS_Prototype_v3.html</code></td><td>The Actions menu item is “Convert to deal”.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="test">13. Test procedure</h2>
+<p>The v2 tests are in <code>tests/crm-design-system.spec.cjs</code>. Use this command:</p>
+<p><code>npx playwright test tests/crm-design-system.spec.cjs -g "Create deal|Convert to deal|Deal conversion" --reporter=line</code></p>
+<table>
+  <thead><tr><th>Test</th><th>Checks</th></tr></thead>
+  <tbody>
+    <tr><td>Deal conversion: the wizard sets funding and a co-rep split</td><td>Funding, split percentages, split approval and approve.</td></tr>
+    <tr><td>Create deal from Deals: pick an opportunity, link a new agent</td><td>Buyer step, dates, new agent contact, share role, “We keep”, tasks.</td></tr>
+    <tr><td>Create deal from Deals: a sale outside Bricly</td><td>Cleanup on close, approval request, contact link.</td></tr>
+    <tr><td>Convert to deal is offered from any open stage</td><td>Menu item at the Lead stage, skipped stages message, “+ Add referral” on the deal page.</td></tr>
+  </tbody>
+</table>
+<p>To make the screenshots again, start a static server at the repository root on port 4310. Then use this command:</p>
+<p><code>NODE_PATH=&lt;repo&gt;/node_modules node docs/handoff/create-deal/capture.cjs</code></p>
+
+<h2 id="open">14. Open items</h2>
+<table>
+  <thead><tr><th>Item</th><th>Status</th></tr></thead>
+  <tbody>
+    <tr><td>Remove the old <code>awDeal()</code> dialog. It is the only flow for a sale that is already complete (final deed signed). Decide if the build needs this case.</td><td>Decision necessary</td></tr>
+    <tr><td>The Escape key does not close the right drawer in the prototype. The × button and the background close it.</td><td>Not changed</td></tr>
+    <tr><td>Agent shares and referral fees use one rate. A per-partner agreement rate is not in this update.</td><td>Not in scope</td></tr>
+  </tbody>
+</table>
+</main>
+</div>
+</body>
+</html>

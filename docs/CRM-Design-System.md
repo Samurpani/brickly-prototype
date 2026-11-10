@@ -138,8 +138,10 @@ entry and at submission; switching personas closes an open workflow.
 | Development detail | Edit development | Owner | Details and render library updated on Save |
 | Development detail / Units overview | Add unit | Owner | Off-market draft, or explicitly published unit |
 | Unit detail | Edit unit | Owner | Specifications, media and mapping updated on Save |
-| Deals overview | Add deal: existing opportunity | Owner, Manager, own opportunities for Rep | POS conversion with existing history retained |
-| Deals overview | Add deal: external | Owner, Manager | Historical or ongoing signed-POS deal with source attribution |
+| Deals overview | Add deal: existing opportunity | Owner, Manager, own opportunities for Rep | Opens the shared Create deal wizard (Buyer · Sale · Commission · Review); POS conversion with existing history retained |
+| Deals overview | Add deal: no opportunity | Owner, Manager, Rep | Quick buyer contact + unit, then the same wizard; reps' sales go to manager approval before the unit locks |
+| Opportunity actions | Convert to deal | Any open stage | Same wizard; a POS signed outside Bricly marks remaining stages skipped and needs manager approval unless the unit is reserved |
+| Create deal · Commission | Referral or shared deal (toggle) | Owner, Manager, Rep | Link an agent, contact or team member, or add a new contact inline; fee comes off the top and "We keep" shows the net. More referrals can be added later from the deal's Edit team & split |
 
 ### Development Intake
 

@@ -4,7 +4,7 @@ let awState=null;
 function awCan(kind){return kind==='development'?['owner','manager'].includes(curPersona):kind==='deal'?['owner','manager','rep'].includes(curPersona):curPersona==='owner';}
 function awActor(){return PERSONAS[curPersona]?.name||curPersona;}
 function awOverviewActions(){
-  for(const [page,kind,label,action] of [['developments','development','New development','ndStart()'],['properties','unit','Add unit','awUnit()'],['deals','deal','Add deal','awDeal()']]){
+  for(const [page,kind,label,action] of [['developments','development','New development','ndStart()'],['properties','unit','Add unit','awUnit()'],['deals','deal','Add deal','dcStart()']]){
     const heading=document.querySelector(`#p-${page} .crm-page-controls > .toolbar`);
     if(!heading)continue;
     if(!heading.querySelector('[data-aw-action]'))heading.insertAdjacentHTML('beforeend',`<button class="btn-primary" data-aw-action="${kind}" onclick="${action}">+ ${label}</button>`);

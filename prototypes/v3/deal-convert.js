@@ -1,11 +1,15 @@
-// Opportunity → Deal: the Create Deal wizard (Sale · Commission · Review).
-// Spec: bricly-build docs/canonical/05-flows/opportunity-to-deal.md. Replaces deal-flow.js's single-drawer dfConvertOpen;
-// the commission it builds is written through dfSplitApply so the deal page, approvals and payouts stay on one model.
+// Opportunity → Deal: the one Create Deal wizard (Sale · Commission · Review), opened from the opportunity's
+// Actions menu (Convert to deal) and from Deals → + Add deal (adds a Buyer step first).
+// Spec: bricly-build docs/canonical/05-flows/opportunity-to-deal.md. Replaces deal-flow.js's single-drawer dfConvertOpen
+// and the old admin "Add deal" dialog; the commission it builds is written through dfSplitApply so the deal page,
+// approvals and payouts stay on one model. Only what's needed to go live is asked; the rest is added on the deal.
 
 const DC_DEPOSIT_PCT=10;
 const DC_FLOOR_PCT=97; // units don't carry a floor price yet; workspace floor = 97% of list
 const DC_STEPS=['Sale','Commission','Review'];
+const DC_STEP_Q=['Who’s buying?','The sale','Commission & referral','Check and create'];
 let DCV=null;
+const DCP={}; // people-picker state, keyed by picker
 
 function dcO(){return DCV&&OPPS.find(r=>r.id===DCV.oppId);}
 function dcUnit(id){return typeof UN==='function'?UN(id):null;}
@@ -14,12 +18,20 @@ function dcNum(v){return Number(String(v??'').replace(/[^\d.]/g,''))||0;}
 function dcR2(n){return Math.round(n*100)/100;}
 function dcContacts(){return typeof CONTACTS!=='undefined'?CONTACTS:[];}
 function dcSkipped(o){
+  if(o.origin==='external') return [];
   const x=getExt(o), ji=Math.max(0,jIdx(x.jstage)), pi=JOURNEY.findIndex(j=>j.key==='pos');
   return JOURNEY.slice(ji+1,pi).map(j=>j.label);
 }
+// Any open opportunity can convert: a POS signed outside Bricly skips the remaining stages and goes to a manager.
 function dcCanCreate(o){
-  if(!o||dealFor(o.id)) return false;
-  return jIdx(getExt(o).jstage)>=JOURNEY.findIndex(j=>j.key==='negotiating');
+  if(!o||dealFor(o.id)||(typeof isCompleted==='function'&&isCompleted(o))) return false;
+  return !/closed|lost/i.test(o.stage||'');
+}
+// Shortlisted units first; with none linked, any unit in the opportunity's developments that's still free.
+function dcUnits(o){
+  if(o.units.length) return o.units;
+  const devs=o.devs||[];
+  return (typeof UNITS!=='undefined'?UNITS:[]).filter(u=>devs.includes(u.dev)&&!['sold','off_market'].includes(u.status)).map(u=>u.id);
 }
 
 // Normal journey = unit Reserved for this buyer → deal goes live. Anything else is a POS recorded outside the app → manager approval.
@@ -59,16 +71,18 @@ function dcFloorTotal(){const u=dcUnit(DCV.unit);return u?dcFloor(u)+dcExtras().
 function dcFmt(n){return (Math.round(+n||0)).toLocaleString('en-US');}
 function dcDelta(n){return n?`+${fmtEur(n)}`:'Included';}
 
-function dcOpen(oppId,origin){
+function dcOpen(oppId,origin,keep){
   const o=OPPS.find(r=>r.id===oppId); if(!o||dealFor(o.id)) return;
   const x=getExt(o);
   const ct=dcContacts().find(c=>c.name===o.lead);
-  const pick=o.units.find(id=>dcUnitState(o,id).ok)||o.units[0]||'';
-  DCV={oppId,origin,step:1,unit:pick,...dcOptDefaults(o,pick),cobuyers:[],pos:dealToday(),
-    funding:dfGuessFunding(o,x),posDoc:{mode:'later',file:null},
+  const units=dcUnits(o), pick=units.find(id=>dcUnitState(o,id).ok)||units[0]||'';
+  const refBy=ct?.ref&&dcPerson(ct.ref);
+  DCV={oppId,origin,step:1,withBuyer:!!keep?.withBuyer,temp:keep?.temp||null,unit:pick,...dcOptDefaults(o,pick),cobuyers:[],pos:dealToday(),
+    funding:dfGuessFunding(o,x),posDoc:{mode:'later',file:null},deedTarget:'',loanBy:'',
     comm:{mode:'default',basis:'pct',val:DF_COMM_RULE.rate,why:''},
-    ref:{on:o.source==='Referral'&&!!ct?.ref,name:ct?.ref||'',basis:'pct',val:25},
+    ref:{on:!!refBy,name:refBy?.name||'',kind:refBy?.kind||'',id:refBy?.id||'',basis:'pct',val:25},
     share:false,team:[{name:o.rep,pct:100}],note:''};
+  delete DCP.ref;
   const base=pick?dcBase():o.value*1000;
   DCV.price=x.offer?.amt||base; DCV.priceTouched=!!x.offer?.amt;
   DCV.deposit=x.offer?.deposit||Math.round(DCV.price*DC_DEPOSIT_PCT/100); DCV.depTouched=!!x.offer?.deposit;
@@ -81,6 +95,138 @@ function dcOpenFromActions(){
 }
 window.dfConvertOpen=dcOpen;
 
+// ---------- Deals → + Add deal: pick the opportunity, or record a sale that never had one ----------
+function dcEligible(){
+  return OPPS.filter(o=>dcCanCreate(o)&&!o.dcTemp&&(typeof curPersona==='undefined'||curPersona!=='rep'||o.rep===dfMe()))
+    .sort((a,b)=>jIdx(getExt(b).jstage)-jIdx(getExt(a).jstage));
+}
+function dcStart(){
+  DCV={origin:'deals',step:0,withBuyer:true,mode:'opp',q:'',buyer:null,dev:(typeof DEVS!=='undefined'&&DEVS[0]?.name)||'',unit:''};
+  delete DCP.buyer;
+  dcRender();
+  setTimeout(()=>document.getElementById('dc-q')?.focus());
+}
+function dcOppRows(){
+  const q=(DCV.q||'').trim().toLowerCase();
+  const list=dcEligible().filter(o=>!q||[o.lead,o.id,...o.devs,...o.units].join(' ').toLowerCase().includes(q)).slice(0,8);
+  if(!list.length) return `<div class="dc-empty">No open opportunity matches${q?` “${dfEsc(DCV.q)}”`:''}.</div>`;
+  return list.map(o=>{const j=JOURNEY[jIdx(getExt(o).jstage)];return `<button type="button" class="dc-row" onclick="dcPickOpp('${o.id}')">
+    <span class="df-av internal" aria-hidden="true">${initials(o.lead)}</span>
+    <span class="dc-row-b"><b>${dfEsc(o.lead)}</b><span class="df-mu">${dfEsc([o.id,o.devs[0],o.units[0]].filter(Boolean).join(' · '))}</span></span>
+    <span class="dc-row-t">${dfEsc(j?.label||o.stage)}</span></button>`;}).join('');
+}
+function dcStep0(){
+  const v=DCV;
+  if(v.mode==='opp') return `<label class="df-field"><span>Find the opportunity</span><input id="dc-q" type="search" autocomplete="off" placeholder="Buyer, opportunity, development or unit" value="${dfEsc(v.q)}" oninput="DCV.q=this.value;document.getElementById('dc-opps').innerHTML=dcOppRows()"></label>
+    <div class="dc-list" id="dc-opps" role="list">${dcOppRows()}</div>
+    <button type="button" class="dc-alt" onclick="dcPick('mode','ext')">${sbIcon('plus')}<span><b>No opportunity in Bricly?</b><span class="df-mu">Record a sale agreed outside Bricly. It goes to a manager to approve.</span></span></button>`;
+  const units=(typeof UNITS!=='undefined'?UNITS:[]).filter(u=>u.dev===v.dev&&!['sold','off_market'].includes(u.status)&&!DEALS.some(d=>(d.unit||dealOpp(d)?.units[0])===u.id));
+  return `<button type="button" class="dc-link" onclick="dcPick('mode','opp')">← Pick an opportunity instead</button>
+    <div class="df-field"><span>Buyer</span>${dcPplHtml('buyer')}</div>
+    <div class="df-grid2">
+      <label class="df-field"><span>Development</span><select onchange="DCV.unit='';dcPick('dev',this.value)">${(typeof DEVS!=='undefined'?DEVS:[]).map(d=>`<option ${d.name===v.dev?'selected':''}>${dfEsc(d.name)}</option>`).join('')}</select></label>
+      <label class="df-field"><span>Unit</span><select onchange="dcPick('unit',this.value)"><option value="">Choose…</option>${units.map(u=>{const busy=['hold','reserved'].includes(u.status);return `<option value="${dfEsc(u.id)}" ${u.id===v.unit?'selected':''} ${busy?'disabled':''}>${dfEsc(u.id)} · ${u.beds} bed ${dfEsc(u.type)} · ${fmtEur(u.price)}${busy?` — ${u.status==='hold'?'On hold':'Reserved'}`:''}</option>`;}).join('')}</select></label>
+    </div>`;
+}
+function dcPickOpp(id){dcOpen(id,'deals',{withBuyer:true});}
+// Builds a lightweight external opportunity so the sale runs through the same wizard; removed again on cancel.
+function dcStartExternal(){
+  const v=DCV, u=dcUnit(v.unit), b=v.buyer;
+  const o={id:'OPP-'+(Math.max(1000,...OPPS.map(r=>+String(r.id).replace(/\D/g,'')||0))+1),lead:b.name,devs:[u.dev],units:[u.id],stage:'Negotiating',source:'External deal',
+    budget:u.price/1000,value:u.price/1000,rep:dfMe(),tags:['External deal'],next:{d:'—',t:'Review deal records'},ago:'Today',origin:'external',contactId:b.id,dcTemp:true};
+  OPPS.push(o);
+  EXT[o.id]={jstage:'negotiating',done:[],blocker:null,next:{label:'Review deal records',due:'',overdue:false},date:null,offer:null,
+    buyer:{email:b.email||'',phone:b.phone||'',type:'Buyer'},comms:[],keyDates:[],payments:[],docs:[],bids:[]};
+  dcOpen(o.id,'deals',{withBuyer:true,temp:{oppId:o.id,contactId:b.created?b.id:null}});
+}
+function dcDropTemp(){
+  const t=DCV?.temp; if(!t) return;
+  const i=OPPS.findIndex(o=>o.id===t.oppId); if(i>=0) OPPS.splice(i,1);
+  delete EXT[t.oppId];
+  if(t.contactId){const c=dcContacts().findIndex(k=>k.id===t.contactId);if(c>=0) dcContacts().splice(c,1);}
+}
+
+// ---------- people picker: link a team member, agent or contact, or add a contact without leaving the flow ----------
+function dcPerson(name){
+  if(!name) return null;
+  if(dfReps().includes(name)) return {name,kind:'team',id:''};
+  const c=dcContacts().find(k=>k.name===name); if(!c) return {name,kind:'contact',id:''};
+  return {name:c.name,kind:c.type==='partner'?'agent':'contact',id:c.id,company:c.company||''};
+}
+function dcPplItems(key,q){
+  q=(q||'').trim().toLowerCase();
+  const o=dcO(), hit=s=>!q||s.toLowerCase().includes(q), out=[];
+  if(key==='ref'){
+    dfReps().filter(n=>n!==DCV.team[0].name&&hit(n)).forEach(n=>out.push({name:n,kind:'team',sub:'Your team'}));
+    dcContacts().filter(c=>c.type==='partner'&&hit([c.name,c.company,c.btype].join(' '))).forEach(c=>out.push({name:c.name,kind:'agent',id:c.id,company:c.company||'',sub:[c.btype,c.company].filter(Boolean).join(' · ')}));
+    dcContacts().filter(c=>!['partner','supplier'].includes(c.type)&&c.name!==o?.lead&&hit([c.name,c.phone,c.email].join(' '))).forEach(c=>out.push({name:c.name,kind:'contact',id:c.id,sub:[c.phone,c.status==='past'?'Past client':c.btype].filter(Boolean).join(' · ')}));
+  }else{
+    dcContacts().filter(c=>!['partner','supplier','vendor'].includes(c.type)&&hit([c.name,c.phone,c.email].join(' '))).forEach(c=>out.push({name:c.name,kind:'contact',id:c.id,email:c.email,phone:c.phone,sub:[c.phone,c.email].filter(Boolean).join(' · ')}));
+  }
+  return out.slice(0,q?8:6);
+}
+const DC_PPL_KIND={team:'Team',agent:'Agent',contact:'Contact'};
+function dcPplSel(key){
+  if(key==='ref') return DCV.ref.name?{name:DCV.ref.name,kind:DCV.ref.kind,sub:DCV.ref.company||''}:null;
+  return DCV.buyer;
+}
+function dcPplHtml(key){
+  const s=DCP[key]||(DCP[key]={q:'',creating:false,kind:key==='ref'?'agent':'contact'}), sel=dcPplSel(key);
+  if(sel) return `<div class="dc-sel"><span class="df-av ${sel.kind==='team'?'internal':'external'}" aria-hidden="true">${initials(sel.name)}</span>
+    <span class="dc-row-b"><b>${dfEsc(sel.name)}</b><span class="df-mu">${dfEsc([DC_PPL_KIND[sel.kind],sel.sub||sel.company].filter(Boolean).join(' · '))}</span></span>
+    <button type="button" class="btn-ghost df-sm" onclick="dcPplClear('${key}')">Change</button></div>`;
+  if(s.creating) return `<div class="dc-new">
+    ${key==='ref'?dcSeg(`ppl.${key}`,s.kind,[['agent','Agent or agency'],['contact','Contact']]):''}
+    <div class="df-grid2"><label class="df-field"><span>Name</span><input id="dc-pn-${key}" value="${dfEsc(s.q)}" autocomplete="off"></label>
+      <label class="df-field"><span>Phone <span class="df-mu">· optional</span></span><input id="dc-pp-${key}" type="tel" autocomplete="off"></label></div>
+    ${key==='ref'&&s.kind==='agent'?`<label class="df-field"><span>Agency <span class="df-mu">· optional</span></span><input id="dc-pc-${key}" autocomplete="off"></label>`:''}
+    <div class="df-acts"><button type="button" class="btn-ghost df-sm" onclick="dcPplCreating('${key}',false)">Cancel</button><button type="button" class="btn-primary df-sm" onclick="dcPplCreate('${key}')">Add &amp; link</button></div></div>`;
+  return `<div class="dc-ppl"><input id="dc-ps-${key}" type="search" autocomplete="off" placeholder="${key==='ref'?'Search agents, contacts or your team':'Search contacts'}" value="${dfEsc(s.q)}" aria-controls="dc-pr-${key}" oninput="dcPplSearch('${key}',this.value)">
+    <div class="dc-list" id="dc-pr-${key}" role="list">${dcPplRows(key)}</div></div>`;
+}
+function dcPplRows(key){
+  const s=DCP[key], items=dcPplItems(key,s.q); s.items=items;
+  return items.map((it,i)=>`<button type="button" class="dc-row" onclick="dcPplPick('${key}',${i})"><span class="df-av ${it.kind==='team'?'internal':'external'}" aria-hidden="true">${initials(it.name)}</span>
+      <span class="dc-row-b"><b>${dfEsc(it.name)}</b><span class="df-mu">${dfEsc(it.sub||'')}</span></span><span class="dc-row-t">${DC_PPL_KIND[it.kind]}</span></button>`).join('')
+    +`<button type="button" class="dc-row add" onclick="dcPplCreating('${key}',true)">${sbIcon('plus')}<span class="dc-row-b"><b>${s.q.trim()?`Add “${dfEsc(s.q.trim())}” as a new contact`:'Add a new contact'}</b></span></button>`;
+}
+function dcPplSearch(key,q){DCP[key].q=q;const el=document.getElementById('dc-pr-'+key);if(el) el.innerHTML=dcPplRows(key);}
+function dcPplCreating(key,on){DCP[key].creating=on;dcRender();if(on) setTimeout(()=>document.getElementById('dc-pn-'+key)?.focus());}
+function dcPplClear(key){
+  if(key==='ref') Object.assign(DCV.ref,{name:'',kind:'',id:'',company:''}); else DCV.buyer=null;
+  DCP[key]={q:'',creating:false,kind:key==='ref'?'agent':'contact'}; dcRender();
+  setTimeout(()=>document.getElementById('dc-ps-'+key)?.focus());
+}
+function dcPplPick(key,i){const it=DCP[key].items?.[i]; if(it) dcPplSet(key,it);}
+function dcPplSet(key,it){
+  if(key==='ref') Object.assign(DCV.ref,{name:it.name,kind:it.kind,id:it.id||'',company:it.company||''});
+  else DCV.buyer={...it};
+  dcRender();
+}
+function dcPplCreate(key){
+  const s=DCP[key], val=id=>(document.getElementById(id)?.value||'').trim();
+  const name=val('dc-pn-'+key), phone=val('dc-pp-'+key), company=val('dc-pc-'+key), kind=key==='ref'?s.kind:'contact';
+  const err=document.getElementById('dc-err');
+  if(!name){if(err) err.textContent='Enter a name for the new contact.';return;}
+  const digits=p=>String(p||'').replace(/\D/g,'').replace(/^00/,'');
+  const dup=dcContacts().find(c=>c.name.toLowerCase()===name.toLowerCase()||(phone&&digits(c.phone)===digits(phone)));
+  if(dup){showToast(`${dup.name} is already a contact · linked`);s.creating=false;dcPplSet(key,{name:dup.name,kind:dup.type==='partner'?'agent':'contact',id:dup.id,company:dup.company||'',email:dup.email,phone:dup.phone});return;}
+  const c=dcNewContact({name,phone,company,kind:key==='ref'?kind:'buyer'});
+  s.creating=false;
+  dcPplSet(key,{name:c.name,kind:kind==='agent'?'agent':'contact',id:c.id,company:c.company||'',phone:c.phone,email:'',created:true});
+  showToast(`${c.name} added to Contacts`);
+}
+// Quick contact from inside a flow: just a name and phone, everything else filled in on the contact page later.
+function dcNewContact({name,phone='',company='',kind='contact'}){
+  const agent=kind==='agent', buyer=kind==='buyer';
+  const c={id:'CT-'+(Math.max(200,...dcContacts().map(k=>+String(k.id).replace(/\D/g,'')||0))+1),name,type:agent?'partner':buyer?'buyer':'lead',
+    btype:agent?'Agency partner':buyer?'Owner-occupier':'Referrer',company:agent?(company||null):null,status:'active',email:'',phone,nat:'',lang:'',
+    source:'Added from a deal',ref:null,bmin:null,bmax:null,interest:'',ploc:'',finance:null,timeline:'',rep:dfMe(),tags:[],oppIds:[],
+    consent:{wa:false,em:false,sms:false},created:dealToday(),last:'Today',lastD:0,notesList:[]};
+  dcContacts().push(c);
+  return c;
+}
+
 // ---------- calculations ----------
 function dcComm(){
   const v=DCV, price=v.price;
@@ -90,18 +236,24 @@ function dcComm(){
   else{total=+v.comm.val||0;rate=price?dcR2(total/price*100):0;}
   const ref=v.ref.on?(v.ref.basis==='pct'?Math.round(total*(+v.ref.val||0))/100:+v.ref.val||0):0;
   const pool=Math.max(0,dcR2(total-ref));
-  return {total,rate,ref,pool,team:v.team.map(t=>({...t,amt:Math.round(pool*(+t.pct||0))/100}))};
+  const keep=v.ref.on&&v.ref.kind==='team'?total:pool;
+  return {total,rate,ref,pool,keep,team:v.team.map(t=>({...t,amt:Math.round(pool*(+t.pct||0))/100}))};
 }
 // Shares as % of the total: the referral comes off the top, the team splits what's left (OD-03).
 function dcShares(){
   const v=DCV, c=dcComm(), refPct=c.total?c.ref/c.total*100:0, reps=dfReps();
   const shares=v.team.map((t,i)=>({kind:'internal',name:t.name,role:i===0?'Deal owner':'Co-rep',pct:dcR2((+t.pct||0)*(100-refPct)/100),paid:0}));
-  if(v.ref.on) shares.push({kind:reps.includes(v.ref.name)?'internal':'external',name:v.ref.name,role:'Referrer',pct:dcR2(refPct),paid:0});
+  if(v.ref.on) shares.push({kind:reps.includes(v.ref.name)?'internal':'external',name:v.ref.name,role:v.ref.kind==='agent'?'External agency':'Referrer',pct:dcR2(refPct),paid:0});
   if(shares.length) shares[0].pct=dcR2(shares[0].pct+100-shares.reduce((a,s)=>a+s.pct,0));
   return shares;
 }
 function dcIssues(step){
   const v=DCV, o=dcO(), out=[];
+  if(step===0){
+    if(v.mode==='opp') out.push('Pick the opportunity, or record a sale with no opportunity.');
+    else{if(!v.buyer) out.push('Choose the buyer or add them as a new contact.');if(!v.unit) out.push('Choose the unit.');}
+    return out;
+  }
   if(step===1){
     if(!v.unit) out.push('Choose the unit.');
     else{const s=dcUnitState(o,v.unit);if(!s.ok) out.push(`${v.unit} can’t be used: ${s.why}.`);}
@@ -109,13 +261,15 @@ function dcIssues(step){
     if(!v.pos) out.push('Add the POS signed date.');
     else if(v.pos>dealToday()) out.push('The POS signed date can’t be in the future.');
     if(v.deposit<0||v.deposit>v.price) out.push('The deposit must be between €0 and the final price.');
+    if(v.deedTarget&&v.pos&&v.deedTarget<v.pos) out.push('The target deed date must be after the POS.');
+    if(v.loanBy&&v.pos&&v.loanBy<v.pos) out.push('The loan deadline must be after the POS.');
   }
   if(step===2){
     const c=dcComm(), sum=dcR2(v.team.reduce((a,t)=>a+(+t.pct||0),0));
     if(!(c.total>0)) out.push('Set the commission.');
     if(v.comm.mode==='custom'&&v.comm.basis==='pct'&&c.rate>10) out.push('A commission above 10% isn’t allowed.');
     if(v.comm.mode==='custom'&&!v.comm.why.trim()) out.push('Add a reason for the custom commission.');
-    if(v.ref.on&&!v.ref.name) out.push('Choose who referred the buyer.');
+    if(v.ref.on&&!v.ref.name) out.push('Link who referred the buyer or shares the deal.');
     if(v.ref.on&&!(c.ref>0)) out.push('Enter the referral fee.');
     if(v.ref.on&&c.ref>=c.total&&c.total>0) out.push('The referral fee must be less than the total commission.');
     if(v.team.some(t=>!t.name)) out.push('Choose a team member for every row.');
@@ -140,20 +294,24 @@ function dcSeg(key,cur,opts){
   return `<div class="df-seg" role="radiogroup">${opts.map(([k,l])=>`<button type="button" role="radio" aria-checked="${k===cur}" class="${k===cur?'on':''}" onclick="dcPick('${key}','${k}')">${l}</button>`).join('')}</div>`;
 }
 function dcRender(){
-  const v=DCV, o=dcO();
-  const steps=`<ol class="dc-steps" aria-label="Create deal steps">${DC_STEPS.map((l,i)=>`<li class="${i+1===v.step?'on':i+1<v.step?'done':''}" ${i+1===v.step?'aria-current="step"':''}><span>${i+1<v.step?'✓':i+1}</span>${l}</li>`).join('')}</ol>`;
-  const body=v.step===1?dcStep1(o):v.step===2?dcStep2(o):dcStep3(o);
+  const v=DCV, o=v.step?dcO():null;
+  const list=(v.withBuyer?[['Buyer',0]]:[]).concat(DC_STEPS.map((l,i)=>[l,i+1]));
+  const steps=`<ol class="dc-steps" aria-label="Create deal steps">${list.map(([l,n],i)=>`<li class="${n===v.step?'on':n<v.step?'done':''}" ${n===v.step?'aria-current="step"':''}><span>${n<v.step?'✓':i+1}</span>${l}</li>`).join('')}</ol>`;
+  const body=v.step===0?dcStep0():v.step===1?dcStep1(o):v.step===2?dcStep2(o):dcStep3(o);
   const last=v.step===3, primary=last?(dcNeedsApproval()?'Submit for approval':'Create deal'):'Next';
-  dfDrawer('Create deal',`<p class="df-mu">${dfEsc(o.lead)} · ${dfEsc(o.id)} · ${dfEsc(o.devs[0])}</p>${steps}<div id="dc-body">${body}</div><p class="dc-err" id="dc-err" role="alert"></p>`,
-    `${v.step>1?'<button class="btn-ghost" onclick="dcBack()">Back</button>':'<button class="btn-ghost" onclick="dcCancel()">Cancel</button>'}<button class="btn-primary" id="dc-next" onclick="${last?'dcCreate()':'dcNext()'}">${primary}</button>`,600);
+  const ctx=o?`<p class="df-mu">${dfEsc(o.lead)} · ${o.origin==='external'?'Sale outside Bricly':dfEsc(o.id)} · ${dfEsc(o.devs[0])}</p>`:'<p class="df-mu">New deal</p>';
+  const back=v.step>1||(v.step===1&&v.withBuyer)?'<button class="btn-ghost" onclick="dcBack()">Back</button>':'<button class="btn-ghost" onclick="dcCancel()">Cancel</button>';
+  const next=v.step===0&&v.mode==='opp'?'':`<button class="btn-primary" id="dc-next" onclick="${last?'dcCreate()':'dcNext()'}">${primary}</button>`;
+  dfDrawer('Create deal',`${ctx}${steps}<h3 class="dc-q">${DC_STEP_Q[v.step]}</h3><div id="dc-body">${body}</div><p class="dc-err" id="dc-err" role="alert"></p>`,`${back}${next}`,600);
   dcLive();
 }
 function dcStep1(o){
-  const v=DCV, skipped=dcSkipped(o), us=v.unit?dcUnitState(o,v.unit):null, u=dcUnit(v.unit);
+  const v=DCV, skipped=dcSkipped(o), us=v.unit?dcUnitState(o,v.unit):null, u=dcUnit(v.unit), units=dcUnits(o);
   const names=dcContacts().filter(c=>c.name!==o.lead).map(c=>`<option value="${dfEsc(c.name)}">`).join('');
+  const opt='<span class="df-mu">· optional</span>';
   return `${skipped.length?`<div class="dc-note warn"><b>POS signed outside Bricly?</b> ${dfEsc(skipped.join(', '))} will be marked <i>Skipped — POS recorded</i> on this opportunity.</div>`:''}
-    <label class="df-field"><span>Unit</span>${o.units.length>1
-      ?`<select onchange="dcPick('unit',this.value)">${o.units.map(id=>{const s=dcUnitState(o,id),un=dcUnit(id);return `<option value="${dfEsc(id)}" ${id===v.unit?'selected':''} ${s.ok?'':'disabled'}>${dfEsc(id)}${un?` · ${un.beds} bed ${un.type} · ${fmtEur(un.price)}`:''}${s.ok?'':' — '+s.why}</option>`;}).join('')}</select>`
+    <label class="df-field"><span>Unit</span>${units.length>1
+      ?`<select onchange="dcPick('unit',this.value)">${o.units.length?'':'<option value="">Choose…</option>'}${units.map(id=>{const s=dcUnitState(o,id),un=dcUnit(id);return `<option value="${dfEsc(id)}" ${id===v.unit?'selected':''} ${s.ok?'':'disabled'}>${dfEsc(id)}${un?` · ${un.beds} bed ${un.type} · ${fmtEur(un.price)}`:''}${s.ok?'':' — '+s.why}</option>`;}).join('')}</select>`
       :`<input value="${dfEsc(v.unit||'No unit linked')}${u?` · ${u.beds} bed ${u.type} · ${fmtEur(u.price)} list`:''}" readonly>`}
       ${us?`<span class="df-mu ${us.ok?'':'bad'}">${dfEsc(us.why)}${us.ok&&!us.reserved?` · ${dfIsManager()?'you’re a manager, so it goes live on create':'a manager approves before the unit is locked'}`:''}</span>`:''}</label>
     <div class="df-field"><span>Buyer(s)</span><div class="dc-buyers"><span class="dc-chip">${dfEsc(o.lead)}</span>
@@ -166,6 +324,10 @@ function dcStep1(o){
       <label class="df-field"><span>Deposit paid (€)</span><input id="dc-dep" inputmode="numeric" value="${dcFmt(v.deposit)}" data-k="deposit" data-num oninput="dcMoneyIn(this)"><span class="df-mu" id="dc-dep-hint"></span></label>
     </div>
     <div class="df-field"><span>Funding</span>${dcSeg('funding',v.funding,Object.entries(DF_FUND))}</div>
+    <div class="df-grid2">
+      <label class="df-field"><span>Target final deed ${opt}</span><input type="date" value="${v.deedTarget}" min="${v.pos}" data-k="deedTarget" oninput="dcIn(this)"></label>
+      ${v.funding==='cash'?'':`<label class="df-field"><span>Loan approval deadline ${opt}</span><input type="date" value="${v.loanBy}" min="${v.pos}" data-k="loanBy" oninput="dcIn(this)"></label>`}
+    </div>
     <div class="df-field"><span>Signed POS document</span>${dcSeg('posDoc.mode',v.posDoc.mode,[['upload','Upload now'],['later','Add later']])}
       ${v.posDoc.mode==='upload'?`<input type="file" accept=".pdf,image/*" onchange="dcFile(this)" aria-label="Signed POS file">${v.posDoc.file?`<span class="df-mu ok">${dfEsc(v.posDoc.file.name)} attached</span>`:''}`:'<span class="df-mu">An “Upload the signed POS” task is added to the deal.</span>'}</div>`;
 }
@@ -188,11 +350,11 @@ function dcPriceHtml(){
     <label class="df-field dc-final"><span>Final agreed price (€)</span><input id="dc-price" inputmode="numeric" value="${dcFmt(v.price)}" data-k="price" data-num oninput="dcMoneyIn(this)"><span class="df-mu" id="dc-price-hint"></span></label>
   </div>`;
 }
+function dcToggle(key,on,title,sub){
+  return `<label class="dc-toggle"><input type="checkbox" role="switch" ${on?'checked':''} onchange="dcPick('${key}',this.checked?'yes':'no')"><span class="dc-sw" aria-hidden="true"></span><span class="dc-toggle-b"><b>${title}</b><span class="df-mu">${sub}</span></span></label>`;
+}
 function dcStep2(o){
-  const v=DCV, c=dcComm(), reps=dfReps();
-  const partners=dcContacts().filter(x=>x.type==='partner'), others=dcContacts().filter(x=>x.type!=='partner'&&x.name!==o.lead);
-  const known=new Set([...partners,...others].map(x=>x.name).concat(reps));
-  const opt=(n,l)=>`<option value="${dfEsc(n)}" ${n===v.ref.name?'selected':''}>${dfEsc(l||n)}</option>`;
+  const v=DCV, reps=dfReps(), who=v.ref.kind==='agent'?'agent':'referrer';
   return `<div class="df-eyebrow">Total commission <span class="df-mu">· excluding VAT</span></div>
     ${dcSeg('comm.mode',v.comm.mode,[['default',`Default · ${DF_COMM_RULE.rate}%`],['custom','Custom']])}
     ${v.comm.mode==='custom'?`<div class="df-grid2">
@@ -201,38 +363,35 @@ function dcStep2(o){
       <label class="df-field"><span>Reason for the custom commission</span><input value="${dfEsc(v.comm.why)}" data-k="comm.why" oninput="dcIn(this)" placeholder="e.g. Agreed with the developer for a bulk purchase"></label>`:''}
     <div class="df-split-total"><span class="df-mu">Total commission</span><b id="dc-total"></b></div>
 
-    <div class="df-eyebrow">Was this a referral?</div>
-    ${dcSeg('ref.on',v.ref.on?'yes':'no',[['no','No'],['yes','Yes']])}
-    ${v.ref.on?`<label class="df-field"><span>Referred by</span><select onchange="dcPick('ref.name',this.value)"><option value="">Choose…</option>
-        ${partners.length?`<optgroup label="Partners & agents">${partners.map(p=>opt(p.name,`${p.name}${p.company?' · '+p.company:''}`)).join('')}</optgroup>`:''}
-        ${others.length?`<optgroup label="Contacts">${others.map(p=>opt(p.name)).join('')}</optgroup>`:''}
-        <optgroup label="Team">${reps.map(n=>opt(n)).join('')}</optgroup>
-        ${v.ref.name&&!known.has(v.ref.name)?opt(v.ref.name):''}</select></label>
-      <div class="df-grid2"><div class="df-field"><span>Referral fee</span>${dcSeg('ref.basis',v.ref.basis,[['pct','% of commission'],['fixed','Fixed €']])}</div>
+    ${dcToggle('ref.on',v.ref.on,'Referral or shared deal','Another agent shares this deal, or a contact referred the buyer')}
+    ${v.ref.on?`<div class="dc-sub">
+      <div class="df-field"><span>Linked to</span>${dcPplHtml('ref')}</div>
+      <div class="df-grid2"><div class="df-field"><span>${who==='agent'?'Their share':'Referral fee'}</span>${dcSeg('ref.basis',v.ref.basis,[['pct','% of commission'],['fixed','Fixed €']])}</div>
         <label class="df-field"><span>${v.ref.basis==='pct'?'Share of commission (%)':'Amount (€)'}</span>${v.ref.basis==='pct'?`<input inputmode="decimal" value="${v.ref.val}" data-k="ref.val" data-num oninput="dcIn(this)">`:`<input inputmode="numeric" value="${dcFmt(v.ref.val)}" data-k="ref.val" data-num oninput="dcMoneyIn(this)">`}</label></div>
-      <span class="df-mu">Paid out of the commission, before the team’s split.</span>`:''}
+      <span class="df-mu">Paid out of the commission, before your team’s split.</span></div>`:''}
 
-    <div class="df-eyebrow">Share with a team member?</div>
-    ${dcSeg('share',v.share?'yes':'no',[['no',`No · 100% to ${dfEsc(v.team[0].name)}`],['yes','Yes']])}
-    ${v.share?`<div class="dc-team">${v.team.map((t,i)=>`<div class="dc-team-row">
+    ${dcToggle('share',v.share,'Split with a team member',v.share?'Shares of what’s left after any referral':`100% to ${dfEsc(v.team[0].name)}`)}
+    ${v.share?`<div class="dc-sub"><div class="dc-team">${v.team.map((t,i)=>`<div class="dc-team-row">
         <span class="df-av internal" aria-hidden="true">${t.name?initials(t.name):'?'}</span>
         ${i===0?`<span class="dc-team-n"><b>${dfEsc(t.name)}</b><span class="df-mu"> · Deal owner</span></span>`
           :`<select aria-label="Team member" onchange="dcPick('team.${i}.name',this.value)"><option value="">Choose…</option>${reps.filter(n=>n!==v.team[0].name).map(n=>`<option ${n===t.name?'selected':''}>${dfEsc(n)}</option>`).join('')}</select>`}
         <span class="dfs-pctw"><input class="dfs-pct" inputmode="decimal" value="${t.pct}" data-k="team.${i}.pct" data-num oninput="dcIn(this)" aria-label="Share percent">%</span>
         ${i>0?`<button type="button" class="tool" aria-label="Remove team member" onclick="dcTeam(${i})">${sbIcon('x')}</button>`:'<span></span>'}
       </div>`).join('')}</div>
-      <button type="button" class="btn-ghost df-sm" onclick="dcTeam()">+ Add team member</button>`:''}
+      <button type="button" class="btn-ghost df-sm" onclick="dcTeam()">+ Add team member</button></div>`:''}
 
     <div class="df-eyebrow">Breakdown</div>
     <div id="dc-break"></div>
-    <div id="dc-rule" class="df-split-rule"></div>`;
+    <div id="dc-rule" class="df-split-rule"></div>
+    <p class="df-mu">Anything else, like a second referral or payout details, can be added on the deal later.</p>`;
 }
 function dcBreakHtml(){
   const v=DCV, c=dcComm();
   const rows=[[`Total commission`,v.comm.mode==='custom'&&v.comm.basis==='fixed'?'Fixed':`${c.rate}% of ${fmtEur(v.price)}`,fmtEur(c.total),'tot']];
-  if(v.ref.on) rows.push([`Referral${v.ref.name?' — '+v.ref.name:''}`,v.ref.basis==='pct'?`${+v.ref.val||0}% of total`:'Fixed','−'+fmtEur(c.ref),'']);
+  if(v.ref.on) rows.push([`${v.ref.kind==='agent'?'Shared with':'Referral'}${v.ref.name?' — '+v.ref.name:''}`,v.ref.basis==='pct'?`${+v.ref.val||0}% of total`:'Fixed','−'+fmtEur(c.ref),'']);
   if(v.ref.on) rows.push(['Team pool','',fmtEur(c.pool),'sub']);
   c.team.forEach((t,i)=>rows.push([`${t.name||'—'}${i===0?' (owner)':''}`,`${+t.pct||0}%`,fmtEur(t.amt),'']));
+  rows.push(['We keep',v.ref.on&&v.ref.kind!=='team'?'After the referral':'All of it',fmtEur(c.keep),'keep']);
   return `<table class="dc-break">${rows.map(([a,b,cc,k])=>`<tr class="${k}"><td>${dfEsc(a)}</td><td>${dfEsc(b)}</td><td>${cc}</td></tr>`).join('')}</table>`;
 }
 function dcStep3(o){
@@ -243,8 +402,8 @@ function dcStep3(o){
     [has(/deposit/i),'Deposit receipt'],
     [has(/provisional duty/i),'Provisional duty receipt (1%)'],
     [has(/source of funds/i),'KYC · source of funds'],
-    [false,v.funding==='cash'?'Proof of funds for the balance':'Bank sanction letter · loan deadline'],
-    [false,'Final deed target date · notaries · buyer’s lawyer'],
+    [false,v.funding==='cash'?'Proof of funds for the balance':v.loanBy?'Bank sanction letter':'Bank sanction letter · loan deadline'],
+    [!!v.deedTarget,v.deedTarget?'Final deed target date':'Final deed target date · notaries · buyer’s lawyer'],
     [false,'Payment plan & stage payments'],
   ];
   return `${appr?`<div class="dc-note warn"><b>Needs manager approval.</b> ${dfEsc(v.unit)} isn’t reserved for ${dfEsc(o.lead.split(' ')[0])}, so ${dfEsc(DF_COMM_RULE.approver)} approves the deal before the unit is locked. The deal shows as Awaiting approval until then.</div>`:''}
@@ -257,7 +416,11 @@ function dcStep3(o){
       <div><div class="k">Deposit paid</div><div class="v">${fmtEur(v.deposit)}</div></div>
       <div><div class="k">Funding</div><div class="v">${DF_FUND[v.funding]}</div></div>
       <div><div class="k">Commission</div><div class="v">${fmtEur(c.total)} · ${c.rate}%${v.comm.mode==='custom'?' · custom':' · default'}</div></div>
+      <div><div class="k">We keep</div><div class="v"><b>${fmtEur(c.keep)}</b></div></div>
+      ${v.ref.on?`<div><div class="k">${v.ref.kind==='agent'?'Shared with':'Referred by'}</div><div class="v">${dfEsc(v.ref.name)} · ${fmtEur(c.ref)}</div></div>`:''}
       <div><div class="k">Split</div><div class="v">${dfEsc(dcShares().map(s=>`${s.name} ${fmtEur(Math.round(c.total*s.pct)/100)}`).join(' · '))}</div></div>
+      ${v.deedTarget?`<div><div class="k">Target final deed</div><div class="v">${dfEsc(dfFmtIso(v.deedTarget))}</div></div>`:''}
+      ${v.loanBy&&v.funding!=='cash'?`<div><div class="k">Loan approval deadline</div><div class="v">${dfEsc(dfFmtIso(v.loanBy))}</div></div>`:''}
     </div>
     ${skipped.length?`<div class="df-mu">Marked skipped: ${dfEsc(skipped.join(', '))}</div>`:''}
     ${flags.length?`<div class="dc-flags">${flags.map(f=>`<span class="dc-flag">⚑ ${dfEsc(f.l)}</span>`).join('')}<span class="df-mu">Flagged for manager review · doesn’t hold the deal up.</span></div>`:''}
@@ -284,7 +447,7 @@ function dcLive(){
     if(r){r.className='df-split-rule '+(devs.length?'warn':'');r.innerHTML=devs.length?`<b>Differs from the default:</b> ${dfEsc(devs.join(' · '))}. ${dfIsManager()?'You’re a manager, so it’s agreed on create and logged.':`The split goes to ${dfEsc(DF_COMM_RULE.approver)} to approve. The deal goes live anyway.`}`:`Matches the default (${DF_COMM_RULE.rate}%, 100% to the deal owner).`;}
   }
   const issues=v.step<3?dcIssues(v.step):[...dcIssues(1),...dcIssues(2)];
-  const e=document.getElementById('dc-err'); if(e) e.textContent=issues[0]||'';
+  const e=document.getElementById('dc-err'); if(e) e.textContent=v.step===0&&v.mode==='opp'?'':issues[0]||'';
   const n=document.getElementById('dc-next'); if(n) n.disabled=!!issues.length;
 }
 
@@ -322,6 +485,8 @@ function dcResetPrice(){
 function dcOptLabel(){const ex=dcExtras();return [ex.pack&&`${ex.pack.name} finish`,ex.layout&&ex.layout.name].filter(Boolean).join(' · ')+(ex.add?` (+${fmtEur(ex.add)})`:'');}
 function dcPick(k,val){
   const v=DCV;
+  if(k.startsWith('ppl.')){const key=k.slice(4),s=DCP[key];s.q=(document.getElementById('dc-pn-'+key)?.value||s.q);s.kind=val;dcRender();return;}
+  if(v.step===0){dcPath(k,val);dcRender();if(k==='mode'&&val==='opp') setTimeout(()=>document.getElementById('dc-q')?.focus());return;}
   if(k==='ref.on'){v.ref.on=val==='yes';}
   else if(k==='share'){v.share=val==='yes';v.team=v.share?[{name:v.team[0].name,pct:50},{name:'',pct:50}]:[{name:v.team[0].name,pct:100}];}
   else if(k==='comm.mode'){v.comm.mode=val;if(val==='custom'){v.comm.basis='pct';v.comm.val=DF_COMM_RULE.rate;}}
@@ -340,9 +505,16 @@ function dcTeam(i){
   dcRender();
 }
 function dcFile(el){const f=el.files&&el.files[0];DCV.posDoc.file=f?{name:f.name,size:Math.max(1,Math.round(f.size/1024))+' KB'}:null;dcRender();}
-function dcNext(){const iss=dcIssues(DCV.step);if(iss.length){dcLive();return;}DCV.step++;dcRender();}
-function dcBack(){DCV.step=Math.max(1,DCV.step-1);dcRender();}
-function dcCancel(){DCV=null;qaDrawerClose();if(typeof renderBoard==='function')renderBoard();}
+function dcNext(){
+  const iss=dcIssues(DCV.step);if(iss.length){dcLive();return;}
+  if(DCV.step===0){dcStartExternal();return;}
+  DCV.step++;dcRender();
+}
+function dcBack(){
+  if(DCV.step===1&&DCV.withBuyer){dcDropTemp();dcStart();return;}
+  DCV.step=Math.max(1,DCV.step-1);dcRender();
+}
+function dcCancel(){dcDropTemp();DCV=null;qaDrawerClose();if(typeof renderBoard==='function')renderBoard();}
 
 // ---------- create ----------
 function dcCreate(){
@@ -364,11 +536,33 @@ function dcCreate(){
   if(v.posDoc.mode==='upload'&&v.posDoc.file) dfFileDoc(o,x,{id:'pos',label:'Promise of Sale (POS)',group:'Contract'},v.posDoc.file,'Uploaded when the deal was created','Today');
   const df=dfState(o); df.funding=v.funding;
   if(v.posDoc.mode==='later') df.extraTasks.push({id:'t-pos-upload',step:DF_TPL.steps[0].key,title:'Upload the signed POS',owner:o.rep,done:false});
+  if(v.deedTarget){
+    df.appt.target=dfFmtIso(v.deedTarget).replace(/^[A-Za-z]{3}\s+/,'');
+    x.keyDates=(x.keyDates||[]).filter(k=>!/final deed/i.test(k.label)).concat({label:'Final deed',value:df.appt.target});
+  }
+  if(v.loanBy&&v.funding!=='cash'){
+    const by=dfFmtIso(v.loanBy).replace(/^[A-Za-z]{3}\s+/,'');
+    df.loanBy=by; x.keyDates=(x.keyDates||[]).concat({label:'Loan approval deadline',value:by});
+    df.extraTasks.push({id:'t-loan-by',step:'funding',title:`Loan approval due by ${by}`,owner:o.rep,done:false});
+  }
+  if(o.dcTemp){
+    delete o.dcTemp;
+    const b=dcContacts().find(c=>c.id===o.contactId);
+    if(b) b.oppIds=[...new Set([...(b.oppIds||[]),o.id])];
+    d.origin='external';
+  }
+  // Referral links back to the buyer's contact the same way property referrals do (contact.ref).
+  if(v.ref.on&&v.ref.name){
+    const b=dcContacts().find(c=>c.id===o.contactId)||dcContacts().find(c=>c.name===o.lead);
+    if(b&&!b.ref&&v.ref.kind!=='team') b.ref=v.ref.name;
+    const rc=v.ref.id&&dcContacts().find(c=>c.id===v.ref.id);
+    if(rc) rc.oppIds=[...new Set([...(rc.oppIds||[]),o.id])];
+  }
 
   DFS={oppId:o.id,price:v.price,rate:c.rate,trigger:DF_COMM_RULE.trigger,note:v.comm.mode==='custom'?v.comm.why:v.note,shares:dcShares()};
   dfSplitApply(o,'');
   Object.assign(df.comm,{total:c.total,rate:c.rate,basis:v.comm.mode==='default'?'default':v.comm.basis==='pct'?'custom_pct':'custom_fixed',
-    customReason:v.comm.mode==='custom'?v.comm.why:'',referral:v.ref.on?{name:v.ref.name,basis:v.ref.basis,val:+v.ref.val,amount:c.ref}:null});
+    customReason:v.comm.mode==='custom'?v.comm.why:'',referral:v.ref.on?{name:v.ref.name,kind:v.ref.kind,contactId:v.ref.id||null,basis:v.ref.basis,val:+v.ref.val,amount:c.ref}:null});
   DFS=null;
 
   dfLog(o,`POS signed — ${d.id} created${pending?' · awaiting manager approval':''}`,`${me}${skipped.length?` · skipped ${skipped.join(', ')}`:''}${v.note?' · '+v.note:''}`,{strong:true});
@@ -385,9 +579,11 @@ function dcCreate(){
   else dcActivate(o,d,dfIsManager()&&!dcUnitState(o,v.unit).reserved?`${me} · manager`:null);
   dfAfter(o,'Documents carried over from Offer Progress');
 
+  const fromDeals=v.origin==='deals';
   DCV=null; qaDrawerClose();
   if(typeof renderOpp==='function'&&document.getElementById('p-opp')?.classList.contains('on')){renderOpp();if(!pending&&typeof ojConfetti==='function')ojConfetti();}
   pipeRenderAll(); if(typeof renderDeals==='function') renderDeals(); if(typeof apBadge==='function') apBadge();
+  if(fromDeals&&typeof openDeal==='function') openDeal(d.id);
   const split=df.comm.state==='pending'?` · split sent to ${DF_COMM_RULE.approver.split(' ')[0]}`:'';
   showToast(pending?`📄 ${d.id} sent to ${DF_COMM_RULE.approver.split(' ')[0]} for approval · ${v.unit} stays as is until then`:`📄 POS signed — ${d.id} created${split}`);
   return d;
@@ -461,17 +657,28 @@ function dcFlagReview(i){
   const f=d.flags[i]; if(!f) return; f.reviewed=true;
   dfLog(o,`Flag reviewed · ${f.l}`,`${dfMe()} · manager`); renderDeal(); showToast('Flag marked reviewed');
 }
+// Opens an undecided request in the Approvals queue (apOpenDecision only shows decided ones).
+function dcViewRequest(id){
+  if(typeof apRender!=='function') return;
+  go('approvals'); apTab='open'; apType='all'; apSel=id; apRender();
+}
 function dcDealBannerHtml(d){
   const o=dealOpp(d), open=(d.flags||[]).map((f,i)=>({...f,i})).filter(f=>!f.reviewed), out=[];
   if(d.status==='pending'){
     const r=typeof APPROVALS!=='undefined'&&APPROVALS.find(q=>q.id===d.approvalReq), can=dfIsManager();
     out.push(`<div class="dc-banner warn"><div><b>Awaiting manager approval.</b> The POS was recorded without ${dfEsc(d.unit)} being reserved for ${dfEsc(o.lead.split(' ')[0])}. ${dfEsc(d.unit)} isn’t locked until ${dfEsc(DF_COMM_RULE.approver)} approves.</div>
-      ${r?`<div class="dc-banner-a">${can?`<button class="btn-ghost df-sm" onclick="apRejectOpen('${r.id}')">Reject</button><button class="btn-primary df-sm" onclick="apApprove('${r.id}');setTimeout(()=>renderDeal())">Approve</button>`:`<button class="btn-ghost df-sm" onclick="apOpenDecision('${r.id}')">View request ${r.id}</button>`}</div>`:''}</div>`);
+      ${r?`<div class="dc-banner-a">${can?`<button class="btn-ghost df-sm" onclick="apRejectOpen('${r.id}')">Reject</button><button class="btn-primary df-sm" onclick="apApprove('${r.id}');setTimeout(()=>renderDeal())">Approve</button>`:`<button class="btn-ghost df-sm" onclick="dcViewRequest('${r.id}')">View request ${r.id}</button>`}</div>`:''}</div>`);
   }
   if(open.length) out.push(`<div class="dc-banner flag"><div>${open.map(f=>`<span class="dc-flag">⚑ ${dfEsc(f.l)}${dfIsManager()?` <button type="button" class="dc-flag-btn" onclick="dcFlagReview(${f.i})">Mark reviewed</button>`:''}</span>`).join('')}</div></div>`);
   return out.join('');
 }
 (function(){
+  // Closing the drawer any other way (×, Escape) still drops an unfinished outside-sale record.
+  const baseClose=window.qaDrawerClose;
+  if(typeof baseClose==='function') window.qaDrawerClose=function(){
+    if(DCV){dcDropTemp();DCV=null;}
+    return baseClose.apply(this,arguments);
+  };
   const baseRender=window.renderDeal;
   window.renderDeal=function(){
     baseRender.apply(this,arguments);
