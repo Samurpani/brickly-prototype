@@ -4,6 +4,8 @@ Prototype: [prototypes/v3/Bricly_OS_Prototype_v3.html](../prototypes/v3/Bricly_O
 
 Sources: Figma *Bricly DS 1.2* flow (node 15055:10531), Glass V2 components and themes (node 15037:10388), the Availability List and Unit Page v2 designs.
 
+Developer handover with screenshots (ASD-STE100): [present-mode-v3-handover/index.html](present-mode-v3-handover/index.html).
+
 ## Entry points
 | From | Opens |
 |---|---|

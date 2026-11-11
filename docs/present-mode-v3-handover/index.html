@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Present Mode v3 · Developer handover</title>
+<style>
+  :root{--ink:#1b1d18;--mu:#5d6157;--line:#dcdcd2;--bg:#f6f5f0;--card:#fff;--acc:#4d5b3a;--warn:#8a5a00;--warnbg:#fbf1dc;--note:#1f4e5f;--notebg:#e6f0f3;--cau:#8a1d1d;--caubg:#f8e6e6;--code:#f1f0ea}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:16px}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Inter",system-ui,-apple-system,"Segoe UI",sans-serif}
+  .layout{display:grid;grid-template-columns:270px minmax(0,1fr);max-width:1500px;margin:0 auto}
+  aside.toc{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;padding:24px 16px 40px 24px;border-right:1px solid var(--line);font-size:14px}
+  aside.toc b{display:block;margin:0 0 4px;font-size:15px}
+  aside.toc small{display:block;color:var(--mu);margin-bottom:16px}
+  aside.toc a{display:block;padding:3px 0;color:var(--ink);text-decoration:none}
+  aside.toc a:hover{color:var(--acc)}
+  aside.toc .g{margin:14px 0 4px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu)}
+  aside.toc .sub{padding-left:12px;color:var(--mu)}
+  main{padding:32px 40px 120px;min-width:0}
+  h1{margin:0 0 6px;font-size:32px;letter-spacing:-.01em}
+  .lede{margin:0 0 20px;color:var(--mu);max-width:880px}
+  h2.part{margin:56px 0 12px;padding-top:10px;border-top:2px solid var(--ink);font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+  h2.part small{display:block;margin-top:2px;font-weight:400;letter-spacing:0;text-transform:none;color:var(--mu);font-size:15px}
+  h3{margin:28px 0 8px;font-size:20px}
+  h4{margin:18px 0 6px;font-size:15px}
+  p{max-width:900px}
+  a{color:var(--acc)}
+  code,kbd{font:13px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--code);padding:1px 5px;border-radius:4px}
+  kbd{border:1px solid var(--line);background:#fff}
+  pre{margin:10px 0;padding:14px 16px;background:#1b1d18;color:#ecece4;border-radius:10px;overflow:auto;font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}
+  table{width:100%;border-collapse:collapse;margin:10px 0 18px;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:14px}
+  th,td{padding:8px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{background:#ecefe4;font-weight:600;font-size:13px}
+  tr:last-child td{border-bottom:0}
+  .chain{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 24px;padding:14px;background:var(--card);border:1px solid var(--line);border-radius:12px;font-size:14px}
+  .chain span{padding:4px 10px;border-radius:20px;background:#ecefe4}
+  .chain i{color:var(--mu);font-style:normal}
+  .step{margin:22px 0;padding:20px;background:var(--card);border:1px solid var(--line);border-radius:14px}
+  .step h3{display:flex;align-items:center;gap:10px;margin:0 0 4px}
+  .n{flex:none;display:inline-grid;place-items:center;min-width:30px;height:30px;padding:0 6px;border-radius:15px;background:var(--ink);color:#fff;font-size:13px}
+  .where{margin:0 0 14px;color:var(--mu);font-size:13px}
+  .grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:24px;align-items:start}
+  @media (max-width:1100px){.grid{grid-template-columns:1fr}.layout{grid-template-columns:1fr}aside.toc{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}main{padding:24px 18px 80px}}
+  .shot{display:block;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#eee}
+  .shot img{display:block;width:100%;height:auto}
+  .grid ul,.grid ol{margin:6px 0 10px;padding-left:20px}
+  .grid li{margin:3px 0}
+  .lbl{display:block;margin:12px 0 2px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu)}
+  .lbl:first-child{margin-top:0}
+  .note,.caution,.req{margin:12px 0;padding:10px 14px;border-left:3px solid var(--note);background:var(--notebg);font-size:14px;border-radius:0 8px 8px 0;max-width:900px}
+  .caution{border-color:var(--cau);background:var(--caubg)}
+  .req{border-color:var(--warn);background:var(--warnbg)}
+  .note b,.caution b,.req b{letter-spacing:.04em}
+  .note b{color:var(--note)}.caution b{color:var(--cau)}.req b{color:var(--warn)}
+  .pill{display:inline-block;padding:1px 8px;border-radius:10px;background:#ecefe4;font-size:12px;margin-right:4px}
+  .cols2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media (max-width:900px){.cols2{grid-template-columns:1fr}}
+  .card{padding:16px 20px;background:var(--card);border:1px solid var(--line);border-radius:12px}
+  .card ul{margin:6px 0;padding-left:20px}
+  .lightbox{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.85);cursor:zoom-out;padding:24px}
+  .lightbox.on{display:flex}
+  .lightbox img{max-width:100%;max-height:100%;border-radius:8px}
+  .shot{cursor:zoom-in}
+  footer{margin-top:60px;color:var(--mu);font-size:13px}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="toc">
+  <b>Present Mode v3</b>
+  <small>Developer handover · ASD-STE100</small>
+  <div class="g">Start</div>
+  <a href="#about">1 About this document</a>
+  <a href="#overview">2 System overview</a>
+  <a href="#arch">3 Architecture</a>
+  <a href="#data">4 Data model</a>
+  <div class="g">Screens</div>
+  <a href="#s-start">5 Start and gallery</a>
+  <a class="sub" href="#s-welcome">Welcome and loading</a>
+  <a class="sub" href="#s-showcase">Showcase</a>
+  <a class="sub" href="#s-filters">Filters (tile view)</a>
+  <a class="sub" href="#s-queue">Queue and settings</a>
+  <a class="sub" href="#s-quick">Quick view</a>
+  <a href="#s-dev">6 Development slideshow</a>
+  <a class="sub" href="#s-nav">Slideshow navigation</a>
+  <a class="sub" href="#s-splash">Logo splash</a>
+  <a class="sub" href="#s-intro">Introduction to Plans</a>
+  <a class="sub" href="#s-avail">Units and availability</a>
+  <a class="sub" href="#s-pages">Pages panel</a>
+  <a href="#s-unit">7 Unit page</a>
+  <a href="#s-close">8 Selection, compare and close</a>
+  <a class="sub" href="#s-compare">Compare</a>
+  <a class="sub" href="#s-secure">Secure your residence</a>
+  <a class="sub" href="#s-thanks">Thank you and checkout</a>
+  <a class="sub" href="#s-buyer">Buyer link</a>
+  <a href="#s-tools">9 Rep tools</a>
+  <div class="g">Reference</div>
+  <a href="#rules">10 Business rules</a>
+  <a href="#motion">11 Motion specification</a>
+  <a href="#crm">12 CRM writes and backend contract</a>
+  <a href="#test">13 Test</a>
+  <a href="#gaps">14 Prototype limits</a>
+  <a href="#glossary">15 Glossary</a>
+</aside>
+
+<main>
+<h1>Present Mode v3: developer handover</h1>
+<p class="lede">This document tells the development team how Present Mode v3 operates. It shows each screen, the steps to operate it, the rules that control it and the code that makes it. Use this document with the prototype and the source code.</p>
+
+<div class="chain"><span>Welcome</span><i>→</i><span>Gallery</span><i>→</i><span>Development slideshow</span><i>→</i><span>Unit page</span><i>→</i><span>Compare</span><i>→</i><span>Secure</span><i>→</i><span>Thank you</span><i>→</i><span>Checkout</span><i>→</i><span>Buyer link</span></div>
+
+<!-- 1 -->
+<h2 class="part" id="about">1 · About this document<small>Purpose, audience and conventions.</small></h2>
+<div class="cols2">
+<div class="card">
+<h4>Purpose</h4>
+<p>Use this document to build the production version of Present Mode. It gives the behaviour, the data and the rules of the prototype.</p>
+<h4>Audience</h4>
+<p>Front-end developers, back-end developers, QA engineers and product designers.</p>
+<h4>Live prototype</h4>
+<p><a href="../../prototypes/v3/Bricly_OS_Prototype_v3.html">prototypes/v3/Bricly_OS_Prototype_v3.html</a>. In the sidebar, click <b>Present</b>.</p>
+</div>
+<div class="card">
+<h4>Writing standard</h4>
+<p>This document uses ASD-STE100 Simplified Technical English. Procedures use the imperative. One sentence gives one instruction. Each term has one meaning.</p>
+<h4>Conventions</h4>
+<ul>
+<li><b>Bold</b> text is a label on the screen.</li>
+<li><code>Code</code> text is a file, a function, a state key or a value.</li>
+<li><kbd>Key</kbd> is a keyboard key.</li>
+<li><b>NOTE</b> gives information. <b>CAUTION</b> tells you about a risk to data or behaviour. <b>REQUIREMENT</b> is a rule that production must keep.</li>
+</ul>
+</div>
+</div>
+
+<!-- 2 -->
+<h2 class="part" id="overview">2 · System overview<small>What Present Mode does and how a user gets into it.</small></h2>
+<p>Present Mode is a full-screen sales presentation. A sales representative (the rep) uses it with a buyer, in a meeting or on a shared screen. The rep shows developments, then residences (units). The buyer selects units. The rep compares the units, holds one, reserves it and books the signing. After the meeting, the rep sends a link to the buyer.</p>
+<p>Each development has its own brand: colours, display font and logo. The presentation loads this brand when it shows the development.</p>
+
+<h3>Users</h3>
+<table>
+<tr><th>User</th><th>What the user does</th><th>What the user must not see</th></tr>
+<tr><td>Rep</td><td>Operates the presentation. Links the buyer to the CRM. Sends the link.</td><td>No limit.</td></tr>
+<tr><td>Buyer</td><td>Looks at the screen. Selects units. Types own details on the Secure step. Opens the buyer link later.</td><td>CRM lists, other buyers, buyer signals, insights.</td></tr>
+<tr><td>Live viewer</td><td>Follows the presentation in a second browser. Cannot click.</td><td>Checkout, insights, partner screens.</td></tr>
+<tr><td>Partner (broker)</td><td>Presents with a partner link. Registers a client.</td><td>All CRM data.</td></tr>
+</table>
+
+<h3>Entry points</h3>
+<table>
+<tr><th>From</th><th>Function</th><th>Result</th></tr>
+<tr><td>Sidebar <b>Present</b></td><td><code>prOpenLobby()</code></td><td>Welcome → Loading Developments → Gallery.</td></tr>
+<tr><td>A development (Developments page, development card, hub)</td><td><code>prOpenDev(devId)</code></td><td>The logo splash of the development → Introduction.</td></tr>
+<tr><td>A unit</td><td><code>prOpen(unitId)</code></td><td>Branded loading screen → Unit page.</td></tr>
+<tr><td>An opportunity</td><td><code>qaPresent()</code>, <code>PM.presentOpportunity(oppId)</code></td><td>The developments of the opportunity. The opportunity is already linked.</td></tr>
+<tr><td>Selected developments</td><td><code>PM.presentDevelopments(ids)</code></td><td>The first development. The other developments are in the queue.</td></tr>
+<tr><td>Buyer link</td><td>URL hash <code>#present=&lt;outputId&gt;</code></td><td>The buyer view of the selection.</td></tr>
+<tr><td>Live view link</td><td>URL hash <code>#present-live=&lt;sessionId&gt;</code></td><td>A read-only copy of the presentation.</td></tr>
+<tr><td>Partner link</td><td>URL hash <code>#present-partner=&lt;partnerId&gt;</code></td><td>A presentation without CRM access.</td></tr>
+</table>
+<div class="note"><b>NOTE:</b> If a presentation stops (for example, a page reload) and the rep opens the page again in 30 minutes, the presentation starts again at the same screen.</div>
+
+<!-- 3 -->
+<h2 class="part" id="arch">3 · Architecture<small>Files, load order, state, render cycle and events.</small></h2>
+<p>The prototype is plain JavaScript with no framework and no build step. All files are in <code>prototypes/v3/</code>. The CRM page loads the Present Mode files after the CRM scripts.</p>
+
+<h3>Files and load order</h3>
+<table>
+<tr><th>#</th><th>File</th><th>Contents</th></tr>
+<tr><td>1</td><td><code>present-v3-data.js</code></td><td><code>window.PV3D</code>. Brands, commercial terms, Miami Tropic inventory, page content, amenities, finishes, translations, exchange rates. No DOM.</td></tr>
+<tr><td>2</td><td><code>present-v3.js</code></td><td><code>window.PV3</code> (core). State, storage, shell, render cycle, events, formatters, transitions, entry points, welcome and loading screens.</td></tr>
+<tr><td>3</td><td><code>present-v3-gallery.js</code></td><td>Gallery: showcase carousel, grid, filters and tile view, queue, Ask Bricly AI, search, settings, quick view, price slider.</td></tr>
+<tr><td>4</td><td><code>present-v3-brochure.js</code></td><td>Development slideshow: navigation bar, slides, carousels, availability list and floor plate, selected panel, lightbox.</td></tr>
+<tr><td>5</td><td><code>present-v3-unit.js</code></td><td>Unit page: plan, renders, views, finishes, detail card.</td></tr>
+<tr><td>6</td><td><code>present-v3-checkout.js</code></td><td>Compare table, Secure steps, thank-you screen, checkout, buyer link.</td></tr>
+<tr><td>7</td><td><code>present-v3-sales.js</code></td><td>Holds, live inventory, resume, buyer signals, insights, link engagement, live view, partner mode, preferences.</td></tr>
+<tr><td>—</td><td><code>present-v3.css</code></td><td>All styles. Glass V2 tokens, screens and motion.</td></tr>
+<tr><td>—</td><td><code>unit-media.js</code>, <code>level-plans.js</code></td><td>Unit renders, views and floor plate outlines. The CRM (Edit development) writes this data. Present Mode reads only published data.</td></tr>
+</table>
+<div class="caution"><b>CAUTION:</b> The load order is important. Each file adds to <code>window.PV3</code> and some files wrap functions from earlier files. Do not change the order.</div>
+
+<h3>Module registry</h3>
+<p>Each module registers its screens and actions on the core object <code>P = window.PV3</code>.</p>
+<table>
+<tr><th>Key</th><th>Type</th><th>Use</th></tr>
+<tr><td><code>P.screens[name]</code></td><td>function → HTML string</td><td>Draws one screen. The value of <code>S.screen</code> selects the screen.</td></tr>
+<tr><td><code>P.actions[name]</code></td><td>function(value, element, event)</td><td>Runs when the user clicks an element with <code>data-a="name"</code>. The value comes from <code>data-v</code>.</td></tr>
+<tr><td><code>P.actions['in:'+field]</code></td><td>function(value)</td><td>Runs on input in an element with <code>data-f="field"</code>.</td></tr>
+<tr><td><code>P.after[]</code></td><td>function(root, state, why)</td><td>Runs after each render. Use it to attach behaviour (drag, carousels, animations). <code>why</code> is <code>'resize'</code> on window resize.</td></tr>
+<tr><td><code>P.keys[]</code></td><td>function(event) → true</td><td>Keyboard handlers. Return <code>true</code> to stop the event.</td></tr>
+</table>
+
+<h3>Render cycle</h3>
+<ol>
+<li>An action changes the state object <code>S</code>.</li>
+<li>The action calls <code>P.render()</code> (or <code>P.go(screen)</code> to change the screen).</li>
+<li><code>render()</code> keeps the scroll position and the focus.</li>
+<li><code>render()</code> calls <code>P.screens[S.screen]()</code> and puts the HTML into the shell <code>#pv-shell</code>.</li>
+<li>If the screen changes, the old nodes stay for a short time and fade out (class <code>pv-leave</code>).</li>
+<li>Open floating panels with the same <code>data-pk</code> stay open with no animation. Closed panels animate out (class <code>pv-panel-out</code>).</li>
+<li><code>render()</code> runs all <code>P.after</code> functions.</li>
+</ol>
+<div class="note"><b>NOTE:</b> Some changes do not use a full render because a full render would restart animations. Slide changes (<code>P.goSec</code>), carousel moves (<code>P.carouselTo</code>), the price slider and the filter tiles change the DOM directly.</div>
+
+<h3>Screens</h3>
+<table>
+<tr><th><code>S.screen</code></th><th>Screen</th><th>File</th><th>Buyer can see</th></tr>
+<tr><td><code>welcome</code>, <code>loading</code></td><td>Welcome and loading</td><td>present-v3.js</td><td>Yes</td></tr>
+<tr><td><code>gallery</code></td><td>Showcase, grid, filters, quick view</td><td>gallery</td><td>Yes</td></tr>
+<tr><td><code>present</code></td><td>Development slideshow</td><td>brochure</td><td>Yes</td></tr>
+<tr><td><code>unit</code></td><td>Unit page</td><td>unit</td><td>Yes</td></tr>
+<tr><td><code>compare</code></td><td>Compare and Secure</td><td>checkout</td><td>Yes</td></tr>
+<tr><td><code>thanks</code></td><td>Thank you (privacy gate)</td><td>checkout</td><td>Yes</td></tr>
+<tr><td><code>checkout</code></td><td>Link and share</td><td>checkout</td><td><b>No</b></td></tr>
+<tr><td><code>buyer</code></td><td>Buyer link</td><td>checkout</td><td>Yes (the buyer page)</td></tr>
+<tr><td><code>insights</code>, <code>partner</code></td><td>Rep tools</td><td>sales</td><td><b>No</b></td></tr>
+<tr><td><code>register</code></td><td>Partner client registration</td><td>sales</td><td>Partner only</td></tr>
+<tr><td><code>livewait</code></td><td>Live viewer wait screen</td><td>sales</td><td>Live viewer</td></tr>
+</table>
+
+<h3>Session state (<code>S</code>)</h3>
+<p><code>session()</code> in <code>present-v3.js</code> makes the state. The important keys are:</p>
+<table>
+<tr><th>Key</th><th>Contents</th></tr>
+<tr><td><code>id, t0, started</code></td><td>Session identity and start time. <code>t0</code> keeps the background animation continuous.</td></tr>
+<tr><td><code>screen, origin</code></td><td>Current screen. <code>origin</code> is <code>'gallery'</code> or <code>'dev'</code> (entry point).</td></tr>
+<tr><td><code>queue</code></td><td>Development IDs in the presentation, in order.</td></tr>
+<tr><td><code>dev, sec</code></td><td>Current development and current slide index.</td></tr>
+<tr><td><code>g</code></td><td>Gallery state: <code>view, idx, f</code> (filters), <code>panel, fmode</code> (tile view), <code>theme, size</code>.</td></tr>
+<tr><td><code>av[devId]</code></td><td>Availability state for each development: tab, sort, filters, floor.</td></tr>
+<tr><td><code>unit, ut, acc, zoom, fin, lay, style</code></td><td>Unit page state: unit ID, tab, open sections, plan zoom, finish, layout, render style.</td></tr>
+<tr><td><code>sel[]</code></td><td>Selection. One item for each unit: <code>{uid, dev, finish, layout, style, added, cmp}</code>.</td></tr>
+<tr><td><code>cmpTab, chosen, closing</code></td><td>Compare tab, chosen unit and Secure step data (slot, booking).</td></tr>
+<tr><td><code>oppId, contactId, link</code></td><td>The linked opportunity and contact. <code>link</code> keeps the form values.</td></tr>
+<tr><td><code>output, shares, prices, includeCompare</code></td><td>Buyer link ID, send log and link options.</td></tr>
+<tr><td><code>hidePrices, focus</code></td><td>Live presenter controls. <code>focus</code> is <code>'home'</code> or <code>'investor'</code>.</td></tr>
+<tr><td><code>sig</code></td><td>Buyer signals: time on each slide, time and actions on each unit.</td></tr>
+<tr><td><code>live, viewer, partner</code></td><td>Live view is on; this session is a viewer; partner data.</td></tr>
+</table>
+
+<h3>Storage</h3>
+<table>
+<tr><th>Key</th><th>Contents</th><th>Production replacement</th></tr>
+<tr><td><code>localStorage['bricly.present.v3']</code></td><td><code>sessions, outputs, records, contacts, holds, inventory, partners, active</code></td><td>Back-end tables (see section 12).</td></tr>
+<tr><td><code>localStorage['bricly.present.prefs']</code></td><td><code>quick, lang, ccy</code></td><td>User preferences.</td></tr>
+<tr><td><code>localStorage['bricly.present.live.&lt;id&gt;']</code> and <code>BroadcastChannel('bricly-present-live')</code></td><td>Live view snapshot.</td><td>WebSocket or real-time channel.</td></tr>
+</table>
+
+<!-- 4 -->
+<h2 class="part" id="data">4 · Data model<small><code>window.PV3D</code> in present-v3-data.js.</small></h2>
+<table>
+<tr><th>Key</th><th>Contents</th></tr>
+<tr><td><code>brand(devId)</code></td><td>Brand of the development: <code>bg, surface, ink, muted, accent, tint, reserved, line, display, text, logo</code>. The presentation sets these as CSS variables <code>--b-*</code> (<code>P.brandVars</code>).</td></tr>
+<tr><td><code>commerce(devId)</code></td><td>Commercial terms: <code>currency, area, developer, plan</code> (stages: name, when, percent), <code>protection, hold</code> (hours, deposit), <code>completion, grace, timeline, charges, rent, track</code>.</td></tr>
+<tr><td><code>content(devId)</code></td><td>Slide content: <code>intro, lifestyle, amenities, location</code> (map, categories, points), <code>gallery, tower</code>.</td></tr>
+<tr><td><code>amenityItems(devId)</code></td><td>One item for each amenity: <code>{name, img, body}</code>.</td></tr>
+<tr><td><code>unitsOf(devId)</code>, <code>unit(uid)</code>, <code>register(uid)</code></td><td>Inventory. Miami Tropic has generated units (floors 2 to 42, 9 units on each floor). <code>register</code> adds a generated unit to the CRM list <code>UNITS</code>.</td></tr>
+<tr><td><code>residenceGroups(devId)</code></td><td>Residences slide: groups Maisonettes, Apartments, Penthouses, Duplexes, with a render and the lowest price for each bedroom count.</td></tr>
+<tr><td><code>finishesFor(devId)</code></td><td>Finish packs: <code>{id, name, delta, mood, sw (swatches), spec}</code>. <code>delta</code> is the price change.</td></tr>
+<tr><td><code>roomsFor, renderRooms, viewsFor, planImg, position</code></td><td>Unit media from <code>unit-media.js</code> and <code>level-plans.js</code>.</td></tr>
+<tr><td><code>PAGES</code></td><td>Page switcher list: id, label, icon, group.</td></tr>
+<tr><td><code>FX</code></td><td>Approximate exchange rates against EUR. Demonstration values only.</td></tr>
+<tr><td><code>LANGS, T9N</code></td><td>Languages and translated labels for buyer-facing controls.</td></tr>
+<tr><td><code>COMPANY</code></td><td>The seller name on the welcome screen.</td></tr>
+</table>
+
+<h3>Money and area</h3>
+<div class="req"><b>REQUIREMENT:</b> Always use the formatters. Do not write a currency symbol or an area unit directly in a template.</div>
+<table>
+<tr><th>Formatter</th><th>Result</th></tr>
+<tr><td><code>P.fmt(amount, unitOrDev)</code></td><td>The amount in the currency of the development, or in the display currency (then with ≈). It gives <b>Price on request</b> if prices are hidden.</td></tr>
+<tr><td><code>P.fmt(amount, unitOrDev, {force:true})</code></td><td>The amount, also when prices are hidden. Use it only on rep screens.</td></tr>
+<tr><td><code>P.ar(m2, unitOrDev)</code></td><td>The area in m² or sq ft. Miami Tropic uses sq ft.</td></tr>
+<tr><td><code>P.ppa(price, m2, unitOrDev)</code></td><td>Price for each m² or sq ft.</td></tr>
+<tr><td><code>P.fmtIn(amount, currency)</code>, <code>P.kIn</code></td><td>The amount in a given currency. <code>P.kIn</code> gives short values (€1.2m, $550k).</td></tr>
+<tr><td><code>P.t(label)</code></td><td>The label in the presentation language.</td></tr>
+</table>
+
+<!-- 5 -->
+<h2 class="part" id="s-start">5 · Start and gallery<small>From the sidebar to the selected developments.</small></h2>
+
+<div class="step" id="s-welcome"><h3><span class="n">5.1</span>Welcome and loading</h3>
+<p class="where"><code>P.screens.welcome</code>, <code>P.screens.loading</code>, <code>intro()</code> in present-v3.js</p>
+<div class="grid"><div><a class="shot" href="img/01-welcome.jpg"><img src="img/01-welcome.jpg" alt="Welcome screen" loading="lazy"></a><br><a class="shot" href="img/02-loading.jpg"><img src="img/02-loading.jpg" alt="Loading Developments" loading="lazy"></a></div>
+<div><span class="lbl">What it shows</span><p>The welcome screen shows the seller name (white label). The loading screen shows the number of developments and available residences. The background is a moving light field (<code>P.aurora()</code>).</p>
+<span class="lbl">Sequence</span><ol><li>The welcome screen shows for 2.3 s.</li><li>The loading screen shows for 1.9 s. The progress bar fills.</li><li>The text moves up and fades. The background expands and dissolves into the gallery.</li></ol>
+<span class="lbl">Operate</span><ol><li>To skip, click <b>Skip</b> or press <kbd>Esc</kbd>.</li></ol>
+<span class="lbl">Rules</span><ul><li>With <b>Quick start</b> on, the times are 1.1 s and 1.0 s.</li><li>A partner link shows the partner name and "Presenting &lt;seller&gt;".</li><li>"Powered by Bricly" is a small credit at the bottom left.</li></ul></div></div></div>
+
+<div class="step" id="s-showcase"><h3><span class="n">5.2</span>Showcase</h3>
+<p class="where"><code>P.screens.gallery</code>, <code>carousel()</code>, <code>P.carouselTo()</code> in present-v3-gallery.js</p>
+<div class="grid"><a class="shot" href="img/03-showcase.jpg"><img src="img/03-showcase.jpg" alt="Showcase" loading="lazy"></a>
+<div><span class="lbl">What it shows</span><p>One large development card in the centre. Part of the next card shows at each side. The card shows the name, the location and the lowest available price.</p>
+<span class="lbl">Operate</span><ol><li>To go to the next development, click the right arrow or press <kbd>→</kbd>.</li><li>To add the development to the presentation, hover the card and click ✓.</li><li>To open the quick view, click the card or ↗.</li><li>To see all developments as a grid, click the grid icon.</li><li>To start, click <b>Present selection</b>.</li></ol>
+<span class="lbl">Rules</span><ul><li><b>Present selection</b> is disabled while the queue is empty.</li><li>The carousel keeps 3 cards on each side in the DOM, so a move does not render again.</li><li>Fast clicks queue up. The carousel goes to the last target.</li></ul></div></div></div>
+
+<div class="step" id="s-filters"><h3><span class="n">5.3</span>Filters (tile view)</h3>
+<p class="where"><code>fEnter()</code>, <code>fExit()</code>, <code>ftiles()</code>, <code>camera()</code>, <code>P.fPreview()</code> in present-v3-gallery.js</p>
+<div class="grid"><a class="shot" href="img/04-filter-tiles.jpg"><img src="img/04-filter-tiles.jpg" alt="Filters with tile view" loading="lazy"></a>
+<div><span class="lbl">What it shows</span><p>When the filter panel opens, the showcase zooms out into tiles of all developments. Developments that do not match become blurred, grey and small.</p>
+<span class="lbl">Operate</span><ol><li>Click the filter icon at the top left.</li><li>Set Location, Bedrooms, Property type (more than one), Price range and Features.</li><li>To apply, click <b>Show N matching developments</b>. You can also press <kbd>Esc</kbd> or click outside the panel.</li><li>To apply and go to one development, click its tile.</li></ol>
+<span class="lbl">Rules</span><ul><li>The tiles update during the price slider drag. The filter changes only when you release the slider.</li><li>A tile that does not match does nothing when you click it.</li><li>After you apply, the view goes to the first match. If you clicked a tile, it goes to that development.</li><li>The price filter compares all developments in one currency (the display currency, or EUR).</li></ul></div></div></div>
+
+<div class="step" id="s-queue"><h3><span class="n">5.4</span>Queue and settings</h3>
+<p class="where"><code>queuePanel()</code>, <code>settingsPanel()</code>, <code>P.prefsRows()</code></p>
+<div class="grid"><div><a class="shot" href="img/05-queue.jpg"><img src="img/05-queue.jpg" alt="Presentation queue" loading="lazy"></a><br><a class="shot" href="img/06-settings.jpg"><img src="img/06-settings.jpg" alt="Gallery settings" loading="lazy"></a></div>
+<div><span class="lbl">Queue</span><ol><li>Click <b>N in presentation</b>.</li><li>Drag a row to change the order.</li><li>Click × to remove a development.</li></ol>
+<span class="lbl">Settings</span><ul><li><b>Theme</b>: Dark, Light or System.</li><li><b>Grid size</b>.</li><li><b>Prices in</b>: Local, €, $, £ or AED. Local uses the currency of each development.</li><li><b>Language</b>: labels for the buyer (EN, FR, DE, IT, 中文).</li><li><b>Quick start</b>: shorter welcome and loading.</li><li><b>Partner presentation link</b> and <b>Presentation insights</b> (rep tools, see section 9).</li></ul>
+<div class="note"><b>NOTE:</b> Ask Bricly AI is a simulation. It reads words in the question and sets the filters.</div></div></div></div>
+
+<div class="step" id="s-quick"><h3><span class="n">5.5</span>Quick view</h3>
+<p class="where"><code>overview()</code>, <code>A.ovOpen</code>, <code>A.ovClose</code> in present-v3-gallery.js</p>
+<div class="grid"><a class="shot" href="img/07-quick-view.jpg"><img src="img/07-quick-view.jpg" alt="Quick view" loading="lazy"></a>
+<div><span class="lbl">What it shows</span><p>Name, lowest price, facts, description, amenities, an image gallery and the action bar (<b>Present now</b>, <b>Add to presentation</b>).</p>
+<span class="lbl">Open sequence</span><ol><li>The card image grows to full screen.</li><li>The image becomes blurred and dark.</li><li>The details come in, one after the other.</li></ol>
+<span class="lbl">Close sequence</span><ol><li>The text fades out.</li><li>The blur goes away.</li><li>The image shrinks into the card. If the gallery image is different, it changes to the card image during the shrink.</li></ol>
+<span class="lbl">Rules</span><ul><li>The background always shows the active gallery image.</li><li>The morph moves a real element (left, top, width, height). Both the element and the card use <code>cover</code>, so the crop is the same at each end.</li></ul></div></div></div>
+
+<!-- 6 -->
+<h2 class="part" id="s-dev">6 · Development slideshow<small>Full-screen slides. No scrolling.</small></h2>
+
+<div class="step" id="s-nav"><h3><span class="n">6.1</span>Slideshow navigation</h3>
+<p class="where"><code>P.goSec()</code>, <code>slide()</code>, <code>BODY</code>, <code>P.navBar()</code> in present-v3-brochure.js</p>
+<div class="cols2"><div>
+<span class="lbl">Operate</span><ol><li>To go to the next slide, press <kbd>↓</kbd>, <kbd>→</kbd>, <kbd>Page Down</kbd> or <kbd>Space</kbd>.</li><li>To go back, press <kbd>↑</kbd>, <kbd>←</kbd> or <kbd>Page Up</kbd>.</li><li>You can also use the mouse wheel, a swipe or the up and down buttons at the bottom right.</li><li>To go to a page, open the page switcher in the top bar.</li><li>To close Present Mode, click × at the top right.</li></ol></div>
+<div><span class="lbl">Rules</span><ul><li>Only one slide shows at a time. The old slide moves away and fades. The new slide plays its entrance.</li><li>A new move is not possible for 650 ms after a move.</li><li>The mouse wheel needs 280 ms of no input before the next move. This stops the trackpad from skipping slides.</li><li>A list that can scroll (availability, location points) uses the wheel first.</li><li>The × button shows on every screen. The session is saved.</li></ul></div></div>
+<h4>Slide order</h4>
+<table>
+<tr><th>Buyer focus</th><th>Order (<code>ORDER</code> in present-v3-brochure.js)</th></tr>
+<tr><td>Home (default)</td><td>Splash · Introduction · Lifestyle · Amenities · Location · Payment &amp; ownership · Residences · Units and availability · Walkthrough · Gallery · Plans</td></tr>
+<tr><td>Investor</td><td>Splash · Introduction · Payment &amp; ownership · Residences · Units and availability · Location · Amenities · Lifestyle · Walkthrough · Gallery · Plans</td></tr>
+</table></div>
+
+<div class="step" id="s-splash"><h3><span class="n">6.2</span>Logo splash</h3>
+<p class="where"><code>splash()</code>, <code>setupSlide()</code>, <code>P.startDev()</code></p>
+<div class="grid"><a class="shot" href="img/08-splash.jpg"><img src="img/08-splash.jpg" alt="Logo splash" loading="lazy"></a>
+<div><p>The logo of the development is the loading screen. The logo comes out of a blur. A thin line fills below it. After 2.3 s (1.1 s with Quick start), the Introduction loads.</p>
+<div class="note"><b>NOTE:</b> A development without a logo image shows its name in the display font.</div></div></div></div>
+
+<div class="step" id="s-intro"><h3><span class="n">6.3</span>Content slides</h3>
+<p class="where"><code>intro(), lifestyle(), amenities(), location(), ownership(), residences(), walkthrough(), gallery(), plans()</code></p>
+<div class="grid"><a class="shot" href="img/09-intro.jpg"><img src="img/09-intro.jpg" alt="Introduction" loading="lazy"></a>
+<div><h4>Introduction</h4><p>Title, text and a large image. The image opens from the side of the text. The title rises word by word.</p></div></div>
+<div class="grid" style="margin-top:20px"><a class="shot" href="img/10-lifestyle.jpg"><img src="img/10-lifestyle.jpg" alt="Lifestyle" loading="lazy"></a>
+<div><h4>Lifestyle</h4><ol><li>Drag or flick the cards.</li><li>Or click the arrows. The counter shows 01 / 04.</li></ol><p>Each card comes in after the one before it.</p></div></div>
+<div class="grid" style="margin-top:20px"><a class="shot" href="img/11-amenities.jpg"><img src="img/11-amenities.jpg" alt="Amenities" loading="lazy"></a>
+<div><h4>Amenities</h4><ol><li>Click an amenity in the list. The slider moves to its render.</li><li>Or drag the slider, or click the arrows.</li></ol><p>Each amenity has a render and one line of text for the rep. The data is in <code>amenityItems()</code>.</p></div></div>
+<div class="grid" style="margin-top:20px"><a class="shot" href="img/12-location.jpg"><img src="img/12-location.jpg" alt="Location" loading="lazy"></a>
+<div><h4>Location</h4><p>Points of interest on the left. Hover a point to show its category colour. The map is a static image now.</p><div class="req"><b>REQUIREMENT:</b> Production must link each point to a map pin. The map must move and zoom.</div></div></div>
+<div class="grid" style="margin-top:20px"><a class="shot" href="img/13-ownership.jpg"><img src="img/13-ownership.jpg" alt="Payment and ownership" loading="lazy"></a>
+<div><h4>Payment &amp; ownership</h4><p>Left: the payment plan with an amount for each stage. Right: <b>Timeline and Details of the Project</b>. The right side comes in after the left side.</p><ul><li>Timeline from <code>commerce().timeline</code>. States: <code>done</code>, <code>now</code>, empty.</li><li>Deposit protection, service charges, estimated yield, developer, track record.</li></ul></div></div>
+<div class="grid" style="margin-top:20px"><a class="shot" href="img/14-residences.jpg"><img src="img/14-residences.jpg" alt="Residences" loading="lazy"></a>
+<div><h4>Residences</h4><p>Groups by property type: Maisonettes, Apartments, Penthouses, Duplexes. Each group has a render, the number available and the lowest price for each bedroom count. A click does nothing.</p></div></div>
+<div class="grid" style="margin-top:20px"><a class="shot" href="img/18-walkthrough.jpg"><img src="img/18-walkthrough.jpg" alt="Walkthrough" loading="lazy"></a>
+<div><h4>Walkthrough</h4><p>A film of still images. Each image shows for 4.5 s with a slow zoom. Click pause to stop it.</p><div class="note"><b>NOTE:</b> This slide holds the place for a 3D tour.</div></div></div>
+<div class="grid" style="margin-top:20px"><a class="shot" href="img/19-gallery.jpg"><img src="img/19-gallery.jpg" alt="Gallery" loading="lazy"></a>
+<div><h4>Gallery</h4><ol><li>Click an image to open the lightbox.</li><li>Press <kbd>←</kbd> or <kbd>→</kbd> to go through the images.</li></ol><p>The last tile shows "+N" if there are more images.</p></div></div>
+<div class="grid" style="margin-top:20px"><a class="shot" href="img/20-plans.jpg"><img src="img/20-plans.jpg" alt="Plans" loading="lazy"></a>
+<div><h4>Plans</h4><p>One typical plan for each bedroom count, with the room schedule. <b>View N available</b> opens the availability list with that bedroom filter.</p></div></div>
+<div class="note"><b>NOTE:</b> Renders show the label <b>Artist's impression</b>. Plans show <b>Indicative plan</b>. Views show <b>Indicative view</b>. This is a legal requirement in the EU, Malta, Dubai and Florida.</div></div>
+
+<div class="step" id="s-avail"><h3><span class="n">6.4</span>Units and availability</h3>
+<p class="where"><code>availability(), listView(), floorView(), avFilters(), avUnits()</code></p>
+<div class="grid"><a class="shot" href="img/15-availability.jpg"><img src="img/15-availability.jpg" alt="Availability list" loading="lazy"></a>
+<div><span class="lbl">Availability list</span><ol><li>Click <b>Sort by</b> to change the order.</li><li>Click + to add a unit to the selection.</li><li>Click a row to open the unit page.</li></ol>
+<span class="lbl">Rules</span><ul><li>Sold rows are faded. Reserved rows are half faded.</li><li>A sold, reserved or held unit shows a disabled marker, not +. It cannot go into the selection.</li><li>The list shows 40 rows. <b>Show more</b> adds 40.</li></ul></div></div>
+<div class="grid" style="margin-top:20px"><a class="shot" href="img/16-by-floor.jpg"><img src="img/16-by-floor.jpg" alt="By floor" loading="lazy"></a>
+<div><span class="lbl">By floor</span><ol><li>Click the up and down buttons to change the floor.</li><li>Click a unit on the plate to show its details below the plate.</li><li>Click the same unit again to open the unit page.</li></ol><p>The plate uses published outlines from <code>level-plans.js</code>.</p></div></div>
+<div class="grid" style="margin-top:20px"><a class="shot" href="img/17-availability-filters.jpg"><img src="img/17-availability-filters.jpg" alt="Availability filters" loading="lazy"></a>
+<div><span class="lbl">Filters</span><ol><li>Click <b>Filters</b> at the bottom right.</li><li>Set Bedrooms, Property type, Floor, Price, Features and <b>Show sold &amp; reserved</b>.</li><li>Click <b>Close</b> (the same button, now with ×) to close.</li></ol></div></div></div>
+
+<div class="step" id="s-pages"><h3><span class="n">6.5</span>Pages panel (presenter controls)</h3>
+<p class="where"><code>pagePanel()</code></p>
+<div class="grid"><a class="shot" href="img/21-pages-panel.jpg"><img src="img/21-pages-panel.jpg" alt="Pages panel" loading="lazy"></a>
+<div><ul><li><b>Page list</b>: click a page to go to it.</li><li><b>Buyer focus</b>: Home or Investor. This changes the slide order.</li><li><b>Hide prices</b> (or <kbd>Shift</kbd>+<kbd>P</kbd>): all screens the buyer can see show <b>Price on request</b>.</li><li><b>Prices in</b> and <b>Language</b>.</li><li><b>Share a live view</b>: see section 9.</li></ul></div></div></div>
+
+<!-- 7 -->
+<h2 class="part" id="s-unit">7 · Unit page<small>One residence. Plan, renders, views, finishes and the detail card.</small></h2>
+<div class="step"><h3><span class="n">7.1</span>Plan, renders and views</h3>
+<p class="where"><code>P.screens.unit, plan(), renders(), views(), card()</code> in present-v3-unit.js</p>
+<div class="grid"><a class="shot" href="img/22-unit-plan.jpg"><img src="img/22-unit-plan.jpg" alt="Unit plan" loading="lazy"></a>
+<div><span class="lbl">Plan</span><ol><li>Drag the plan to move it.</li><li>Use the wheel or + and − to zoom.</li><li>Click rotate to turn the plan 90°. The north arrow turns with it.</li></ol>
+<span class="lbl">Detail card (left)</span><ul><li>Price, price for each area unit, finish upgrade.</li><li><b>Details</b>, <b>Room schedule</b>, <b>Where it sits</b>.</li><li><b>Payment plan</b>: the amount for each stage, deposit protection.</li><li><b>Ownership costs</b>: charges, estimated rent and yield.</li></ul></div></div>
+<div class="grid" style="margin-top:20px"><a class="shot" href="img/23-unit-renders.jpg"><img src="img/23-unit-renders.jpg" alt="Unit renders" loading="lazy"></a>
+<div><span class="lbl">Renders</span><ol><li>Click the room arrows to change the room.</li><li>Click the room name to see the next render of that room.</li><li>Open the layout, finish and style picker at the bottom left.</li></ol>
+<p>The Renders and Views tabs show only if the unit has published content.</p></div></div></div>
+
+<div class="step"><h3><span class="n">7.2</span>Finishes</h3>
+<p class="where"><code>finishes(), finishRender()</code></p>
+<div class="grid"><a class="shot" href="img/24-unit-finishes.jpg"><img src="img/24-unit-finishes.jpg" alt="Unit finishes" loading="lazy"></a>
+<div><p>Each finish pack has a render, the materials (swatches), the specification and the price change.</p>
+<span class="lbl">Rules</span><ul><li>If a render has the tag of the pack, the card uses it. The kitchen render has priority.</li><li>If no render has the tag, the card uses the nearest render with a light colour tint of the main material.</li><li>The selected finish changes the unit price. The finish goes with the unit into the selection.</li></ul></div></div></div>
+
+<div class="step"><h3><span class="n">7.3</span>Hold and add to selection</h3>
+<p class="where"><code>P.holdButton(), A.hold, A.release</code> in present-v3-sales.js</p>
+<div class="grid"><a class="shot" href="img/25-unit-hold-payment.jpg"><img src="img/25-unit-hold-payment.jpg" alt="Unit on hold" loading="lazy"></a>
+<div><span class="lbl">Operate</span><ol><li>Click <b>Add to selection</b> to add the unit.</li><li>Click <b>Hold for 48 hours</b> to hold the unit.</li><li>To stop the hold, click <b>Release hold</b>.</li></ol>
+<span class="lbl">Rules</span><ul><li>The detail card shows <b>Held for you</b> and a countdown.</li><li>A hold also adds the unit to the selection.</li><li>Other tabs and other reps see the unit as <b>On hold</b>.</li><li>A hold stops automatically at the end of the time.</li><li>Only available units show these buttons.</li></ul></div></div></div>
+
+<!-- 8 -->
+<h2 class="part" id="s-close">8 · Selection, compare and close<small>From the selection to a booked signing and a sent link.</small></h2>
+
+<div class="step"><h3><span class="n">8.1</span>Selected panel</h3>
+<p class="where"><code>selPanel()</code></p>
+<div class="grid"><a class="shot" href="img/26-selected-panel.jpg"><img src="img/26-selected-panel.jpg" alt="Selected panel" loading="lazy"></a>
+<div><ol><li>Click <b>N Selected</b> in the top bar.</li><li>Tick up to 4 units to compare.</li><li>Click <b>Compare N units</b>.</li></ol><p>The selection stays the same across developments.</p></div></div></div>
+
+<div class="step" id="s-compare"><h3><span class="n">8.2</span>Compare</h3>
+<p class="where"><code>P.screens.compare, P.cmpTable()</code> in present-v3-checkout.js</p>
+<div class="grid"><a class="shot" href="img/27-compare-residences.jpg"><img src="img/27-compare-residences.jpg" alt="Compare residences" loading="lazy"></a>
+<div><span class="lbl">Tabs</span><ul><li><b>Residences</b>: development, price, area, floor, view, features, finish, payment plan, completion, status.</li><li><b>Payments &amp; value</b>: price, price for each area unit, hold deposit, due on signing, during construction, on completion, ownership costs, rent, yield, deposit protection.</li></ul>
+<span class="lbl">Rules</span><ul><li>All values use one currency. Converted values show ≈.</li><li>★ <b>Best</b> marks the lowest price and the highest area or yield.</li><li><b>Differences only</b> hides rows with the same values.</li></ul></div></div>
+<div class="grid" style="margin-top:20px"><a class="shot" href="img/28-compare-values.jpg"><img src="img/28-compare-values.jpg" alt="Compare payments and value" loading="lazy"></a><div></div></div></div>
+
+<div class="step" id="s-secure"><h3><span class="n">8.3</span>Secure your residence</h3>
+<p class="where"><code>secure(), A.choose, A.book</code> in present-v3-checkout.js</p>
+<div class="grid"><a class="shot" href="img/29-secure.jpg"><img src="img/29-secure.jpg" alt="Secure steps" loading="lazy"></a>
+<div><span class="lbl">Operate</span><ol><li>On the compare page, click <b>Choose this one</b> on a unit.</li><li>Step 1: click <b>Hold for 48 hours</b>.</li><li>Step 2: the buyer types name, email and phone, and sets consent. Click <b>Save buyer</b>.</li><li>Step 3: click <b>Send reservation agreement</b>.</li><li>Step 4: select a day and a time. Click <b>Book contract signing</b> (USD markets) or <b>Book promise of sale</b> (Malta).</li><li>Step 5: click <b>Send the proposal</b>.</li></ol></div></div>
+<div class="grid" style="margin-top:20px"><a class="shot" href="img/30-secure-done.jpg"><img src="img/30-secure-done.jpg" alt="Secure steps done" loading="lazy"></a>
+<div><span class="lbl">Rules</span><ul><li>Step 3 needs a hold and a buyer.</li><li>Step 4 needs a buyer.</li><li>Step 2 shows no CRM list, because the buyer can see this screen. If the session started from an opportunity, step 2 is already done.</li><li>Step 4 sets the opportunity stage to <code>Contract Booked</code> and the next action to the signing.</li><li>Step 5 goes to the thank-you screen (the privacy gate).</li><li>Each step writes to the opportunity activity.</li></ul></div></div></div>
+
+<div class="step" id="s-thanks"><h3><span class="n">8.4</span>Thank you and checkout</h3>
+<p class="where"><code>P.screens.thanks, P.screens.checkout, linkBox(), shareBox(), ensureOutput()</code></p>
+<div class="grid"><a class="shot" href="img/31-thank-you.jpg"><img src="img/31-thank-you.jpg" alt="Thank you" loading="lazy"></a>
+<div><span class="lbl">Thank you (privacy gate)</span><p>The buyer can see this screen. It shows the logo of the developer, the buyer name and the selection count.</p>
+<ol><li>Turn the screen away from the buyer.</li><li>Click <b>Screen turned away · continue</b>.</li></ol>
+<div class="caution"><b>CAUTION:</b> Checkout shows CRM data. Do not show checkout to the buyer.</div></div></div>
+<div class="grid" style="margin-top:20px"><a class="shot" href="img/32-checkout.jpg"><img src="img/32-checkout.jpg" alt="Checkout" loading="lazy"></a>
+<div><span class="lbl">Checkout: link</span><ol><li>Select <b>Opportunity</b>, <b>Contact</b> or <b>New buyer</b>.</li><li>Find the record and click it, or type the new buyer details.</li></ol><p>A new buyer makes a contact and an opportunity. The selection, finishes and session go into the opportunity.</p>
+<span class="lbl">Right side (rep only)</span><ul><li>The selection and the combined value.</li><li>Units held in this presentation, with <b>Send reservation agreement</b>.</li><li><b>Buyer signals</b>: time on each unit, opens, compares, finish, hold, longest slides, focus.</li></ul></div></div>
+<div class="grid" style="margin-top:20px"><a class="shot" href="img/33-checkout-share.jpg"><img src="img/33-checkout-share.jpg" alt="Checkout share" loading="lazy"></a>
+<div><span class="lbl">Checkout: share</span><ol><li>Copy the link, or send by WhatsApp or email, or make a PDF.</li><li>Select the link expiry: 7, 14 or 30 days.</li><li>Set <b>Show prices</b> and <b>Include the comparison</b>.</li></ol>
+<span class="lbl">Rules</span><ul><li>The link is made automatically when an opportunity is linked.</li><li>When the selection changes, a new link is made.</li><li>Units that are not available at that time are not in the link. A warning shows their IDs.</li><li>WhatsApp and email stay disabled until consent is recorded.</li><li>The engagement line shows when the buyer opened the link.</li></ul></div></div></div>
+
+<div class="step" id="s-buyer"><h3><span class="n">8.5</span>Buyer link</h3>
+<p class="where"><code>P.screens.buyer</code>, engagement in <code>trackBuyer()</code></p>
+<div class="grid"><a class="shot" href="img/34-buyer-link.jpg"><img src="img/34-buyer-link.jpg" alt="Buyer link" loading="lazy"></a>
+<div><ul><li>Units by development, in the brand of each development.</li><li>Price in the currency of the market, payment plan, finish, plan.</li><li>The comparison (optional).</li><li><b>Prices valid until</b> and the contract disclaimer.</li><li><b>Print / Save PDF</b>.</li></ul>
+<span class="lbl">Rules</span><ul><li>After the expiry date, the link shows "This selection has expired".</li><li>The page records each open and the time on each unit. The rep sees this in checkout.</li><li>The page uses the language of the presentation.</li></ul></div></div></div>
+
+<!-- 9 -->
+<h2 class="part" id="s-tools">9 · Rep tools<small>Insights, partner links and live view.</small></h2>
+<div class="step"><h3><span class="n">9.1</span>Presentation insights</h3>
+<p class="where"><code>P.screens.insights</code> in present-v3-sales.js</p>
+<div class="grid"><a class="shot" href="img/35-insights.jpg"><img src="img/35-insights.jpg" alt="Insights" loading="lazy"></a>
+<div><p>Interest across all presentations. Open it from the gallery settings.</p><ul><li><b>High interest, still available</b>: units with selections or long view time and no hold.</li><li><b>Demand by residence type</b>: interest compared with units already taken.</li><li><b>Slides that hold attention</b>.</li></ul><div class="note"><b>NOTE:</b> Use this data for price and release decisions.</div></div></div></div>
+
+<div class="step"><h3><span class="n">9.2</span>Partner presentation link</h3>
+<p class="where"><code>P.screens.partner, P.screens.register, A.registerClient</code></p>
+<div class="grid"><a class="shot" href="img/36-partner.jpg"><img src="img/36-partner.jpg" alt="Partner link" loading="lazy"></a>
+<div><ol><li>Type the agency name.</li><li>Select the developments.</li><li>Click <b>Create partner link</b>. The link is copied.</li></ol><span class="lbl">Rules</span><ul><li>The partner sees only the selected developments. The partner sees no CRM data.</li><li>At the end, the partner registers the client. This makes a contact and an opportunity with source <code>Partner: &lt;name&gt;</code>.</li><li>The client is protected for the partner for 90 days.</li></ul></div></div></div>
+
+<div class="step"><h3><span class="n">9.3</span>Live view</h3>
+<p class="where"><code>A.liveShare, broadcast(), applyLive()</code></p>
+<div class="grid"><a class="shot" href="img/37-live-viewer.jpg"><img src="img/37-live-viewer.jpg" alt="Live viewer" loading="lazy"></a>
+<div><ol><li>In the Pages panel, click <b>Share a live view</b>. The link is copied.</li><li>Send the link to family members in other locations.</li></ol><span class="lbl">Rules</span><ul><li>The viewer follows each slide and screen. The viewer cannot click.</li><li>Rep screens (checkout, insights, partner) show "One moment" to the viewer.</li><li>A red dot shows "Live · following &lt;rep&gt;".</li></ul></div></div></div>
+
+<!-- 10 -->
+<h2 class="part" id="rules">10 · Business rules<small>Production must keep these rules.</small></h2>
+<table>
+<tr><th>Area</th><th>Rule</th><th>Code</th></tr>
+<tr><td>Selection</td><td>Only units that are available, or held by this session, can go into the selection. A unit in the selection can always be removed.</td><td><code>P.canTake</code>, <code>P.toggleSel</code></td></tr>
+<tr><td>Hold</td><td>A hold lasts 48 hours (<code>commerce().hold.hours</code>). It has a deposit text. It stops automatically. Only the session that made it can release it.</td><td><code>A.hold, A.release, releaseHold</code></td></tr>
+<tr><td>Live inventory</td><td>The status of each unit on screen is checked every second. If a selected unit is sold or reserved, a message shows one time.</td><td>interval in present-v3-sales.js</td></tr>
+<tr><td>Share</td><td>The link excludes units that are not available when the link is made.</td><td><code>ensureOutput()</code></td></tr>
+<tr><td>Consent</td><td>WhatsApp and email need recorded consent on the contact. The record has time, rep and method.</td><td><code>A.consent, A.lconsent</code></td></tr>
+<tr><td>Link expiry</td><td>7, 14 or 30 days. Default 14. Prices valid for 14 days.</td><td><code>A.linkExpiry</code></td></tr>
+<tr><td>Prices</td><td>Hide prices changes all buyer screens. Rep screens always show prices.</td><td><code>S.hidePrices</code>, <code>P.fmt</code></td></tr>
+<tr><td>Currency</td><td>Each development has a currency and an area unit. Converted values show ≈. Rates are not live.</td><td><code>commerce()</code>, <code>FX</code></td></tr>
+<tr><td>Finish price</td><td>Unit price + finish <code>delta</code>.</td><td><code>P.unitPrice</code></td></tr>
+<tr><td>Privacy</td><td>Checkout, insights and partner screens show only after the rep confirms that the screen is turned away.</td><td><code>A.toCheckout</code></td></tr>
+<tr><td>Resume</td><td>The session is saved 400 ms after each change. It can resume for 30 minutes.</td><td><code>P.persist</code>, boot in present-v3-sales.js</td></tr>
+<tr><td>Illustrations</td><td>Each render, plan and view has an illustration label. The buyer link has a contract disclaimer.</td><td><code>P.aiLabel</code></td></tr>
+</table>
+
+<!-- 11 -->
+<h2 class="part" id="motion">11 · Motion specification<small>Easing, timing and the reusable animation classes.</small></h2>
+<div class="cols2"><div>
+<h4>Easing tokens</h4>
+<table>
+<tr><th>Token</th><th>Value</th><th>Use</th></tr>
+<tr><td><code>--eo</code></td><td><code>cubic-bezier(.16,1,.3,1)</code></td><td>Entrances (text, panels).</td></tr>
+<tr><td><code>--eio</code></td><td><code>cubic-bezier(.76,0,.24,1)</code></td><td>Image wipes, carousels, morphs.</td></tr>
+<tr><td>Exit</td><td><code>cubic-bezier(.7,0,.84,0)</code></td><td>Text that leaves.</td></tr>
+</table>
+<h4>Classes for slide entrances</h4>
+<table>
+<tr><th>Class</th><th>Effect</th><th>Time</th></tr>
+<tr><td><code>.rv</code></td><td>Rises 22 px from a blur</td><td>1.15 s</td></tr>
+<tr><td><code>.rv-w</code></td><td>Words rise one by one (75 ms step)</td><td>1.35 s</td></tr>
+<tr><td><code>.rv-img</code> (up, left, right)</td><td>Image wipe (clip-path) and zoom 1.22 → 1</td><td>1.55 s, 2.6 s</td></tr>
+<tr><td><code>.rv-rule</code></td><td>Line draws from the left</td><td>1.4 s</td></tr>
+</table>
+<p>Each element has its delay in <code>--d</code>. The slide adds a base delay <code>--b</code> (0.12 s first, 0.5 s after a move).</p>
+</div><div>
+<h4>Screen transitions</h4>
+<table>
+<tr><th>Transition</th><th>Time</th></tr>
+<tr><td>Slide out (old slide)</td><td>0.8 s</td></tr>
+<tr><td>Loading → gallery (zoom dissolve)</td><td>1.15 s</td></tr>
+<tr><td>Showcase next / previous</td><td>0.24 s text out + 1.15 s glide</td></tr>
+<tr><td>Filters zoom out / in</td><td>1.15 s / 0.9 s</td></tr>
+<tr><td>Quick view open / close</td><td>1.45 s / 0.26 s + 1.25 s</td></tr>
+<tr><td>Panel open / close</td><td>0.46 s / 0.22 s</td></tr>
+<tr><td>Add to presentation (fly to queue)</td><td>0.76 s</td></tr>
+</table>
+<div class="req"><b>REQUIREMENT:</b> If the system setting "reduce motion" is on, all animations stop and screens change at once. Timed screens show for a minimum of 450 ms.</div>
+</div></div>
+
+<!-- 12 -->
+<h2 class="part" id="crm">12 · CRM writes and back-end contract<small>What the prototype changes in the CRM, and the services that production needs.</small></h2>
+<h3>Records that Present Mode changes</h3>
+<table>
+<tr><th>Event</th><th>Record change</th></tr>
+<tr><td>Link a buyer</td><td><code>OPPS</code>: add the development names to <code>devs</code> and the unit IDs to <code>units</code>. <code>getExt(o).unitConfigs[uid]</code>: finish, layout, price, style. Activity line.</td></tr>
+<tr><td>New buyer</td><td><code>CONTACTS</code>: new contact with <code>consent {wa, em, at, by, how}</code>. <code>OPPS</code>: new opportunity, stage <code>Qualified</code>.</td></tr>
+<tr><td>Hold</td><td>Unit status <code>hold</code>. Activity line.</td></tr>
+<tr><td>Reservation agreement</td><td>Activity line (simulated send).</td></tr>
+<tr><td>Book signing</td><td>Stage <code>Contract Booked</code>. <code>o.next</code> = signing date and unit. Activity line.</td></tr>
+<tr><td>Share</td><td><code>getExt(o).shared</code>: a new shared item. Activity line.</td></tr>
+<tr><td>Checkout opened</td><td><code>getExt(o).presentSignals</code>: buyer signals.</td></tr>
+<tr><td>Partner registration</td><td>New contact and opportunity, source <code>Partner: &lt;name&gt;</code>, tag <code>Partner registration</code>.</td></tr>
+</table>
+
+<h3>Back-end services to build</h3>
+<table>
+<tr><th>Service</th><th>Replaces</th><th>Needs</th></tr>
+<tr><td>Inventory with real-time status</td><td><code>UNITS</code>, <code>store.inventory</code>, 1-second check</td><td>Push updates (WebSocket or server events). One source of truth for status.</td></tr>
+<tr><td>Holds</td><td><code>store.holds</code></td><td>Server timer, lock on the unit, release on expiry, audit log.</td></tr>
+<tr><td>Reservation agreement and e-sign</td><td><code>A.reserve</code> (simulated)</td><td>Document template for each market. E-signature. Deposit payment into escrow or to the notary.</td></tr>
+<tr><td>Calendar booking</td><td><code>A.book</code></td><td>Real free slots for the sales team, attorney or notary. Invitation to the buyer.</td></tr>
+<tr><td>Share links</td><td><code>store.outputs</code>, <code>#present=</code></td><td>Signed public URL, expiry, open and time tracking, PDF render.</td></tr>
+<tr><td>Messages</td><td>WhatsApp and email (simulated)</td><td>WhatsApp Business API, email provider, consent check before send.</td></tr>
+<tr><td>Live view</td><td>BroadcastChannel and localStorage</td><td>Real-time channel with a viewer token. Read-only.</td></tr>
+<tr><td>Partners</td><td><code>store.partners</code></td><td>Partner accounts, scoped access, lead protection for 90 days.</td></tr>
+<tr><td>Analytics</td><td><code>S.sig</code>, <code>P.screens.insights</code></td><td>Event pipeline. Reports for owners.</td></tr>
+<tr><td>Content</td><td><code>BRANDS, COMMERCE, CONTENT, amenityItems</code></td><td>Edit development: brand, payment plan, timeline, charges, amenities, gallery. Publish with versions.</td></tr>
+<tr><td>Exchange rates</td><td><code>FX</code></td><td>Daily rates from a provider.</td></tr>
+</table>
+
+<!-- 13 -->
+<h2 class="part" id="test">13 · Test<small>Automated tests with Playwright.</small></h2>
+<ol>
+<li>Install the packages: <code>npm install</code>.</li>
+<li>Run the Present Mode tests:</li>
+</ol>
+<pre>npx playwright test tests/present-v3.spec.cjs tests/present-v3-sales.spec.cjs --reporter=line</pre>
+<p>The configuration (<code>playwright.config.cjs</code>) starts a local server on port 4197. The tests use "reduce motion".</p>
+<table>
+<tr><th>File</th><th>Covers</th></tr>
+<tr><td><code>tests/present-v3.spec.cjs</code></td><td>Entry points, gallery, filters, queue, availability, unit page, selection, compare, checkout, buyer link, unit renders, level plans.</td></tr>
+<tr><td><code>tests/present-v3-sales.spec.cjs</code></td><td>Currency and area, hide prices, payment plan, illustration labels, holds across tabs, live inventory, resume, investor order, consent, link expiry, live view, partner mode, insights, filter tile view, compare close flow, amenities slider, close button.</td></tr>
+</table>
+<div class="note"><b>NOTE:</b> Use the test file as a specification of behaviour. Each test name is one rule.</div>
+
+<!-- 14 -->
+<h2 class="part" id="gaps">14 · Prototype limits<small>Items that are not production-ready.</small></h2>
+<table>
+<tr><th>Item</th><th>Prototype</th><th>Production</th></tr>
+<tr><td>Data storage</td><td>localStorage in one browser</td><td>Back-end (section 12)</td></tr>
+<tr><td>Holds, live view, partner links, link tracking</td><td>Work only across tabs of the same browser</td><td>Server and real-time channel</td></tr>
+<tr><td>WhatsApp, email, reservation agreement</td><td>Simulated</td><td>Real sends, e-sign, payments</td></tr>
+<tr><td>Exchange rates, yields, charges, track record</td><td>Demonstration values in present-v3-data.js</td><td>Real data from Edit development and providers</td></tr>
+<tr><td>Ask Bricly AI</td><td>Word matching</td><td>Language model with the inventory schema</td></tr>
+<tr><td>Location map</td><td>Static image</td><td>Map that moves and zooms, linked to the points</td></tr>
+<tr><td>Walkthrough</td><td>Still images</td><td>3D tour or video</td></tr>
+<tr><td>Some images</td><td>Cropped from Figma, re-used across amenities</td><td>Final renders from the developer</td></tr>
+<tr><td>Pre-presentation questions</td><td>Not in v3</td><td>To design</td></tr>
+</table>
+
+<!-- 15 -->
+<h2 class="part" id="glossary">15 · Glossary</h2>
+<table>
+<tr><th>Term</th><th>Meaning</th></tr>
+<tr><td>Rep</td><td>The sales representative who operates Present Mode.</td></tr>
+<tr><td>Development</td><td>A building project with units (example: Miami Tropic).</td></tr>
+<tr><td>Unit</td><td>One residence in a development. ID examples: <code>AP.3203</code>, <code>#CM1207</code>.</td></tr>
+<tr><td>Queue</td><td>The developments for this presentation, in order.</td></tr>
+<tr><td>Selection</td><td>The units that the buyer likes, with finish, layout and style.</td></tr>
+<tr><td>Showcase</td><td>The gallery carousel with one large card.</td></tr>
+<tr><td>Tile view</td><td>The gallery view while the filter panel is open.</td></tr>
+<tr><td>Slide</td><td>One full screen of the development slideshow.</td></tr>
+<tr><td>Hold</td><td>A 48-hour block on a unit. No other buyer can reserve the unit during this time.</td></tr>
+<tr><td>Reservation</td><td>A signed agreement and a deposit that secure the unit.</td></tr>
+<tr><td>Promise of sale (konvenju)</td><td>The preliminary contract in Malta. The notary holds a 10% deposit.</td></tr>
+<tr><td>Output</td><td>The record behind a buyer link.</td></tr>
+<tr><td>Buyer signals</td><td>Data about what the buyer looked at and for how long.</td></tr>
+<tr><td>Privacy gate</td><td>The thank-you screen. The rep confirms that the buyer cannot see the screen.</td></tr>
+</table>
+
+<footer>Present Mode v3 · developer handover · written in ASD-STE100 Simplified Technical English · screenshots from the prototype at 1440 × 900 with reduce motion on.</footer>
+</main>
+</div>
+<div class="lightbox" id="lb"><img alt=""></div>
+<script>
+  const lb=document.getElementById('lb'), im=lb.querySelector('img');
+  document.addEventListener('click',e=>{const a=e.target.closest('a.shot');if(!a)return;e.preventDefault();im.src=a.getAttribute('href');im.alt=a.querySelector('img').alt;lb.classList.add('on');});
+  lb.addEventListener('click',()=>lb.classList.remove('on'));
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')lb.classList.remove('on');});
+</script>
+</body>
+</html>
