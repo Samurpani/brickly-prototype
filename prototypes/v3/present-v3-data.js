@@ -131,10 +131,10 @@
     if (u.ext) out.splice(out.length-1,0,['Terrace',+u.ext.toFixed(1)]);
     return out;
   };
-  const details = (u,finishName) => [
-    ['Internal',u.sqm+' m²'],['External',u.ext ? u.ext+' m² terrace' : '—'],['Ceiling',u.dev==='Miami Tropic' ? '3.1 m' : '2.9 m'],
+  const details = (u,finishName,ar = m => m+' m²') => [
+    ['Internal',ar(u.sqm)],['External',u.ext ? ar(u.ext)+' terrace' : '—'],['Ceiling',u.dev==='Miami Tropic' ? '3.1 m' : '2.9 m'],
     ['Orientation',{N:'North',NE:'North-east',E:'East',SE:'South-east',S:'South',SW:'South-west',W:'West',NW:'North-west'}[u.pv?.dir] || 'South-east'],
-    ['Parking',featuresOf(u).includes('parking') ? '1 bay, level −2' : 'Not included'],['Storage',featuresOf(u).includes('storage') ? '4.5 m²' : '—'],
+    ['Parking',featuresOf(u).includes('parking') ? '1 bay, level −2' : 'Not included'],['Storage',featuresOf(u).includes('storage') ? ar(4.5) : '—'],
     ['Finish',finishName ? finishName+' package' : '—'],['Completion',u.ready || DEV(u.dev)?.completion || '—'],
   ];
 
@@ -178,6 +178,22 @@
       tower:A+'miami/tower.jpg',
     },
   };
+  // Amenity slides: a render and a line the rep can talk to, per amenity.
+  const AMEN_INFO = {[MT]:{
+    'Spa & treatment rooms':['miami/l-spa.jpg','Two private treatment rooms for massage, bodywork and facials, with a relaxation lounge between them.'],
+    'Yoga studio':['miami/l-yoga.jpg','Fern green and tropical coral, with soft morning light and classes run by the spa team.'],
+    'Pool deck':['miami/r-terrace.jpg','A sun deck above the canopy with cabanas, daybeds and a heated lap pool.'],
+    'Residents’ dining by Jean-Georges':['miami/r-dining.jpg','A private dining room curated by Jean-Georges, with a chef’s table for twelve.'],
+    'Fitness centre':['gym.jpg','Technogym equipment, a stretching studio and personal training on request.'],
+    'Valet & concierge':['cine-lobby.jpg','A 24-hour lobby team: valet parking, deliveries, reservations and house calls.']}};
+  const AMEN_GENERIC = [[/pool/i,'cine-pool.jpg','A pool for slow mornings and long summer evenings.'],[/spa|treatment/i,'pool.jpg','Somewhere to switch off without leaving home.'],
+    [/gym|fitness/i,'gym.jpg','Fully equipped, open early until late.'],[/concierge|hotel|security/i,'cine-lobby.jpg','A team on hand for deliveries, guests and the everyday.'],
+    [/roof|terrace|sky/i,'cine-dusk.jpg','Shared outdoor space with views across the skyline.'],[/garden|courtyard|landscap/i,'park.jpg','Planted, shaded and calm in every season.'],
+    [/parking|garage|valet|ev/i,'cine-aerial.jpg','Secure parking on site, with EV charging available.'],[/work|lounge/i,'interior.jpg','A residents’ lounge for meetings, work and guests.']];
+  const amenityItems = devId => { const d = DEV(devId); if (!d) return [];
+    return d.amen.map((name,i) => { const x = AMEN_INFO[devId]?.[name] || (g => g ? [g[1],g[2]] : [d.photo,'Included for residents of '+d.name+'.'])(AMEN_GENERIC.find(([re]) => re.test(name)));
+      return {name,img:A+x[0],body:x[1]}; }); };
+
   const contentFor = devId => {
     if (CONTENT[devId]) return CONTENT[devId];
     const d = DEV(devId); if (!d) return null;
@@ -209,14 +225,56 @@
     }).filter(Boolean);
   };
 
+  // Commercial terms per development: the money conversation buyers expect before reserving.
+  // Currency and area unit follow the market (Miami: USD and sq ft; Malta: EUR and m²).
+  const COMPANY = {name:'Lalex Developments',short:'Lalex'};
+  const COMMERCE = {
+    [MT]:{currency:'USD',area:'sqft',developer:'Tropic Development Partners',
+      plan:[['Reservation','On signing the reservation',10],['Contract','Within 30 days',10],['Topping out','Q2 2026',20],['Closing','On completion · Q4 2027',60]],
+      protection:'Deposits are held by an independent escrow agent until closing (Florida Statutes ch. 718). 15-day right to cancel after receiving the condominium documents.',
+      hold:{hours:48,deposit:'$25,000 refundable'},completion:'Q4 2027',grace:'Up to 6 months',
+      timeline:[['Sales launch','Q3 2024','done'],['Groundbreaking','Q1 2025','done'],['Topping out','Q2 2026','now'],['Interiors','Q1 2027',''],['Closing & keys','Q4 2027','']],
+      charges:{label:'HOA dues',per:'sqft',rate:1.15,period:'month'},rent:{per:'sqft',rate:2.9},
+      track:[['14','towers delivered since 2004'],['6,200','residences handed over'],['0','projects cancelled']]},
+    _malta:{currency:'EUR',area:'m2',developer:COMPANY.name,
+      plan:[['Promise of sale','10% held by the notary',10],['Shell complete','Structural milestone',30],['Final deed','On completion',60]],
+      protection:'The 10% deposit on the promise of sale (konvenju) is held by the notary until the final deed. Bank guarantee on stage payments.',
+      hold:{hours:48,deposit:'€5,000 refundable'},grace:'Up to 6 months',
+      charges:{label:'Common area charges',per:'m2',rate:9,period:'year'},
+      track:[['9','projects delivered since 2008'],['640','residences handed over'],['0','projects cancelled']]},
+  };
+  const commerce = devId => {
+    const d = DEV(devId), c = COMMERCE[devId] || {...COMMERCE._malta,rent:{per:'m2',rate:typeof CMP_RENT_PSQM === 'undefined' ? 16 : CMP_RENT_PSQM[d?.name] || 16}};
+    const completion = c.completion || d?.completion || '—', ready = /ready/i.test(completion);
+    // Malta timelines follow the completion date: ready projects show every milestone done.
+    const timeline = c.timeline || (ready ? [['Permits','2022','done'],['Construction','2023','done'],['Completion','2025','done'],['Ready to move in','Now','now']]
+      : [['Permits','2024','done'],['Excavation','Q1 2025','done'],['Shell','Q4 2025','now'],['Finishes','Q2 2026',''],['Final deed',completion,'']]);
+    return {...c,completion,timeline};
+  };
+  // Indicative exchange rates against EUR, for the buyer's display currency.
+  const FX = {EUR:{rate:1,sym:'€'},USD:{rate:1.09,sym:'$'},GBP:{rate:.85,sym:'£'},AED:{rate:4,sym:'AED '},CHF:{rate:.96,sym:'CHF '}};
+  // Walkthrough film: a cinematic preview until the 3D tour is supplied.
+  const WALK = {[MT]:[['miami/tower.jpg','Arrival','The tower rises above Midtown'],['miami/hero-living.jpg','Living','Floor-to-ceiling glass towards the bay'],['miami/r-kitchen.jpg','Kitchen','Gathered around the island'],['miami/r-terrace.jpg','Terrace','Outdoor living, 44 m²'],['miami/l-spa.jpg','Spa','Two private treatment rooms']]};
+  const walkFor = devId => (WALK[devId] || [['cine-aerial.jpg','Arrival','The site in context'],['cine-lobby.jpg','Lobby','A considered welcome'],['interior.jpg','Living','Light, space and calm'],['cine-pool.jpg','Pool','Your everyday escape'],['cine-dusk.jpg','Evening','The neighbourhood at dusk']]).map(([img,title,cap]) => ({img:A+img,title,cap}));
+  // Buyer-facing chrome in the buyer's language. Development copy stays as supplied.
+  const LANGS = {en:'English',fr:'Français',de:'Deutsch',it:'Italiano',zh:'中文'};
+  const T9N = {
+    fr:{'Selected':'Sélection','Add to selection':'Ajouter à la sélection','In selection':'Dans la sélection','Plan':'Plan','Renders':'Rendus','Views':'Vues','Finishes':'Finitions','Details':'Détails','Room schedule':'Surfaces','Where it sits':'Situation','Payment plan':'Échéancier','Ownership costs':'Charges et rendement','Availability list':'Disponibilités','By floor':'Par étage','residences found':'résidences','Sort by':'Trier par','Filters':'Filtres','Residences':'Résidences','Gallery':'Galerie','Plans':'Plans','from':'à partir de','Price on request':'Prix sur demande','Thank you':'Merci','Your selection':'Votre sélection','Available':'Disponible','Reserved':'Réservé','Sold':'Vendu','On hold':'Option','bedroom':'chambre','bedrooms':'chambres','Introduction':'Introduction','Lifestyle':'Art de vivre','Amenities':'Services','Location':'Quartier','Payment & ownership':'Paiement et propriété','Property Types':'Typologies','Units and Availability':'Lots et disponibilités','Walkthrough':'Visite','Artist’s impression':'Vue d’artiste','Indicative plan':'Plan indicatif','Hold for 48 hours':'Option 48 heures','Held for you':'Réservé pour vous','Prepared by':'Préparé par','Prices valid until':'Prix valables jusqu’au'},
+    de:{'Selected':'Ausgewählt','Add to selection':'Zur Auswahl','In selection':'In der Auswahl','Plan':'Grundriss','Renders':'Visualisierungen','Views':'Aussicht','Finishes':'Ausstattung','Details':'Details','Room schedule':'Flächen','Where it sits':'Lage','Payment plan':'Zahlungsplan','Ownership costs':'Kosten und Rendite','Availability list':'Verfügbarkeit','By floor':'Nach Etage','residences found':'Wohnungen','Sort by':'Sortieren','Filters':'Filter','Residences':'Wohnungen','Gallery':'Galerie','Plans':'Grundrisse','from':'ab','Price on request':'Preis auf Anfrage','Thank you':'Vielen Dank','Your selection':'Ihre Auswahl','Available':'Verfügbar','Reserved':'Reserviert','Sold':'Verkauft','On hold':'Vorgemerkt','bedroom':'Schlafzimmer','bedrooms':'Schlafzimmer','Introduction':'Einführung','Lifestyle':'Lebensstil','Amenities':'Ausstattung','Location':'Lage','Payment & ownership':'Zahlung und Eigentum','Property Types':'Wohnungstypen','Units and Availability':'Einheiten und Verfügbarkeit','Walkthrough':'Rundgang','Artist’s impression':'Visualisierung','Indicative plan':'Unverbindlicher Grundriss','Hold for 48 hours':'48 Stunden vormerken','Held for you':'Für Sie vorgemerkt','Prepared by':'Erstellt von','Prices valid until':'Preise gültig bis'},
+    it:{'Selected':'Selezionati','Add to selection':'Aggiungi alla selezione','In selection':'Nella selezione','Plan':'Pianta','Renders':'Render','Views':'Viste','Finishes':'Finiture','Details':'Dettagli','Room schedule':'Superfici','Where it sits':'Posizione','Payment plan':'Piano di pagamento','Ownership costs':'Costi e rendimento','Availability list':'Disponibilità','By floor':'Per piano','residences found':'residenze','Sort by':'Ordina per','Filters':'Filtri','Residences':'Residenze','Gallery':'Galleria','Plans':'Piante','from':'da','Price on request':'Prezzo su richiesta','Thank you':'Grazie','Your selection':'La sua selezione','Available':'Disponibile','Reserved':'Riservato','Sold':'Venduto','On hold':'Opzionato','bedroom':'camera','bedrooms':'camere','Introduction':'Introduzione','Lifestyle':'Lifestyle','Amenities':'Servizi','Location':'Posizione','Payment & ownership':'Pagamento e proprietà','Property Types':'Tipologie','Units and Availability':'Unità e disponibilità','Walkthrough':'Visita','Artist’s impression':'Immagine indicativa','Indicative plan':'Pianta indicativa','Hold for 48 hours':'Opziona per 48 ore','Held for you':'Opzionato per lei','Prepared by':'Preparato da','Prices valid until':'Prezzi validi fino al'},
+    zh:{'Selected':'已选','Add to selection':'加入选择','In selection':'已加入','Plan':'户型','Renders':'效果图','Views':'景观','Finishes':'装修','Details':'详情','Room schedule':'面积明细','Where it sits':'位置','Payment plan':'付款计划','Ownership costs':'持有成本与收益','Availability list':'房源列表','By floor':'按楼层','residences found':'套房源','Sort by':'排序','Filters':'筛选','Residences':'户型','Gallery':'图库','Plans':'平面图','from':'起','Price on request':'价格面议','Thank you':'谢谢','Your selection':'您的选择','Available':'可售','Reserved':'已预留','Sold':'已售','On hold':'保留中','bedroom':'卧室','bedrooms':'卧室','Introduction':'项目介绍','Lifestyle':'生活方式','Amenities':'配套设施','Location':'区位','Payment & ownership':'付款与持有','Property Types':'户型类别','Units and Availability':'房源与可售情况','Walkthrough':'漫游','Artist’s impression':'效果图仅供参考','Indicative plan':'户型图仅供参考','Hold for 48 hours':'保留48小时','Held for you':'已为您保留','Prepared by':'顾问','Prices valid until':'价格有效期至'},
+  };
+
   // Page switcher groups follow the Figma "Page switcher" component.
   const PAGES = [
     {id:'intro',label:'Introduction',icon:'home',group:'Project'},
     {id:'lifestyle',label:'Lifestyle',icon:'local_cafe',group:'Project'},
     {id:'amenities',label:'Amenities',icon:'spa',group:'Project'},
     {id:'location',label:'Location',icon:'location_on',group:'Project'},
+    {id:'ownership',label:'Payment & ownership',icon:'payments',group:'Project'},
     {id:'types',label:'Property Types',icon:'apartment',group:'Availability'},
     {id:'availability',label:'Units and Availability',icon:'list',group:'Availability'},
+    {id:'walkthrough',label:'Walkthrough',icon:'play_circle',group:'Floor plan'},
     {id:'gallery',label:'Gallery',icon:'photo_library',group:'Floor plan'},
     {id:'plans',label:'Plans',icon:'dashboard',group:'Floor plan'},
   ];
@@ -225,7 +283,7 @@
   const amenityIcon = a => AMENITY_ICONS.find(([re]) => re.test(a))?.[1] || 'check_circle';
 
   window.PV3D = {MT,FEATURES,GALLERY_FEATURES,UNIT_FEATURES,PAGES,brand:id => BRANDS[id] || FALLBACK_BRAND,content:contentFor,
-    unit,register,unitsOf,residenceGroups,devOf,featuresOf,viewOf,area,devFeatures,finishesFor,defaultFinish,stylesFor,styleName,layoutName,renderRooms,renderAxes,defaults,viewsFor,planImg,
+    unit,register,unitsOf,residenceGroups,commerce,amenityItems,FX,COMPANY,walkFor,LANGS,T9N,devOf,featuresOf,viewOf,area,devFeatures,finishesFor,defaultFinish,stylesFor,styleName,layoutName,renderRooms,renderAxes,defaults,viewsFor,planImg,
     roomSchedule,details,floorsOf,plate,levelOf,position,plateSides,amenityIcon,
     asset:A,mtFloors:MT_FLOORS};
 })();

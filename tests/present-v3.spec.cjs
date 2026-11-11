@@ -16,8 +16,12 @@ test('Present v3 sidebar entry: welcome, loading, gallery, filters and queue',as
   await page.locator('[data-a=gFeat][data-v=pool]').click();
   await expect(page.locator('.pv-show')).toContainText(/Show \d+ matching/);
   await page.locator('[data-a=gReset]').click();
+  // Filtering happens in the tile view; applying zooms back into the showcase.
+  await expect(page.locator('.pv-ftile')).toHaveCount(6);
+  await page.locator('.pv-show').click();
+  await expect(page.locator('.pv-ftile')).toHaveCount(0);
   await page.locator('.pv-card:not(.side) [data-a=qToggle]').click();
-  await page.getByRole('button',{name:'1 Selected'}).click();
+  await page.getByRole('button',{name:'1 developments in the presentation queue'}).click();
   await expect(page.getByRole('dialog',{name:'Presentation queue'})).toContainText('Miami Tropic');
   await page.getByRole('button',{name:'Present selection'}).click();
   await expect.poll(()=>screen(page)).toBe('present');
@@ -37,13 +41,13 @@ test('Present v3 availability, unit page, selection, compare and checkout link',
   await expect.poll(()=>screen(page)).toBe('unit');
   await page.getByRole('tab',{name:'Finishes'}).click();
   await page.getByRole('button',{name:'Select Dusk'}).click();
-  await expect(page.locator('.pv-ucard .hd .p b')).toHaveText('€1,202,000');
+  await expect(page.locator('.pv-ucard .hd .p b')).toHaveText('$1,202,000');
   await page.getByRole('button',{name:'Add to selection'}).click();
   await expect(page.getByRole('button',{name:'In selection'})).toBeVisible();
   await page.evaluate(()=>PV3.toggleSel('#CM1207'));
   await page.getByRole('button',{name:'2 Selected'}).first().click();
   await page.getByRole('button',{name:'Compare 2 units'}).click();
-  await expect(page.getByRole('table',{name:'Unit comparison'})).toContainText('Dusk (+€48,000)');
+  await expect(page.getByRole('table',{name:'Unit comparison'})).toContainText('Dusk (+$48,000)');
   await page.getByRole('button',{name:/Finish presentation/}).click();
   await expect(page.locator('.pv-thanks h1')).toHaveText('Thank you.');
   await expect(page.getByText('Keep the conversation going.')).toHaveCount(0);

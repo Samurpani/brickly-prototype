@@ -40,7 +40,7 @@
       ov:null,ovIdx:0,lightbox:null,panel:null,av:{},
       unit:null,ut:'plan',card:true,acc:{details:true,sched:false,where:false},zoom:{s:1,x:0,y:0,r:0},room:0,rimg:0,style:'coastal',view:0,fin:{},lay:{},finpop:false,
       sel:[],cmpDiff:false,oppId:o.oppId || null,contactId:null,link:{type:'opportunity',q:'',name:'',email:'',phone:''},output:null,shares:[],prices:true,includeCompare:true,
-      toast:'',origin:o.mode || 'gallery',buyer:null};
+      toast:'',origin:o.mode || 'gallery',buyer:null,hidePrices:false,focus:'home',sig:{slides:{},units:{},events:[]}};
   }
 
   let S = null, root = null, locked = [], originFocus = null, timers = [], toastTimer = 0;
@@ -55,7 +55,27 @@
   P.finish = (uid,id) => { const u = D.unit(uid); const fins = D.finishesFor(DEV(u?.dev)?.id); return fins.find(f => f.id === id) || fins[0] || null; };
   P.unitFinish = uid => S.sel.find(i => i.uid === uid)?.finish || S.fin[uid] || D.defaultFinish(DEV(D.unit(uid)?.dev)?.id);
   P.unitPrice = (uid,finishId = P.unitFinish(uid)) => { const u = D.unit(uid); return u ? u.price+(P.finish(uid,finishId)?.delta || 0) : 0; };
-  P.money = n => S?.prices === false && S.screen === 'buyer' ? 'On request' : eur(n);
+  // Preferences that outlive a session: quick start, language and display currency.
+  const PREFS_KEY = 'bricly.present.prefs';
+  P.prefs = (() => { try { return {quick:false,lang:'en',ccy:'local',...JSON.parse(localStorage.getItem(PREFS_KEY) || '{}')}; } catch (e) { return {quick:false,lang:'en',ccy:'local'}; } })();
+  P.savePrefs = () => { try { localStorage.setItem(PREFS_KEY,JSON.stringify(P.prefs)); } catch (e) { /* private mode */ } };
+  P.t = k => D.T9N[P.prefs.lang]?.[k] || k;
+  // Money and area follow each development's market; a display currency converts approximately.
+  const devOfRef = r => !r ? null : typeof r === 'string' ? DEV(r) : r.dev && !r.loc ? DEV(r.dev) : r;
+  P.ccyOf = r => D.commerce(devOfRef(r)?.id)?.currency || 'EUR';
+  P.areaOf = r => D.commerce(devOfRef(r)?.id)?.area || 'm2';
+  P.dispCcy = r => P.prefs.ccy === 'local' ? P.ccyOf(r) : P.prefs.ccy;
+  P.toCcy = (n,r,to = P.dispCcy(r)) => { const from = P.ccyOf(r); return from === to ? n : n/D.FX[from].rate*D.FX[to].rate; };
+  const sym = c => D.FX[c]?.sym || c+' ';
+  P.fmtIn = (n,c,approx = false) => (approx ? '≈ ' : '')+sym(c)+Math.round(n).toLocaleString('en-US');
+  P.kIn = (n,c) => sym(c)+(n >= 1e6 ? (Math.round(n/1e5)/10)+'m' : Math.round(n/1000)+'k');
+  P.fmt = (n,r,{force = false} = {}) => {
+    if (S?.hidePrices && !force) return P.t('Price on request');
+    const to = P.dispCcy(r); return P.fmtIn(P.toCcy(n,r,to),to,to !== P.ccyOf(r));
+  };
+  P.ar = (m2,r) => P.areaOf(r) === 'sqft' ? Math.round(m2*10.7639).toLocaleString('en-US')+' sq ft' : (+m2).toLocaleString('en-US')+' m²';
+  P.areaUnit = r => P.areaOf(r) === 'sqft' ? 'sq ft' : 'm²';
+  P.ppa = (price,m2,r,o) => { const a = P.areaOf(r) === 'sqft' ? m2*10.7639 : m2; return S?.hidePrices && !o?.force ? '' : P.fmt(price/a,r,o)+' / '+P.areaUnit(r); };
   // The buyer's layout / finish / style for a unit: selection first, then this session's choice, then the defaults.
   P.unitLayout = uid => S.sel.find(i => i.uid === uid)?.layout || S.lay[uid] || D.defaults(D.unit(uid),P.unitFinish(uid)).layout || '';
   P.combo = uid => ({layout:P.unitLayout(uid),pack:P.unitFinish(uid),style:S.style});
@@ -63,7 +83,14 @@
   P.planHtml = (u,h = 200) => { const img = D.planImg(u) || (u.dev === 'Miami Tropic' ? D.asset+'miami/plan.png' : '');
     return img ? `<img src="${esc(img)}" alt="Floor plan ${esc(u.id)}" loading="lazy">` : (typeof unPlanSVG === 'function' ? unPlanSVG(u,h) : ''); };
   P.statusText = u => ({available:'Available',reserved:'Reserved',hold:'On hold',sold:'Sold',off_market:'Off market'}[u.status] || 'Unavailable');
-  P.persist = () => { if (!S) return; store.sessions[S.id] = {id:S.id,started:S.started,queue:S.queue,sel:S.sel,oppId:S.oppId,output:S.output,updated:now()}; save(); };
+  // The whole session is snapshotted so a reload or dropped connection can resume mid-presentation.
+  const TRANSIENT = ['toast','panel','ov','ovFrom','lightbox','launching','finpop','buyerBack','splashAuto','slideEnter','viewer'];
+  P.snapshot = () => { const x = clone(S); TRANSIENT.forEach(k => delete x[k]); x.g.panel = null; x.g.busy = false; x.g.pending = null; return x; };
+  P.persist = () => {
+    if (!S || S.viewer || S.screen === 'buyer') return;
+    store.sessions[S.id] = {id:S.id,started:S.started,queue:S.queue,sel:S.sel,oppId:S.oppId,output:S.output,sig:S.sig,partner:S.partner || null,updated:now()};
+    store.active = {at:Date.now(),snap:P.snapshot()}; save();
+  };
 
   function later(ms,fn) { const id = S?.id; const t = setTimeout(() => { if (S && S.id === id) fn(); },reduce() ? Math.min(ms,450) : ms); timers.push(t); }
   P.later = later;
@@ -93,8 +120,8 @@
     if (originFocus?.isConnected) originFocus.focus();
   }
   P.close = (toOpp = false) => {
-    const oid = S?.oppId; P.persist(); unmount(); S = null;
-    if (location.hash.startsWith('#present=')) history.replaceState(null,'',location.pathname+location.search);
+    const oid = S?.oppId; P.persist(); if (!S?.viewer) { delete store.active; save(); } P.onClose?.(S); unmount(); S = null;
+    if (/^#present(-live|-partner)?=/.test(location.hash)) history.replaceState(null,'',location.pathname+location.search);
     if (toOpp && oid && typeof openOpp === 'function') openOpp(oid);
   };
 
@@ -145,6 +172,10 @@
     P.after.forEach(fn => fn(root,S));
   }
   P.render = render;
+  // Leave Present Mode from anywhere. The session is saved and can be resumed.
+  P.closeBtn = () => S?.viewer ? '' : `<button class="pv-chip sq pv-exit" data-a="exit" aria-label="Close Present Mode" title="Close Present Mode">${I('close')}</button>`;
+  P.actions.exit = () => P.close();
+  P.mount = mount; P.setS = x => { S = x; }; P.newSession = session;
   P.go = screen => { S.screen = screen; S.panel = null; S.g.panel = null; S.finpop = false; render(); root?.querySelector('h1,h2,[data-autofocus]')?.focus?.({preventScroll:true}); };
 
   function act(a,v,el,e) {
@@ -155,10 +186,11 @@
     const el = e.target.closest('[data-a]');
     if (!el || !root.contains(el) || el.disabled) {
       // Clicking outside a floating panel closes it.
-      if (!e.target.closest('.pv-panel') && (S.panel || S.g.panel || S.finpop)) { S.panel = null; S.g.panel = null; S.finpop = false; render(); }
+      if (!e.target.closest('.pv-panel') && (S.panel || S.g.panel || S.finpop)) { if (P.onPanelsClose?.() === true) return; S.panel = null; S.g.panel = null; S.finpop = false; render(); }
       return;
     }
     if (el.dataset.stop !== undefined) e.stopPropagation();
+    if (S.viewer && !el.dataset.a.startsWith('viewer')) return;
     act(el.dataset.a,el.dataset.v ?? '',el,e);
   }
   function input(e) { const el = e.target.closest('[data-f]'); if (el && P.actions['in:'+el.dataset.f]) P.actions['in:'+el.dataset.f](el.value,el,e); }
@@ -169,13 +201,13 @@
     if (e.key === 'Escape') {
       e.preventDefault();
       if (S.lightbox) { S.lightbox = null; render(); return; }
-      if (S.panel || S.g.panel || S.finpop) { S.panel = null; S.g.panel = null; S.finpop = false; render(); return; }
+      if (S.panel || S.g.panel || S.finpop) { if (P.onPanelsClose?.() === true) return; S.panel = null; S.g.panel = null; S.finpop = false; render(); return; }
       if (S.ov) { P.actions.ovClose ? P.actions.ovClose() : (S.ov = null, render()); return; }
       if (typing) { e.target.blur(); return; }
       P.back();
       return;
     }
-    if (typing) return;
+    if (typing || S.viewer) return;
     if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.('[role=button][data-a]:not(button)')) { e.preventDefault(); e.target.click(); return; }
     for (const fn of P.keys) if (fn(e) === true) { e.preventDefault(); return; }
   }
@@ -199,14 +231,19 @@
   const brandPal = P.brandPal = id => { const b = D.brand(id); return `--c1:${b.accent};--c2:${b.tint};--c3:color-mix(in srgb,${b.accent} 45%,${b.tint});--c4:${b.bg}`; };
   const WAVE_PATHS = ['M1 2.5c2-1.6 4 1.6 7 0s5-1.6 7 0','M1 6c2-1.6 4 1.6 7 0s5-1.6 7 0','M1 9.5c2-1.6 4 1.6 7 0s5-1.6 7 0'];
   const waveMark = () => `<svg class="pv-wave" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">${WAVE_PATHS.map((d,i) => `<path d="${d}" pathLength="1" style="--i:${i}"/>`).join('')}</svg>`;
-  P.screens.welcome = () => `<div class="pv-orb pv-welcome" data-a="skipIntro">${P.aurora()}
+  // White-label: the seller's brand (or the partner presenting) leads; Bricly is a quiet credit.
+  P.screens.welcome = () => { const host = S.partner?.name || D.COMPANY.name;
+    return `<div class="pv-orb pv-welcome" data-a="skipIntro">${P.aurora()}
     <div class="pv-loadwrap"><h1 tabindex="-1" aria-label="Welcome to" style="--d:.3s">${P.split('Welcome to')}</h1>
-    <div class="pv-brandmark" aria-label="Bricly">${waveMark()}<span style="--d:1s;--step:55ms" aria-hidden="true">${P.split('Bricly')}</span></div></div>
-    <button class="pv-ghost pv-skip" data-a="skipIntro">Skip ${I('arrow_forward')}</button></div>`;
+    <div class="pv-brandmark host" aria-label="${esc(host)}"><span style="--d:.9s;--step:42ms" aria-hidden="true">${P.split(host)}</span></div>
+    ${S.partner ? `<p class="pv-meta" style="animation-delay:1.4s">Presenting ${esc(D.COMPANY.name)}</p>` : ''}</div>
+    <span class="pv-powered">${waveMark()}Powered by Bricly</span>
+    <button class="pv-ghost pv-skip" data-a="skipIntro">Skip ${I('arrow_forward')}</button></div>`; };
   P.screens.loading = () => {
     const d = S.loadDev && DEV(S.loadDev), ms = S.loadMs || 1800;
+    const devs = S.partner ? S.partner.devs.map(DEV).filter(Boolean) : DEVS;
     const meta = d ? `${esc(d.loc)} · ${D.unitsOf(d.id).filter(u => u.status === 'available').length} residences available`
-      : `${DEVS.length} developments · ${DEVS.reduce((n,x) => n+D.unitsOf(x.id).filter(u => u.status === 'available').length,0)} residences available`;
+      : `${devs.length} developments · ${devs.reduce((n,x) => n+D.unitsOf(x.id).filter(u => u.status === 'available').length,0)} residences available`;
     return `<div class="pv-orb pv-loading ${d ? 'dev' : ''}" style="--dur:${ms-250}ms" aria-live="polite" aria-busy="true">${P.aurora(d ? brandPal(d.id) : '')}
       <div class="pv-loadwrap">${d ? `<p class="pv-kicker" style="--d:.05s">${P.split('Now presenting')}</p>` : ''}
       <h1 tabindex="-1" class="pv-shimmer" aria-label="${esc(d ? 'Loading '+d.name : S.loadText)}" style="--d:${d ? '.25s' : '.05s'}${d ? ';font-family:'+D.brand(d.id).display : ''}">${P.split(d ? d.name : S.loadText)}</h1>
@@ -216,10 +253,11 @@
   const exitThen = fn => { const w = root?.querySelector('.pv-loadwrap'); if (w && !reduce()) { w.classList.add('out'); later(380,fn); } else fn(); };
   function intro() {
     S.screen = 'welcome'; render();
-    later(2300,() => exitThen(() => {
+    const q = P.prefs.quick;
+    later(q ? 1100 : 2300,() => exitThen(() => {
       if (S.screen !== 'welcome') return;
-      S.screen = 'loading'; S.loadDev = null; S.loadText = 'Loading Developments'; S.loadMs = 1900; render();
-      later(1900,() => exitThen(() => { if (S.screen === 'loading') P.go('gallery'); }));
+      S.screen = 'loading'; S.loadDev = null; S.loadText = 'Loading Developments'; S.loadMs = q ? 1000 : 1900; render();
+      later(q ? 1000 : 1900,() => exitThen(() => { if (S.screen === 'loading') P.go('gallery'); }));
     }));
   }
   P.actions.skipIntro = () => { if (['welcome','loading'].includes(S.screen) && !S.dev) P.go('gallery'); };
@@ -236,6 +274,7 @@
   function open(o = {}) {
     if (root) return;
     S = session(o); mount();
+    if (o.partner) S.partner = o.partner;
     if (o.oppId) { const opp = OPPS.find(x => x.id === o.oppId); S.contactId = CONTACTS.find(c => c.oppIds?.includes(o.oppId))?.id || null; if (opp) S.link.type = 'opportunity'; }
     if (o.mode === 'buyer') { S.buyer = o.id; S.screen = 'buyer'; render(); return; }
     const ids = (o.ids || []).map(DEV).filter(Boolean).map(d => d.id);
