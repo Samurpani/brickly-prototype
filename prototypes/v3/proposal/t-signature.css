@@ -28,6 +28,9 @@
 .profile dt{font:400 10.5px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .profile dd{font-family:var(--display);font-weight:400;font-size:clamp(19px,1.6vw,23px);line-height:1.25}
 .cv-goals{padding:18px 0 18px clamp(20px,3vw,40px)}
+.cv-grid.one{grid-template-columns:1fr}
+.cv-grid.one .profile{border-right:0;padding-right:0}
+.cv-grid.one .cv-goals{padding-left:0}
 .cv-goals ol{list-style:none;margin-top:12px;counter-reset:g}
 .cv-goals li{counter-increment:g;display:grid;grid-template-columns:34px 1fr;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
 .cv-goals li:last-child{border-bottom:0}

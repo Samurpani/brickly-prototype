@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bricly · Buyer proposals · Developer handoff</title>
+<style>
+  :root { --ink:#1d1f1a; --mu:#5f6357; --line:#e3e1d8; --bg:#faf9f5; --card:#fff; --pri:#56652a; --pri-c:#eef1e2; --warn:#fbeed5; --warn-ink:#6b4a0c; --bad:#fbe1dc; --bad-ink:#7a1f12; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif; }
+  header.top { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 28px; background: rgba(250,249,245,.94); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); }
+  header.top b { font-size: 15px; }
+  header.top a.btn { padding: 7px 14px; border-radius: 8px; background: var(--pri); color: #fff; text-decoration: none; font-size: 13px; font-weight: 600; }
+  .wrap { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 40px; max-width: 1240px; margin: 0 auto; padding: 32px 28px 80px; }
+  nav.toc { position: sticky; top: 72px; align-self: start; font-size: 13px; }
+  nav.toc a { display: block; padding: 4px 0; color: var(--mu); text-decoration: none; }
+  nav.toc a:hover { color: var(--pri); }
+  nav.toc .sub { padding-left: 12px; }
+  main { min-width: 0; }
+  h1 { margin: 0 0 6px; font-size: 30px; line-height: 1.2; }
+  h2 { margin: 56px 0 12px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 22px; }
+  h3 { margin: 32px 0 8px; font-size: 17px; }
+  p { margin: 0 0 10px; max-width: 760px; }
+  .meta { color: var(--mu); font-size: 13px; }
+  .links { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 8px; }
+  .links a { padding: 8px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); text-decoration: none; font-size: 13px; font-weight: 600; }
+  .links a.pri { background: var(--pri); border-color: var(--pri); color: #fff; }
+  table { width: 100%; margin: 10px 0 16px; border-collapse: collapse; background: var(--card); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; font-size: 13.5px; }
+  th, td { padding: 9px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  th { background: #f3f2ec; font-weight: 600; font-size: 12.5px; }
+  tr:last-child td { border-bottom: 0; }
+  code { padding: 1px 5px; border-radius: 4px; background: #efeee7; font: 12.5px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  ol.proc { margin: 8px 0 16px; padding-left: 0; list-style: none; counter-reset: s; }
+  ol.proc > li { position: relative; margin: 0 0 10px; padding-left: 36px; counter-increment: s; max-width: 760px; }
+  ol.proc > li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 24px; height: 24px; border-radius: 50%; background: var(--pri); color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  ol.proc > li .res { display: block; color: var(--mu); font-size: 13.5px; }
+  .note, .caution, .warning { margin: 12px 0 16px; padding: 10px 14px; border-radius: 8px; max-width: 760px; font-size: 14px; }
+  .note { background: var(--pri-c); }
+  .caution { background: var(--warn); color: var(--warn-ink); }
+  .warning { background: var(--bad); color: var(--bad-ink); }
+  .note b, .caution b, .warning b { display: block; font-size: 12px; letter-spacing: .06em; }
+  figure { margin: 14px 0 24px; }
+  figure img { display: block; max-width: 100%; border: 1px solid var(--line); border-radius: 10px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+  figure.drawer img { max-width: 600px; }
+  figure.phone img { max-width: 390px; }
+  figcaption { margin-top: 6px; color: var(--mu); font-size: 12.5px; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; align-items: start; }
+  .grid2 figure { margin: 0; }
+  .tag { display: inline-block; padding: 1px 8px; border-radius: 999px; background: var(--pri-c); color: var(--pri); font-size: 11.5px; font-weight: 700; }
+</head>
+<body>
+<header class="top"><b>Bricly · Buyer proposals · Developer handoff</b><a class="btn" href="../../../prototypes/v3/proposal/index.html?intro=1" target="_blank" rel="noopener">Open a buyer proposal</a></header>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a href="#purpose">1. Purpose</a>
+  <a href="#layers">2. Who sets what</a>
+  <a href="#terms">3. Terms</a>
+  <a href="#entry">4. Entry points</a>
+  <a href="#p1">5. Procedure 1 · Set the brand</a>
+  <a href="#p2">6. Procedure 2 · Set sections and rules</a>
+  <a href="#p3">7. Procedure 3 · Publish the standard</a>
+  <a href="#p4">8. Procedure 4 · Rep sends a proposal</a>
+  <a href="#p5">9. Procedure 5 · Buyer opens the proposal</a>
+  <a class="sub" href="#p5a">9.1 Access and intro</a>
+  <a class="sub" href="#p5b">9.2 The page</a>
+  <a class="sub" href="#p5c">9.3 Development and home panels</a>
+  <a class="sub" href="#p5d">9.4 Reserve and next step</a>
+  <a href="#rules">10. Rules</a>
+  <a class="sub" href="#r-brand">10.1 Brand</a>
+  <a class="sub" href="#r-sections">10.2 Sections</a>
+  <a class="sub" href="#r-state">10.3 Deal state</a>
+  <a class="sub" href="#r-link">10.4 Link</a>
+  <a href="#data">11. Data model</a>
+  <a href="#code">12. Files and functions</a>
+  <a href="#build">13. Build order</a>
+  <a href="#test">14. Test procedure</a>
+  <a href="#open">15. Open items</a>
+</nav>
+<main>
+<h1>Buyer proposals: admin standard, brand, rep send and buyer page</h1>
+<p class="meta">Prototype: Bricly OS v3 · Language: ASD-STE100 Simplified Technical English · Date: 13 November 2026</p>
+<div class="links">
+  <a class="pri" href="../../../prototypes/v3/Bricly_OS_Prototype_v3.html" target="_blank" rel="noopener">Open the live v3 prototype</a>
+  <a href="../../../prototypes/v3/proposal/index.html?intro=1" target="_blank" rel="noopener">Open a buyer proposal</a>
+  <a href="../../buyer-proposal-plan.md">Product plan</a>
+  <a href="capture.cjs">Screenshot script (capture.cjs)</a>
+</div>
+
+<h2 id="purpose">1. Purpose</h2>
+<p>This document tells developers how to build buyer proposals. A buyer proposal is a private web page for one buyer. It shows the homes the buyer is interested in, with the developer's brand.</p>
+<p>The account admin sets the rules and the brand one time. The rep does not design the page. The rep confirms the homes and the message, then sends the link.</p>
+<div class="note"><b>NOTE</b>In the prototype, the standard and the brand are stored in <code>localStorage</code>. In the product, store them on the account. Store each sent proposal as an immutable snapshot.</div>
+
+<h2 id="layers">2. Who sets what</h2>
+<table><thead><tr><th>Layer</th><th>Who</th><th>Where</th><th>Controls</th></tr></thead><tbody>
+<tr><td>Proposal standard</td><td>Owner, manager. Marketing can view.</td><td>Settings → <b>Proposal page</b></td><td>Template, brand, sections, investment figures, reservations, sending, link and privacy, legal footer</td></tr>
+<tr><td>Brand source files</td><td>Admin or marketing</td><td>Company profile (company logo). New development setup → Brand (logo, colours, fonts, guidelines).</td><td>The first values of the brand kits. The admin confirms and edits them in Proposal page → Brand.</td></tr>
+<tr><td>Development content</td><td>Admin or marketing</td><td>Development editor</td><td>Cover image, amenities, places nearby, renders, progress photo, payment plan</td></tr>
+<tr><td>The proposal</td><td>The system drafts it. The rep approves it.</td><td>Opportunity → <b>Send proposal</b></td><td>Homes (from the opportunity) and the message (80 words maximum)</td></tr>
+</tbody></table>
+
+<h2 id="terms">3. Terms</h2>
+<table><thead><tr><th>Term</th><th>Meaning</th></tr></thead><tbody>
+<tr><td>Proposal standard</td><td>The versioned account rules for all proposals. Has a published version and a draft.</td></tr>
+<tr><td>Brand kit</td><td>Logo, 7 colours and 2 fonts. The account has one company kit. Each development has its own kit, or uses the company kit.</td></tr>
+<tr><td>Tokens</td><td>The CSS variables that a template reads: <code>--bg --surface --ink --muted --accent --on-accent --tint --line --display --text</code>.</td></tr>
+<tr><td>Template</td><td>A section order and a stylesheet. Signature is the only template now.</td></tr>
+<tr><td>Issue</td><td>One sent proposal: buyer, homes, message, standard version. It does not change after send.</td></tr>
+<tr><td>Section state</td><td><b>Always</b>, <b>When there's data</b> or <b>Off</b>. Some sections are required.</td></tr>
+</tbody></table>
+
+<h2 id="entry">4. Entry points</h2>
+<table><thead><tr><th>Entry point</th><th>User</th><th>Function</th></tr></thead><tbody>
+<tr><td>Settings → <b>Proposal page</b></td><td>Owner, manager</td><td><code>paOpenSettings()</code>, page <code>BST.pages.proposals</code></td></tr>
+<tr><td>Opportunity → banner <b>Proposal ready for …</b> → <b>Review and send</b></td><td>Rep</td><td><code>paSend(oppId)</code></td></tr>
+<tr><td>Opportunity → <b>Actions</b> → <b>Send proposal</b></td><td>Rep</td><td><code>paSend(oppId)</code></td></tr>
+<tr><td>Buyer link <code>bricly.mt/p/{token}</code></td><td>Buyer</td><td><code>proposal/index.html</code></td></tr>
+</tbody></table>
+
+<h2 id="p1">5. Procedure 1 · Set the brand</h2>
+<ol class="proc">
+<li>Open Settings → <b>Proposal page</b>.<span class="res">Result: The status bar shows the published version (Figure 1).</span></li>
+<li>In <b>Brand</b>, select <b>Company brand</b>.<span class="res">Result: The editor shows the logo, 7 colours, 2 fonts, a live preview and readability checks (Figure 2).</span></li>
+<li>To change the logo, click <b>Upload logo</b>. Use SVG, PNG or WebP, 300 KB maximum.<span class="res">Result: The preview shows the new logo. <b>Use a text logo</b> removes it.</span></li>
+<li>To change a colour, use the colour well or type a hex value. Press Tab.<span class="res">Result: The preview and the readability checks update.</span></li>
+<li>To change a font, select a font from the list, or click <b>Upload font</b>. Use WOFF2, WOFF, TTF or OTF, 500 KB maximum.<span class="res">Result: The sample line shows the font.</span></li>
+<li>Select a development in the list.<span class="res">Result: The editor shows that development's kit (Figure 3).</span></li>
+<li>If the development has no project brand, select <b>Use the company brand</b>.<span class="res">Result: The development uses the company colours and fonts. Its name is the logo (Figure 5).</span></li>
+</ol>
+<div class="grid2"><figure><img src="img/a1-settings.png" alt="Settings, Proposal page" loading="lazy"><figcaption>Figure 1. Settings → Proposal page.</figcaption></figure><figure><img src="img/a2-brand-company.png" alt="Brand, company brand" loading="lazy"><figcaption>Figure 2. Brand → Company brand.</figcaption></figure></div>
+<div class="grid2"><figure><img src="img/a3-brand-readability.png" alt="Development brand with a readability failure" loading="lazy"><figcaption>Figure 3. Dolphin Court: secondary text is too light.</figcaption></figure><figure><img src="img/a5-brand-inherit.png" alt="Development uses the company brand" loading="lazy"><figcaption>Figure 5. Verdala uses the company brand.</figcaption></figure></div>
+<figure><img src="img/a4-publish-blocked.png" alt="Publish blocked by readability" loading="lazy"><figcaption>Figure 4. Publish is blocked until all text is readable.</figcaption></figure>
+<div class="warning"><b>WARNING</b>Do not let a brand with unreadable colours go live. Each check must be 4.5:1 or more (WCAG AA). If a check fails, the brand list shows <b>Check</b> and <b>Publish</b> is disabled (Figure 4).</div>
+
+<h2 id="p2">6. Procedure 2 · Set sections and rules</h2>
+<ol class="proc">
+<li>In <b>Template</b>, select a template.<span class="res">Result: The card shows <b>In use</b>. Templates marked <b>Coming soon</b> are disabled.</span></li>
+<li>In <b>Sections</b>, set each section to <b>Always</b>, <b>When there's data</b> or <b>Off</b> (Figure 6).<span class="res">Result: The status bar shows <b>Draft</b> and the number of changes. Required sections show <b>Always · required</b>.</span></li>
+<li>In <b>Investment figures</b>, select the buyer types that see rent, yield or value figures (Figure 7).</li>
+<li>In <b>Reservations</b>, select what buyers can do and who gets the requests (Figure 8).</li>
+<li>In <b>Sending</b>, select <b>Rep approves each proposal</b> or <b>Send automatically</b> (Figure 9).</li>
+<li>In <b>Link and privacy</b>, set the expiry, prices, passcode and tracking (Figure 10).</li>
+<li>In <b>Legal footer</b>, edit the text.</li>
+<li>Look at <b>Development readiness</b> (Figure 11).<span class="res">Result: Each development shows missing content. A missing item hides its section. It does not stop a send.</span></li>
+</ol>
+<figure><img src="img/a6-sections.png" alt="Sections" loading="lazy"><figcaption>Figure 6. Sections.</figcaption></figure>
+<div class="grid2"><figure><img src="img/a7-investment-figures.png" alt="Investment figures" loading="lazy"><figcaption>Figure 7. Investment figures.</figcaption></figure><figure><img src="img/a7-reservations.png" alt="Reservations" loading="lazy"><figcaption>Figure 8. Reservations.</figcaption></figure></div>
+<div class="grid2"><figure><img src="img/a7-sending.png" alt="Sending" loading="lazy"><figcaption>Figure 9. Sending.</figcaption></figure><figure><img src="img/a7-link-and-privacy.png" alt="Link and privacy" loading="lazy"><figcaption>Figure 10. Link and privacy.</figcaption></figure></div>
+<figure><img src="img/a8-readiness.png" alt="Development readiness" loading="lazy"><figcaption>Figure 11. Development readiness.</figcaption></figure>
+
+<h2 id="p3">7. Procedure 3 · Publish the standard</h2>
+<ol class="proc">
+<li>Click <b>Preview draft</b>.<span class="res">Result: A buyer proposal opens in a new tab with the draft applied (<code>?std=draft</code>).</span></li>
+<li>Click <b>Publish v<i>n</i></b>.<span class="res">Result: A drawer lists each change (Figure 12).</span></li>
+<li>Click <b>Publish v<i>n</i></b> in the drawer.<span class="res">Result: New proposals use the new version. Sent proposals keep their version. <b>Versions</b> shows the entry (Figure 13).</span></li>
+<li>To stop, click <b>Discard</b>.<span class="res">Result: The draft is deleted. The published version does not change.</span></li>
+</ol>
+<div class="grid2"><figure><img src="img/a9-publish-confirm.png" alt="Publish confirmation" loading="lazy"><figcaption>Figure 12. Publish confirmation with the change list.</figcaption></figure><figure><img src="img/a10-versions.png" alt="Versions" loading="lazy"><figcaption>Figure 13. Versions.</figcaption></figure></div>
+
+<h2 id="p4">8. Procedure 4 · Rep sends a proposal</h2>
+<ol class="proc">
+<li>Open an opportunity that has homes.<span class="res">Result: The banner <b>Proposal ready for …</b> shows (Figure 14). If sending is automatic, the banner says when it will send.</span></li>
+<li>Click <b>Review and send</b>.<span class="res">Result: The drawer shows <b>1 Homes</b>, <b>2 Message</b> and <b>Set by your admin</b> (Figure 15).</span></li>
+<li>Remove a home with <b>×</b>, or add a home with <b>+ Add a home</b>.<span class="res">Result: If the rep did not edit the message, the message updates.</span></li>
+<li>Edit the message. Keep it to 80 words or fewer.<span class="res">Result: The word count shows. <b>Send</b> is disabled above 80 words.</span></li>
+<li>Click <b>Preview</b>.<span class="res">Result: The buyer page opens with this buyer, these homes and this message.</span></li>
+<li>Click <b>Send on WhatsApp</b> (or <b>Send on email</b>).<span class="res">Result: The issue is added to Shared with client. The banner goes away.</span></li>
+</ol>
+<div class="grid2"><figure><img src="img/r1-opportunity-banner.png" alt="Proposal ready banner" loading="lazy"><figcaption>Figure 14. Proposal ready banner.</figcaption></figure><figure><img src="img/r2-send-drawer.png" alt="Send proposal drawer" loading="lazy"><figcaption>Figure 15. Send proposal drawer.</figcaption></figure></div>
+<div class="caution"><b>CAUTION</b>The rep cannot change the template, brand, sections, prices or legal text. If content is wrong, fix it at the source (unit record, development, Settings).</div>
+
+<h2 id="p5">9. Procedure 5 · Buyer opens the proposal</h2>
+<h3 id="p5a">9.1 Access and intro</h3>
+<ol class="proc">
+<li>The buyer opens the link.<span class="res">Result: If a passcode is on, the passcode screen shows (Figure 16). Any 4 digits work in the prototype.</span></li>
+<li>The intro plays for about 2 seconds, then the page opens. A tap skips it (Figure 17).<span class="res">Result: On a return visit, the intro says <b>Welcome back</b> and is shorter.</span></li>
+</ol>
+<div class="grid2"><figure><img src="img/b1-passcode.png" alt="Passcode" loading="lazy"><figcaption>Figure 16. Passcode.</figcaption></figure><figure><img src="img/b2-intro.png" alt="Intro" loading="lazy"><figcaption>Figure 17. Intro: one colour, text animates in.</figcaption></figure></div>
+<h3 id="p5b">9.2 The page</h3>
+<table><thead><tr><th>Order</th><th>Section</th><th>Shows</th><th>Brand</th></tr></thead><tbody>
+<tr><td>1</td><td>Cover (Figure 18)</td><td>Cover image, buyer name, buyer profile, goals, prepared by, validity</td><td>Company</td></tr>
+<tr><td>2</td><td>Letter (Figure 19)</td><td>The rep's message. The first sentence is large.</td><td>Company</td></tr>
+<tr><td>3</td><td>Your selection (Figure 20)</td><td>One box for each development, with its home cards</td><td>Each development</td></tr>
+<tr><td>4</td><td>Side by side (Figures 21, 22)</td><td>Toggle: Homes or Developments</td><td>Company, with development colour dots</td></tr>
+<tr><td>5</td><td>Built on trust (Figure 23)</td><td>Track record, delivered projects, promises</td><td>Company</td></tr>
+<tr><td>6</td><td>Your next step (Figure 24)</td><td>Changes with the deal state</td><td>Company</td></tr>
+<tr><td>7</td><td>Downloads and legal footer</td><td>Files and the legal text from the standard</td><td>Company</td></tr>
+</tbody></table>
+<div class="grid2"><figure><img src="img/b3-cover.png" alt="Cover" loading="lazy"><figcaption>Figure 18. Cover.</figcaption></figure><figure><img src="img/b4-letter.png" alt="Letter" loading="lazy"><figcaption>Figure 19. Letter.</figcaption></figure></div>
+<figure><img src="img/b5-selection.png" alt="Your selection" loading="lazy"><figcaption>Figure 20. Your selection: one box for each development.</figcaption></figure>
+<div class="grid2"><figure><img src="img/b9-compare-homes.png" alt="Compare homes" loading="lazy"><figcaption>Figure 21. Side by side: Homes.</figcaption></figure><figure><img src="img/b9b-compare-developments.png" alt="Compare developments" loading="lazy"><figcaption>Figure 22. Side by side: Developments.</figcaption></figure></div>
+<div class="grid2"><figure><img src="img/b10-trust.png" alt="Built on trust" loading="lazy"><figcaption>Figure 23. Built on trust.</figcaption></figure><figure><img src="img/b11-next-step.png" alt="Next step" loading="lazy"><figcaption>Figure 24. Your next step, nothing reserved.</figcaption></figure></div>
+<figure><img src="img/b12-floating-button.png" alt="Floating button" loading="lazy"><figcaption>Figure 25. Floating button (black glass, bottom centre). It hides when Your next step is on screen.</figcaption></figure>
+<h3 id="p5c">9.3 Development and home panels</h3>
+<ol class="proc">
+<li>The buyer clicks a development card.<span class="res">Result: A side panel opens in the development's brand. Tabs: Overview, Amenities, Location, Progress, Your homes (Figure 26).</span></li>
+<li>The buyer clicks a home, or a home in the switcher at the top.<span class="res">Result: The home panel opens. Tabs: Overview, Renders and views, Floor plan, In the building, Payment plan, Investment or Value (Figures 27–30).</span></li>
+<li>The buyer clicks a tab.<span class="res">Result: The panel scrolls to that section. The tab line follows the scroll.</span></li>
+</ol>
+<div class="grid2"><figure><img src="img/b6-development-panel.png" alt="Development panel" loading="lazy"><figcaption>Figure 26. Development panel.</figcaption></figure><figure><img src="img/b7-home-panel.png" alt="Home panel" loading="lazy"><figcaption>Figure 27. Home panel: Overview.</figcaption></figure></div>
+<div class="grid2"><figure><img src="img/b8-home-position.png" alt="In the building" loading="lazy"><figcaption>Figure 28. In the building: level and position on the floor.</figcaption></figure><figure><img src="img/b8-home-payment.png" alt="Payment plan" loading="lazy"><figcaption>Figure 29. Payment plan.</figcaption></figure></div>
+<figure><img src="img/b8-home-investment.png" alt="Investment" loading="lazy"><figcaption>Figure 30. Investment, with the disclaimer next to the figures.</figcaption></figure>
+<div class="grid2"><figure class="phone"><img src="img/m1-cover.png" alt="Mobile cover" loading="lazy"><figcaption>Figure 31. Mobile cover.</figcaption></figure><figure class="phone"><img src="img/m2-home-panel.png" alt="Mobile home panel" loading="lazy"><figcaption>Figure 32. Mobile home panel: full screen.</figcaption></figure></div>
+<h3 id="p5d">9.4 Reserve and next step</h3>
+<ol class="proc">
+<li>The buyer clicks <b>Reserve this home</b> (home panel, next step or floating button).<span class="res">Result: The reserve sheet shows 4 steps and a short form (Figure 33).</span></li>
+<li>The buyer clicks <b>Send reservation request</b>.<span class="res">Result: The confirmation shows (Figure 34). The home shows <b>Reservation requested</b>. The rep (or sales manager) gets a task. The home is not reserved automatically.</span></li>
+<li>When the home is reserved, the next step shows <b>Book your promise of sale</b> (Figure 35).</li>
+</ol>
+<div class="grid2"><figure><img src="img/b13-reserve.png" alt="Reserve sheet" loading="lazy"><figcaption>Figure 33. Reserve sheet.</figcaption></figure><figure><img src="img/b14-reserve-sent.png" alt="Request sent" loading="lazy"><figcaption>Figure 34. Request sent.</figcaption></figure></div>
+<figure><img src="img/b15-next-reserved.png" alt="Next step, reserved" loading="lazy"><figcaption>Figure 35. Your next step, home reserved.</figcaption></figure>
+
+<h2 id="rules">10. Rules</h2>
+<h3 id="r-brand">10.1 Brand</h3>
+<ul>
+<li>The company kit frames the page: intro, cover, letter, compare, trust, next step, footer, top bar.</li>
+<li>Each development box, panel and reserve sheet uses that development's kit. If <code>own</code> is false, use the company kit with the development name as a text logo.</li>
+<li>A kit maps to tokens with <code>PROPOSAL_STD.tokens(kit)</code>. Templates read tokens only. Never hard-code a colour or font in a template.</li>
+<li><code>--on-accent</code> is white or the text colour, whichever has more contrast on the accent.</li>
+<li>Readability: text on background, secondary text, button text and text on cards must each be 4.5:1 or more. A failing kit blocks publish.</li>
+<li>Fonts: a listed name loads from Google Fonts. An uploaded file loads with <code>@font-face</code>. In the product, host font files on your CDN and subset them.</li>
+<li>Source of the first values: Company profile logo, and New development setup → Brand uploads (logo, colour values, fonts, guidelines).</li>
+</ul>
+<h3 id="r-sections">10.2 Sections</h3>
+<table><thead><tr><th>State</th><th>Rule</th></tr></thead><tbody>
+<tr><td>Always</td><td>Show the section.</td></tr>
+<tr><td>When there's data</td><td>Show the section only if its data exists. Example: no profile on the opportunity → hide Buyer profile.</td></tr>
+<tr><td>Off</td><td>Do not show the section.</td></tr>
+<tr><td>Required</td><td>Cover, Your selection, Your next step, Floor plan, Payment plan, Legal footer. Cannot be off.</td></tr>
+</tbody></table>
+<p>Investment figures show only for the buyer types in <code>investFor</code>. Growth buyers see value per m² since launch, not rent. If prices are off, all prices and payment amounts show <b>Price on request</b> and price rows leave the comparison.</p>
+<h3 id="r-state">10.3 Deal state</h3>
+<table><thead><tr><th>State</th><th>Floating button</th><th>Your next step</th><th>Home panel button</th></tr></thead><tbody>
+<tr><td>Nothing reserved</td><td>Reserve unit</td><td>Pick a home → Reserve this home</td><td>Reserve this home</td></tr>
+<tr><td>Request sent</td><td>Contact Sam</td><td>Sam is confirming your reservation</td><td>Reservation requested (disabled)</td></tr>
+<tr><td>Reserved, booking allowed</td><td>Book promise of sale</td><td>Book your promise of sale</td><td>Book your promise of sale</td></tr>
+<tr><td>Reserved, request only</td><td>Contact Sam</td><td>Sam will arrange your promise of sale</td><td>Contact Sam</td></tr>
+</tbody></table>
+<h3 id="r-link">10.4 Link</h3>
+<ul>
+<li>Token: 128-bit random, base62. One token for each recipient. Never derive it from IDs.</li>
+<li>Expiry from the standard (14, 30 or 60 days). The rep can renew or revoke in Shared with client.</li>
+<li>Headers: <code>noindex, nofollow</code>, <code>Referrer-Policy: no-referrer</code>. No third-party scripts.</li>
+<li>Preview card: <code>og:title</code> with the first name only, and a 1200 × 630 image. No price, no surname.</li>
+<li>Tracking: first-party only. Show the notice in the legal footer. If tracking is off, send no events.</li>
+</ul>
+
+<h2 id="data">11. Data model</h2>
+<table><thead><tr><th>Record</th><th>Fields</th></tr></thead><tbody>
+<tr><td><code>ProposalStandard</code></td><td><code>v</code>, <code>when</code>, <code>by</code>, <code>template</code>, <code>brand</code>, <code>devBrands{devId}</code>, <code>sections{key: always|data|off}</code>, <code>investFor[]</code>, <code>reserve{mode: request|request-pos, to: rep|manager}</code>, <code>sending: approve|auto</code>, <code>access{expiry, prices, passcode, tracking}</code>, <code>legal</code>, <code>log[]</code>. Plus one <code>draft</code>.</td></tr>
+<tr><td><code>BrandKit</code></td><td><code>src</code>, <code>own</code> (developments only), <code>logo{text, sub, img}</code>, <code>colors{bg, surface, ink, muted, accent, tint, line}</code>, <code>fonts{display{name, data?}, text{name, data?}}</code></td></tr>
+<tr><td><code>ProposalIssue</code></td><td><code>token</code>, <code>oppId</code>, <code>buyer</code>, <code>rep</code>, <code>units[]</code>, <code>message</code>, <code>stdVersion</code>, <code>snapshot</code> (prices, content, brand at send), <code>expires</code>, <code>state</code> (active, revoked, expired)</td></tr>
+<tr><td><code>ProposalEvent</code></td><td><code>token</code>, <code>at</code>, <code>type</code> (opened, viewed section, gallery, compare, reserve opened, reservation requested, asked, downloaded), <code>detail</code></td></tr>
+</tbody></table>
+<p>Section keys: <code>intro cover profile goals letter selection compare developer next downloads legal amenities location progress views plan position payment investment</code>.</p>
+
+<h2 id="code">12. Files and functions</h2>
+<p>All files are in <code>prototypes/v3/</code>.</p>
+<table><thead><tr><th>File</th><th>Contents</th></tr></thead><tbody>
+<tr><td><code>proposal/proposal-std.js</code></td><td><code>PROPOSAL_STD</code>: <code>SECTIONS</code>, <code>TEMPLATES</code>, <code>FONTS</code>, <code>COLOR_KEYS</code>, <code>defaults()</code>, <code>load()</code>, <code>save()</code>, <code>tokens(kit)</code>, <code>loadFonts(kit)</code>, <code>checks(colors)</code>, <code>onAccent(colors)</code>. Shared by the CRM and the buyer page.</td></tr>
+<tr><td><code>proposal-admin.js</code></td><td>Settings page blocks (<code>barHtml</code>, <code>templates</code>, <code>brand</code>, <code>sections</code>, <code>investRule</code>, <code>reserve</code>, <code>sending</code>, <code>access</code>, <code>legal</code>, <code>readiness</code>, <code>versions</code>), draft and publish (<code>paSet</code>, <code>paSection</code>, <code>paBrandSet</code>, <code>paBrandFile</code>, <code>paPublishAsk</code>, <code>paPublish</code>), rep send (<code>paSend</code>, <code>paSendGo</code>), opportunity banner and Actions entry.</td></tr>
+<tr><td><code>proposal-admin.css</code></td><td>Styles for the settings page and the send drawer. CRM tokens.</td></tr>
+<tr><td><code>proposal/index.html</code></td><td>Buyer page shell.</td></tr>
+<tr><td><code>proposal/proposal-data.js</code></td><td>Sample issue content (<code>PROPOSAL</code>) and buyer-type copy (<code>PROPOSAL_PERSONAS</code>).</td></tr>
+<tr><td><code>proposal/proposal.js</code></td><td>Buyer page. <code>SECTIONS</code>, <code>devTabs</code>, <code>unitTabs</code>, <code>TEMPLATES</code>, panel, reserve, floating button, passcode (<code>gate</code>), intro. Reads the standard at load.</td></tr>
+<tr><td><code>proposal/proposal-base.css</code>, <code>proposal/t-signature.css</code></td><td>Shared styles and the Signature layout. Tokens only.</td></tr>
+</tbody></table>
+
+<h2 id="build">13. Build order</h2>
+<ol class="proc">
+<li>Data: <code>ProposalStandard</code>, <code>BrandKit</code>, <code>ProposalIssue</code>, <code>ProposalEvent</code>. Seed brand kits from Company profile and New development setup.</li>
+<li>Settings → Proposal page with draft, readability checks and publish. Owner and manager only.</li>
+<li>Token service: kit → tokens, <code>on-accent</code>, font hosting.</li>
+<li>Buyer page renderer from an issue snapshot. Start with Signature. Server-render the first view for speed.</li>
+<li>Rep send drawer and the trigger (appointment completed, enquiry logged).</li>
+<li>Link service: token, expiry, revoke, passcode, headers, preview card.</li>
+<li>Events back to the opportunity timeline and the rep notifications.</li>
+<li>Reservation request → task for the rep or the sales manager → hold follows Approvals.</li>
+</ol>
+
+<h2 id="test">14. Test procedure</h2>
+<p><code>npx playwright test tests/proposal.spec.cjs tests/proposal-admin.spec.cjs --reporter=line</code></p>
+<table><thead><tr><th>Test</th><th>Checks</th></tr></thead><tbody>
+<tr><td>Buyer proposal (proposal.spec.cjs)</td><td>Intro, cover, development boxes, floating button, panels and switcher, compare toggle, reserve, next-step states, return visit.</td></tr>
+<tr><td>Proposal page settings (proposal-admin.spec.cjs)</td><td>Required sections, readability blocks publish, company accent reaches the buyer page, draft and publish, rep adds a home, preview follows the standard, send files the issue.</td></tr>
+</tbody></table>
+<p>To make the screenshots again, start a static server at the repository root on port 4310. Then use this command:</p>
+<p><code>NODE_PATH=&lt;repo&gt;/node_modules node docs/handoff/buyer-proposals/capture.cjs</code></p>
+
+<h2 id="open">15. Open items</h2>
+<table><thead><tr><th>Item</th><th>Status</th></tr></thead><tbody>
+<tr><td>Templates Residence, Investor brief, Monograph</td><td>Next. Each adds a <code>TEMPLATES</code> entry and a <code>t-&lt;name&gt;.css</code> file.</td></tr>
+<tr><td>Brand guidelines PDF: read colours and fonts automatically</td><td>Not started. Today the admin confirms the values.</td></tr>
+<tr><td>Preview uses Seashore sample content for other buyers</td><td>Prototype limit. The product renders from the issue snapshot.</td></tr>
+<tr><td>Template override for each development</td><td>Not in scope. One template for each account.</td></tr>
+<tr><td>Online deposit at reservation</td><td>Not in scope. Reserve is a request.</td></tr>
+</tbody></table>
+</main>
+</div>
+</body>
+</html>

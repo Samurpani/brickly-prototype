@@ -50,6 +50,63 @@ The home's footer keeps the price, status, **Ask Sam** and **Reserve this home**
 
 Corners are small and crisp. There are 4 radius tokens: `--r-lg` 10px for panels and boxes, `--r-md` 6px for cards and images, `--r-sm` 4px, and `--r-pill` 3px for buttons and tags.
 
+## 0.1 Admin settings and flows (built 13 Nov 2026)
+
+Reps don't design proposals. The proposal standard is set once per account, each development supplies its content once, and the rep only confirms the homes and the message.
+
+| Layer | Who | Where | Controls |
+| --- | --- | --- | --- |
+| Account standard | Owner, manager (marketing can view) | **Settings › Proposal page** | Template, sections, investment rules, reservations, sending, link and privacy, legal footer |
+| Development content | Admin or marketing | Development editor | Cover image, amenities, places nearby, renders, progress photo, payment plan |
+| The proposal | Drafted by the system, approved by the rep | Opportunity › **Send proposal** | Homes (pre-selected) and message (pre-written, 80 words or fewer) |
+
+**Settings › Proposal page** ([proposal-admin.js](../prototypes/v3/proposal-admin.js)):
+
+- **Template:** one per account. Signature is live; the others are marked "Coming soon".
+- **Sections:** each section is **Always**, **When there's data** (hides itself when the data is missing) or **Off**. Cover, selection, next step, floor plan, payment plan and legal footer are required. The template sets the order.
+- **Investment figures:** the buyer types who see rent, yield, or value per m².
+- **Reservations:**
+  - what buyers can do: request only, or request then book the promise of sale
+  - who gets requests: the rep, or the sales manager first
+- **Sending:** the rep approves each proposal (the default), or proposals send automatically.
+- **Link and privacy:** expiry (14, 30 or 60 days), show prices or "Price on request", passcode, and whether the rep is told what the buyer viewed.
+- **Legal footer:** one text block; reps can't edit it.
+- **Development readiness:** a checklist for each development. Missing content hides its section instead of blocking a send.
+- **Draft → preview → publish:** every change is a draft until published as a new version, with a change summary. Proposals already sent keep their version. Versions are listed with who changed what.
+
+The CRM and the buyer page both read the shared standard ([proposal-std.js](../prototypes/v3/proposal/proposal-std.js)). In the prototype it is stored in localStorage, and `?std=draft` previews an unpublished draft.
+
+**Flows:**
+
+1. **Admin setup:** Settings › Proposal page → pick the template → set sections and rules → preview → publish v1.
+2. **Development readiness:** fill in the missing items from the readiness checklist in the development editor.
+3. **Rep send:**
+   - An appointment or enquiry is logged.
+   - The opportunity shows "Proposal ready for Mike".
+   - **Review and send** opens a drawer: (1) homes, remove or add; (2) message.
+   - A read-only "Set by your admin" summary follows.
+   - The rep can preview, then **Send on WhatsApp**.
+   - The proposal is added to Shared with client.
+   - **Send proposal** is also the first item in the opportunity's Actions menu.
+4. **Buyer:** opens the link → passcode if set → intro → proposal → reservation request → a task for the rep or sales manager.
+5. **Change the standard:** edit the draft → preview → publish vN+1. New sends use it; sent proposals keep their version.
+
+Test: [tests/proposal-admin.spec.cjs](../tests/proposal-admin.spec.cjs).
+
+**Brand (Settings › Proposal page › Brand):**
+
+- One **company brand kit** and one kit for each development: logo, 7 colours (background, cards, text, secondary text, accent and buttons, soft accent, lines) and 2 fonts (headlines, body).
+- The first values come from Company profile and from New development setup → Brand uploads. Admins confirm and edit them here:
+  - logo upload (SVG, PNG or WebP)
+  - colour well or hex value
+  - a font from the list, or an uploaded font file
+  - a live preview of the result
+- A development can **use the company brand**. Its name then becomes the logo.
+- Readability checks (WCAG AA, 4.5:1) run on every kit. A failing kit blocks publishing.
+- The company kit frames the page. Each development's box, panel and reserve sheet use that development's kit.
+
+**Developer handoff (step by step, with screenshots):** [docs/handoff/buyer-proposals/index.html](handoff/buyer-proposals/index.html).
+
 ## 1. The problem in one line
 
 The CRM can already build, version, send, track, renew and revoke a personalised pack. The **page the buyer opens** has no defined design. This plan defines it: one block library, five layout templates, one personalised intro, one link model. Developers only change the brand tokens and the logo.

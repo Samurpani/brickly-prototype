@@ -6,12 +6,44 @@
 (function(){
   const P=window.PROPOSAL, PERSONAS=window.PROPOSAL_PERSONAS;
   const qs=new URLSearchParams(location.search);
-  const S={type:qs.get('type')||P.buyer.type,template:qs.get('template')||P.template,context:qs.get('context')||P.context.kind,
+  // Account standard from Settings › Proposal page. ?std=draft previews an unpublished draft.
+  const STDL=window.PROPOSAL_STD?window.PROPOSAL_STD.load():null;
+  const STD=STDL?(qs.get('std')==='draft'&&STDL.draft?STDL.draft:STDL.pub):null;
+  const on=k=>!STD||STD.sections[k]!=='off';
+  const showPrice=!STD||STD.access.prices;
+  const canPos=!STD||STD.reserve.mode==='request-pos';
+  const toMgr=!!STD&&STD.reserve.to==='manager';
+  const invOK=t=>!STD||STD.investFor.includes(t);
+  // An issue sent from the CRM: this buyer, these homes and this message.
+  (function(){
+    if(!qs.has('issue')) return;
+    let i=null; try{i=JSON.parse(localStorage.getItem('bricly.proposal.issue')||'null');}catch(e){}
+    if(!i) return;
+    if(i.first&&i.first!==P.buyer.first){P.buyer.first=i.first;P.buyer.last=i.last||'';P.profile=null;P.requirements=[];}
+    const keep=P.units.filter(u=>(i.units||[]).includes(u.id));
+    if(keep.length){P.units=keep;P.developments=P.developments.filter(d=>keep.some(u=>u.dev===d.id));}
+    if(i.msg){P.letter=[i.msg];P.letterOwn=true;}
+    if(i.rep&&i.rep!==P.rep.name.split(' ')[0]){P.rep.name=i.rep;P.rep.initials=i.rep.slice(0,2).toUpperCase();}
+  })();
+  // Brand kits from Settings › Proposal page: the company brand frames the proposal, and each
+  // development uses its own brand or the company brand with its name as the logo.
+  if(STD&&STD.brand){
+    const PSX=window.PROPOSAL_STD;
+    PSX.loadFonts(STD.brand); P.developer.brand=PSX.tokens(STD.brand);
+    P.developments.forEach(d=>{const b=(STD.devBrands||{})[d.id]; if(!b) return;
+      if(b.own){PSX.loadFonts(b);d.brand=PSX.tokens(b);} else d.brand={...P.developer.brand,logo:{text:d.name,sub:d.place}};});
+  }
+  if(STD){
+    const d=new Date(P.issued); if(!isNaN(d)){d.setDate(d.getDate()+STD.access.expiry);P.validUntil=d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});}
+    P.legal=STD.legal+(STD.access.tracking?' Your adviser can see which parts of this proposal you open.':' Viewing activity on this page isn’t tracked.');
+  }
+  const S={type:qs.get('type')||P.buyer.type,template:qs.get('template')||(STD&&STD.template)||P.template,context:qs.get('context')||P.context.kind,
     reserved:qs.get('reserved')||P.reserved,requested:new Set(),cmp:'homes',cur:null,events:[]};
   const reduce=()=>matchMedia('(prefers-reduced-motion: reduce)').matches||document.documentElement.classList.contains('rm');
 
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const eur=n=>'€'+Math.round(n).toLocaleString('en-GB');
+  const price=u=>showPrice?eur(u.price):'Price on request';
   const dev=id=>P.developments.find(d=>d.id===id);
   const unit=id=>P.units.find(u=>u.id===id);
   const unitsOf=d=>P.units.filter(u=>u.dev===d.id);
@@ -74,24 +106,30 @@
   // ---------- page sections ----------
   const SECTIONS={
     cover(){
-      const pr=P.profile, goals=S.context==='request'?'Your requests':'Your goals';
-      const rows=[['Looking for',pr.looking],['Budget',pr.budget],['Handover',pr.handover],['Purpose',persona().purpose],['Areas',pr.areas]];
+      const pr=on('profile')&&P.profile, gl=on('goals')&&P.requirements.length, goals=S.context==='request'?'Your requests':'Your goals';
+      const rows=pr?[['Looking for',pr.looking],['Budget',pr.budget],['Handover',pr.handover],['Purpose',persona().purpose],['Areas',pr.areas]]:[];
       return `<section class="cover" id="top" data-track="Cover">
         <div class="cv-media"><figure><span class="media"><img src="${esc(P.developer.cover||P.developer.hero)}" alt=""></span></figure></div>
         <div class="cv-main">
           <header class="cv-top rv">${logo(P.developer.brand)}<span class="cvl">Private proposal · ${esc(P.id)}</span><span class="cvl">${esc(P.issued)}</span></header>
           <div class="cv-title"><p class="cvl rv">Prepared for</p><h1 class="cover-name mask rv"><span>${esc(P.buyer.first)} ${esc(P.buyer.last)}</span></h1></div>
-          <div class="cv-grid rv">
-            <dl class="profile" aria-label="Your buyer profile">${rows.map(([t,d],i)=>`<div><span class="no" aria-hidden="true">${String(i+1).padStart(2,'0')}</span><dt>${t}</dt><dd>${esc(d)}</dd></div>`).join('')}</dl>
-            <aside class="cv-goals" aria-label="${goals}"><p class="cvl">${goals}</p>
-              <ol>${P.requirements.map(r=>`<li><span><b>${esc(r.ask)}</b><small>${esc(r.answer)}</small></span></li>`).join('')}</ol></aside>
-          </div>
+          ${pr||gl?`<div class="cv-grid rv${pr&&gl?'':' one'}">
+            ${pr?`<dl class="profile" aria-label="Your buyer profile">${rows.map(([t,d],i)=>`<div><span class="no" aria-hidden="true">${String(i+1).padStart(2,'0')}</span><dt>${t}</dt><dd>${esc(d)}</dd></div>`).join('')}</dl>`:''}
+            ${gl?`<aside class="cv-goals" aria-label="${goals}"><p class="cvl">${goals}</p>
+              <ol>${P.requirements.map(r=>`<li><span><b>${esc(r.ask)}</b><small>${esc(r.answer)}</small></span></li>`).join('')}</ol></aside>`:''}
+          </div>`:''}
           <footer class="cv-foot cvl rv"><div>Prepared by<span>${esc(P.rep.name)}</span></div><div>${P.developments.length>1?'Developments':'Development'}<span>${P.developments.map(d=>esc(d.name)).join(', ')}</span></div><div>Prices valid until<span>${esc(P.validUntil)}</span></div><div>Contact<span>${esc(P.rep.phone)}</span></div></footer>
         </div>
       </section>`;
     },
     letter(){
+      if(!on('letter')) return '';
       const r=P.rep, c=P.context, first=P.buyer.first;
+      if(P.letterOwn){const m=/^(.+?[.!?])\s+([\s\S]*)$/.exec(P.letter[0])||[0,P.letter[0],''];
+        return `<section class="letter" id="letter" data-track="Letter"><div class="wrap">
+        <div class="letter-rep rv"><span class="mono" aria-hidden="true">${esc(r.initials)}</span><div><b>${esc(r.name)}</b><small>${esc(r.role)}</small></div></div>
+        <div class="letter-body"><p class="first rv">${esc(m[1])}</p>${m[2]?`<p class="rv">${esc(m[2])}</p>`:''}<p class="sig rv">${esc(repFirst)}</p></div>
+      </div></section>`;}
       const open=S.context==='call'?`${first}, thanks for the call on ${c.day}.`:S.context==='request'?`${first}, thanks for getting in touch about ${c.place}.`:`${first}, thank you for coming to see ${c.place} on ${c.day}.`;
       return `<section class="letter" id="letter" data-track="Letter"><div class="wrap">
         <div class="letter-rep rv"><span class="mono" aria-hidden="true">${esc(r.initials)}</span><div><b>${esc(r.name)}</b><small>${esc(r.role)}</small></div></div>
@@ -114,7 +152,7 @@
       </div></section>`;
     },
     compare(){
-      if(P.units.length<2&&P.developments.length<2) return '';
+      if(!on('compare')||(P.units.length<2&&P.developments.length<2)) return '';
       return `<section class="compare" id="compare" data-track="Side by side"><div class="wrap">
         ${head('Side by side','Compare them.',null)}
         <div class="seg rv" role="tablist" aria-label="Compare">${[['homes','Homes'],['devs','Developments']].map(([k,l])=>`<button type="button" role="tab" aria-selected="${S.cmp===k}" data-cmp="${k}">${l}</button>`).join('')}</div>
@@ -122,6 +160,7 @@
       </div></section>`;
     },
     developer(){
+      if(!on('developer')) return '';
       const D=P.developer;
       return `<section class="developer" id="developer" data-track="About the developer"><div class="wrap">
         ${head('Built on trust',`Why buy from ${esc(D.name.split(' ')[0])}.`,null)}
@@ -133,19 +172,21 @@
     next(){
       const r=P.rep, res=S.reserved&&unit(S.reserved), req=[...S.requested].map(unit)[0];
       let body;
-      if(res){const dep=res.price*res.pay[0].pct/100;
-        body=`<h2 class="mask rv"><span>Book your promise of sale</span></h2>
-          <p class="lede rv">${esc(res.name)} at ${esc(dev(res.dev).name)} is reserved for you. Pick a time to sign the promise of sale with ${esc(repFirst)} at the notary. The ${res.pay[0].pct}% deposit of ${eur(dep)} is paid on the day.</p>
-          <div class="next-cta rv"><button type="button" class="btn primary" data-act="pos">Book your promise of sale</button></div>`;}
+      if(res){const dep=res.price*res.pay[0].pct/100, depTxt=`The ${res.pay[0].pct}% deposit${showPrice?` of ${eur(dep)}`:''} is paid on the day.`;
+        body=canPos?`<h2 class="mask rv"><span>Book your promise of sale</span></h2>
+          <p class="lede rv">${esc(res.name)} at ${esc(dev(res.dev).name)} is reserved for you. Pick a time to sign the promise of sale with ${esc(repFirst)} at the notary. ${depTxt}</p>
+          <div class="next-cta rv"><button type="button" class="btn primary" data-act="pos">Book your promise of sale</button></div>`
+          :`<h2 class="mask rv"><span>${esc(repFirst)} will arrange your promise of sale</span></h2>
+          <p class="lede rv">${esc(res.name)} at ${esc(dev(res.dev).name)} is reserved for you. ${esc(repFirst)} will be in touch with a date at the notary. ${depTxt}</p>`;}
       else if(req){
         body=`<h2 class="mask rv"><span>${esc(repFirst)} is confirming your reservation</span></h2>
-          <p class="lede rv">You asked to reserve ${esc(req.name)}. ${esc(repFirst)} will confirm by ${req.status==='held'?'Friday':'tomorrow'}. Once it’s confirmed, you can book the promise of sale here.</p>
-          <div class="next-cta rv"><button type="button" class="btn primary" disabled>Book your promise of sale</button></div>`;}
+          <p class="lede rv">You asked to reserve ${esc(req.name)}. ${esc(repFirst)} will confirm by ${req.status==='held'?'Friday':'tomorrow'}.${canPos?' Once it’s confirmed, you can book the promise of sale here.':''}</p>
+          ${canPos?'<div class="next-cta rv"><button type="button" class="btn primary" disabled>Book your promise of sale</button></div>':''}`;}
       else{
         const def=(P.units.find(u=>u.status==='held')||P.units[0]).id;
         body=`<h2 class="mask rv"><span>Ready to reserve?</span></h2>
           <p class="lede rv">Choose a home and ${esc(repFirst)} will hold it while the paperwork is prepared. Nothing is charged until you sign the promise of sale.</p>
-          <fieldset class="pick rv"><legend class="sr">Choose a home</legend>${P.units.map(u=>`<label><input type="radio" name="pick" value="${u.id}" ${u.id===def?'checked':''}><span><b>${esc(u.name)}</b><small>${esc(dev(u.dev).name)} · ${eur(u.price)}</small></span></label>`).join('')}</fieldset>
+          <fieldset class="pick rv"><legend class="sr">Choose a home</legend>${P.units.map(u=>`<label><input type="radio" name="pick" value="${u.id}" ${u.id===def?'checked':''}><span><b>${esc(u.name)}</b><small>${esc(dev(u.dev).name)} · ${price(u)}</small></span></label>`).join('')}</fieldset>
           <div class="next-cta rv"><button type="button" class="btn primary" data-act="reserve-pick">Reserve this home</button></div>`;}
       return `<section class="next" id="next" data-track="Next step"><div class="wrap narrow">
         <p class="kick rv">Your next step</p>${body}
@@ -155,7 +196,7 @@
     },
     footer(){
       return `<footer class="foot" data-track="Downloads"><div class="wrap">
-        <div class="dl"><p class="kick">Downloads</p><ul>${P.downloads.map(([n,s])=>`<li><button type="button" data-dl="${esc(n)}"><span>${esc(n)}</span><small>${esc(s)}</small><i aria-hidden="true">↓</i></button></li>`).join('')}</ul></div>
+        ${on('downloads')?`<div class="dl"><p class="kick">Downloads</p><ul>${P.downloads.map(([n,s])=>`<li><button type="button" data-dl="${esc(n)}"><span>${esc(n)}</span><small>${esc(s)}</small><i aria-hidden="true">↓</i></button></li>`).join('')}</ul></div>`:''}
         <p class="legal">${esc(P.legal)}</p>
         <div class="foot-meta">${logo(P.developer.brand,'sm')}<span>A private proposal for ${esc(P.buyer.first)} ${esc(P.buyer.last)} · Issue v${P.version} · ${esc(P.issued)} · Valid until ${esc(P.validUntil)}</span><span class="pw">Prepared with Bricly</span></div>
       </div></footer>`;
@@ -166,7 +207,7 @@
     const [st,tone]=statusOf(u);
     return `<button type="button" class="ucard" data-open="u-${u.id}" aria-label="Open ${esc(u.name)}">
       <span class="media"><img src="${esc(u.renders[0])}" alt="" loading="lazy"></span>
-      <span class="ucard-in"><span class="pill ${tone}">${st}</span><b>${esc(u.name)}</b><span class="ucard-spec">${spec(u)}</span><span class="ucard-view">${esc(u.view)}</span><span class="ucard-price">${eur(u.price)}</span></span>
+      <span class="ucard-in"><span class="pill ${tone}">${st}</span><b>${esc(u.name)}</b><span class="ucard-spec">${spec(u)}</span><span class="ucard-view">${esc(u.view)}</span><span class="ucard-price">${price(u)}</span></span>
     </button>`;
   }
 
@@ -176,7 +217,7 @@
       const near=d=>d.life.filter(l=>l.for.includes('all')||l.for.includes(S.type)).slice(0,2).map(l=>`${l.n} · ${l.d}`).join('<br>');
       const ROWS=[['Location',d=>esc(d.place)],['Handover',d=>esc(handoverOf(d))],['Build progress',d=>`${d.progress.pct}% · ${esc(d.progress.stage)}`],
         ['Homes in the building',d=>fact(d,/^Homes$/)],['Floors',d=>fact(d,/Floors/)],['Amenities',d=>d.amenities.map(a=>esc(a.n)).join('<br>')],['Close by',near],
-        ['Price per m² today',d=>eur(d.market.now)],['Your homes here',d=>{const us=unitsOf(d);return `${us.length} · from ${eur(Math.min(...us.map(u=>u.price)))}`;}]];
+        ...(showPrice?[['Price per m² today',d=>eur(d.market.now)]]:[]),['Your homes here',d=>{const us=unitsOf(d);return showPrice?`${us.length} · from ${eur(Math.min(...us.map(u=>u.price)))}`:`${us.length}`;}]];
       return `<p class="cmp-hint">Swipe to compare →</p><div class="cmp-scroll" tabindex="0" role="region" aria-label="Development comparison"><table class="cmp" style="--n:${ds.length}">
         <thead><tr><th scope="col"><span class="sr">Measure</span></th>${ds.map(d=>`<th scope="col" style="${vars(d.brand)}"><img src="${esc(d.hero)}" alt="" loading="lazy"><span class="dot"></span><b>${esc(d.name)}</b><small>${esc(d.place)}</small></th>`).join('')}</tr></thead>
         <tbody>${ROWS.map(([l,f])=>`<tr><th scope="row">${l}</th>${ds.map(d=>`<td>${f(d)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
@@ -185,7 +226,7 @@
     const ROWS={price:['Price',u=>eur(u.price)],size:['Internal area',u=>u.sqm+' m²'],ext:['Terrace',u=>u.ext+' m²'],floor:['Floor',u=>'Level '+u.floor],view:['View',u=>esc(u.view)],
       handover:['Handover',u=>esc(u.handover)],rent:['Estimated rent',u=>`${eur(u.invest.rent[0])}–${eur(u.invest.rent[1])} /mo`],yield:['Estimated gross yield*',u=>gross(u).toFixed(1)+'%'],
       occ:['Estimated occupancy*',u=>u.invest.occ+'%'],pricem2:['Price per m²',u=>eur(pm2(u))]};
-    const rows=persona().compare;
+    const rows=persona().compare.filter(k=>(invOK(S.type)&&on('investment')||!['rent','yield','occ'].includes(k))&&(showPrice||!['price','pricem2'].includes(k)));
     const best={yield:Math.max(...us.map(gross)),pricem2:Math.min(...us.map(pm2)),price:Math.min(...us.map(u=>u.price))};
     const isBest=(k,u)=>(k==='yield'&&gross(u)===best.yield)||(k==='pricem2'&&pm2(u)===best.pricem2)||(k==='price'&&u.price===best.price);
     return `<p class="cmp-hint">Swipe to compare →</p><div class="cmp-scroll" tabindex="0" role="region" aria-label="Home comparison"><table class="cmp" style="--n:${us.length}">
@@ -210,7 +251,7 @@
           <div><div class="bar rv" role="progressbar" aria-valuenow="${g.pct}" aria-valuemin="0" aria-valuemax="100" aria-label="Build progress"><i style="--w:${g.pct}%"></i></div>
           <ol class="tl">${d.timeline.map(t=>`<li class="rv ${t.done?'done':''} ${t.now?'now':''}"><span class="pt" aria-hidden="true"></span><b>${esc(t.l)}</b><small>${esc(t.d)}</small></li>`).join('')}</ol></div></div>`],
       ['homes','Your homes',`<h3 class="pn-h3">Your homes at ${esc(d.name)}</h3><div class="pd-units">${unitsOf(d).map(ucard).join('')}</div>`],
-    ];
+    ].filter(([k])=>on(k)&&(k!=='amenities'||d.amenities.length)&&(k!=='location'||life.length)&&(k!=='progress'||d.progress));
   }
   function unitTabs(u,d){
     const [st,tone]=statusOf(u), F=fact(d,/Floors/)||6;
@@ -233,12 +274,13 @@
         <div class="pos rv"><figure>${stack(u,d)}<figcaption>Level in the building</figcaption></figure><figure>${plate(u,d)}<figcaption>Where it sits on level ${u.floor} · ${esc(u.aspect)} aspect</figcaption></figure></div>`],
       ['payment','Payment plan',`<h3 class="pn-h3">Payment plan</h3>
         <div class="pay-bar rv" aria-hidden="true">${money.map(p=>`<i style="--w:${p.pct}%"><span>${p.pct}%</span></i>`).join('')}</div>
-        <ol class="pay-rows">${money.map(p=>`<li><span class="pct">${p.pct}%</span><span class="lbl">${esc(p.label)}<small>${esc(p.when)}</small></span><b>${count(p.amt,{pre:'€'})}</b></li>`).join('')}</ol>`],
-    ];
-    if(S.type==='investment') tabs.push(['investment','Investment',`<h3 class="pn-h3">Investment view</h3>
+        <ol class="pay-rows">${money.map(p=>`<li><span class="pct">${p.pct}%</span><span class="lbl">${esc(p.label)}<small>${esc(p.when)}</small></span>${showPrice?`<b>${count(p.amt,{pre:'€'})}</b>`:'<b></b>'}</li>`).join('')}</ol>`],
+    ].filter(([k])=>on(k)&&(k!=='views'||u.renders.length));
+    const inv=on('investment')&&invOK(S.type);
+    if(inv&&S.type!=='growth') tabs.push(['investment','Investment',`<h3 class="pn-h3">Investment view</h3>
       <div class="kpis rv"><div><b>${eur(u.invest.rent[0])}–${eur(u.invest.rent[1])}</b><span>Estimated rent / month*</span></div><div><b>${gross(u).toFixed(1)}%</b><span>Estimated gross yield*</span></div><div><b>${net(u).toFixed(1)}%</b><span>Estimated net yield after fees*</span></div><div><b>${u.invest.occ}%</b><span>Estimated occupancy*</span></div></div>
       <p class="disc">*Estimates from comparable lettings near ${esc(d.name)}. They are not guaranteed and can go down as well as up. Service charge estimate ${eur(u.invest.fees)} a year.</p>`]);
-    if(S.type==='growth') tabs.push(['investment','Value',`<h3 class="pn-h3">Value view</h3>
+    if(inv&&S.type==='growth') tabs.push(['investment','Value',`<h3 class="pn-h3">Value view</h3>
       <div class="kpis rv"><div><b>${eur(d.market.launch)}</b><span>Price per m² at launch</span></div><div><b>${eur(d.market.now)}</b><span>Price per m² today</span></div><div><b>${eur(pm2(u))}</b><span>This home per m²</span></div><div><b>+${((d.market.now/d.market.launch-1)*100).toFixed(1)}%</b><span>Since launch</span></div></div>
       <p class="disc">Past price movement at ${esc(d.name)}. It is not a forecast of future value.</p>`]);
     return tabs;
@@ -246,9 +288,9 @@
   function unitFoot(u){
     const res=S.reserved===u.id, req=S.requested.has(u.id), held=u.status==='held';
     const line=res?'Reserved for you':req?`Reservation requested · ${repFirst} will confirm`:held?`On hold for you until ${u.hold}`:dev(u.dev).remaining;
-    const cta=res?`<button type="button" class="btn primary" data-act="pos">Book your promise of sale</button>`
+    const cta=res?(canPos?`<button type="button" class="btn primary" data-act="pos">Book your promise of sale</button>`:`<button type="button" class="btn primary" data-ask="${u.id}">Contact ${esc(repFirst)}</button>`)
       :`<button type="button" class="btn primary" data-reserve="${u.id}"${req?' disabled>Reservation requested':'>Reserve this home'}</button>`;
-    return `<footer class="pn-f"><div><b>${eur(u.price)}</b><span>${esc(line)}</span></div><div class="pn-f-act"><button type="button" class="btn ghost" data-ask="${u.id}">Ask ${esc(repFirst)}</button>${cta}</div></footer>`;
+    return `<footer class="pn-f"><div><b>${price(u)}</b><span>${esc(line)}</span></div><div class="pn-f-act"><button type="button" class="btn ghost" data-ask="${u.id}">Ask ${esc(repFirst)}</button>${cta}</div></footer>`;
   }
 
   // ---------- panel ----------
@@ -317,7 +359,7 @@
   // ---------- floating call to action: one tap, follows the buyer, changes with the deal ----------
   function fabState(){
     const held=P.units.find(u=>u.status==='held');
-    if(S.reserved) return {k:'pos',label:'Book promise of sale'};
+    if(S.reserved) return canPos?{k:'pos',label:'Book promise of sale'}:{k:'talk',label:`Contact ${repFirst}`};
     if(S.requested.size) return {k:'talk',label:`Contact ${repFirst}`};
     if(held) return {k:'reserve:'+held.id,label:'Reserve unit'};
     return {k:'pick',label:'Reserve unit'};
@@ -393,8 +435,8 @@
       <div class="rs-media"><img src="${esc(u.renders[0])}" alt=""></div>
       <div class="rs-body">
         <p class="kick">${esc(d.name)} · Level ${u.floor}</p><h2>Reserve ${esc(u.name)}</h2>
-        <p class="rs-price">${eur(u.price)} · ${u.beds} bed · ${u.sqm} m²${held?` · on hold for you until ${esc(u.hold)}`:''}</p>
-        <ol class="rs-steps"><li><b>Request</b><span>Send this request. It doesn’t commit you to anything.</span></li><li><b>${esc(repFirst)} confirms</b><span>Within 24 hours, ${esc(repFirst)} holds the home and sends the reservation form.</span></li><li><b>Promise of sale</b><span>Sign at the notary with a ${u.pay[0].pct}% deposit of ${eur(u.price*u.pay[0].pct/100)}.</span></li><li><b>Handover</b><span>${esc(u.handover)}. The rest is paid as in your payment plan.</span></li></ol>
+        <p class="rs-price">${price(u)} · ${u.beds} bed · ${u.sqm} m²${held?` · on hold for you until ${esc(u.hold)}`:''}</p>
+        <ol class="rs-steps"><li><b>Request</b><span>Send this request. It doesn’t commit you to anything.</span></li><li><b>${toMgr?`${esc(repFirst)} and the sales manager confirm`:`${esc(repFirst)} confirms`}</b><span>Within 24 hours, ${esc(repFirst)} holds the home and sends the reservation form.</span></li><li><b>Promise of sale</b><span>Sign at the notary with a ${u.pay[0].pct}% deposit${showPrice?` of ${eur(u.price*u.pay[0].pct/100)}`:''}.</span></li><li><b>Handover</b><span>${esc(u.handover)}. The rest is paid as in your payment plan.</span></li></ol>
         <div class="rs-f"><label>Full name<input name="n" required value="${esc(P.buyer.first+' '+P.buyer.last)}" autocomplete="name"></label>
           <label>Best way to reach you<select name="c"><option>WhatsApp</option><option>Phone call</option><option>Email</option></select></label>
           <label class="full">Anything ${esc(repFirst)} should know? <small>(optional)</small><textarea name="m" rows="2"></textarea></label></div>
@@ -408,7 +450,24 @@
   }
 
   // ---------- intro: plays for ~2 s, then opens the proposal on its own ----------
+  // Passcode, when the account asks for one. Any 4 digits work in the prototype.
+  function gate(next){
+    const k='bricly.proposal.code.'+P.token;
+    if(!STD||!STD.access.passcode||sessionStorage.getItem(k)){next();return;}
+    const el=document.getElementById('intro'), b=P.developer.brand;
+    el.setAttribute('style',vars(b)); el.hidden=false; el.classList.add('play','gate'); document.body.classList.add('intro-open');
+    el.innerHTML=`<form class="in-c in-gate" novalidate>${logo(b,'engr')}<i class="in-rule" aria-hidden="true"></i>
+      <p class="in-for">A private proposal for ${esc(P.buyer.first)}</p>
+      <label for="in-code" class="in-by">Enter the 4-digit code ${esc(repFirst)} sent you</label>
+      <input id="in-code" inputmode="numeric" autocomplete="one-time-code" maxlength="4" pattern="[0-9]{4}">
+      <button class="btn in-go" type="submit">Open</button><p class="in-err" role="alert"></p></form>`;
+    el.onclick=null;
+    const f=el.querySelector('form'), inp=f.querySelector('input'); setTimeout(()=>inp.focus(),50);
+    f.onsubmit=e=>{e.preventDefault();if(!/^\d{4}$/.test(inp.value)){f.querySelector('.in-err').textContent='Enter the 4 digits from your message.';return;}
+      sessionStorage.setItem(k,'1');el.classList.remove('gate','play');track('Passcode entered');next();};
+  }
   function intro(){
+    if(!on('intro')){const el=document.getElementById('intro');el.hidden=true;document.body.classList.remove('intro-open');document.querySelector('.cover')?.classList.add('in');document.querySelectorAll('.cover .rv').forEach(x=>x.classList.add('in'));track('Opened proposal');return;}
     const k='bricly.proposal.seen.'+P.token, back=!!localStorage.getItem(k)&&!qs.has('intro');
     const el=document.getElementById('intro'), b=P.developer.brand;
     el.setAttribute('style',vars(b));
@@ -437,6 +496,7 @@
       ${sel('demo-tpl','Template',Object.entries(TEMPLATES).map(([k,v])=>[k,v.name]),S.template)}
       <label class="chk"><input type="checkbox" id="demo-rm"> Reduce motion</label>
       <button type="button" id="demo-intro" class="btn ghost sm">Replay intro</button>
+      <p class="demo-h">Proposal standard</p><p class="demo-std">${STD?`v${STD.v}${qs.get('std')==='draft'&&STDL.draft?' · unpublished draft':' · published'}`:'Not loaded'}</p>
       <p class="demo-h">What ${esc(repFirst)} sees</p><ol id="demo-ev"></ol></div>`;
     const t=box.querySelector('.demo-t'), p=box.querySelector('.demo-p');
     t.onclick=()=>{p.hidden=!p.hidden;t.setAttribute('aria-expanded',!p.hidden);};
@@ -452,5 +512,5 @@
   document.getElementById('panel').addEventListener('click',e=>{if(e.target===e.currentTarget)closePanel();});
 
   window.PROPOSAL_APP={render,state:S,track,openPanel};
-  render(); demo(); intro();
+  render(); demo(); gate(intro);
 })();

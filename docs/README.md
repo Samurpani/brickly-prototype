@@ -11,6 +11,7 @@ This repo now includes the packaged Bricly planning material so product context 
   - [Unit renders, views and finishes](handoff/unit-renders/index.html) · [review](handoff/unit-renders/review.html)
   - [Level plans: unit position on the floor](handoff/level-plans/index.html) · [review](handoff/level-plans/review.html)
   - [Create deal flow](handoff/create-deal/index.html)
+  - [Buyer proposals: admin standard, brand, rep send and buyer page](handoff/buyer-proposals/index.html)
 - `ai-context.md` — concise working brief for implementation conversations
 - `ai-input-modalities-and-use-cases.md` — every way users send inputs/data to the AI layer, per user type × journey stage (for AI architecture)
 - `mvp-prototyping-readiness.md` — verdict on whether the repo is ready for MVP prototyping

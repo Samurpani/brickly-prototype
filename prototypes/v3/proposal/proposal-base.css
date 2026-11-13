@@ -82,6 +82,15 @@ h3{font-size:clamp(36px,5vw,64px)}
 #intro.short :is(.i1,.i3,.i5,.in-rule,.in-name span){transition-delay:0ms!important}
 #intro.short .in-name span{transition-duration:700ms}
 
+/* passcode */
+.in-gate{gap:0}
+.in-gate input{margin:18px 0 6px;width:180px;text-align:center;font:400 28px/1 var(--mono);letter-spacing:.5em;padding:12px 0 12px .5em;background:transparent;border:0;border-bottom:1px solid color-mix(in srgb,var(--bg) 45%,transparent);color:inherit;border-radius:0}
+.in-gate input:focus{outline:none;border-bottom-color:var(--bg)}
+.in-go{margin-top:22px;border:1px solid currentColor;color:inherit;background:transparent;padding:12px 26px}
+.in-go:hover{background:var(--bg);color:var(--ink)}
+.in-err{min-height:20px;margin-top:10px;font-size:13px;opacity:.85}
+#intro.gate{cursor:default}
+
 /* top bar */
 #bar{position:fixed;top:0;left:0;right:0;z-index:50;height:72px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 var(--gut);color:#fff;transition:background var(--base) var(--ease),color var(--base) var(--ease),border-color var(--base)}
 #bar:not(.solid){opacity:0;transform:translateY(-100%);pointer-events:none}
@@ -178,6 +187,7 @@ h3{font-size:clamp(36px,5vw,64px)}
 .demo-p .chk{display:flex;gap:8px;align-items:center;font-size:13px;color:#1a1a1a}
 .demo-p .btn{--line:#ccc;--ink:#1a1a1a}
 .demo-h{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#666;border-top:1px solid #eee;padding-top:10px}
+#demo .demo-std{font-size:13px;margin-top:-6px}
 #demo-ev{list-style:none;max-height:160px;overflow:auto;display:grid;gap:4px;font-size:12px}
 #demo-ev span{color:#999;margin-right:8px}
 
