@@ -58,7 +58,7 @@ const UM=(()=>{
     const v=(n,orient,room,img,t={})=>out.push(asset('View',room,n,img,{...t,orient}));
     if(d.id===MT){
       r('living','Living room — towards the bay','miami/hero-living.jpg',{packs:['stone'],styles:['coastal']});
-      r('living','Living room — modern styling','miami/r-living.jpg',{packs:['stone'],styles:['modern']});
+      r('living','Living room — modern styling','miami/r-living-modern.jpg',{packs:['stone'],styles:['modern']});
       r('living','Living room — out to the terrace','miami/r-terrace.jpg');
       r('kitchen','Kitchen — island and pantry wall','miami/r-kitchen.jpg',{packs:['sand']});
       r('kitchen','Kitchen — towards the living room','miami/r-kitchen2.jpg',{packs:['stone']});
