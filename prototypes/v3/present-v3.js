@@ -50,7 +50,7 @@
   // Shared helpers used by several screens.
   P.dev = id => DEV(id);
   P.brandVars = id => { const b = D.brand(id); return `--b-bg:${b.bg};--b-surface:${b.surface};--b-ink:${b.ink};--b-muted:${b.muted};--b-accent:${b.accent};--b-tint:${b.tint};--b-reserved:${b.reserved};--b-line:${b.line};--b-display:${b.display};--b-text:${b.text}`; };
-  P.devPhoto = d => D.asset+d.photo;
+  P.devPhoto = d => D.hero(d);
   P.isSel = uid => S.sel.some(i => i.uid === uid);
   P.finish = (uid,id) => { const u = D.unit(uid); const fins = D.finishesFor(DEV(u?.dev)?.id); return fins.find(f => f.id === id) || fins[0] || null; };
   P.unitFinish = uid => S.sel.find(i => i.uid === uid)?.finish || S.fin[uid] || D.defaultFinish(DEV(D.unit(uid)?.dev)?.id);

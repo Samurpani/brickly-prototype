@@ -33,6 +33,10 @@
   };
   const FALLBACK_BRAND = BRANDS.dolphin;
 
+  // Present-only hero shots; the CRM keeps each development's own photo.
+  const HERO = {[MT]:'miami/hero-ext.jpg',dolphin:'hero/lillian.jpg',mercury:'hero/viewline.jpg',lalex:'hero/orchards.jpg',verdala:'hero/lillian.jpg',onyx:'hero/viewline.jpg'};
+  const heroOf = d => A+(HERO[d?.id] || d?.photo);
+
   // Miami Tropic: register the showcase development in the CRM so selections,
   // opportunities and the Developments page all resolve it like any other.
   if (typeof DEVS !== 'undefined' && !DEVS.some(d => d.id === MT)) {
@@ -174,7 +178,7 @@
           {name:'Contessa',cat:0,body:'Glamorous venue in the Miami Design District offering classic Northern Italian cuisine.',addr:'111 NE 41st St'},
           {name:'Institute of Contemporary Art',cat:2,body:'Free-admission museum showing emerging and established contemporary artists.',addr:'61 NE 41st St'},
           {name:'Design District Flagships',cat:1,body:'Hermès, Dior and Louis Vuitton within a five-minute walk of the lobby.',addr:'NE 39th–41st St'}]},
-      gallery:['miami/tower.jpg','miami/hero-living.jpg','miami/r-terrace.jpg','miami/r-kitchen.jpg','miami/r-living.jpg','miami/r-dining.jpg','miami/l-spa.jpg','miami/l-yoga.jpg','miami/r-bath.jpg','miami/r-kitchen2.jpg'].map(i => A+i),
+      gallery:['miami/hero-ext.jpg','miami/tower.jpg','miami/hero-living.jpg','miami/r-terrace.jpg','miami/r-kitchen.jpg','miami/r-living.jpg','miami/r-dining.jpg','miami/l-spa.jpg','miami/l-yoga.jpg','miami/r-bath.jpg','miami/r-kitchen2.jpg'].map(i => A+i),
       tower:A+'miami/tower.jpg',
     },
   };
@@ -197,7 +201,7 @@
   const contentFor = devId => {
     if (CONTENT[devId]) return CONTENT[devId];
     const d = DEV(devId); if (!d) return null;
-    const imgs = [d.photo,...(d.media?.renders?.ext || []).map(x => x.img),...(d.media?.renders?.int || []).map(x => x.img),...(d.media?.photos || []).map(x => x.img)];
+    const imgs = [HERO[devId] || d.photo,d.photo,...(d.media?.renders?.ext || []).map(x => x.img),...(d.media?.renders?.int || []).map(x => x.img),...(d.media?.photos || []).map(x => x.img)];
     const uniq = [...new Set(imgs)].map(i => A+i);
     return {
       intro:{title:d.tag,body:d.about,img:A+(d.media?.renders?.int?.[0]?.img || d.photo)},
@@ -206,7 +210,7 @@
       amenities:{title:'Every Day, Considered',img:A+(d.media?.photos?.[0]?.img || d.photo)},
       location:{title:'The Neighbourhood',body:d.name+' sits in '+d.loc+'. Everything that matters is close at hand.',map:null,cats:[],pois:d.dist.map(([name,body]) => ({name,body,addr:d.loc}))},
       gallery:uniq,
-      tower:A+d.photo,
+      tower:heroOf(d),
     };
   };
 
@@ -282,7 +286,7 @@
     [/parking|garage|ev/i,'local_parking'],[/security/i,'shield'],[/terrace|roof/i,'deck'],[/garden|courtyard|landscap/i,'park'],[/work|lounge/i,'chair']];
   const amenityIcon = a => AMENITY_ICONS.find(([re]) => re.test(a))?.[1] || 'check_circle';
 
-  window.PV3D = {MT,FEATURES,GALLERY_FEATURES,UNIT_FEATURES,PAGES,brand:id => BRANDS[id] || FALLBACK_BRAND,content:contentFor,
+  window.PV3D = {MT,FEATURES,GALLERY_FEATURES,UNIT_FEATURES,PAGES,brand:id => BRANDS[id] || FALLBACK_BRAND,hero:heroOf,content:contentFor,
     unit,register,unitsOf,residenceGroups,commerce,amenityItems,FX,COMPANY,walkFor,LANGS,T9N,devOf,featuresOf,viewOf,area,devFeatures,finishesFor,defaultFinish,stylesFor,styleName,layoutName,renderRooms,renderAxes,defaults,viewsFor,planImg,
     roomSchedule,details,floorsOf,plate,levelOf,position,plateSides,amenityIcon,
     asset:A,mtFloors:MT_FLOORS};
