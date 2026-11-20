@@ -9,7 +9,7 @@ const esc=v=>typeof xesc==='function'?xesc(String(v??'')):String(v??'');
 const TYPES=[
   {k:'hold',l:'Hold',d:'Take a unit off the market for a buyer'},
   {k:'reservation',l:'Reservation',d:'Reserve a unit against a deposit'},
-  {k:'price',l:'Price exception',d:'Sell below the list price',threshold:true},
+  {k:'price',l:'Offer below asking price',d:'Accept an offer under the asking price',threshold:true},
   {k:'returning',l:'Returning lead',d:'A lost or cold buyer comes back'},
   {k:'takeover',l:'Lead takeover',d:'Take over another rep’s lead'},
 ];
@@ -62,60 +62,120 @@ X.apApplyPreset=(id,name)=>{
   TYPES.forEach(t=>commitRep(id,t.k,name==='Team default'?'default':(p[t.k]||'default')));
 };
 
-// ---------- Matrix ----------
-function cellBtn(kind,id,t,v,inherited,ro,team){
-  const tone=RULE[v].tone,chg=(kind==='team'?tKey(id,t.k):rKey(id,t.k)) in stEdits;
-  return `<span class="pm-w"><button type="button" class="pm-cell${chg?' chg':''}${inherited?' inh':''}" ${ro?'disabled':''} aria-label="${esc(t.l)}: ${esc(label(t.k,v,team))}${inherited?' (team default)':''}" title="${inherited?'Follows the team default':esc(RULE[v].d)}" onclick="stApCell(this,'${kind}',${esc(JSON.stringify(id))},'${t.k}')"><span class="st-chip t-${tone}">${esc(label(t.k,v,team))}</span></button></span>`;
+// Plain-English differences from the team, e.g. "Hold: No approval". Used here and on the member drawer.
+X.apRepDiff=id=>{const m=memberBy(id),team=m?teamOf(m):'';return TYPES.filter(t=>repSaved(id,t.k)!=='default').map(t=>`${t.l}: ${label(t.k,repSaved(id,t.k),team)}`);};
+
+// ---------- Rules table: one row per request ----------
+const teamLabel=team=>`${team}’s team`;
+const limitText=team=>{const c=teamCfg(team);return `Over ${c.limitPct}% or €${c.limitEur} below asking`;};
+const exceptionsFor=k=>reps().filter(m=>repSaved(m.id,k)!=='default');
+function whoNeeds(t){
+  const teams=teamNames(),need=teams.filter(team=>teamSaved(team,t.k)!=='auto'),n=exceptionsFor(t.k).length;
+  const more=n?`<span class="st-sub">${n} ${n===1?'person has':'people have'} an exception</span>`:'';
+  if(!need.length)return `<span class="apx-mu">Nobody</span>${more}`;
+  if(need.length===teams.length&&need.every(team=>teamSaved(team,t.k)==='approve'))return `Every sales rep${more}`;
+  return need.map(team=>`<span class="apx-line">${esc(teamLabel(team))}${teamSaved(team,t.k)==='over'?' <span class="apx-mu">above the limit</span>':''}</span>`).join('')+more;
 }
-function matrixHtml(ro){
-  const changes=Object.keys(stEdits).filter(k=>k.startsWith('ap:')).length;
-  const rows=teamNames().map(team=>{
-    const c=teamCfg(team),members=reps().filter(m=>teamOf(m)===team);
-    return `<tr class="pm-g"><th colspan="${TYPES.length+1}" scope="colgroup"><span class="ap-team-h"><button type="button" class="ap-team" onclick="stApTeamOpen(${esc(JSON.stringify(team))})">${esc(team)}’s team</button><span>Approver ${esc(c.approver)}${c.backup?` · backup ${esc(c.backup)}`:''}${c.after!=='Never'?` · escalates to ${esc(c.to)} after ${esc(c.after)}`:''}</span></span></th></tr>
-      <tr class="ap-default"><th scope="row" class="pm-cap"><b>Team default</b><span>${members.length} ${members.length===1?'person follows':'people follow'} it unless set below</span></th>${TYPES.map(t=>`<td>${cellBtn('team',team,t,teamVal(team,t.k),false,ro,team)}</td>`).join('')}</tr>
-      ${members.map(m=>`<tr><th scope="row" class="pm-cap"><button type="button" class="ap-person" onclick="stApRepOpen('${m.id}')">${esc(fullName(m))}</button>${hasOverrides(m.id)||TYPES.some(t=>rKey(m.id,t.k) in stEdits)?'<span>Custom</span>':''}</th>${TYPES.map(t=>{const own=repVal(m.id,t.k);return `<td>${cellBtn('rep',m.id,t,repEffective(m,t.k),own==='default',ro,team)}</td>`;}).join('')}</tr>`).join('')}`;
-  }).join('');
-  return `<div class="pm-help">${ro?'You can view who needs approval for what.':'Click a cell to change one rule. Faded cells follow their team default. Click a team or person to edit everything at once.'}${changes?` <b>${changes} unsaved change${changes===1?'':'s'}.</b>`:''}</div>
-    <div class="pm-scroll"><table class="pm-table ap-table"><thead><tr><th scope="col" class="pm-cap">Who</th>${TYPES.map(t=>`<th scope="col" title="${esc(t.d)}">${esc(t.l)}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div>`;
+function whoApproves(t){
+  const need=teamNames().filter(team=>teamSaved(team,t.k)!=='auto');
+  if(!need.length)return '<span class="apx-mu">—</span>';
+  const names=[...new Set(need.map(team=>teamCfg(team).approver))];
+  return `${names.map(n=>`<span class="apx-line">${esc(n)}</span>`).join('')}<span class="st-sub">Each team’s approver</span>`;
 }
-function legendHtml(){
-  return `<div class="ap-legend">${Object.entries(RULE).map(([k,r])=>`<span><span class="st-chip t-${r.tone}">${esc(k==='over'?'Over 2%':r.l)}</span>${esc(r.d)}</span>`).join('')}</div>`;
+function limitCell(t){
+  if(!t.threshold)return '<span class="apx-mu">No limit</span>';
+  const need=teamNames().filter(team=>teamSaved(team,t.k)!=='auto');
+  if(!need.length)return '<span class="apx-mu">—</span>';
+  const many=need.length>1;
+  return need.map(team=>`<span class="apx-line">${many?`<span class="apx-mu">${esc(team.split(' ')[0])}:</span> `:''}${teamSaved(team,t.k)==='over'?esc(limitText(team)):'Every offer'}</span>`).join('');
 }
-window.stApCell=(btn,kind,id,t)=>{
-  const w=btn.parentElement,open=w.querySelector('.st-fmenu');
-  document.querySelectorAll('#st-root .st-fmenu').forEach(m=>m.remove());
-  if(open)return;
-  const type=TYPES.find(x=>x.k===t);
-  let opts,cur,saved,team;
-  if(kind==='team'){team=id;opts=levelsFor(type);cur=teamVal(id,t);saved=teamSaved(id,t);}
-  else{const m=memberBy(id);team=teamOf(m);opts=['default',...levelsFor(type)];cur=repVal(id,t);saved=repSaved(id,t);}
-  const text=v=>v==='default'?`Team default · ${label(t,teamVal(team,t),team)}`:label(t,v,team);
-  const desc=v=>v==='default'?'Follows the team. Changes when the team changes':v==='over'?`Above ${teamCfg(team).limitPct}% or €${teamCfg(team).limitEur} below list`:RULE[v].d;
-  w.insertAdjacentHTML('beforeend',`<span class="st-fmenu pm-pop" role="listbox" aria-label="${esc(type.l)}">${opts.map(v=>`<button type="button" role="option" aria-selected="${v===cur}" onclick="stApSet('${kind}',${esc(JSON.stringify(id))},'${t}','${v}')"><span><b>${esc(text(v))}</b><small>${esc(desc(v))}</small></span>${v===saved&&v!==cur?'<small class="pm-was">Saved</small>':''}${v===cur?'<span class="pm-tick" aria-hidden="true">✓</span>':''}</button>`).join('')}</span>`);
-  const pop=w.querySelector('.pm-pop'),r=btn.getBoundingClientRect(),h=pop.offsetHeight,wd=pop.offsetWidth;
-  pop.style.left=`${Math.max(8,Math.min(window.innerWidth-wd-8,r.left+r.width/2-wd/2))}px`;
-  pop.style.top=`${r.bottom+4+h>window.innerHeight?Math.max(8,r.top-h-4):r.bottom+4}px`;
-  pop.querySelector('button[aria-selected="true"]')?.focus({preventScroll:true});
+function rulesHtml(ro){
+  return `<div class="pm-scroll"><table class="apx-table"><thead><tr><th scope="col">Request</th><th scope="col">Who needs approval</th><th scope="col">Who approves</th><th scope="col">Limit</th><th scope="col"><span class="pa-sr">Edit</span></th></tr></thead>
+    <tbody>${TYPES.map(t=>`<tr data-type="${t.k}"><th scope="row"><b>${esc(t.l)}</b><span class="st-sub">${esc(t.d)}</span></th><td>${whoNeeds(t)}</td><td>${whoApproves(t)}</td><td>${limitCell(t)}</td>
+      <td class="apx-act"><button type="button" class="st-link" onclick="stApRuleOpen('${t.k}')" aria-label="${ro?'View':'Edit'} ${esc(t.l)}">${ro?'View':'Edit'}</button></td></tr>`).join('')}</tbody></table></div>`;
+}
+
+// ---------- Exceptions for specific people ----------
+function exceptionsHtml(ro){
+  const focus=X.focus?.page==='approvals'?memberBy(X.focus.id):null;
+  const rows=focus?[focus]:reps().filter(m=>hasOverrides(m.id));
+  const bar=focus?`<div class="apx-filter"><span>Showing <b>${esc(fullName(focus))}</b></span><button type="button" class="st-link" onclick="stApFocusClear()">Show everyone</button></div>`:'';
+  if(!rows.length)return `${bar}<div class="apx-empty">Nobody has an exception. Everyone follows their team.</div>`;
+  return `${bar}<div class="pm-scroll"><table class="apx-table apx-ex"><thead><tr><th scope="col">Person</th><th scope="col">Team</th><th scope="col">Set differently</th><th scope="col"><span class="pa-sr">Edit</span></th></tr></thead>
+    <tbody>${rows.map(m=>{const diff=X.apRepDiff(m.id);return `<tr class="${focus?'focus':''}" data-person="${m.id}"><th scope="row"><b>${esc(fullName(m))}</b></th><td>${teamOf(m)?esc(teamLabel(teamOf(m))):'<span class="apx-mu">No team</span>'}</td>
+      <td>${diff.length?`<span class="apx-chips">${diff.map(d=>`<span class="st-chip t-info">${esc(d)}</span>`).join('')}</span>`:'<span class="apx-mu">No exception yet. Follows the team default.</span>'}</td>
+      <td class="apx-act"><button type="button" class="st-link" onclick="stApRepOpen('${m.id}')">${ro?'View':diff.length?'Edit':'Add exception'}</button></td></tr>`;}).join('')}</tbody></table></div>`;
+}
+// Settings › Team links here: open Approvals on that person's exception, and start one if they have none.
+window.stApFocus=id=>{
+  const m=memberBy(id);if(!m)return;
+  if(typeof qaDrawerClose==='function')qaDrawerClose();
+  if(typeof go==='function')go('settings');
+  stGo('p:approvals');
+  if(stPage!=='approvals')return;
+  X.focus={page:'approvals',id};stRender();
+  // Scroll only the page content, never the app shell.
+  const row=document.querySelector(`#st-root tr[data-person="${id}"]`),c=document.getElementById('content');
+  if(row&&c)c.scrollTop+=row.getBoundingClientRect().top-c.getBoundingClientRect().top-c.clientHeight/3;
+  if(!hasOverrides(id)&&stAccess('approvals')==='f')stApRepOpen(id);
 };
-window.stApSet=(kind,id,t,v)=>{
-  const key=kind==='team'?tKey(id,t):rKey(id,t),saved=kind==='team'?teamSaved(id,t):repSaved(id,t);
-  if(v===saved){delete stEdits[key];if(!Object.keys(stEdits).length)stDirty=false;}
-  else{stEdits[key]=v;stDirty=true;}
-  stRender();
+window.stApFocusClear=()=>{X.focus=null;stRender();};
+let addPick='';
+window.stApExceptionAdd=()=>{
+  const free=reps().filter(m=>!hasOverrides(m.id));
+  addPick='';
+  const render=()=>{document.getElementById('qaDrawerBody').innerHTML=free.length?`${pick('ap-add','Person',free.map(fullName),addPick,v=>`stApExceptionPick(${esc(JSON.stringify(v))})`,'Select a person')}<div class="au-hint">Only people without an exception are listed.</div><div id="au-error" class="au-error" role="alert"></div>`:'<div class="au-hint">Everyone already has an exception. Edit theirs from the list.</div>';};
+  qaDrawerOpen('Add an exception','',`<button class="btn-ghost" onclick="qaDrawerClose()">Cancel</button>${free.length?'<button class="btn-primary" onclick="stApExceptionNext()">Continue</button>':''}`);
+  render();window.stApExceptionPick=v=>{addPick=v;setTimeout(render);};
 };
-X.beforeSaveHooks.push(edits=>{
-  const keys=Object.keys(edits).filter(k=>k.startsWith('ap:'));
-  if(!keys.length)return null;
-  const affected=new Set();
-  const items=keys.map(k=>{
-    const [,kind,id,t]=k.split(':'),type=TYPES.find(x=>x.k===t);
-    if(kind==='team'){reps().filter(m=>teamOf(m)===id&&repVal(m.id,t)==='default').forEach(m=>affected.add(m.id));return `${id}’s team · ${type.l}: ${label(t,teamSaved(id,t),id)} → ${label(t,edits[k],id)}`;}
-    const m=memberBy(id),team=teamOf(m),show=v=>v==='default'?`team default (${label(t,teamVal(team,t),team)})`:label(t,v,team);
-    affected.add(id);return `${fullName(m)} · ${type.l}: ${show(repSaved(id,t))} → ${show(edits[k])}`;
+window.stApExceptionNext=()=>{const m=byName(addPick);if(!m){document.getElementById('au-error').textContent='Select a person';return;}stApRepOpen(m.id);};
+
+// ---------- Teams: who approves and when it escalates ----------
+function teamsHtml(){
+  return `<div class="pm-scroll"><table class="apx-table"><thead><tr><th scope="col">Team</th><th scope="col">Approver</th><th scope="col">When they’re away</th><th scope="col">If nobody decides</th><th scope="col"><span class="pa-sr">Edit</span></th></tr></thead>
+    <tbody>${teamNames().map(team=>{const c=teamCfg(team),n=reps().filter(m=>teamOf(m)===team).length;return `<tr><th scope="row"><b>${esc(teamLabel(team))}</b><span class="st-sub">${n} ${n===1?'person':'people'}</span></th><td>${esc(c.approver)}</td><td>${c.backup?esc(c.backup):'<span class="apx-mu">Nobody</span>'}</td><td>${c.after==='Never'?'<span class="apx-mu">Waits</span>':`Goes to ${esc(c.to)} after ${esc(c.after)}`}</td><td class="apx-act"><button type="button" class="st-link" onclick="stApTeamOpen(${esc(JSON.stringify(team))})">Edit</button></td></tr>`;}).join('')}</tbody></table></div>`;
+}
+
+// ---------- Rule drawer: one request across every team ----------
+let ruleDraft=null;
+function ruleBody(){
+  const t=TYPES.find(x=>x.k===ruleDraft.k),ex=exceptionsFor(t.k);
+  return `<div class="au-hint apx-d">${esc(t.d)}.</div>
+    <div class="au-sec">Who needs approval</div>
+    ${teamNames().map(team=>{const v=ruleDraft.rules[team],c=teamCfg(team),lim=ruleDraft.limits[team];return `<div class="rd-row"><div class="rd-l">${esc(teamLabel(team))}<span>Approver ${esc(c.approver)}</span></div>${seg(teamLabel(team),levelsFor(t),v,x=>`stApRuleSet(${esc(JSON.stringify(team))},'${x}')`,x=>x==='over'?'Over limit':RULE[x].l)}</div>
+      ${t.threshold&&v==='over'?`<div class="ap-limit"><div class="au-two"><div class="od-field"><label for="apr-pct-${esc(team.split(' ')[0])}">% below asking</label><input id="apr-pct-${esc(team.split(' ')[0])}" inputmode="decimal" value="${esc(lim.pct)}" oninput="stApRuleLimit(${esc(JSON.stringify(team))},'pct',this.value)"></div><div class="od-field"><label for="apr-eur-${esc(team.split(' ')[0])}">€ below asking</label><div class="nf-currency"><span aria-hidden="true">€</span><input id="apr-eur-${esc(team.split(' ')[0])}" inputmode="numeric" value="${esc(lim.eur)}" oninput="this.value=oppFmtDigits(this.value);stApRuleLimit(${esc(JSON.stringify(team))},'eur',this.value)"></div></div></div><div class="au-hint">Offers within the limit go straight through. Whichever is lower applies.</div></div>`:''}`;}).join('')}
+    <div class="au-hint">Approvers and escalation are set per team in Teams.</div>
+    <div class="au-sec">Exceptions</div>
+    ${ex.length?`<div class="au-people">${ex.map(m=>`<button type="button" class="au-person" onclick="stApRepOpen('${m.id}')"><span class="au-av sm">${esc((m.first[0]+(m.last[0]||'')).toUpperCase())}</span>${esc(fullName(m))} · ${esc(label(t.k,repSaved(m.id,t.k),teamOf(m)))}</button>`).join('')}</div>`:'<div class="au-hint">Nobody has an exception for this request.</div>'}
+    <div id="au-error" class="au-error" role="alert"></div>`;
+}
+function ruleRender(){
+  const body=document.getElementById('qaDrawerBody'),scroll=body.scrollTop;
+  body.innerHTML=ruleBody();body.scrollTop=scroll;
+  const ro=stAccess('approvals')!=='f';
+  document.getElementById('qaDrawerFoot').innerHTML=ro?`<button class="btn-primary" onclick="qaDrawerClose()">Close</button>`:`<button class="btn-ghost" onclick="qaDrawerClose()">Cancel</button><button class="btn-primary" onclick="stApRuleSave()">Save</button>`;
+  if(ro)body.querySelectorAll('.rd-seg button,input').forEach(b=>{b.disabled=true;});
+}
+window.stApRuleOpen=k=>{
+  const t=TYPES.find(x=>x.k===k);if(!t)return;
+  ruleDraft={k,rules:Object.fromEntries(teamNames().map(team=>[team,teamSaved(team,k)])),limits:Object.fromEntries(teamNames().map(team=>[team,{pct:teamCfg(team).limitPct,eur:teamCfg(team).limitEur}]))};
+  qaDrawerOpen(t.l,'','');ruleRender();
+};
+window.stApRuleSet=(team,v)=>{ruleDraft.rules[team]=v;ruleRender();};
+window.stApRuleLimit=(team,k,v)=>{ruleDraft.limits[team][k]=v;};
+window.stApRuleSave=()=>{
+  const t=TYPES.find(x=>x.k===ruleDraft.k),err=document.getElementById('au-error');
+  const bad=teamNames().find(team=>ruleDraft.rules[team]==='over'&&!(parseFloat(ruleDraft.limits[team].pct)>0)&&!String(ruleDraft.limits[team].eur).replace(/\D/g,''));
+  if(bad){err.textContent=`Set a percentage or euro limit for ${teamLabel(bad)}`;return;}
+  let n=0;
+  teamNames().forEach(team=>{
+    if(ruleDraft.rules[team]!==teamSaved(team,t.k))n++;
+    stSaved[tKey(team,t.k)]=ruleDraft.rules[team];delete stEdits[tKey(team,t.k)];
+    if(t.threshold)Object.assign(teamCfg(team),{limitPct:ruleDraft.limits[team].pct,limitEur:ruleDraft.limits[team].eur});
   });
-  D.apsave={t:`Save ${keys.length} approval change${keys.length===1?'':'s'}?`,ok:'Save changes',w:560,b:[{k:'note',tone:'neu',items},{k:'note',tone:'info',text:`Affects ${affected.size} ${affected.size===1?'person':'people'} from their next request. Requests already waiting keep their route.`}],done:'Approval rules saved. The change is in the audit log.'};
-  return 'apsave';
-});
+  qaDrawerClose();stRender();
+  showToast(n?`${t.l} saved. Applies from the next request.`:`${t.l} saved.`);
+};
 
 // ---------- Team drawer ----------
 let tDraft=null;
@@ -133,7 +193,7 @@ function teamBody(){
     <div class="au-two">${pick('ap-after','If nobody decides within',ESCALATE_AFTER,d.after,v=>`stApTeamSet('after',${esc(JSON.stringify(v))})`)}${d.after==='Never'?'':pick('ap-to','Then send it to',approverOptions().filter(n=>n!==d.approver),d.to,v=>`stApTeamSet('to',${esc(JSON.stringify(v))})`)}</div>
     <div class="au-sec">What needs approval</div>
     ${TYPES.map(t=>`<div class="rd-row"><div class="rd-l">${esc(t.l)}<span>${esc(t.d)}</span></div>${seg(t.l,levelsFor(t),d.rules[t.k],v=>`stApTeamRule('${t.k}','${v}')`,v=>v==='over'?'Over limit':RULE[v].l)}</div>`).join('')}
-    ${d.rules.price==='over'?`<div class="ap-limit"><div class="au-hint">Price exceptions go straight through up to this limit. Above it, the approver decides.</div><div class="au-two"><div class="od-field"><label for="ap-pct">% below list price</label><input id="ap-pct" inputmode="decimal" value="${esc(d.limitPct)}" oninput="stApTeamSet('limitPct',this.value,true)"></div><div class="od-field"><label for="ap-eur">€ below list price</label><div class="nf-currency"><span aria-hidden="true">€</span><input id="ap-eur" inputmode="numeric" value="${esc(d.limitEur)}" oninput="this.value=oppFmtDigits(this.value);stApTeamSet('limitEur',this.value,true)"></div></div></div><div class="au-hint">Whichever is lower applies.</div></div>`:''}
+    ${d.rules.price==='over'?`<div class="ap-limit"><div class="au-hint">Offers within this limit go straight through. Above it, the approver decides.</div><div class="au-two"><div class="od-field"><label for="ap-pct">% below asking</label><input id="ap-pct" inputmode="decimal" value="${esc(d.limitPct)}" oninput="stApTeamSet('limitPct',this.value,true)"></div><div class="od-field"><label for="ap-eur">€ below asking</label><div class="nf-currency"><span aria-hidden="true">€</span><input id="ap-eur" inputmode="numeric" value="${esc(d.limitEur)}" oninput="this.value=oppFmtDigits(this.value);stApTeamSet('limitEur',this.value,true)"></div></div></div><div class="au-hint">Whichever is lower applies.</div></div>`:''}
     <div class="au-sec">People on this team</div>
     ${members.length?`<div class="au-people">${members.map(m=>`<button type="button" class="au-person" onclick="stApRepOpen('${m.id}')"><span class="au-av sm">${esc((m.first[0]+(m.last[0]||'')).toUpperCase())}</span>${esc(fullName(m))}${hasOverrides(m.id)?' · custom':''}</button>`).join('')}</div><div class="au-hint">People marked custom keep their own rules for those requests.</div>`:'<div class="au-hint">Nobody reports to them yet. Set “Reports to” on a person in Members.</div>'}
     <div id="au-error" class="au-error" role="alert"></div>`;
@@ -154,7 +214,7 @@ window.stApTeamSet=(k,v,quiet)=>{tDraft[k]=k==='backup'&&v==='Nobody'?'':v;if(!q
 window.stApTeamRule=(t,v)=>{tDraft.rules[t]=v;teamRender();};
 window.stApTeamSave=()=>{
   const d=tDraft,err=document.getElementById('au-error');
-  if(d.rules.price==='over'&&!(parseFloat(d.limitPct)>0)&&!d.limitEur.replace(/\D/g,'')){err.textContent='Set a percentage or euro limit for price exceptions';return;}
+  if(d.rules.price==='over'&&!(parseFloat(d.limitPct)>0)&&!d.limitEur.replace(/\D/g,'')){err.textContent='Set a percentage or euro limit for offers below asking price';return;}
   if(d.after!=='Never'&&!d.to){err.textContent='Choose who requests escalate to';return;}
   const c=teamCfg(d.team);
   Object.assign(c,{approver:d.approver,backup:d.backup,after:d.after,to:d.to,limitPct:d.limitPct,limitEur:d.limitEur});
@@ -225,7 +285,15 @@ ap.acts=[];
 ap.menu=[['Apply a preset to people','f:stApPresetOpen'],['Reset everyone to team defaults','d:apreset','danger'],['History','s:Opening the audit log filtered to Approvals']];
 ap.ban=[{tone:'neu',text:'Requests already waiting keep their original route. Turning approval off never removes audit records or queue positions.'}];
 ap.b=[
-  {k:'custom',title:'Rules',desc:'Rows are teams and people; columns are the requests the CRM raises.',render:ro=>matrixHtml(ro)},
-  {k:'custom',title:'What the rules mean',render:()=>legendHtml()},
+  {k:'custom',title:'Rules',desc:'What needs approval for each team, and who decides.',render:ro=>rulesHtml(ro)},
+  {k:'custom',title:'Exceptions for specific people',desc:'People whose rules differ from their team.',link:['Add exception','f:stApExceptionAdd'],render:ro=>exceptionsHtml(ro)},
+  {k:'custom',title:'Teams',desc:'Who approves for each team, and where requests go if nobody decides.',render:()=>teamsHtml()},
 ];
+// Saved rule for one person, read by the opportunity (opp-offer.js). 'price' is "Offer below asking price".
+window.stApPolicy=(repName,t)=>{
+  const n=String(repName||'').trim().toLowerCase(), m=MEMBERS.find(x=>fullName(x).toLowerCase()===n)||MEMBERS.find(x=>fullName(x).split(' ')[0].toLowerCase()===n);
+  if(!m) return null;
+  const own=repSaved(m.id,t), team=teamOf(m)||fullName(m), c=teamCfg(team);
+  return {rule:own==='default'?teamSaved(team,t):own,limitPct:parseFloat(c.limitPct)||0,limitEur:+String(c.limitEur||'').replace(/\D/g,'')||0,approver:c.approver||team};
+};
 })();

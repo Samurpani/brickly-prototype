@@ -252,3 +252,45 @@
   .df-after > button { grid-column: 2 / -1; justify-self: start; }
 }
 .df-c-ok { background: var(--crm-success-container); color: var(--crm-on-success-container); }
+
+/* Deal activity: day groups, typed rows, collapsed update runs */
+.df-act .df-act-day { margin: 14px 0 2px; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--on-variant); }
+.df-act .df-act-day:first-child { margin-top: 4px; }
+.df-ar { align-items: flex-start; gap: 10px; font-size: 13px; }
+.df-ar .t { margin-left: 8px; flex: none; min-width: 36px; text-align: right; font-size: 12px; color: var(--muted); white-space: nowrap; }
+.df-ar-ic { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 26px; height: 26px; border-radius: 8px; background: var(--sc-low); color: var(--on-variant); }
+.df-ar-ic svg { width: 14px; height: 14px; }
+.df-ar-ic-pay { background: var(--crm-success-container, #e3f1e7); color: var(--crm-on-success-container, #1f5e36); }
+.df-ar-ic-doc { background: var(--crm-info-container, #e6eef7); color: var(--crm-on-info-container, #234a73); }
+.df-ar-ic-change { background: var(--crm-warning-container, #f6ecd9); color: var(--crm-on-warning-container, #6a4b12); }
+.df-ar-b { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; padding-top: 4px; }
+.df-ar-t { color: var(--on-surface); line-height: 1.45; }
+.df-ar-t b { font-weight: 600; }
+.df-ar.strong .df-ar-t { font-weight: 600; }
+.df-ar-from { color: var(--on-variant); text-decoration: line-through; text-decoration-color: color-mix(in srgb, currentColor 45%, transparent); }
+.df-ar-d { font-size: 12px; color: var(--muted); }
+.df-ar-go { flex: none; padding-top: 5px; white-space: nowrap; }
+.df-ar .t, .df-ar-more { padding-top: 5px; }
+.df-ar-sum { width: 100%; border: 0; border-bottom: 1px solid var(--outline-variant); background: none; font: inherit; text-align: left; cursor: pointer; }
+.df-ar-sum:hover .df-ar-t b { text-decoration: underline; text-underline-offset: 2px; }
+.df-ar-more { flex: none; font-size: 12px; color: var(--on-surface); text-decoration: underline; text-underline-offset: 2px; }
+.df-ar-sum[aria-expanded="true"] { border-bottom-style: dashed; }
+.df-ar-sub { margin-left: 13px; padding-left: 23px; border-left: 2px solid var(--outline-variant); }
+.df-ar-sub .df-ar:last-child { border-bottom: 1px solid var(--outline-variant); }
+.df-ar-n { margin-left: 2px; font-size: 11px; color: var(--muted); }
+.ff-chip.on .df-ar-n { color: inherit; opacity: .7; }
+.deal-payment.df-flash { animation: df-flash 1.8s ease-out; }
+@keyframes df-flash { 0%, 40% { background: var(--crm-warning-container, #f6ecd9); } 100% { background: transparent; } }
+@media (max-width: 640px) { .df-ar { flex-wrap: wrap; } .df-ar-go { order: 5; margin-left: 36px; } }
+
+/* Tasks done before the deal (Create deal wizard, opportunity) */
+.df-pre { margin-top: 4px; border-top: 1px dashed var(--outline-variant); }
+.df-pre > summary { display: flex; align-items: center; gap: 8px; padding: 8px 0; font-size: 12.5px; color: var(--on-variant); cursor: pointer; list-style: none; }
+.df-pre > summary::-webkit-details-marker { display: none; }
+.df-pre > summary::after { content: '▸'; font-size: 14px; line-height: 1; transition: transform .15s; }
+.df-pre[open] > summary::after { transform: rotate(90deg); }
+.df-pre > summary:hover { color: var(--on-surface); }
+.df-pre-ic { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; background: var(--crm-success-container, #e3f1e7); color: var(--crm-on-success-container, #1f5e36); }
+.df-task-via { display: inline-block; width: 100%; font-size: 11.5px; text-decoration: none; }
+.df-task-go { flex: none; margin-left: auto; white-space: nowrap; }
+.df-task-go + .df-mu { margin-left: 8px; }

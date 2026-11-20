@@ -128,7 +128,7 @@
   const themeOf = () => S.g.theme === 'system' ? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark') : S.g.theme;
   // Screen changes dissolve: the outgoing screen is kept as an inert overlay that animates away.
   let lastScreen = null;
-  const LEAVE = {welcome:'soft',loading:'zoom'};
+  const LEAVE = {welcome:'flow',loading:'zoom'};
   function render() {
     if (!root || !S) return;
     const from = lastScreen; P.from = from; lastScreen = S.screen;
@@ -232,32 +232,55 @@
   const WAVE_PATHS = ['M1 2.5c2-1.6 4 1.6 7 0s5-1.6 7 0','M1 6c2-1.6 4 1.6 7 0s5-1.6 7 0','M1 9.5c2-1.6 4 1.6 7 0s5-1.6 7 0'];
   const waveMark = () => `<svg class="pv-wave" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">${WAVE_PATHS.map((d,i) => `<path d="${d}" pathLength="1" style="--i:${i}"/>`).join('')}</svg>`;
   // White-label: the seller's brand (or the partner presenting) leads; Bricly is a quiet credit.
+  // Loading flow (after the "Bringing together" reference): two strands flow into one point beside the
+  // first phrase, cycle colour and retract; a dotted line runs on with a travelling glow while the scene
+  // pans, and the second phrase resolves word by word at the end of the dots.
+  const words = (t,cls = 'w') => esc(t).split(' ').map((w,i) => `<span class="${cls}" style="--i:${i}">${w}</span>`).join(' ');
+  const DOTS = 9;
+  const dots = () => `<div class="pv-fdots" aria-hidden="true">${Array.from({length:DOTS},(_, i) => `<i style="--i:${i}"></i>`).join('')}<b class="pv-fglow"></b></div>`;
+  const STRAND = ['M0 6 C40 200 150 330 360 350','M0 694 C40 500 150 370 360 350','M-70 -50 C-10 210 130 336 360 350','M-70 750 C-10 490 130 364 360 350'];
+  const strands = () => `<svg class="pv-fstrands" viewBox="0 0 360 700" preserveAspectRatio="none" aria-hidden="true">
+    <g class="glow">${STRAND.map((d,i) => `<path d="${d}" pathLength="1" class="${i > 1 ? 'outer' : ''}"/>`).join('')}</g>
+    <g class="core">${STRAND.map((d,i) => `<path d="${d}" pathLength="1" class="${i > 1 ? 'outer' : ''}"/>`).join('')}</g></svg>`;
+  const flowPal = id => { const b = D.brand(id), mix = (a,p,c) => `color-mix(in srgb,${a} ${p}%,${c})`;
+    return `--k0:${mix(b.accent,60,'#ff8fb0')};--k1:${mix(b.tint,70,'#8fb4ff')};--k2:${b.tint};--k3:${mix(b.tint,55,'#fff')};--k4:${mix(b.tint,45,'#f2d39b')};--k5:${mix(b.accent,35,'#ffb27a')};`
+      +`--g1:${mix(b.accent,40,'#ffb27a')};--g2:${mix(b.accent,55,b.tint)};--g3:${mix(b.accent,45,'#ffffff')};--g4:${mix(b.tint,60,'#8fb4ff')}`; };
+  // One flow: lead phrase at the point, end phrase after the dots, optional meta under the end phrase.
+  const flow = ({lead,end,endCls = '',endAttr = '',endFont = '',meta = '',pal = ''}) => `<div class="pv-flowwrap"><div class="pv-ftrack ${reduce() ? 'static' : ''}" data-pan style="${pal}">
+      ${strands()}<h1 class="pv-flead" tabindex="-1" aria-label="${esc(lead)}">${words(lead)}</h1>${dots()}
+      <div class="pv-fend ${endCls}" ${endAttr} style="${endFont}"><span aria-hidden="true">${words(end)}</span>${meta ? `<p class="pv-fmeta">${meta}</p>` : ''}</div></div></div>`;
+  const speed = () => P.prefs.quick ? 'quick' : '';
   P.screens.welcome = () => { const host = S.partner?.name || D.COMPANY.name;
-    return `<div class="pv-orb pv-welcome" data-a="skipIntro">${P.aurora()}
-    <div class="pv-loadwrap"><h1 tabindex="-1" aria-label="Welcome to" style="--d:.3s">${P.split('Welcome to')}</h1>
-    <div class="pv-brandmark host" aria-label="${esc(host)}"><span style="--d:.9s;--step:42ms" aria-hidden="true">${P.split(host)}</span></div>
-    ${S.partner ? `<p class="pv-meta" style="animation-delay:1.4s">Presenting ${esc(D.COMPANY.name)}</p>` : ''}</div>
+    return `<div class="pv-orb pv-flow ${speed()}" data-a="skipIntro">
+    ${flow({lead:'Welcome to',end:host,endCls:'pv-brandmark host',endAttr:`aria-label="${esc(host)}"`,meta:S.partner ? 'Presenting '+esc(D.COMPANY.name) : ''})}
     <span class="pv-powered">${waveMark()}Powered by Bricly</span>
     <button class="pv-ghost pv-skip" data-a="skipIntro">Skip ${I('arrow_forward')}</button></div>`; };
   P.screens.loading = () => {
-    const d = S.loadDev && DEV(S.loadDev), ms = S.loadMs || 1800;
+    const d = S.loadDev && DEV(S.loadDev);
+    const avail = x => D.unitsOf(x.id).filter(u => u.status === 'available').length;
+    if (d) return `<div class="pv-orb pv-flow ${speed()}" aria-live="polite" aria-busy="true">${flow({lead:'Now presenting',end:d.name,endFont:'font-family:'+D.brand(d.id).display,meta:`${esc(d.loc)} · ${avail(d)} residences available`,pal:flowPal(d.id)})}</div>`;
     const devs = S.partner ? S.partner.devs.map(DEV).filter(Boolean) : DEVS;
-    const meta = d ? `${esc(d.loc)} · ${D.unitsOf(d.id).filter(u => u.status === 'available').length} residences available`
-      : `${devs.length} developments · ${devs.reduce((n,x) => n+D.unitsOf(x.id).filter(u => u.status === 'available').length,0)} residences available`;
-    return `<div class="pv-orb pv-loading ${d ? 'dev' : ''}" style="--dur:${ms-250}ms" aria-live="polite" aria-busy="true">${P.aurora(d ? brandPal(d.id) : '')}
-      <div class="pv-loadwrap">${d ? `<p class="pv-kicker" style="--d:.05s">${P.split('Now presenting')}</p>` : ''}
-      <h1 tabindex="-1" class="pv-shimmer" aria-label="${esc(d ? 'Loading '+d.name : S.loadText)}" style="--d:${d ? '.25s' : '.05s'}${d ? ';font-family:'+D.brand(d.id).display : ''}">${P.split(d ? d.name : S.loadText)}</h1>
-      <div class="pv-bar" aria-hidden="true"><i></i></div><p class="pv-meta">${meta}</p></div></div>`;
+    // Centred phase: the dot row is the progress bar, filling over the loading time.
+    return `<div class="pv-orb pv-flow ${speed()}" aria-live="polite" aria-busy="true" style="--dur:${((S.loadMs || 1900)-500)/1000}s"><div class="pv-flowwrap"><div class="pv-fcenter">
+      <h1 tabindex="-1" aria-label="${esc(S.loadText)}">${words(S.loadText)}</h1>
+      <p class="pv-fmeta">${devs.length} developments · ${devs.reduce((n,x) => n+avail(x),0)} residences available</p>${dots()}</div></div></div>`;
   };
+  // The end phrase settles at the centre of the screen: measure it and pan the whole track by the difference.
+  const setPan = () => root?.querySelectorAll('.pv-ftrack[data-pan]:not(.static)').forEach(t => {
+    const e = t.querySelector('.pv-fend > span'); if (!e) return;
+    const r = e.getBoundingClientRect(), shown = r.left-new DOMMatrixReadOnly(getComputedStyle(t).transform).m41; // position with no pan applied
+    t.style.setProperty('--pan',Math.round(innerWidth/2-(shown+r.width/2))+'px');
+  });
+  P.after.push((r,s,why) => { if (s && ['welcome','loading'].includes(s.screen)) { setPan(); document.fonts?.ready.then(setPan); } });
   // Let the loading copy exit before the screen dissolves.
-  const exitThen = fn => { const w = root?.querySelector('.pv-loadwrap'); if (w && !reduce()) { w.classList.add('out'); later(380,fn); } else fn(); };
+  const exitThen = fn => { const w = root?.querySelector('.pv-flowwrap, .pv-loadwrap'); if (w && !reduce()) { w.classList.add('out'); later(420,fn); } else fn(); };
   function intro() {
     S.screen = 'welcome'; render();
     const q = P.prefs.quick;
-    later(q ? 1100 : 2300,() => exitThen(() => {
+    later(q ? 2100 : 3500,() => exitThen(() => {
       if (S.screen !== 'welcome') return;
-      S.screen = 'loading'; S.loadDev = null; S.loadText = 'Loading Developments'; S.loadMs = q ? 1000 : 1900; render();
-      later(q ? 1000 : 1900,() => exitThen(() => { if (S.screen === 'loading') P.go('gallery'); }));
+      S.screen = 'loading'; S.loadDev = null; S.loadText = 'Loading Developments'; S.loadMs = q ? 1200 : 2000; render();
+      later(q ? 1200 : 2000,() => exitThen(() => { if (S.screen === 'loading') P.go('gallery'); }));
     }));
   }
   P.actions.skipIntro = () => { if (['welcome','loading'].includes(S.screen) && !S.dev) P.go('gallery'); };
@@ -267,8 +290,8 @@
     S.dev = d.id; S.sec = sec; S.panel = null; S.av[d.id] ||= blankAvail();
     // The development's logo slide is its loading screen; it moves on to the introduction by itself.
     if (!uid && !sec) { S.splashAuto = d.id; P.go('present'); return; }
-    S.screen = 'loading'; S.loadDev = d.id; S.loadText = 'Loading '+d.name; S.loadMs = 1700; render();
-    later(1700,() => exitThen(() => { if (S.screen !== 'loading') return; if (uid) P.openUnit(uid); else P.go('present'); }));
+    S.screen = 'loading'; S.loadDev = d.id; S.loadText = 'Loading '+d.name; S.loadMs = P.prefs.quick ? 2000 : 3200; render();
+    later(S.loadMs,() => exitThen(() => { if (S.screen !== 'loading') return; if (uid) P.openUnit(uid); else P.go('present'); }));
   };
 
   function open(o = {}) {

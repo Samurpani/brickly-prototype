@@ -214,3 +214,33 @@
 .de-loc.ok { background: var(--sc-low); }
 .de-loc p { margin: 6px 0; font-size: 13px; }
 h4.de-sub { margin: 18px 0 4px; padding-top: 12px; border-top: 1px solid var(--outline-variant); font-size: 13.5px; }
+
+/* Draft development in review by Bricly (newdev.js hub) */
+.app .nd-rv-status { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; border-left: 4px solid var(--crm-warning); }
+.app .nd-rv-status.ok { border-left-color: var(--primary); }
+.app .nd-rv-status h3 { margin: 0; }
+.app .nd-rv-status p { margin: 0; }
+.app .nd-rv-status > .nd-row { width: 100%; }
+.app .nd-rv-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 16px; }
+.app .nd-fprog { gap: 6px; }
+.app .nd-fprog .nd-bar { width: 100%; }
+.app .nd-utbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.app .nd-utbl th { text-align: left; font-weight: 600; color: var(--on-variant); padding: 6px 8px; border-bottom: 1px solid var(--outline-variant, #ddd); }
+.app .nd-utbl td { padding: 6px 8px; border-bottom: 1px solid var(--outline-variant, #eee); }
+.app .nd-utbl tr:last-child td { border-bottom: 0; }
+@media (max-width: 900px) { .app .nd-rv-grid { grid-template-columns: 1fr; } }
+.app .nd-hub > .nd-row { padding: 12px 24px 0; }
+.app .nd-hub-content { display: flex; flex-direction: column; gap: 12px; padding: 12px 24px 32px; }
+.nd-au { display: flex; flex-direction: column; gap: 12px; }
+.nd-au .nd-col { gap: 4px; }
+/* Setup: interior render tags (room required, unit type default, specific unit optional) */
+.app .nd-rtags { display: flex; flex-direction: column; gap: 10px; padding: 12px; margin-top: -4px; border: 1px solid var(--outline-variant); border-radius: 12px; background: var(--surface); }
+.app .nd-rtag { display: grid; grid-template-columns: minmax(0, 1.1fr) repeat(3, minmax(0, 1fr)); gap: 10px; align-items: end; padding-top: 10px; border-top: 1px solid var(--outline-variant); }
+.app .nd-rtag .nd-link { align-self: flex-start; padding: 0; font-size: 12px; }
+.app .nd-input.nd-invalid { border-color: var(--crm-error, #b3261e); }
+/* Draft landing: who gets the floor plan email */
+.app .nd-fpmail { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: 10px; background: var(--crm-warning-container); }
+.app .nd-fpmail.ok { background: var(--sc-high, #eef2e6); display: block; }
+.app .nd-fpmail .nd-row label { gap: 8px; }
+.app .nd-fpmail label.nd-row { display: inline-flex; flex-direction: row; align-items: center; }
+.app .nd-fpmail label.nd-row .nd-input { width: auto; }

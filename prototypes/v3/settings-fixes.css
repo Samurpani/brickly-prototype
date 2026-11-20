@@ -1,0 +1,71 @@
+/* Settings: Approvals table, member drawer (permissions, approvals), invite approval choices, Company profile brand.
+   Loaded by settings-extra.js. Uses CRM design tokens. */
+
+/* Approvals › Rules, Exceptions, Teams */
+.app .apx-table { width: 100%; min-width: 720px; border-collapse: collapse; font-size: 13px; line-height: 18px; }
+.app .apx-table th, .app .apx-table td { padding: 10px 16px; border-bottom: 1px solid var(--outline-variant); text-align: left; vertical-align: top; font-weight: 400; }
+.app .apx-table thead th { padding-top: 8px; padding-bottom: 8px; font-size: 12px; color: var(--on-variant); background: var(--sc-lowest); }
+.app .apx-table tbody tr:last-child > * { border-bottom: 0; }
+.app .apx-table tbody th b { display: block; font-weight: 500; }
+.app .apx-table .st-sub { margin-top: 2px; }
+.app .apx-line { display: block; }
+.app .apx-mu { color: var(--on-variant); }
+.app .apx-act { width: 1%; white-space: nowrap; text-align: right !important; }
+.app .apx-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.app .apx-ex tr.focus > * { background: color-mix(in srgb, var(--primary) 7%, var(--surface)); }
+.app .apx-ex tr.focus > th { box-shadow: inset 3px 0 0 var(--primary); }
+.app .apx-filter { display: flex; align-items: center; gap: 12px; padding: 8px 16px; border-bottom: 1px solid var(--outline-variant); background: var(--sc-lowest); font-size: 13px; }
+.app .apx-filter b { font-weight: 500; }
+.app .apx-empty { padding: 16px; font-size: 13px; color: var(--on-variant); }
+.opp-drawer .apx-d { margin: 0 0 16px; }
+
+/* Team › member drawer */
+.opp-drawer .au-sec-row { display: flex; justify-content: space-between; align-items: baseline; }
+.opp-drawer .au-sec-row .au-link { font-size: 12px; text-transform: none; letter-spacing: 0; }
+.opp-drawer .au-perm-h { margin: -4px 0 4px; }
+.opp-drawer .au-pg { margin: 14px 0 0; font-size: 12px; font-weight: 500; color: var(--on-surface); }
+.opp-drawer .au-perm .rd-l span:empty { display: none; }
+.opp-drawer .au-perm.chg .rd-l::before { display: none; }
+.opp-drawer .rd-l span.au-chg { display: inline-block; margin-left: 4px; padding: 0 6px; border-radius: 4px; background: var(--crm-warning-container); color: var(--crm-on-warning-container); font-size: 11px; line-height: 16px; vertical-align: 1px; }
+.opp-drawer .au-apsum { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border: 1px solid var(--outline-variant); border-radius: 6px; font-size: 13px; line-height: 20px; }
+.opp-drawer .au-apsum b { font-weight: 500; }
+.opp-drawer .au-apsum .au-hint { margin: 0; }
+
+/* Add user › approval choices */
+.opp-drawer .au-radios { display: flex; flex-direction: column; border: 1px solid var(--outline-variant); border-radius: 8px; overflow: hidden; }
+.opp-drawer .au-radio { display: flex; align-items: flex-start; gap: 10px; margin: 0; padding: 10px 12px; border-top: 1px solid var(--outline-variant); cursor: pointer; font-size: 13px; line-height: 18px; color: var(--on-surface); text-transform: none; letter-spacing: 0; }
+.opp-drawer .au-radio:first-child { border-top: 0; }
+.opp-drawer .au-radio.on { background: color-mix(in srgb, var(--primary) 6%, var(--surface)); }
+.opp-drawer .au-radio input { flex: none; width: 16px; height: 16px; margin: 1px 0 0; accent-color: var(--primary); }
+.opp-drawer .au-radio b { display: block; font-weight: 500; }
+.opp-drawer .au-radio span span { display: block; color: var(--on-variant); font-size: 12px; }
+.opp-drawer .au-radios + .au-hint { margin-top: 8px; }
+
+/* Company profile › Brand and Track record */
+.app .co-logos { display: flex; flex-wrap: wrap; gap: 16px; }
+.app .co-logo { display: flex; flex-direction: column; gap: 6px; width: 200px; }
+.app .co-logo-box { display: grid; place-items: center; width: 200px; height: 72px; padding: 8px 14px; border: 1px solid var(--outline-variant); border-radius: 6px; background: #fff; color: var(--co-accent, #1a1916); }
+.app .co-logo-box.dark { background: #1a1916; color: #fff; border-color: #1a1916; }
+.app .co-logo-box img { max-width: 100%; max-height: 52px; object-fit: contain; }
+.app .co-logo-box b { font-size: 17px; font-weight: 500; text-align: center; }
+.app .co-logo-a { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; }
+.app .co-logo-a .st-sub { flex-basis: 100%; }
+.app .co-upl { position: relative; display: inline-flex; padding: 2px 10px; border: 1px solid var(--outline); border-radius: 4px; font-size: 12px; cursor: pointer; background: var(--surface); }
+.app .co-upl:hover { border-color: var(--on-surface); }
+.app .co-upl input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.app .co-color { display: inline-flex; align-items: center; gap: 8px; }
+.app .co-color input[type=color] { width: 32px; height: 32px; padding: 0; border: 1px solid var(--outline); border-radius: 4px; background: none; cursor: pointer; }
+.app .co-hex { width: 110px; font-family: ui-monospace, Menlo, monospace; }
+.app .co-err { color: var(--crm-error); }
+.app .co-err:empty { display: none; }
+.app .co-colors { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 16px; width: 100%; }
+.app .co-colors .co-color { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.app .co-colors .co-color span { flex: 1; min-width: 0; }
+.app .co-colors input[type=color] { width: 28px; height: 28px; }
+.app .co-colors .co-hex { width: 96px; }
+.app .co-checks { display: flex; flex-wrap: wrap; gap: 4px; width: 100%; }
+.app .co-fonts { display: grid; gap: 12px; width: 100%; }
+.app .co-font { display: grid; gap: 4px; }
+.app .co-font-r { display: flex; align-items: center; gap: 8px; }
+.app .co-font-r select { width: min(280px, 100%); }
+.app .co-font-demo { font-size: 18px; line-height: 1.3; color: var(--on-surface); }

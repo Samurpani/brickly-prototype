@@ -13,7 +13,7 @@ function ndNew(){
     picks:{primary:[],secondary:[]},countries:ndD().COUNTRIES.map((c,i)=>({...c,st:i?'proposed':'approved'})),ctyQ:'',proc:'idle',rev:{},save:'saved',done:{},
     requested:false,exported:false,modal:null,activated:false,nameSel:null,nameFrom:null,nameTab:'place',more:{},ownName:null,blockN:3,blocks:['A','B','C','D','E','F'],
     qp:{},direct:50,soldQ:{},finishes:[['','']],terms:{dep:'',stage:'',bal:'',notes:''},ldate:'2027-01-18',sorting:false,sortN:0,mood:null,briefEdit:{},
-    releaseCap:42,hubTab:'overview',activity:[{text:'Draft created',at:new Date().toISOString()}],savedAt:new Date()};
+    releaseCap:42,hubTab:'overview',review:null,submittedAt:null,readyAt:null,addedUnits:[],rtags:[],manager:'Karl Zammit',plansMail:null,activity:[{text:'Draft created',at:new Date().toISOString()}],savedAt:new Date()};
 }
 function ndPersist(){
   if(!ndS)return;
@@ -36,6 +36,8 @@ function ndRestore(){
     saved.blocks=Array.isArray(data.blocks)?data.blocks:base.blocks;
     saved.finishes=Array.isArray(data.finishes)?data.finishes:base.finishes;
     saved.activity=Array.isArray(data.activity)?data.activity:base.activity;
+    saved.addedUnits=Array.isArray(data.addedUnits)?data.addedUnits:[];
+    saved.rtags=Array.isArray(data.rtags)?data.rtags:[];
     saved.savedAt=new Date(data.savedAt||Date.now());
     if(Number.isNaN(saved.savedAt.getTime()))saved.savedAt=new Date();
     saved.save='saved';
@@ -79,10 +81,11 @@ function ndOn(){const p=document.getElementById('p-newdev');return !!(p&&p.class
 // Entry points
 function ndStart(){
   if(typeof awCan==='function'&&!awCan('development'))return;
+  if(ndS&&!ndS.activated&&ndS.review){ndResume();return;}
   if(ndS&&!ndS.activated){showToast('You have a setup in progress. Picking up where you left off.');ndShow();return;}
   ndS=ndNew();ndShow();
 }
-function ndResume(){if(ndS){if(ndS.activated){ndS.view='hub';ndS.hubTab='overview';ndShow();return;}ndShow();}}
+function ndResume(){if(ndS){if(ndS.activated||ndS.review){ndS.view='hub';ndS.hubTab='overview';ndShow();return;}ndShow();}}
 function ndShow(){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.getElementById('p-newdev').classList.add('on');
@@ -204,9 +207,20 @@ function ndUploadsHtml(q){
   return `<div class="nd-ups">${q.slots.map(([k,l,d,sample,kind,ph])=>{const f=s.files[k];
     if(kind==='link')return `<div class="nd-up"><span class="nd-upic">↗</span><span class="nd-col"><b>${xesc(l)}</b><input class="nd-input sm" data-nd-in="file:${k}" placeholder="${xesc(ph||'Paste the link')}" value="${xesc(f||'')}" aria-label="${xesc(l)}"></span></div>`;
     return `<div class="nd-up${f?' on':''}"><span class="nd-upic">${f?'✓':'⇪'}</span><span class="nd-col"><b>${xesc(l)}</b>${f?`<span class="nd-row"><span>${xesc(f)}</span>${wip?'<span class="nd-chip warn">Work in progress</span>':''}</span>`:d?`<span class="nd-mu">${xesc(d)}</span>`:''}</span>
-      ${f?`<button type="button" class="nd-link" data-nd="rm:${k}">Remove</button>`:`<button type="button" class="btn-ghost nd-outline" data-nd="up:${k}" aria-label="Upload ${xesc(l)}">Upload</button>`}</div>`;}).join('')}</div>
+      ${f?`<button type="button" class="nd-link" data-nd="rm:${k}">Remove</button>`:`<button type="button" class="btn-ghost nd-outline" data-nd="up:${k}" aria-label="Upload ${xesc(l)}">Upload</button>`}</div>${k==='int'&&f?ndRendTagsHtml():''}`;}).join('')}</div>
     <p class="nd-mu nd-note">Images, PDF, documents, spreadsheets or video. You can also paste a link.</p>`;
 }
+function ndRendTypes(){return [...new Set(ndD().DRAFT_UNITS.map(u=>u.type))];}
+function ndRendTagsHtml(){
+  const s=ndS,R=ndD().ROOMS,T=ndRendTypes(),miss=s.rtags.filter(t=>!t.room).length;
+  return `<div class="nd-rtags" aria-label="Interior render tags"><div class="nd-row nd-between"><b>Tag each interior render</b><span class="nd-chip ${miss?'warn':'ok'}">${miss?miss+' need a room':'All tagged'}</span></div>
+    ${s.rtags.map((t,i)=>`<div class="nd-rtag" data-rtag="${i}"><span class="nd-col"><b>${xesc(t.f)}</b><button type="button" class="nd-link" data-nd="rtagrm:${i}">Remove</button></span>
+      <label class="nd-col"><span class="nd-lab">Room (required)</span><select class="nd-input sm${t.room?'':' nd-invalid'}" data-nd-in="rtag:${i}:room" aria-label="Room for ${xesc(t.f)}"><option value="">Choose a room</option>${R.map(r=>`<option${r===t.room?' selected':''}>${r}</option>`).join('')}</select></label>
+      <label class="nd-col"><span class="nd-lab">Unit type</span><select class="nd-input sm" data-nd-in="rtag:${i}:type" aria-label="Unit type for ${xesc(t.f)}">${T.map(x=>`<option${x===t.type?' selected':''}>${x}</option>`).join('')}</select></label>
+      <label class="nd-col"><span class="nd-lab">Specific unit (optional)</span><select class="nd-input sm" data-nd-in="rtag:${i}:unit" aria-label="Specific unit for ${xesc(t.f)}"><option value="">Any ${xesc(t.type)} unit</option>${ndD().DRAFT_UNITS.filter(u=>u.type===t.type).map(u=>`<option${u.id===t.unit?' selected':''}>${u.id}</option>`).join('')}</select></label></div>`).join('')}
+    <div class="nd-row nd-between"><button type="button" class="btn-ghost nd-outline" data-nd="rtagadd">Add more files</button>${miss?`<span class="nd-mu">Choose a room for every interior render to continue.</span>`:''}</div></div>`;
+}
+function ndSyncInt(){const s=ndS;if(s.rtags.length)s.files.int=s.rtags.length+' file'+(s.rtags.length===1?'':'s');else delete s.files.int;}
 function ndTermsTotal(){const t=ndS.terms;return ['dep','stage','bal'].reduce((n,k)=>n+(Number(t[k])||0),0);}
 function ndTermsHtml(){
   const s=ndS,t=s.terms;
@@ -380,13 +394,102 @@ function ndReviewHtml(){
       <div class="nd-row"><button type="button" class="btn-ghost nd-outline" data-nd="brief">Open the brief</button>${s.requested?'<span class="nd-chip ok">Sent to Bricly</span>':s.exported?'<span class="nd-chip ok">Exported</span>':''}</div></div>`;
 }
 function ndCompleteHtml(){
-  const s=ndS,gaps=ndGaps();
-  const rows=[['Project and buyers','Facts, buyer types and countries recorded','Saved',1],['Imports',s.rev.avail?'42 units reviewed. Floor plans and drawings filed.':'Files read. Units still to review before activation.',s.rev.avail?'Reviewed':'To review',s.rev.avail],['Brief',s.requested?'Sent to Bricly for a quote':s.exported?'Exported for your agency':'Ready to send or export',s.requested?'Sent':s.exported?'Exported':'Ready',s.requested||s.exported],['Gaps',gaps.length?gaps.length+' open item'+(gaps.length===1?'':'s')+', listed on the development page':'No open items',gaps.length?String(gaps.length):'None',!gaps.length]];
-  const next=[['Bricly replies',s.requested?'Scope and price for the brief, usually within two working days.':'Send the brief when you’re ready. Nothing starts without your go-ahead.'],['Activate when ready',`Your sales team sees the development and ${s.releaseCap} units become active in Bricly.`],['Fill the gaps','Anything marked Not decided yet can be answered from the development page.']];
-  return `<div class="nd-card nd-center"><span class="nd-okc lg">✓</span><h3>${xesc(ndTitle())} is set up as a draft</h3><p class="nd-mu">Only you and the Bricly team can see it. Your sales team sees it once you activate. Nothing has been published anywhere.</p></div>
+  const s=ndS,gaps=ndGaps(),busy=ndReviewFiles().filter(f=>f.ready<f.total).length;
+  const rows=[['Project and buyers','Facts, buyer types and countries recorded','Saved',1],
+    ['Units',s.files.avail?`${ndUnits().length} units saved as drafts. Nothing is published.`:'No availability list yet. Add units from the development page.',s.files.avail?'Drafts':'None yet',!!s.files.avail],
+    ['Files',busy?(s.files.plans&&ndReviewFiles().some(f=>f.k==='plans'&&f.ready<f.total)?`Floor plans are uploading. We'll email ${ndPlansToTxt()} when they're ready.`:'Some files are still being read. You can submit now.'):'All files read.',busy?'Processing':'Read',!busy],
+    ['Brief',s.requested?'Sent to Bricly for a quote':s.exported?'Exported for your agency':'Ready to send or export',s.requested?'Sent':s.exported?'Exported':'Ready',s.requested||s.exported],['Gaps',gaps.length?gaps.length+' open item'+(gaps.length===1?'':'s')+', listed on the development page':'No open items',gaps.length?String(gaps.length):'None',!gaps.length]];
+  const next=[['Bricly checks it','Units, prices, floor plans and renders, usually within 2 working days.'],['We email you','You get an email and a notification when it’s ready.'],['Fill the gaps','Anything marked Not decided yet can be answered from the development page.']];
+  return `<div class="nd-card nd-center"><span class="nd-okc lg">✓</span><h3>Submit ${xesc(ndTitle())} for review</h3><p class="nd-mu">The Bricly team checks your setup before anything goes further. Only you and Bricly can see it. Nothing has been published anywhere.</p></div>
     <div class="nd-card nd-rows">${rows.map(([t,d,v,ok])=>`<div class="nd-row nd-between"><span class="nd-row"><span class="nd-okc sm ${ok?'':'warn'}">${ok?'✓':'!'}</span><span class="nd-col"><b>${t}</b><span class="nd-mu">${xesc(d)}</span></span></span><span class="nd-chip ${ok?'ok':'warn'}">${v}</span></div>`).join('')}</div>
-    <b class="nd-h4">What happens next</b><div class="nd-cards n3">${next.map(([t,d])=>`<div class="nd-opt static"><b>${t}</b><span class="nd-mu">${d}</span></div>`).join('')}</div>
-    <div class="nd-row"><button type="button" class="btn-ghost nd-outline" data-nd="act">Activate now</button><span class="nd-mu">or open the development and activate later</span></div>`;
+    <b class="nd-h4">What happens next</b><div class="nd-cards n3">${next.map(([t,d])=>`<div class="nd-opt static"><b>${t}</b><span class="nd-mu">${d}</span></div>`).join('')}</div>`;
+}
+// Review by Bricly: files still being read, draft units and the answers given in setup
+function ndReviewFiles(){
+  const s=ndS,t=s.submittedAt?Math.floor((Date.now()-new Date(s.submittedAt))/6000):0;
+  return ndD().REVIEW_FILES.filter(f=>s.files[f.k]).map(f=>({...f,ready:s.review==='ready'||(f.k==='plans'&&s.plansForce)?f.total:Math.min(f.total,f.start+Math.max(0,t))}));
+}
+function ndPlansTo(){
+  const s=ndS,own=(ndD().TEAM.find(t=>t[1]==='owner')||[])[0],nm=ndTitle()==='New development'?'this development':ndTitle();
+  return [[own,'account owner'],[s.manager,'manages '+nm]].filter(([n],i,a)=>n&&a.findIndex(x=>x[0]===n)===i);
+}
+function ndPlansToTxt(){const L=ndPlansTo();return L.length===1?`${L[0][0]} (${L[0][1]})`:ndAnd(L.map(([n,r])=>`${n} (${r})`));}
+function ndCheckPlans(){
+  const s=ndS;if(!s||!s.review||s.plansMail||!s.files.plans)return;
+  const p=ndReviewFiles().find(f=>f.k==='plans');if(!p||p.ready<p.total)return;
+  const to=ndPlansTo().map(x=>x[0]);s.plansMail={at:new Date().toISOString(),to};
+  ndLog(`Email sent to ${ndAnd(to)}: floor plans are ready`);
+  if(typeof tqInit==='function'&&typeof BN!=='undefined'){tqInit();BN.unshift({id:'ndfp'+Date.now(),who:tqMe(),cat:'Developments',title:'Floor plans are ready',body:`All ${p.total} floor plans for ${ndTitle()} are ready. We emailed ${ndAnd(to)}.`,rec:ndTitle(),t:'Just now',day:'Today',read:false,action:'',kind:'newdev'});tqBadge();}
+  ndPersist();
+}
+function ndPlansNoteHtml(){
+  const s=ndS,p=ndReviewFiles().find(f=>f.k==='plans');if(!p)return '';
+  if(s.plansMail){const d=new Date(s.plansMail.at).toLocaleDateString('en-GB',{day:'numeric',month:'short'});return `<div class="nd-fpmail ok" data-plans-mail="sent"><b>Floor plans are ready.</b> <span class="nd-mu">We emailed ${xesc(ndAnd(s.plansMail.to))} on ${d}.</span></div>`;}
+  const nm=ndTitle()==='New development'?'this development':ndTitle(),M=ndD().TEAM.filter(t=>t[1]!=='owner');
+  return `<div class="nd-fpmail" data-plans-mail="pending"><b>Floor plans are uploading. We'll tell you when they're ready.</b><span class="nd-mu">We'll email ${xesc(ndPlansToTxt())}.</span>
+    <div class="nd-row nd-between"><label class="nd-row"><span class="nd-mu">Manages ${xesc(nm)}</span><select class="nd-input sm" data-nd-in="mgr" aria-label="Who manages ${xesc(nm)}">${M.map(([n])=>`<option${n===s.manager?' selected':''}>${n}</option>`).join('')}</select></label><button type="button" class="nd-link u" data-nd="demoplans" title="Prototype only">Demo: finish floor plans</button></div></div>`;
+}
+function ndUnits(){
+  const s=ndS,imp=s.files.avail?ndD().DRAFT_UNITS.map(u=>({...u,src:'imp'})):[];
+  return [...imp,...(s.addedUnits||[]).map(u=>({...u,src:'own'}))];
+}
+function ndAnswerRows(){
+  const s=ndS,A=s.ans,B=ndD().BUY,bn=k=>(B.find(b=>b.k===k)||{}).n,F=x=>ndFmt(x)||'Not answered';
+  const pk=[...s.picks.primary,...s.picks.secondary].map(bn).filter(Boolean);
+  return [['Name',ndTitle()],['Location',A.loc||'Not confirmed'],['Type',F(A.ptype)+(ndBlocksTxt()?', '+ndBlocksTxt():'')],['Completion',F(A.compl)],
+    ['Launch',A.launch==='Already selling'?'Already selling':A.ldate&&A.ldate!=='Not decided yet'?'Planned '+A.ldate:'Not decided yet'],['Pricing',F(A.pricing)],
+    ['Buyers',pk.join(', ')||'Not answered'],['Countries',F(A.countries)],['Production',A.production?(/Bricly/.test(A.production)?'Bricly produces everything':'Own creative agency'):'Not answered']];
+}
+function ndFilesProgHtml(){
+  const L=ndReviewFiles();
+  if(!L.length)return '<p class="nd-mu">No files to read.</p>';
+  return L.map(f=>{const done=f.ready>=f.total;return `<div class="nd-col nd-fprog" data-file="${f.k}"><div class="nd-row nd-between"><span>${xesc(f.n)}: ${f.ready} of ${f.total} ready</span><span class="nd-chip ${done?'ok':'info'}">${done?'Ready':'Processing'}</span></div><span class="nd-bar"><i style="width:${Math.round(f.ready/f.total*100)}%"></i></span></div>`;}).join('');
+}
+function ndReviewOverviewHtml(){
+  const s=ndS,ready=s.review==='ready',U=ndUnits(),when=d=>d?new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'';
+  ndCheckPlans();
+  const busy=ndReviewFiles().filter(f=>f.ready<f.total).length;
+  if(!ready&&busy){clearTimeout(ndT.prog);ndT.prog=setTimeout(()=>{if(ndOn()&&ndS.view==='hub'&&['overview','files'].includes(ndS.hubTab))ndRender();},6000);}
+  const status=ready?`<div class="nd-card nd-rv-status ok" data-nd-review="ready"><span class="nd-chip ok">Ready</span><h3>Your development is ready</h3><p>Bricly has checked ${xesc(ndTitle())}. Activate it when you want your sales team to see it.</p><div class="nd-row"><button type="button" class="btn-primary" data-nd="hubtab:activation">Go to activation</button><span class="nd-mu">Checked ${when(s.readyAt)}</span></div></div>`
+    :`<div class="nd-card nd-rv-status" data-nd-review="review"><span class="nd-chip warn">Draft · Bricly is checking it</span><h3>${xesc(ndTitle())}</h3><p>We're checking your development. We'll email you when it's ready, usually within 2 working days.</p><div class="nd-row nd-between"><span class="nd-mu">Submitted ${when(s.submittedAt)}. Only you and Bricly can see it.</span><button type="button" class="nd-link u" data-nd="demoready" title="Prototype only">Demo: Bricly marks it ready</button></div></div>`;
+  return `${status}<div class="nd-rv-grid">
+    <div class="nd-card nd-rows"><div class="nd-row nd-between"><b>Files</b><span class="nd-chip ${busy?'info':'ok'}">${busy?busy+' still processing':'All ready'}</span></div>${ndFilesProgHtml()}${ndPlansNoteHtml()}</div>
+    <div class="nd-card"><div class="nd-row nd-between"><b>Units</b><span class="nd-chip">Drafts</span></div><p><b class="nd-kv">${U.length}</b> units saved as drafts</p><p class="nd-mu">Not on sale. Nothing is published.</p><button type="button" class="btn-ghost nd-outline" data-nd="hubtab:inventory">Open inventory</button></div></div>
+    <div class="nd-card"><b>Your setup answers</b><dl class="nd-dl">${ndAnswerRows().map(([l,v])=>`<dt>${l}</dt><dd>${xesc(v)}</dd>`).join('')}</dl></div>`;
+}
+function ndInventoryHtml(){
+  const s=ndS,U=ndUnits(),imp=U.filter(u=>u.src==='imp').length,eur=v=>v?'€'+v.toLocaleString('en-GB'):'No price';
+  const head=`<div class="nd-card"><div class="nd-row nd-between"><b>Units</b><span class="nd-chip ${imp&&!s.rev.avail?'warn':'ok'}">${imp?(s.rev.avail?'Imported units confirmed':imp+' imported units to confirm'):'No imported units'}</span></div>
+    <p class="nd-mu">All units are saved as drafts. They are not on sale until the development is activated.</p>
+    <div class="nd-row">${imp?`<button type="button" class="btn-ghost nd-outline" data-nd="imp:avail">${s.rev.avail?'View imported units':'Confirm imported units'}</button>`:''}<button type="button" class="btn-ghost nd-outline" data-nd="addunit">Add unit</button>${s.review?'':'<button type="button" class="btn-ghost nd-outline" data-nd="step:inventory">Manage files</button>'}</div></div>`;
+  const rows=U.map(u=>`<tr data-unit="${xesc(u.id)}"><td><b>${xesc(u.id)}</b></td><td>${xesc(u.type)}</td><td>${u.m2?u.m2+' m²':'—'}</td><td>${eur(u.price)}</td><td>${u.src==='own'?'Added by you':'Imported'}</td><td><span class="nd-chip ${u.src==='own'||s.rev.avail?'ok':'warn'}">${u.src==='own'||s.rev.avail?'Draft':'Draft · to confirm'}</span></td></tr>`).join('');
+  return head+(U.length?`<div class="nd-card"><table class="nd-utbl"><thead><tr><th>Unit</th><th>Type</th><th>Size</th><th>Price</th><th>Source</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div>`:'')+(s.review?'':ndSavedHtml());
+}
+function ndAddUnitOpen(){
+  qaDrawerOpen('Add unit',`<div class="nd-au"><p class="nd-mu">Saved as a draft unit. You can change it later.</p>
+    <label class="nd-col"><span class="nd-lab">Unit</span><input id="nd-au-id" class="nd-input" placeholder="e.g. C-404"></label>
+    <label class="nd-col"><span class="nd-lab">Type</span><select id="nd-au-type" class="nd-input">${['1 bed','2 bed','3 bed','Penthouse','Duplex','Commercial'].map(t=>`<option>${t}</option>`).join('')}</select></label>
+    <label class="nd-col"><span class="nd-lab">Size (m²)</span><input id="nd-au-m2" class="nd-input" type="number" min="1"></label>
+    <label class="nd-col"><span class="nd-lab">Price (€, optional)</span><input id="nd-au-price" class="nd-input" type="number" min="0"></label><p class="nd-err" id="nd-au-err" role="alert"></p></div>`,
+    `<button type="button" class="btn-ghost" onclick="qaDrawerClose()">Cancel</button><button type="button" class="btn-primary" data-nd="addunitok">Add unit</button>`);
+  setTimeout(()=>document.getElementById('nd-au-id')?.focus(),50);
+}
+function ndAddUnitSave(){
+  const v=id=>(document.getElementById(id)?.value||'').trim(),ref=v('nd-au-id').toUpperCase(),err=document.getElementById('nd-au-err');
+  if(!ref){if(err)err.textContent='Add a unit reference.';return;}
+  if(ndUnits().some(u=>u.id.toUpperCase()===ref)){if(err)err.textContent=`${ref} already exists.`;return;}
+  ndS.addedUnits.push({id:ref,type:v('nd-au-type'),m2:Number(v('nd-au-m2'))||null,price:Number(v('nd-au-price'))||null});
+  ndLog(`Unit ${ref} added as a draft`);qaDrawerClose();showToast(`${ref} added as a draft unit`);ndFlash();ndRender();
+}
+function ndMarkReady(){
+  const s=ndS;if(!s||s.review!=='review')return;
+  s.review='ready';s.readyAt=new Date().toISOString();ndLog('Checked by Bricly. Ready');ndCheckPlans();ndPersist();
+  if(typeof tqInit==='function'&&typeof BN!=='undefined'){tqInit();BN.unshift({id:'nd'+Date.now(),who:tqMe(),cat:'Developments',title:'Your development is ready',body:`Bricly has checked ${ndTitle()}. You can activate it now.`,rec:ndTitle(),t:'Just now',day:'Today',read:false,action:'',kind:'newdev'});tqBadge();}
+  showToast('Your development is ready');
+  if(ndOn())ndRender();
+}
+function ndCheckBridge(){
+  try{const r=JSON.parse(localStorage.getItem('bricly.devreview')||'null');if(r&&r.status==='ready'&&ndS&&ndS.review==='review'){localStorage.removeItem('bricly.devreview');ndMarkReady();}}catch(e){}
 }
 function ndBriefHtml(){
   const s=ndS,S=ndBrief(),req=ndNeedList(),bricly=/Bricly/.test(s.ans.production||''),today=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
@@ -400,18 +503,17 @@ function ndBriefHtml(){
         ${S.map(([t,b],i)=>`<section><span class="nd-cap">${xesc(t)}</span><p id="nd-bp-${i}">${xesc(b)}</p></section>`).join('')}</article></div></div>`;
 }
 function ndHubHtml(){
-  const s=ndS,A=s.ans,active=s.activated,steps=ndSteps(),done=steps.filter(([k])=>s.done[k]).length;
-  const tabs=[['overview','Overview'],['inventory','Inventory'],['marketing','Marketing'],['files','Files'],['activity','Activity'],['activation','Activation']];
+  const s=ndS,A=s.ans,active=s.activated,steps=ndSteps(),done=steps.filter(([k])=>s.done[k]).length,inRv=!active&&s.review==='review',rdy=!active&&s.review==='ready';
+  const tabs=[['overview','Overview'],['inventory','Inventory'],['marketing','Marketing'],['files','Files'],['activity','Activity'],['activation','Activation']].filter(([k])=>!(inRv&&k==='activation'));
+  if(inRv&&s.hubTab==='activation')s.hubTab='overview';
   let content='';
   if(s.hubTab==='inventory'){
-    content=`<div class="nd-card"><div class="nd-row nd-between"><b>Inventory and drawings</b><span class="nd-chip ${s.rev.avail?'ok':'warn'}">${s.rev.avail?'Units reviewed':'Review needed'}</span></div>
-      <p class="nd-mu">${s.rev.avail?'42 units confirmed as off-market drafts. They stay off market until activation.':s.files.avail?'Availability list read. Confirm the unit data before activation.':'Upload an availability list to add units.'}</p>
-      <div class="nd-row">${s.files.avail?`<button type="button" class="btn-ghost nd-outline" data-nd="imp:avail">${s.rev.avail?'View units':'Review units'}</button>`:`<button type="button" class="btn-ghost nd-outline" data-nd="step:inventory">Add inventory</button>`}<button type="button" class="btn-ghost nd-outline" data-nd="step:inventory">Manage files</button></div></div>${ndSavedHtml()}`;
+    content=ndInventoryHtml();
   }else if(s.hubTab==='marketing'){
     const needs=ndNeedList();
     content=`<div class="nd-card"><div class="nd-row nd-between"><b>Marketing brief</b><span class="nd-chip ${s.requested?'ok':'info'}">${s.requested?'Sent for a quote':s.exported?'Exported':'Draft'}</span></div>
       <p class="nd-mu">${s.requested?'Bricly will reply with scope and price. Nothing starts until you accept the quote.':s.exported?'The brief is ready for your agency.':'Planned work and requested deliverables are collected here.'}</p>
-      <div class="nd-row"><button type="button" class="btn-ghost nd-outline" data-nd="brief">Open the brief</button>${!active?'<button type="button" class="btn-ghost nd-outline" data-nd="setup">Continue setup</button>':''}</div></div>
+      <div class="nd-row"><button type="button" class="btn-ghost nd-outline" data-nd="brief">Open the brief</button>${!active&&!s.review?'<button type="button" class="btn-ghost nd-outline" data-nd="setup">Continue setup</button>':''}</div></div>
       <div class="nd-card nd-rows"><b>Requested deliverables</b>${needs.length?needs.map(x=>`<div class="nd-row nd-between"><span>${xesc(x)}</span><span class="nd-chip info">${s.requested?'Requested':'Planned'}</span></div>`).join(''):'<p class="nd-mu">Nothing is currently on the production checklist.</p>'}</div>
       <div class="nd-card">${ndBrief().map(([title,body])=>`<div class="nd-gap static"><b>${xesc(title)}</b><p class="nd-mu">${xesc(body)}</p></div>`).join('')}</div>`;
   }else if(s.hubTab==='files'){
@@ -421,6 +523,8 @@ function ndHubHtml(){
     content=`<div class="nd-card nd-rows"><b>Activity</b>${s.activity.length?s.activity.map(item=>{const d=new Date(item.at),when=Number.isNaN(d.getTime())?'':d.toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});return `<div class="nd-row nd-between"><span>${xesc(item.text)}</span><span class="nd-mu">${xesc(when)}</span></div>`;}).join(''):'<p class="nd-mu">No activity recorded yet.</p>'}</div>`;
   }else if(s.hubTab==='activation'){
     content=ndActHtml();
+  }else if(s.review&&!active){
+    content=ndReviewOverviewHtml();
   }else{
     const project=[['Location',A.loc||'Not confirmed'],['Project type',A.ptype||'Not decided'],['Build stage',A.build||'Not decided'],['Buyers',s.picks.primary.length+s.picks.secondary.length+' selected']];
     const needs=ndNeedList();
@@ -431,7 +535,7 @@ function ndHubHtml(){
       <div class="nd-card"><div class="nd-row nd-between"><b>Brief and production</b><span class="nd-chip ${s.requested?'ok':'info'}">${s.requested?'Sent':s.exported?'Exported':'In progress'}</span></div><p class="nd-mu">${needs.length?needs.length+' deliverables planned.':'No production deliverables planned yet.'}</p><button type="button" class="btn-ghost nd-outline" data-nd="hubtab:marketing">Open marketing</button></div>
       <div class="nd-card"><div class="nd-row nd-between"><b>Activation</b><span class="nd-chip ${active?'ok':ndCanActivate()?'info':'warn'}">${active?'Active':ndCanActivate()?'Ready':'Not ready'}</span></div><p class="nd-mu">${active?`${s.releaseCap} units are active.`:'Confirm the location and review availability to activate.'}</p><button type="button" class="btn-ghost nd-outline" data-nd="hubtab:activation">View activation</button></div>`;
   }
-  return `<div class="nd-hub"><div class="nd-head"><button type="button" class="nd-link" data-nd="exit">‹ Developments</button><div class="nd-head-t"><div class="nd-row"><b>${xesc(ndTitle())}</b><span class="nd-chip ${active?'ok':'warn'}">${active?'Active':'Draft'}</span></div><span class="nd-mu">${active?'Development hub':'Private until activated'}</span></div><div class="nd-head-a">${!active?'<button type="button" class="btn-ghost nd-outline" data-nd="act">Activate</button>':''}</div></div>
+  return `<div class="nd-hub"><div class="nd-head"><button type="button" class="nd-link" data-nd="exit">‹ Developments</button><div class="nd-head-t"><div class="nd-row"><b>${xesc(ndTitle())}</b><span class="nd-chip ${active||rdy?'ok':'warn'}">${active?'Active':rdy?'Ready':inRv?'Draft · Bricly is checking it':'Draft'}</span></div><span class="nd-mu">${active?'Development hub':'Private until activated'}</span></div><div class="nd-head-a">${!active&&!inRv?'<button type="button" class="btn-ghost nd-outline" data-nd="act">Activate</button>':''}</div></div>
     <div class="nd-row">${tabs.map(([key,label])=>`<button type="button" class="${s.hubTab===key?'btn-primary':'btn-ghost nd-outline'}" data-nd="hubtab:${key}">${label}</button>`).join('')}</div>
     <div class="nd-hub-content">${content}</div></div>`;
 }
@@ -473,13 +577,14 @@ function ndMoodHtml(){
 function ndCanCont(q){
   const s=ndS,a=s.ans[q.id];
   switch(q.type){case 'text':return !!((s.text[q.id]||'').trim()||a!=null);case 'address':case 'cards':return a!=null;case 'quarter':{const p=s.qp[q.id]||{};return !!(p.q&&p.y)||a!=null;}
-    case 'buyers':return s.picks.primary.length>0;case 'naming':return !!s.nameSel;default:return true;}
+    case 'buyers':return s.picks.primary.length>0;
+    case 'uploads':return q.id!=='rendUp'||!s.files.int||s.rtags.every(t=>t.room);case 'naming':return !!s.nameSel;default:return true;}
 }
 function ndQHtml(){
   const s=ndS;if(s.sorting)return ndSortHtml();const q=ndCurQ();if(!q)return '';
   const steps=ndSteps(),si=steps.findIndex(([k])=>k===s.step),sc=ndScreens(s.step),qi=sc.indexOf(q),ns=steps[si+1],last=qi===sc.length-1;
   const first=si===0&&qi===0,contL=q.type==='intro'?'Start':last&&ns?'Continue to '+ns[1]:'Continue';
-  const foot=q.type==='complete'?`<div class="nd-foot"><button type="button" class="nd-link" data-nd="back">‹ Back</button><span></span><button type="button" class="btn-primary" data-nd="finish">Open development hub</button></div>`
+  const foot=q.type==='complete'?`<div class="nd-foot"><button type="button" class="nd-link" data-nd="back">‹ Back</button><span></span><button type="button" class="btn-primary" data-nd="finish">Submit for review</button></div>`
     :`<div class="nd-foot">${first?'<span></span>':'<button type="button" class="nd-link" data-nd="back">‹ Back</button>'}<span class="nd-row">${q.skipStage?'<button type="button" class="btn-ghost nd-outline" data-nd="skipstage">Skip this stage</button>':''}${!q.noSkip?'<button type="button" class="nd-link u" data-nd="nd">Not decided yet</button>':''}<button type="button" class="btn-primary" data-nd="cont" ${ndCanCont(q)?'':'disabled'}>${contL}</button></span></div>`;
   return `<div class="nd-meta">Step ${si+1} · ${xesc(steps[si][1])} · ${qi+1} of ${sc.length}${q.grp?` <span class="nd-chip">${xesc(q.grp)}</span>`:''}</div><h2 class="nd-qt">${xesc(q.t)}</h2>${q.h?`<p class="nd-qh">${xesc(q.h)}</p>`:''}
     <div class="nd-qb">${ndBody(q)}</div>${foot}`;
@@ -487,6 +592,7 @@ function ndQHtml(){
 function ndRender(top){
   const root=document.getElementById('nd-root');if(!root||!ndS||!ndOn())return;
   const s=ndS;ndCrumb();ndPersist();
+  if(!s.activated&&(s.review&&s.view==='setup'||s.review==='review'&&s.view==='act'))s.view='hub';
   const main=s.view==='hub'?ndHubHtml():s.view==='brief'?ndBriefHtml():s.view==='act'?ndActHtml():`${ndHeadHtml()}<div class="nd-body">${ndRailHtml()}<main class="nd-main"><div class="nd-q">${ndQHtml()}</div></main></div>`;
   root.className='nd-shell nd-v-'+s.view;root.innerHTML=main+ndModalHtml()+ndMoodHtml();
   if(top){const c=document.getElementById('content');if(c)c.scrollTop=0;}
@@ -536,6 +642,10 @@ function ndAction(k,el){
     case 'close':return ndExit('Draft saved. Continue setup from Developments.');
     case 'hub':s.view='hub';s.hubTab='overview';return ndRender(true);
     case 'hubtab':s.hubTab=b;return ndRender(true);
+    case 'addunit':return ndAddUnitOpen();
+    case 'addunitok':return ndAddUnitSave();
+    case 'demoready':return ndMarkReady();
+    case 'demoplans':s.plansForce=true;ndCheckPlans();showToast('Floor plans are ready');return ndRender();
     case 'setup':s.view='setup';return ndRender(true);
     case 'resume':return ndResume();
     case 'step':s.sorting=false;return ndGoStep(b);
@@ -562,8 +672,10 @@ function ndAction(k,el){
     case 'qp':{const p=b==='sold'?s.soldQ:(s.qp[b]=s.qp[b]||{});p[c]=k.split(':')[3];return ndRender();}
     case 'blk':s.blockN=+b;return ndRender();
     case 'blklater':return ndAnswer(q.id,s.blockN+' blocks · names to come');
-    case 'up':s.files[b]=ndSlotSample(b);ndFlash();return ndRender();
-    case 'rm':delete s.files[b];ndFlash();return ndRender();
+    case 'up':if(b==='int'){s.rtags=ndD().INT_SAMPLE.map(([f,room,type])=>({f,room,type,unit:''}));ndSyncInt();ndFlash();return ndRender();}s.files[b]=ndSlotSample(b);ndFlash();return ndRender();
+    case 'rtagadd':{const M=ndD().INT_MORE,f=M[s.rtags.length%M.length].replace('.jpg',s.rtags.length>=3+M.length?'-'+s.rtags.length+'.jpg':'.jpg');s.rtags.push({f,room:'',type:ndRendTypes()[0],unit:''});ndSyncInt();ndFlash();return ndRender();}
+    case 'rtagrm':s.rtags.splice(+b,1);ndSyncInt();ndFlash();return ndRender();
+    case 'rm':delete s.files[b];if(b==='int')s.rtags=[];ndFlash();return ndRender();
     case 'finadd':s.finishes.push(['','']);return ndRender();
     case 'finrm':s.finishes.splice(+b,1);if(!s.finishes.length)s.finishes.push(['','']);return ndRender();
     case 'pick':{const other=c==='primary'?'secondary':'primary',L=s.picks[c],i=L.indexOf(b);if(i>=0)L.splice(i,1);else{L.push(b);s.picks[other]=s.picks[other].filter(x=>x!==b);}return ndRender();}
@@ -583,8 +695,8 @@ function ndAction(k,el){
     case 'brief':s.view='brief';return ndRender(true);
     case 'sendbrief':s.modal='request';return ndRender();
     case 'export':s.exported=true;ndLog('Marketing brief exported');ndFlash();showToast('Brief exported as a PDF for your agency');return ndRender();
-    case 'act':if(s.view==='hub'){s.hubTab='activation';return ndRender(true);}s.view='act';return ndRender(true);
-    case 'activate':if(!ndCanActivate()){showToast('Review the availability list, confirm the location, and choose a valid unit cap before activating.');return;}s.modal='activate';return ndRender();
+    case 'act':if(s.review==='review'&&!s.activated){showToast('Bricly is checking it. You can activate once it’s ready.');return;}if(s.view==='hub'){s.hubTab='activation';return ndRender(true);}s.view='act';return ndRender(true);
+    case 'activate':if(s.review==='review'){showToast('Bricly is checking it. You can activate once it’s ready.');return;}if(!ndCanActivate()){showToast('Review the availability list, confirm the location, and choose a valid unit cap before activating.');return;}s.modal='activate';return ndRender();
     case 'modal-x':s.modal=null;return ndRender();
     case 'modal-ok':
       if(s.modal==='request'){s.requested=true;s.modal=null;ndLog('Marketing brief sent to Bricly');showToast('Brief sent. We’ll notify you when Bricly replies with scope and price.');}
@@ -592,7 +704,7 @@ function ndAction(k,el){
       else{s.modal=null;showToast('The development is not ready to activate. Review the activation requirements.');}
       ndFlash();return ndRender();
     case 'livehub':s.view='hub';s.hubTab='overview';return ndRender(true);
-    case 'finish':s.ans.complete='Done';s.done.imports=1;s.view='hub';s.hubTab='overview';return ndRender(true);
+    case 'finish':if(s.review)return;s.ans.complete='Done';s.done.imports=1;s.review='review';s.submittedAt=new Date().toISOString();s.view='hub';s.hubTab='overview';ndLog('Submitted to Bricly for review');ndFlash();showToast('Submitted. We’ll email you when it’s ready.');return ndRender(true);
   }
 }
 document.addEventListener('click',e=>{const el=e.target.closest('[data-nd]');if(!el||!ndS||el.disabled)return;if(el.classList.contains('nd-modal-bg')&&e.target!==el)return;ndAction(el.dataset.nd,el);});
@@ -619,6 +731,8 @@ document.addEventListener('input',e=>{
     case 'fin':s.finishes[+b][+c]=v;break;
     case 'ctyq':s.ctyQ=v;break;
     case 'ownname':s.ownName=v;break;
+    case 'rtag':{const t=s.rtags[+b];if(!t)break;t[c]=v;if(c==='type')t.unit='';ndFlash();ndRender();break;}
+    case 'mgr':s.manager=v;ndLog(`${v} now gets the floor plan email`);ndFlash();ndRender();break;
     case 'cap':s.releaseCap=v.trim()?Math.max(1,Math.min(42,Math.round(Number(v)||1))):0;{const btn=document.querySelector('#nd-root [data-nd="activate"]');if(btn)btn.disabled=!ndCanActivate();}break;
     case 'direct':case 'directr':{const d=Math.max(0,Math.min(100,Math.round(Number(v)||0)));s.direct=d;
       const set=(id,p,x)=>{const n=document.getElementById(id);if(n&&n!==el)n[p]=x;};set('nd-dir','value',d);set('nd-dirr','value',d);set('nd-agt','value',100-d);
@@ -639,11 +753,11 @@ function ndCardHtml(){
   const s=ndS,steps=ndSteps(),done=steps.filter(([k])=>s.done[k]).length,act=s.activated,t=s.savedAt;
   const imp=s.proc==='running'?`Reading ${ndFileCount()} files`:s.proc==='done'?(s.rev.avail?'Reviewed':'Ready to review'):ndFileCount()?'Saved':'No files yet';
   const time=t.toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}),name=ndTitle()==='New development'?'New development · unnamed':ndTitle();
-  return `<div class="dv-card nd-dcard" role="button" tabindex="0" data-nd="resume" aria-label="${act?'Open':'Continue setup for'} ${xesc(name)}">
-    <div class="ph nd-dph"><span class="dv-card-status ${act?'selling':'nd-draft'}">${act?'Active':'Draft'}</span><span>Images added during setup</span></div>
-    <div class="bd"><div class="dv-card-name">${xesc(name)}</div><div class="dv-card-meta"><span>${s.ans.loc?'Mellieħa':'Location to confirm'}</span><span>${act?'Active · just now':'Draft · private'}</span></div>
+  return `<div class="dv-card nd-dcard" role="button" tabindex="0" data-nd="resume" aria-label="${act||s.review?'Open':'Continue setup for'} ${xesc(name)}">
+    <div class="ph nd-dph"><span class="dv-card-status ${act?'selling':'nd-draft'}">${act?'Active':s.review==='ready'?'Ready':'Draft'}</span><span>Images added during setup</span></div>
+    <div class="bd"><div class="dv-card-name">${xesc(name)}</div><div class="dv-card-meta"><span>${s.ans.loc?'Mellieħa':'Location to confirm'}</span><span>${act?'Active · just now':s.review==='review'?'Bricly is checking it':s.review==='ready'?'Checked by Bricly':'Draft · private'}</span></div>
       <dl class="dv-card-facts"><div><dt>Setup</dt><dd>${done} of ${steps.length} steps</dd></div><div><dt>Last saved</dt><dd>${time}</dd></div><div><dt>Imports</dt><dd>${imp}</dd></div></dl>
-      <div class="nd-row nd-between nd-dfoot"><span class="nd-bar"><i style="width:${Math.round(done/steps.length*100)}%"></i></span><span class="nd-green">${act?'Open ›':'Continue setup ›'}</span></div></div></div>`;
+      <div class="nd-row nd-between nd-dfoot"><span class="nd-bar"><i style="width:${Math.round(done/steps.length*100)}%"></i></span><span class="nd-green">${act||s.review?'Open ›':'Continue setup ›'}</span></div></div></div>`;
 }
 function ndListRowHtml(){
   const s=ndS,steps=ndSteps(),done=steps.filter(([k])=>s.done[k]).length,act=s.activated,t=s.savedAt;
@@ -651,7 +765,7 @@ function ndListRowHtml(){
   const time=t.toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
   const imp=s.proc==='running'?`Reading ${ndFileCount()} files`:s.proc==='done'?(s.rev.avail?'Reviewed':'Ready to review'):ndFileCount()?'Saved':'No files yet';
   return `<div class="dv-list-row nd-dlist" role="button" tabindex="0" data-nd="resume" aria-label="${act?'Open':'Continue setup for'} ${xesc(name)}" style="grid-template-columns:1.6fr 1fr 1fr 1fr 1.4fr">
-    <div><div class="nm">${xesc(name)}</div><div class="sub">${act?'Active':'Draft · private'}</div></div><div class="sub">${s.ans.loc?'Mellieħa':'Location to confirm'}</div><div class="sub">${act?'Active':`${done} of ${steps.length} steps`}</div><div class="sub">${imp}</div><div class="sub">Last saved ${time}</div></div>`;
+    <div><div class="nm">${xesc(name)}</div><div class="sub">${act?'Active':s.review==='review'?'Bricly is checking it':s.review==='ready'?'Ready':'Draft · private'}</div></div><div class="sub">${s.ans.loc?'Mellieħa':'Location to confirm'}</div><div class="sub">${act?'Active':`${done} of ${steps.length} steps`}</div><div class="sub">${imp}</div><div class="sub">Last saved ${time}</div></div>`;
 }
 function ndListCard(){
   if(!ndS||typeof dvListState==='undefined'||(typeof awCan==='function'&&!awCan('development')))return;
@@ -665,5 +779,8 @@ function ndListCard(){
   if(!g.querySelector('.nd-dcard'))g.insertAdjacentHTML('afterbegin',ndCardHtml());
 }
 if(typeof dvRenderGrid==='function'){const ndGrid0=dvRenderGrid;dvRenderGrid=function(){const r=ndGrid0.apply(this,arguments);ndListCard();return r;};}
+if(typeof tqOpenRec==='function'){const ndOpenRec0=tqOpenRec;tqOpenRec=function(rec){if(ndS&&ndS.review&&rec===ndTitle()){ndResume();return;}return ndOpenRec0.apply(this,arguments);};}
+window.addEventListener('storage',e=>{if(e.key==='bricly.devreview')ndCheckBridge();});
 ndRestore();
+ndCheckBridge();
 ndListCard();

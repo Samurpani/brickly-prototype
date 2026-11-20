@@ -81,6 +81,34 @@ function uhOpen(mode,opts={}){
   el.querySelector('.uhx-search input')?.focus();
 }
 function uhClose(){document.getElementById('uh-modal')?.remove();UH=null;}
+// Opportunity unit pickers (Add unit, Find another unit, the hold dialog): Available and On hold can be picked
+// (a held unit joins the line), Reserved and Sold are shown but can't be picked (Opp Q-01, D-15).
+function uhPickStatus(o,u){
+  if(!u) return {ok:false,l:'Unknown',t:'neu'};
+  if(u.status==='available') return {ok:true,l:'Available',t:'ok'};
+  if(u.status==='hold'){
+    const h=uhHolder(u);
+    if(h&&o&&h.opp===o.id) return {ok:true,l:`On hold for ${uhFirst(o.lead)}`,t:'info'};
+    const mine=o?uhLine(u.id).find(r=>r.opp===o.id):null;
+    const n=mine?uhPlace(mine):uhLine(u.id).length+(h?1:0)+1;
+    return {ok:true,l:mine?`On hold · you're ${uhOrd(n)} in line`:`On hold · you'd be ${uhOrd(n)} in line`,t:'warn'};
+  }
+  const st=UN_STATUS[u.status]||{l:u.status};
+  return {ok:false,l:st.l,t:u.status==='sold'?'bad':'neu'};
+}
+function uhPickTag(st){return `<span class="uhp-tag t-${st.t}">${xesc(st.l)}</span>`;}
+(function(){
+  if(document.getElementById('uhp-css')) return;
+  const c=document.createElement('style'); c.id='uhp-css';
+  c.textContent=`.uhp-tag{display:inline-block;font-size:11.5px;line-height:16px;border-radius:999px;padding:1px 8px;white-space:nowrap;background:var(--surface-2,#f1efe9);color:var(--on-variant)}
+.uhp-tag.t-ok{background:#e3f1e3;color:#2f6b2f}.uhp-tag.t-warn{background:#fbefd7;color:#8d6715}.uhp-tag.t-info{background:#e5eef8;color:#2f5a8a}.uhp-tag.t-bad{background:#fbe4e1;color:#a2342a}
+#qaDrawer .opp-edit-options{display:flex;flex-direction:column;gap:1px}
+#qaDrawer .opp-edit-options label{display:flex;align-items:center;gap:9px;min-height:36px;padding:5px 8px;border-radius:5px;cursor:pointer}
+#qaDrawer .opp-edit-options label:hover{background:var(--sc-lowest)}
+.opp-edit-options label.is-off{opacity:.55;cursor:not-allowed}.opp-edit-options label .uhp-tag{margin-left:auto}
+.fd-item:disabled{opacity:.5;cursor:not-allowed}`;
+  document.head.appendChild(c);
+})();
 function uhOppActive(o){return !['Closed Won','Lost'].includes(o.stage)&&!o.unassigned;}
 function uhOppCandidates(){
   const id=UH.unitId, q=UH.q.trim().toLowerCase();
@@ -91,16 +119,22 @@ function uhOppCandidates(){
 }
 function uhUnitSelectable(o,unitId){
   const u=UN(unitId);
-  return !!u&&u.status==='available'&&!uhOppUnitState(o,getExt(o),unitId,o.units.indexOf(unitId));
+  return !!u&&uhPickStatus(o,u).ok&&!(uhHolder(u)?.opp===o.id)&&!uhOppUnitState(o,getExt(o),unitId,o.units.indexOf(unitId));
 }
 function uhOppLinked(o){
   return o.units.map(id=>{const u=UN(id);if(!u) return null;const st=uhOppUnitState(o,getExt(o),id,o.units.indexOf(id));return {id,u,st,ok:uhUnitSelectable(o,id)};}).filter(Boolean);
 }
 function uhOppOthers(o){
   const q=UH.q.trim().toLowerCase();
-  const list=UNITS.filter(u=>u.status==='available'&&!o.units.includes(u.id)
+  const rank={available:0,hold:1,reserved:2,sold:3};
+  const list=UNITS.filter(u=>u.status in rank&&!o.units.includes(u.id)
     &&(!q||[u.id,u.dev,u.type,DEV(u.dev).loc].join(' ').toLowerCase().includes(q)));
-  return list.slice(0,q?8:4);
+  const near=list.filter(u=>o.devs.includes(u.dev)), rest=list.filter(u=>!o.devs.includes(u.dev));
+  return [...near.sort((a,b)=>rank[a.status]-rank[b.status]),...rest.sort((a,b)=>rank[a.status]-rank[b.status])].slice(0,q?8:5);
+}
+function uhOtherRowsHtml(o){
+  return uhOppOthers(o).map(u=>{const st=uhPickStatus(o,u);return `<button type="button" class="uhx-row ${UH.pick===u.id?'on':''}" role="radio" aria-checked="${UH.pick===u.id}" ${st.ok?`onclick="uhPick('${u.id}')"`:'disabled'}>
+      ${uhSwatch(u)}<span class="uhx-row-t"><b>${u.id} \u00b7 ${xesc(u.dev)} \u00b7 ${fmtK(u.price)}</b><span>${uhUnitLine(u)}</span></span>${uhPickTag(st)}${UH.pick===u.id?'<span class="uhx-chip">Will be linked</span>':''}<span class="uhx-radio" aria-hidden="true"></span></button>`;}).join('')||'<div class="uhx-empty">No units match.</div>';
 }
 function uhUnitLine(u){return `${u.type} \u00b7 ${unBedsLabel(u)} \u00b7 ${u.sqm} m\u00b2`;}
 function uhSwatch(){return '<span class="uhx-sw" aria-hidden="true"></span>';}
@@ -111,7 +145,7 @@ function uhRender(){
   const holder=u?uhHolder(u):null, ahead=u?uhLine(u.id).length+(holder?1:0):0;
   const sub=m==='link'?'The unit joins the buyer\u2019s shortlist. Its status doesn\u2019t change.'
     :m==='join'?`${u.id} is ${holder?`on hold for ${xesc(holder.buyer)}`:'waiting on a hold request'}. Your request joins the line in request order and is offered to the buyer when it\u2019s their turn.`
-    :m==='opp'?`${o.id} \u00b7 ${xesc(o.stage)} \u00b7 Rep: ${xesc(o.rep)}. Pick one of the linked units, or another available unit to link.`
+    :m==='opp'?`${o.id} \u00b7 ${xesc(o.stage)} \u00b7 Rep: ${xesc(o.rep)}. Pick one of the linked units, or another unit to link. A unit on hold for someone else joins the line.`
     :'A hold must be linked to an opportunity. Choose the buyer it\u2019s for.';
   const cta=m==='link'?'Add to opportunity':m==='join'?'Join the line':'Request hold';
   el.innerHTML=`<div class="cr-modal-box uhx-box" role="dialog" aria-modal="true" aria-labelledby="uh-title">
@@ -129,15 +163,15 @@ function uhSearchHtml(placeholder){
 }
 function uhOppListHtml(o){
   if(UH.mode==='opp'){
-    const linked=uhOppLinked(o), others=uhOppOthers(o);
+    const linked=uhOppLinked(o);
     const row=(u,chip,ok)=>`<button type="button" class="uhx-row ${UH.pick===u.id?'on':''}" role="radio" aria-checked="${UH.pick===u.id}" ${ok?`onclick="uhPick('${u.id}')"`:'disabled'}>
       ${uhSwatch(u)}<span class="uhx-row-t"><b>${u.id} \u00b7 ${xesc(u.dev)} \u00b7 ${fmtK(u.price)}</b><span>${uhUnitLine(u)}</span></span>${chip}<span class="uhx-radio" aria-hidden="true"></span></button>`;
     const linkedHtml=linked.map(({u,st,ok})=>{
-      const chip=st?`<span class="pill ${st.s==='held'?'p-res':'p-hold'}">${HOLD_LABEL[st.s]}</span>`:`<span class="pill ${UN_STATUS[u.status].p}">${UN_STATUS[u.status].l}</span>`;
+      const chip=st?`<span class="pill ${st.s==='held'?'p-res':'p-hold'}">${HOLD_LABEL[st.s]}</span>`:uhPickTag(uhPickStatus(o,u));
       return row(u,chip,ok);
     }).join('')||'<div class="uhx-empty">No units linked yet. Pick an available unit below.</div>';
-    const othersHtml=others.map(u=>row(u,UH.pick===u.id?'<span class="uhx-chip">Will be linked</span>':'',true)).join('')||'<div class="uhx-empty">No available units match.</div>';
-    return `<div class="uhx-sec">Linked units</div>${linkedHtml}<div class="uhx-sec">Other available units</div>${uhSearchHtml('Search by unit, development or location')}<div id="uh-others">${othersHtml}</div>`;
+    const othersHtml=uhOtherRowsHtml(o);
+    return `<div class="uhx-sec">Linked units</div>${linkedHtml}<div class="uhx-sec">Other units</div>${uhSearchHtml('Search by unit, development or location')}<div id="uh-others">${othersHtml}</div>`;
   }
   const list=uhOppCandidates();
   return `<div class="uhx-list" role="radiogroup" aria-label="Opportunities">${list.map(x=>`<button type="button" class="uhx-row ${UH.pick===x.id?'on':''}" role="radio" aria-checked="${UH.pick===x.id}" onclick="uhPick('${x.id}')">
@@ -155,7 +189,7 @@ function uhSummaryHtml(u,o,ahead){
 }
 function uhSetQ(v){
   UH.q=v;
-  if(UH.mode==='opp'){const o=OPPS.find(x=>x.id===UH.oppId);document.getElementById('uh-others').innerHTML=uhOppOthers(o).map(u=>`<button type="button" class="uhx-row ${UH.pick===u.id?'on':''}" role="radio" aria-checked="${UH.pick===u.id}" onclick="uhPick('${u.id}')">${uhSwatch(u)}<span class="uhx-row-t"><b>${u.id} \u00b7 ${xesc(u.dev)} \u00b7 ${fmtK(u.price)}</b><span>${uhUnitLine(u)}</span></span>${UH.pick===u.id?'<span class="uhx-chip">Will be linked</span>':''}<span class="uhx-radio" aria-hidden="true"></span></button>`).join('')||'<div class="uhx-empty">No available units match.</div>';return;}
+  if(UH.mode==='opp'){const o=OPPS.find(x=>x.id===UH.oppId);document.getElementById('uh-others').innerHTML=uhOtherRowsHtml(o);return;}
   document.querySelector('#uh-list .uhx-list').outerHTML=uhOppListHtml();
 }
 function uhPick(id){
@@ -421,4 +455,22 @@ function uhUnitPageHtml(u){return uhBanner(u).replace(/<div class="uhx-banner-ac
   apFinishDecision=function(r){finish.apply(this,arguments);if(r.unit){delete UH_PEEK[r.unit];uhRefresh(r.unit);}};
   const undo=apUndoDecision;
   apUndoDecision=function(){const id=AP_UNDO?.id,r=id&&APPROVALS.find(q=>q.id===id);undo.apply(this,arguments);if(r?.unit) uhRefresh(r.unit);};
+})();
+
+// Details tab and quick view: the Units picker shows each unit's status; Reserved and Sold can't be added.
+(function(){
+  const picker=window.oppDtPicker, choose=window.oppDtChoose;
+  if(typeof picker!=='function'||typeof choose!=='function') return;
+  window.oppDtPicker=function(o,field,label,options,value,multi){
+    if(field!=='units') return picker.apply(this,arguments);
+    const sel=value||[], off=[];
+    const opts=options.map(op=>{const st=uhPickStatus(o,UN(op.value));if(!st.ok&&!sel.includes(op.value))off.push(op.value);return {...op,label:`${op.label} · ${st.l}`};});
+    let h=picker.call(this,o,field,label,opts,value,multi);
+    off.forEach(id=>{h=h.replace(new RegExp(`(<button type="button" class="fd-item[^"]*")(?= onclick="[^"]*${id.replace(/[#.]/g,'\\$&')}&quot;)`),'$1 disabled aria-disabled="true"');});
+    return h;
+  };
+  window.oppDtChoose=function(id,field,value){
+    if(field==='units'){const o=OPPS.find(r=>r.id===id),u=UN(value);if(o&&u&&!o.units.includes(value)&&!uhPickStatus(o,u).ok){showToast(`${value} is ${UN_STATUS[u.status].l.toLowerCase()}. It can’t be added.`);return;}}
+    return choose.apply(this,arguments);
+  };
 })();

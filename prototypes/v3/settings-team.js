@@ -40,7 +40,7 @@ const CAPS=[
   {g:'Records',k:'contacts',l:'Contacts',lv:lv('none','own','team','all'),v:['all','all','team','own','all','all']},
   {g:'Records',k:'units',l:'Units and availability',lv:lv('none','view','full'),v:['full','full','full','view','view','view']},
   {g:'Records',k:'kyc',l:'KYC and source-of-funds documents',s:'AML records',lv:lv('none','view','full'),v:['full','full','none','none','none','full']},
-  {g:'Selling',k:'approve',l:'Decide holds, reservations and price exceptions',lv:lv('none','team','full'),v:['full','full','team','none','none','none']},
+  {g:'Selling',k:'approve',l:'Decide holds, reservations and offers below asking price',lv:lv('none','team','full'),v:['full','full','team','none','none','none']},
   {g:'Selling',k:'prices',l:'Change unit prices',lv:lv('none','full'),v:['full','full','full','none','none','none']},
   {g:'Selling',k:'import',l:'Import units and deals',lv:lv('none','full'),v:['full','full','full','none','none','full']},
   {g:'Selling',k:'export',l:'Export data',lv:lv('none','scope','full'),v:['full','full','scope','none','scope','scope']},
@@ -70,6 +70,9 @@ const profileFor=name=>{const r=roleByName(name);return ROLE_PROFILE[r?.base||r?
 const AU_AREAS=[['opps','Opportunities'],['deals','Deals'],['units','Units'],['devs','Developments'],['contacts','Contacts'],['approvals','Approvals'],['calendar','Calendar'],['reports','Reports'],['automations','Automations'],['present','Present mode'],['marketing','Marketing']];
 const AU_SEE={own:'Only their own records',team:'Their team’s records',all:'Every record'};
 const AU_APPROVALS=['Team default','New rep · everything needs approval','Trusted rep · holds and reservations go straight through','Custom · set in Approvals'];
+// Invite: three plain choices. Custom rules are set in Approvals once the person exists.
+const AU_APPROVAL_CHOICES=[[AU_APPROVALS[1],'New rep','Every hold, reservation and offer needs approval.'],[AU_APPROVALS[2],'Trusted rep','Holds and reservations go straight through.'],[AU_APPROVALS[0],'Team default','Follows the rules of the team they join.']];
+const AU_APPROVAL_SHORT={[AU_APPROVALS[0]]:'Team default',[AU_APPROVALS[1]]:'New rep',[AU_APPROVALS[2]]:'Trusted rep',[AU_APPROVALS[3]]:'Own rules'};
 const CUSTOM_APPROVALS=new Set(['Karl Zammit','Matthew Vella','Sarah Azzopardi']);
 const STATUS_TONE={Active:'ok',Invited:'info',Deactivated:'neu'};
 let seq=0;
@@ -78,7 +81,7 @@ const MEMBERS=P.team.b[0].rows.map(r=>{
   const digits=[...name].reduce((a,ch)=>(a*31+ch.charCodeAt(0))%10000,7);
   return {id:'m'+(++seq),first,last:rest.join(' '),email:c[0].s,phone:name==='Sam'?'+356 7912 4410':`+356 79${String(digits).padStart(4,'0').slice(0,2)} ${String(digits*7%10000).padStart(4,'0')}`,title:'',
     role,reportsTo:cellText(c[3])==='—'?'':cellText(c[3]),devScope:devs==='All'?'all':'selected',devs:devs==='All'?[]:devs.split(', '),
-    see:prof.see,areas:[...prof.areas],approvals:role==='Sales Rep'?(CUSTOM_APPROVALS.has(name)?AU_APPROVALS[3]:AU_APPROVALS[0]):'',rotation:role==='Sales Rep',
+    see:prof.see,areas:[...prof.areas],perms:{},approvals:role==='Sales Rep'?(CUSTOM_APPROVALS.has(name)?AU_APPROVALS[3]:AU_APPROVALS[0]):'',rotation:role==='Sales Rep',
     wa:cellText(c[4]),lastSeen:cellText(c[5]),status:cellText(c[6])};
 });
 const fullName=m=>`${m.first} ${m.last}`.trim();
@@ -136,7 +139,7 @@ function auFormBody(){
     <div class="au-sec">Role</div>
     ${isOwner?auStatic('Role','Owner','To hand over ownership, use Transfer ownership in the Team actions.')
       :auPicker('role','Role',assignableRoles(),{req:true,placeholder:'Select a role'})}
-    ${roleObj&&!isOwner?`<div class="au-hint au-role-d">${esc(roleObj.d)} <button type="button" class="au-link" onclick="stRoleOpen('${roleObj.key}')">See permissions</button></div>`:''}
+    ${roleObj&&!isOwner?`<div class="au-hint au-role-d">${esc(roleObj.d)} ${au.mode==='add'?`<button type="button" class="au-link" onclick="stRoleOpen('${roleObj.key}')">See permissions</button>`:'The role sets their default access and permissions.'}</div>`:''}
     ${au.role&&!isOwner&&au.mode!=='add'&&au.role!==au.orig?.role?'<div class="au-note">The new role applies on their next request. Approval requests already waiting keep their route.</div>':''}
     ${au.role&&needsReportsTo()?auPicker('reportsTo','Reports to',managers(au.id),{req:au.role==='Sales Rep',placeholder:'Select a manager'}):''}
     ${au.role?`<div class="au-sec">Access</div>
@@ -146,10 +149,31 @@ function auFormBody(){
       ${auPicker('see','Records they can see',Object.entries(AU_SEE),{req:true})}
       ${auPicker('areas','CRM access',AU_AREAS,{multi:true,req:true,placeholder:'Select areas',summary:()=>au.areas.length?`${au.areas.length} of ${AU_AREAS.length} areas · ${AU_AREAS.filter(([k])=>au.areas.includes(k)).map(([,l])=>l).slice(0,3).join(', ')}${au.areas.length>3?'…':''}`:''})}
       ${au.mode==='add'&&prof?'<div class="au-hint">Pre-filled from the role. Adjust anything before you add them.</div>':''}`:''}
-    ${au.role==='Sales Rep'?`<div class="au-sec">Selling</div>
-      ${auPicker('approvals','Approval rules',AU_APPROVALS,{req:true,placeholder:'Select approval rules'})}
-      <div class="od-field au-toggle-row"><div><label for="au-rotation">Add to lead rotation</label><div class="au-hint">New leads on their developments can be allocated to them.</div></div><button type="button" id="au-rotation" class="st-toggle ${au.rotation?'on':''}" role="switch" aria-checked="${au.rotation}" onclick="stAuSet('rotation',!stAuState().rotation,true)"><span></span></button></div>`:''}
-    </fieldset><div id="au-error" class="au-error" role="alert"></div>`;
+    ${au.mode!=='add'&&au.role?auPermsHtml():''}
+    ${au.role==='Sales Rep'?`<div class="au-sec">Selling</div>${au.mode==='add'?auApprovalChoices():''}`:''}
+    </fieldset>
+    ${au.role==='Sales Rep'&&au.mode!=='add'?auApprovalSummary():''}
+    ${au.role==='Sales Rep'?`<fieldset class="au-fs" ${auReadOnly()?'disabled':''}><div class="od-field au-toggle-row"><div><label for="au-rotation">Add to lead rotation</label><div class="au-hint">New leads on their developments can be allocated to them.</div></div><button type="button" id="au-rotation" class="st-toggle ${au.rotation?'on':''}" role="switch" aria-checked="${au.rotation}" onclick="stAuSet('rotation',!stAuState().rotation,true)"><span></span></button></div></fieldset>`:''}
+    <div id="au-error" class="au-error" role="alert"></div>`;
+}
+function auApprovalChoices(){
+  return `<div class="od-field"><label id="au-approvals-l">Approvals *</label><div class="au-radios" id="au-approvals" role="radiogroup" aria-labelledby="au-approvals-l">${AU_APPROVAL_CHOICES.map(([v,l,d])=>`<label class="au-radio${au.approvals===v?' on':''}"><input type="radio" name="au-approvals" value="${esc(v)}" ${au.approvals===v?'checked':''} onchange="stAuSet('approvals',this.value,true)"><span><b>${esc(l)}</b><span>${esc(d)}</span></span></label>`).join('')}</div><div class="au-hint">Custom rules can be set in Approvals after the invite.</div></div>`;
+}
+// Read-only summary; the rules themselves live in Settings › Approvals.
+function auApprovalSummary(){
+  const diff=X.apRepDiff?X.apRepDiff(au.id):[];
+  const canEdit=typeof stAccess!=='function'||stAccess('approvals')==='f';
+  return `<div class="od-field"><label>Approvals</label><div class="au-apsum"><span class="au-apsum-t"><b>${esc(AU_APPROVAL_SHORT[au.approvals]||au.approvals||'Team default')}</b>${canEdit?` · <button type="button" class="au-link" onclick="stApFocus('${au.id}')">Edit ›</button>`:''}</span>${diff.length?`<span class="au-hint">${diff.map(esc).join('<br>')}</span>`:'<span class="au-hint">Follows their team’s rules.</span>'}</div></div>`;
+}
+// Permissions start from the role; anything set here differs for this person only and is marked Changed.
+function auPermsHtml(){
+  const r=roleByName(au.role);if(!r)return '';
+  if(r.locked)return `<div class="au-sec">Permissions</div><div class="au-hint">The Owner always has every permission.</div>`;
+  const ro=auReadOnly(),n=Object.keys(au.perms||{}).length,groups=[...new Set(CAPS.map(c=>c.g))];
+  return `<div class="au-sec au-sec-row"><span>Permissions</span>${n&&!ro?`<button type="button" class="au-link" onclick="stAuPermReset()">Reset to role</button>`:''}</div>
+    <div class="au-hint au-perm-h">${n?`${n} changed from the ${esc(r.name)} role.`:`All from the ${esc(r.name)} role.`} Change one to set it for this person only.</div>
+    ${groups.map(g=>`<div class="au-pg">${esc(g)}</div>${CAPS.filter(c=>c.g===g).map(c=>{const def=pSaved(r.key,c.k),chg=c.k in (au.perms||{}),v=chg?au.perms[c.k]:def;
+      return `<div class="rd-row au-perm${chg?' chg':''}" data-cap="${c.k}"><div class="rd-l">${esc(c.l)}${chg?' <span class="au-chg">Changed</span>':''}<span>${chg?`Role default: ${esc(LEVELS[def].l)}`:''}</span></div><div class="rd-seg" role="radiogroup" aria-label="${esc(c.l)}">${c.lv.map(l=>`<button type="button" role="radio" aria-checked="${l===v}" class="${l===v?'on':''}" title="${esc(LEVELS[l].d||LEVELS[l].l)}" onclick="stAuPerm('${c.k}','${l}')">${esc(l==='none'?'None':LEVELS[l].l)}</button>`).join('')}</div></div>`;}).join('')}`).join('')}`;
 }
 function auDeactivateBody(){
   const m=memberBy(au.id),own=crmOwned(m),total=own.opps+own.deals+own.contacts;
@@ -183,13 +207,15 @@ function auOpen(state,title){
   if(au.mode==='add')document.getElementById('au-first')?.focus();
 }
 window.stAuState=()=>au;
-window.stAddUserOpen=()=>auOpen({mode:'add',first:'',last:'',email:'',phone:'',title:'',role:'',reportsTo:'',devScope:'',devs:[],see:'',areas:[],approvals:'',rotation:false},'Add user');
+window.stAddUserOpen=()=>auOpen({mode:'add',first:'',last:'',email:'',phone:'',title:'',role:'',reportsTo:'',devScope:'',devs:[],see:'',areas:[],perms:{},approvals:'',rotation:false},'Add user');
 window.stMemberOpen=id=>{
   const m=memberBy(id); if(!m)return;
   const ro=typeof stAccess==='function'&&stAccess('team')!=='f';
   if(m.role==='Sales Rep'&&X.apRepSummary)m.approvals=X.apRepSummary(m.id);
   auOpen({...structuredClone(m),mode:ro?'view':'edit',lastActive:m.lastSeen,role0:m.role,orig:structuredClone(m)},fullName(m));
 };
+window.stAuPerm=(cap,level)=>{const r=roleByName(au.role);au.perms={...au.perms};if(level===pSaved(r.key,cap))delete au.perms[cap];else au.perms[cap]=level;auRender();};
+window.stAuPermReset=()=>{au.perms={};auRender();};
 window.stAuMode=mode=>{au.mode=mode;au.handoff='';auOpenPicker=null;auRender();document.getElementById('qaDrawerBody').scrollTop=0;};
 window.stAuSet=(key,value,rerender=false)=>{au[key]=value;if(rerender)auRender();};
 window.stAuChoose=(key,value)=>{
@@ -201,7 +227,8 @@ window.stAuChoose=(key,value)=>{
       au.see=prof.see;au.areas=[...prof.areas];
       if(!needsReportsTo())au.reportsTo='';
       if(value==='Admin'){au.devScope='all';au.devs=[];}else if(wasAdmin)au.devScope='';
-      if(value!=='Sales Rep'){au.approvals='';au.rotation=false;}
+      au.perms={};
+      if(value!=='Sales Rep'){au.approvals='';au.rotation=false;}else if(!au.approvals)au.approvals=AU_APPROVALS[0];
     }
     if(key==='devScope'&&value==='all')au.devs=[];
   }
@@ -224,7 +251,7 @@ function auValidate(){
   if(au.role==='Sales Rep'&&!au.approvals)return fail('Select their approval rules','au-approvals');
   return true;
 }
-const FIELD_LABELS={first:'name',last:'name',email:'email',phone:'mobile',title:'job title',role:'role',reportsTo:'manager',devScope:'developments',devs:'developments',see:'record access',areas:'CRM access',approvals:'approval rules',rotation:'lead rotation'};
+const FIELD_LABELS={first:'name',last:'name',email:'email',phone:'mobile',title:'job title',role:'role',reportsTo:'manager',devScope:'developments',devs:'developments',see:'record access',areas:'CRM access',approvals:'approval rules',rotation:'lead rotation',perms:'permissions'};
 function afterChange(){syncTeam();if(typeof stRender==='function')stRender();}
 window.stAuSubmit=()=>{
   if(!auValidate())return;

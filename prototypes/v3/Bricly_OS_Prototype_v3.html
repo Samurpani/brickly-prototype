@@ -1556,8 +1556,10 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
 <link rel="stylesheet" href="deal-convert.css">
 <link rel="stylesheet" href="contact-page.css">
 <link rel="stylesheet" href="dev-editor.css">
+<link rel="stylesheet" href="import-history.css">
 <link rel="stylesheet" href="client-share.css">
 <link rel="stylesheet" href="proposal-admin.css">
+<link rel="stylesheet" href="send-buyer.css">
 <link rel="stylesheet" href="appt-book.css">
 <link rel="stylesheet" href="lead-intake.css">
 <link rel="stylesheet" href="meet-intel.css">
@@ -1689,6 +1691,7 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
             <button class="crm-filter-field" data-label="Source" onclick="crmFilterField(event,toggleFilterMenu,'filter-menu','Source')">Source</button>
             <button class="crm-filter-field" data-label="Max budget" onclick="crmFilterField(event,toggleFilterMenu,'filter-menu','Max budget')">Max budget</button>
             <button class="crm-filter-field" data-label="Tag" onclick="crmFilterField(event,toggleFilterMenu,'filter-menu','Tag')">Tag</button>
+            <button class="crm-filter-field" data-label="Status" onclick="crmFilterField(event,toggleFilterMenu,'filter-menu','Status')">Status</button>
             <div id="active-filters" style="display:contents"></div>
             <div class="filter-menu sort-menu" id="pipe-sort-menu" style="display:none"></div>
             <div class="filter-menu" id="filter-menu" style="display:none"></div>
@@ -1696,7 +1699,7 @@ tr.ct-selrow td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
 
           <div id="pipe-table" style="display:none">
             <table class="table">
-              <thead><tr><th style="width:30px;padding-right:0"><span class="ct-check" id="pipe-selall" onclick="pipeSelAll()"></span></th><th>ID</th><th>Contact</th><th>Development</th><th>Unit</th><th>Stage</th><th>Source</th><th>Value</th></tr></thead>
+              <thead><tr><th style="width:30px;padding-right:0"><span class="ct-check" id="pipe-selall" onclick="pipeSelAll()"></span></th><th>ID</th><th>Contact</th><th>Development</th><th>Unit</th><th>Stage</th><th>Next step</th><th>Next booked</th><th>Source</th><th>Value</th></tr></thead>
               <tbody id="pipe-rows"></tbody>
             </table>
             <div class="table-foot">
@@ -3311,7 +3314,7 @@ function fdToggleBox(btn){ // instant checkbox flip so the popover never has to 
 }
 
 // ---------- Pipeline filter/search/segment state ----------
-const pipeF = {seg:'all', dev:[], rep:[], source:[], budgetMax:[], tags:[], q:'', showClosed:true};
+const pipeF = {seg:'all', dev:[], rep:[], source:[], budgetMax:[], tags:[], status:[], q:'', showClosed:true};
 function pipeAgoDays(ago){ // parses 'Today'/'3 days'/'5 months' style ago strings to a day count
   if(!ago) return 9999;
   if(ago==='Today') return 0;
@@ -3353,6 +3356,7 @@ function filteredOpps(){
     if(pipeF.source.length && !pipeF.source.includes(o.source)) return false;
     if(pipeF.budgetMax.length && (money(o).amt==null||!pipeF.budgetMax.some(b=>money(o).amt<=b))) return false;
     if(pipeF.tags.length && !pipeF.tags.every(t=>o.tags.includes(t))) return false;
+    if(pipeF.status.length && typeof ospMatches==='function' && !pipeF.status.some(k=>ospMatches(o,k))) return false;
     if(pipeF.q){
       const hay=(o.lead+' '+o.devs.join(' ')+' '+o.id+' '+o.units.join(' ')).toLowerCase();
       if(!hay.includes(pipeF.q.toLowerCase())) return false;
@@ -3472,6 +3476,7 @@ function renderRows(){
       <td>${projCell(o.devs,o.id)}</td>
       <td>${unitRefsHtml(o)}</td>
       <td>${o.stage}</td>
+      ${typeof ospCellsHtml==='function'?ospCellsHtml(o):'<td></td><td></td>'}
       <td>${o.source}</td>
       <td class="cell-strong">${moneyText(o)} <span class="money-lbl">${money(o).label}</span></td>
     </tr>`;}).join('');
@@ -3499,11 +3504,11 @@ function renderBoard(){
           <div class="card-head"><span class="opp-card-lead" role="link" tabindex="0" title="Open ${xesc(o.lead)}" onclick="event.stopPropagation();openOpp('${o.id}')" onkeydown="if(event.key==='Enter'){event.stopPropagation();openOpp('${o.id}')}">${xesc(o.lead)}</span>${o.stage==='Closed Won'?'<span class="opp-closed-tag">Closed</span>':''}<span class="opp-card-actions">${oppClaimIcon(o)}<button type="button" class="opp-more-btn" title="Opportunity actions" aria-label="Actions for ${xesc(o.lead)}" aria-haspopup="menu" onclick="oppCardMenuOpen(event,'${o.id}')">···</button></span></div>
           <div class="card-row opp-money-row" title="${xesc(oppCardMoneyLabel(o))}: ${xesc(moneyText(o))}"><span class="opp-currency-icon" title="${xesc(oppCardMoneyLabel(o))}" aria-label="${xesc(oppCardMoneyLabel(o))}">€</span>${oppCardMoneyText(o)}<span class="opp-money-status is-${oppCardMoneyLabel(o).toLowerCase()}" title="${xesc(oppCardMoneyLabel(o))}" aria-label="${xesc(oppCardMoneyLabel(o))}"></span></div>
           <div class="card-row"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><title>Unit</title><path d="M2 6.2L7 2l5 4.2v5.5H8.8V8.2H5.2v3.5H2z"/></svg>${unitRefsHtml(o)}</div>
-          <div class="card-row opp-next-action" title="${xesc(oppNextAction(o))}"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><title>Action</title><rect x="2.2" y="2.2" width="9.6" height="10" rx="1.4"/><path d="M4.5 5h4.8M4.5 7.5h4.8M4.5 10h2.6"/></svg><span>${xesc(oppNextAction(o))}</span></div>
+          ${typeof ospCardRows==='function'?ospCardRows(o):''}
           <div class="card-row opp-source-row" title="Lead source: ${xesc(o.source||'Not recorded')}"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><title>Lead source</title><path d="M1.5 5v4h2l6 2V3l-6 2h-2zM3.5 9l1 3h2L5.5 9M10 5l2-1v6l-2-1"/></svg><span>${xesc(o.source||'Not recorded')}</span></div>
           <div class="card-row opp-source-row" title="Buyer type: ${xesc(buyerTypeFor(o))}"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><title>Buyer type</title><circle cx="7" cy="4.5" r="2.5"/><path d="M2 12.5c.6-2.6 2.6-4 5-4s4.4 1.4 5 4"/></svg><span>${xesc(buyerTypeFor(o))}</span></div>
           ${tagChipsHtml(o.tags)}
-          ${appt?`<button type="button" class="opp-event-chip" title="${xesc(appt.label+' · '+(appt.when||''))}" onclick="event.stopPropagation();oppEventOpen('${o.id}')">${PIPE_CAL_ICON}<span>${xesc(appt.label)}${appt.when?` · ${xesc(appt.when)}`:''}</span></button>`:''}
+          ${appt&&typeof ospCardRows!=='function'?`<button type="button" class="opp-event-chip" title="${xesc(appt.label+' · '+(appt.when||''))}" onclick="event.stopPropagation();oppEventOpen('${o.id}')">${PIPE_CAL_ICON}<span>${xesc(appt.label)}${appt.when?` · ${xesc(appt.when)}`:''}</span></button>`:''}
           ${typeof docCardChip==='function'?docCardChip(o):''}
           <div class="card-foot">
             <div class="opp-card-dev"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><title>Development</title><path d="M2 12V4.2L7 2l5 2.2V12M1 12h12M5 12V8h4v4"/></svg>${devChipsHtml(o.devs,o.id)}</div>
@@ -3605,7 +3610,8 @@ function filterMenuHtml(){
     +fdGroup('Rep',FILTER_OPTS.rep,v=>pipeF.rep.includes(v),v=>`setFilter('rep','${v}')`)
     +fdGroup('Source',FILTER_OPTS.source,v=>pipeF.source.includes(v),v=>`setFilter('source','${v}')`)
     +fdGroup('Max budget',FILTER_OPTS.budget,v=>pipeF.budgetMax.includes(v),v=>`setFilter('budgetMax',${v})`,{text:v=>`≤ ${eurK(v)}`})
-    +fdGroup('Tag',FILTER_OPTS.tag,v=>pipeF.tags.includes(v),v=>`setFilter('tags','${v}')`);
+    +fdGroup('Tag',FILTER_OPTS.tag,v=>pipeF.tags.includes(v),v=>`setFilter('tags','${v}')`)
+    +(typeof OSP_FILTERS!=='undefined'?fdGroup('Status',OSP_FILTERS,v=>pipeF.status.includes(v),v=>`setFilter('status','${v}')`,{value:f=>f[0],text:f=>f[1]}):'');
 }
 function toggleFilterMenu(e){
   e.stopPropagation();
@@ -3644,13 +3650,14 @@ function setFilter(type,val,btn){
   pipeRenderAll();
 }
 function clearAllFilters(){
-  pipeF.dev=[];pipeF.rep=[];pipeF.source=[];pipeF.budgetMax=[];pipeF.tags=[];
+  pipeF.dev=[];pipeF.rep=[];pipeF.source=[];pipeF.budgetMax=[];pipeF.tags=[];pipeF.status=[];
   pipeRenderAll();
 }
 function renderActiveFilters(){
   const any=crmSyncFilterChips('filter-row',{
     Development:pipeF.dev, Rep:pipeF.rep, Source:pipeF.source,
-    'Max budget':pipeF.budgetMax.map(v=>'\u2264 \u20ac'+v+'k'), Tag:pipeF.tags
+    'Max budget':pipeF.budgetMax.map(v=>'\u2264 \u20ac'+v+'k'), Tag:pipeF.tags,
+    Status:pipeF.status.map(k=>(typeof OSP_FILTERS!=='undefined'&&OSP_FILTERS.find(f=>f[0]===k)||[k,k])[1])
   });
   document.getElementById('active-filters').innerHTML = any?`<span class="fclear" onclick="clearAllFilters()">Clear all</span>`:'';
   sortSyncTrigger('pipeline');
@@ -5310,7 +5317,8 @@ function oppQuickEditOpen(id,field){
   if(field==='devs'||field==='units'){
     const options=field==='devs'?DEVS.map(d=>({id:d.name,label:d.name})):UNITS.map(u=>({id:u.id,label:`${u.id.replace(/^#/,'')} · ${u.dev} · ${fmtK(u.price)}`}));
     const selected=field==='devs'?o.devs:o.units;
-    body=`<div class="opp-edit-options">${options.map(option=>`<label><input type="checkbox" name="oppQuickChoice" value="${xesc(option.id)}" ${selected.includes(option.id)?'checked':''}><span>${xesc(option.label)}</span></label>`).join('')}</div>`;
+    const tag=id=>field==='units'&&typeof uhPickStatus==='function'?uhPickStatus(o,UN(id)):null;
+    body=`<div class="opp-edit-options">${options.map(option=>{const st=tag(option.id),off=st&&!st.ok&&!selected.includes(option.id);return `<label class="${off?'is-off':''}"><input type="checkbox" name="oppQuickChoice" value="${xesc(option.id)}" ${selected.includes(option.id)?'checked':''} ${off?'disabled':''}><span>${xesc(option.label)}</span>${st?uhPickTag(st):''}</label>`;}).join('')}</div>`;
   }else if(field==='tags'){
     const choices=[...new Set(OPPS.flatMap(item=>item.tags))].sort();
     body=`<div class="opp-edit-options">${choices.map(tag=>`<label><input type="checkbox" name="oppQuickChoice" value="${xesc(tag)}" ${o.tags.includes(tag)?'checked':''}><span>${xesc(tag)}</span></label>`).join('')}</div>
@@ -5427,7 +5435,7 @@ function oppHeadHtml(o,j,comp){
           <button onclick="crAct('inMeetingOpen')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="5" y="1.5" width="4" height="7" rx="2"/><path d="M3 7a4 4 0 008 0M7 11v1.5"/></svg>Log meeting</button>
           <button onclick="crAct('oppAddTask')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="2" width="10" height="10" rx="2"/><path d="M4.8 7l1.6 1.6L9.4 5.6"/></svg>Add task</button>
           <button onclick="crAct('oppPosOpen')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M3 11.5l1.5-.3 6-6-1.2-1.2-6 6zM8.5 3.8l1.2 1.2"/><path d="M2 12.5h10"/></svg>Book POS signing</button>
-          ${typeof dcCanCreate==='function'&&dcCanCreate(o)?`<button onclick="crAct('dcOpenFromActions')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 1.5l1.6 3.3 3.6.5-2.6 2.5.6 3.6L7 9.7l-3.2 1.7.6-3.6L1.8 5.3l3.6-.5z"/></svg>Convert to deal</button>`:''}
+          ${typeof dcCanCreate==='function'&&dcCanCreate(o)?`<button onclick="crAct('dcOpenFromActions')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 1.5l1.6 3.3 3.6.5-2.6 2.5.6 3.6L7 9.7l-3.2 1.7.6-3.6L1.8 5.3l3.6-.5z"/></svg>Create deal</button>`:''}
           <button onclick="crAct('oppOfferOpen')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 7.5l4.5-4.5H11v4.5L6.5 12z"/><circle cx="9" cy="5" r=".8"/></svg>Log an offer</button>`}
         </div>
       </div>
@@ -5968,7 +5976,6 @@ function detailsHtml(o,x,ji){
         ${oppDtPicker(o,'rep','Assigned rep',repOptions,o.rep)}
         ${oppDtPicker(o,'devs','Developments',devOptions,o.devs,true)}
         ${oppDtPicker(o,'units','Units',unitOptions,o.units,true)}
-        ${oppDtText(o,'nextAction','Next action',oppNextAction(o))}
         ${oppDtTags(o,'tags','Tags','tag')}
         <div class="opp-detail-readonly"><span>Created</span><b>${xesc(contact.created||'—')}</b></div>
         <div class="opp-detail-readonly"><span>Last activity</span><b>${xesc(o.ago||'—')}</b></div>
@@ -10563,7 +10570,7 @@ const DB_WIDGETS = {
   mkt_campaigns:{title:'Campaign spend',sub:()=>dbPeriodInfo().label,size:'half',render(){
     const sc=dbPeriodInfo().scale;
     return `<div class="db-list">${DB_MKT.map(c=>{const spend=Math.round(c.spend*sc),leads=Math.round(c.leads*sc);return `<div class="db-list-row" style="cursor:default">
-        <span style="min-width:130px">${c.ch}</span><span class="db-muted">€${spend} spend</span><span class="db-muted">${leads} leads</span>
+        <span style="min-width:130px">${c.ch}</span><span class="db-muted">€${spend.toLocaleString('en-US')} spend</span><span class="db-muted">${leads} leads</span>
         <span class="pill ${c.flag?'p-hold':'p-avail'}">${c.flag||('€'+c.cpl+' CPL')}</span>
       </div>`;}).join('')}</div>`;
   }},
@@ -14424,6 +14431,8 @@ function crReversion(uid){
 <script src="client-share.js"></script>
 <script src="custom-pack.js"></script>
 <script src="appt-book.js"></script>
+<script src="opp-offer.js"></script>
+<script src="opp-strip.js"></script>
 <script src="perf-data.js"></script>
 <script src="performance.js"></script>
 <script src="newdev-data.js"></script>
@@ -14443,6 +14452,7 @@ function crReversion(uid){
 <script src="present-v3-sales.js"></script>
 <script src="meet-intel.js"></script>
 <script src="mgmt-vis.js"></script>
+<script src="screen-registry.js"></script>
 <style>
 .tb-search{cursor:pointer;text-align:left;color:var(--on-variant);min-width:0}
 .tb-search:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
@@ -15194,7 +15204,10 @@ for(const id of ['ui-import-close','ui-import-cancel'])document.getElementById(i
 document.addEventListener('click',event=>{if(!event.target.closest('#ui-import-actions'))uiImportMenuClose();});
 uiImportActions();
 </script>
+<script src="import-history.js"></script>
 <script src="proposal/proposal-std.js"></script>
 <script src="proposal-admin.js"></script>
+<script src="send-buyer.js"></script>
+<script src="money-format.js"></script>
 </body>
 </html>

@@ -53,13 +53,24 @@ function llDraft(act,arg){
   renderOpp(); if(typeof pipeRenderAll==='function')pipeRenderAll();
 }
 // ---------- S08 · action drawer with optional checklist (POS signing) ----------
-const LL_POS_CHECK=['Draft POS reviewed by the notary','Deposit amount confirmed with the buyer','ID document on file','Payment plan agreed','Bank offer letter received'];
+// The checklist is set in Settings › Sales › Documents (POS checklist). LL_POS_CHECK is the live list the booking drawer reads.
+const LL_POS_DEFAULT=['Draft POS reviewed by the notary','Deposit amount confirmed with the buyer','ID document on file','Payment plan agreed','Bank offer letter received'];
+const LL_POS_KEY='bricly.posChecklist';
+const LL_POS_CHECK=[...LL_POS_DEFAULT];
+let LL_POS_ON=true;
+try{const saved=JSON.parse(localStorage.getItem(LL_POS_KEY)||'null');if(saved){LL_POS_ON=saved.on!==false;if(Array.isArray(saved.items))LL_POS_CHECK.splice(0,LL_POS_CHECK.length,...saved.items.map(String));}}catch(e){/* storage unavailable: defaults */}
+function llPosOn(){return LL_POS_ON&&LL_POS_CHECK.length>0;}
+function llPosSet(on,items){
+  if(on!==undefined) LL_POS_ON=!!on;
+  if(items) LL_POS_CHECK.splice(0,LL_POS_CHECK.length,...items);
+  try{localStorage.setItem(LL_POS_KEY,JSON.stringify({on:LL_POS_ON,items:LL_POS_CHECK}));}catch(e){/* keep in memory */}
+}
 function oppPosOpen(){
   const o=oppCur;
   const body=`<div class="od-field"><label>Unit</label><input value="${xesc(o.units.join(', ')||'—')}" readonly></div>
     <div class="od-field"><label for="llPosDate">Date</label><input id="llPosDate" type="date"></div>
     <div class="od-field"><label for="llPosTime">Time</label><input id="llPosTime" type="time" value="11:00"></div>
-    <div class="od-field"><label>Before the signing <span class="ll-mu">· optional, set in Settings</span></label><div class="ll-check" id="llPosCheck">${LL_POS_CHECK.map((t,i)=>`<label><input type="checkbox" data-i="${i}" onchange="llPosCount()"> ${t}</label>`).join('')}</div><span class="ll-mu" id="llPosCount">0 of ${LL_POS_CHECK.length} ticked · you can book now</span></div>`;
+    ${llPosOn()?`<div class="od-field"><label>Before the signing <span class="ll-mu">· optional, set in Settings</span></label><div class="ll-check" id="llPosCheck">${LL_POS_CHECK.map((t,i)=>`<label><input type="checkbox" data-i="${i}" onchange="llPosCount()"> ${xesc(t)}</label>`).join('')}</div><span class="ll-mu" id="llPosCount">0 of ${LL_POS_CHECK.length} ticked · you can book now</span></div>`:''}`;
   qaDrawerOpen('Book POS signing',body,`<button class="btn-ghost" onclick="qaDrawerClose()">Cancel</button><button class="btn-primary" onclick="oppPosBook()">Book POS signing</button>`);
 }
 function llPosCount(){const n=document.querySelectorAll('#llPosCheck input:checked').length;document.getElementById('llPosCount').textContent=`${n} of ${LL_POS_CHECK.length} ticked · you can book now`;}

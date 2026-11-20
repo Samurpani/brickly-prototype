@@ -411,6 +411,45 @@ if(typeof pipeRefreshFilterOptions==='function'){
 }
 crmSync();
 
+// ================= POS checklist =================
+// What reps can tick before a promise of sale signing. The Book POS signing dialog reads it (lead-lifecycle.js keeps the list
+// and saves it in this browser). Turning it off hides the checklist in the dialog; it never blocks a booking.
+const posOk=()=>typeof LL_POS_CHECK!=='undefined'&&typeof llPosSet==='function';
+function posCheckHtml(){
+  if(!posOk()) return '<div class="st-sub">Not available.</div>';
+  const R=ro(), on=LL_POS_ON, n=LL_POS_CHECK.length;
+  return `<div class="pc-wrap" id="st-pos-check">
+    <div class="pc-top"><div><b>Show the checklist</b><div class="st-sub">${on?'Reps see it in the Book POS signing dialog.':'Hidden in the Book POS signing dialog.'}</div></div>
+      <button type="button" class="st-toggle ${on?'on':''}" role="switch" aria-checked="${on}" aria-label="Show the POS checklist" ${R?'disabled':''} onclick="stPosToggle()"><span></span></button></div>
+    <ol class="pc-list ${on?'':'off'}" aria-label="POS checklist items">${LL_POS_CHECK.map((t,i)=>`<li class="pc-row">
+      <span class="pc-n">${i+1}</span>
+      <input class="pc-in" value="${esc(t)}" aria-label="Checklist item ${i+1}" ${R?'disabled':''} onchange="stPosRename(${i},this.value)">
+      ${R?'':`<button type="button" class="pc-b" aria-label="Move item ${i+1} up" ${i===0?'disabled':''} onclick="stPosMove(${i},-1)">↑</button><button type="button" class="pc-b" aria-label="Move item ${i+1} down" ${i===n-1?'disabled':''} onclick="stPosMove(${i},1)">↓</button><button type="button" class="pc-b pc-del" aria-label="Delete item ${i+1}" onclick="stPosDel(${i})">Delete</button>`}
+    </li>`).join('')||'<li class="pc-row st-sub">No items. Add one below.</li>'}</ol>
+    ${R?'':`<div class="pc-add"><input id="st-pos-new" class="pc-in" placeholder="Add an item" aria-label="New checklist item" onkeydown="if(event.key==='Enter'){event.preventDefault();stPosAdd()}"><button type="button" class="btn-ghost" onclick="stPosAdd()">Add item</button></div>`}
+  </div>`;
+}
+const posSave=(items,toast)=>{llPosSet(undefined,items);stRender();if(toast)showToast(toast);};
+window.stPosToggle=()=>{if(!posOk()||ro())return;llPosSet(!LL_POS_ON);stRender();showToast(LL_POS_ON?'POS checklist shown':'POS checklist hidden');};
+window.stPosRename=(i,v)=>{v=String(v).trim();if(!v){showToast('An item needs a name');stRender();return;}const l=[...LL_POS_CHECK];l[i]=v;posSave(l,'Checklist item renamed');};
+window.stPosMove=(i,d)=>{const l=[...LL_POS_CHECK],j=i+d;if(j<0||j>=l.length)return;[l[i],l[j]]=[l[j],l[i]];posSave(l);requestAnimationFrame(()=>document.querySelector(`#st-pos-check [aria-label="Move item ${j+1} ${d<0?'up':'down'}"]`)?.focus());};
+window.stPosDel=i=>{const l=[...LL_POS_CHECK],[gone]=l.splice(i,1);posSave(l,`Removed: ${gone}`);};
+window.stPosAdd=()=>{const el=document.getElementById('st-pos-new'),v=(el?.value||'').trim();if(!v){el?.focus();return;}if(LL_POS_CHECK.some(t=>t.toLowerCase()===v.toLowerCase())){showToast('That item is already on the list');return;}posSave([...LL_POS_CHECK,v],'Checklist item added');setTimeout(()=>document.getElementById('st-pos-new')?.focus());};
+(function(){
+  if(document.getElementById('st-pos-css'))return;
+  const c=document.createElement('style');c.id='st-pos-css';
+  c.textContent=`.app .pc-wrap{padding:4px 0}.app .pc-top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:10px 16px;border-bottom:1px solid var(--outline-variant)}
+.app .pc-list{list-style:none;margin:0;padding:0}.app .pc-list.off{opacity:.55}
+.app .pc-row{display:flex;align-items:center;gap:8px;padding:8px 16px;border-bottom:1px solid var(--outline-variant)}
+.app .pc-n{width:20px;color:var(--on-variant);font-size:12.5px;text-align:right}
+.app .pc-in{flex:1;min-width:0;border:1px solid transparent;border-radius:6px;padding:5px 8px;font:inherit;font-size:13.5px;background:transparent}
+.app .pc-in:hover,.app .pc-in:focus{border-color:var(--outline);background:var(--surface)}
+.app .pc-b{border:1px solid var(--outline);background:var(--surface);border-radius:6px;padding:3px 8px;font-size:12.5px;cursor:pointer;color:var(--on-surface)}
+.app .pc-b:disabled{opacity:.4;cursor:default}.app .pc-del{color:var(--crm-error)}
+.app .pc-add{display:flex;gap:8px;padding:10px 16px}.app .pc-add .pc-in{border-color:var(--outline);background:var(--surface)}`;
+  document.head.appendChild(c);
+})();
+
 // ---------- Page wiring ----------
 const C=(k,title,desc,render,extra={})=>({k:'custom',title,desc,render,...extra});
 const addLink=(label,fn)=>`<div class="ss-add"><button type="button" class="au-link" ${ro()?'disabled':''} onclick="${fn}">+ ${esc(label)}</button></div>`;
@@ -437,6 +476,7 @@ al.b=[C('custom','Per development','Open a development to override the workspace
   C('custom','Reps who take part','Drag to set the rotation order. Open a rep to pause them for holidays, change their weight or set a limit.',()=>repsHtml())];
 const dc=P['sales/docs'];
 dc.b=DOC_STAGES.map(s=>C('custom',s,s==='Reservation'?'Drag to reorder. Required documents can block the stage until they’re in.':'',()=>docsHtml(s)+addLink(`Add ${s.toLowerCase()} document`,`stDocOpen(null,${js(s)})`)));
+dc.b.push(C('custom','POS checklist','What reps can tick before a promise of sale signing. It never blocks the booking.',()=>posCheckHtml()));
 dc.acts=[['Add document','f:stDocOpen']];
 const pl=P['sales/plans'];
 pl.b=[C('custom','Payment plan templates','A starting point for each deal. Open one to change its milestones.',()=>plansHtml())];

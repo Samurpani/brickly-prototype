@@ -212,35 +212,191 @@ function cvLinksOpen(){
     <div class="cv-mu" style="margin-top:12px">Booking hours: Mon–Fri 09:00–18:00, Sat 10:00–13:00 · 15 min gap · 4 hours’ notice${cvGcal!=='connected'?' · <b>paused until Google Calendar syncs</b>':''}</div>`;
   qaDrawerOpen('Booking links',body,`<button class="btn-ghost" onclick="qaDrawerClose();go('settings');stGo('p:calendar')">Calendar settings</button><button class="btn-primary" onclick="qaDrawerClose()">Done</button>`);
 }
+// The public booking page, shown full screen as the client sees it. Month calendar + times, then details, then confirmation.
 let cvBk=null;
-function cvBookOpen(type){
+// Meeting platforms. Only Google Meet creates links today; Zoom and Teams take a pasted link until their integration ships.
+const CV_PLATFORMS=[['meet','Google Meet',null,'meet.google.com/…'],['zoom','Zoom','Date to be confirmed','zoom.us/j/…'],['teams','Microsoft Teams','Date to be confirmed','teams.microsoft.com/l/…']];
+function cvPlatform(k){return CV_PLATFORMS.find(p=>p[0]===k)||CV_PLATFORMS[0];}
+// One picker used by Book appointment and booking settings. onPick/onLink are JS snippets taking the value as `v`.
+function cvPlatformHtml(cur,onPick,link,onLink,id){
+  const p=cvPlatform(cur);
+  return `<div class="ab-plat" role="radiogroup" aria-label="Meeting platform">${CV_PLATFORMS.map(([k,l,soon])=>`<label class="ab-plat-o ${k===cur?'on':''}"><input type="radio" name="${id}-plat" value="${k}" ${k===cur?'checked':''} onchange="${onPick.replace(/\bv\b/g,`'${k}'`)}"><span><b>${l}</b><span class="ab-mu">${soon?`Coming soon · ${soon}`:'Link created automatically'}</span></span></label>`).join('')}</div>
+    ${p[2]?`<div class="ab-plat-own"><label for="${id}-link">Paste your own ${p[1]} link</label><input id="${id}-link" type="url" placeholder="https://${p[3]}" value="${xesc(link||'')}" oninput="${onLink}"><div class="ab-mu">Automatic ${p[1]} links aren’t available yet. The link you paste goes in the confirmation.</div></div>`
+      :'<div class="ab-mu">A private Google Meet link is created for each booking and goes in the confirmation.</div>'}`;
+}
+function cvBkPlat(){return typeof CVS!=='undefined'?cvPlatform(CVS.platform):CV_PLATFORMS[0];}
+function cvBkTeam(){return typeof CVS!=='undefined'&&CVS.cal==='account';}
+function cvBkWho(){return cvBkTeam()?`the ${cvBkDev().name} team`:CV_ME;}
+const CV_BK_CC=[['+356','Malta'],['+44','UK'],['+353','Ireland'],['+39','Italy'],['+49','Germany'],['+33','France'],['+31','Netherlands'],['+46','Sweden'],['+1','US / Canada']];
+const CV_BK_BUDGET=['Under €250,000','€250,000 to €400,000','€400,000 to €600,000','€600,000 to €1M','Over €1M'];
+const CV_BK_MEET='meet.google.com/kpx-rqwt-bnm';
+const CV_BK_IC={
+  clock:'<circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.5 1.5"/>',pin:'<path d="M8 14s4.5-4.2 4.5-7.5a4.5 4.5 0 0 0-9 0C3.5 9.8 8 14 8 14z"/><circle cx="8" cy="6.5" r="1.6"/>',
+  video:'<rect x="1.5" y="4" width="9" height="8" rx="1.5"/><path d="M10.5 7l4-2.2v6.4l-4-2.2"/>',phone:'<path d="M3 2h3l1 3-1.8 1.2a8 8 0 0 0 3.6 3.6L10 8l3 1v3a1.5 1.5 0 0 1-1.6 1.5A11.5 11.5 0 0 1 1.5 3.6 1.5 1.5 0 0 1 3 2z"/>',
+  user:'<circle cx="8" cy="5.5" r="2.8"/><path d="M2.5 14c.6-3 2.8-4.5 5.5-4.5s4.9 1.5 5.5 4.5"/>',globe:'<circle cx="8" cy="8" r="6.2"/><path d="M1.8 8h12.4M8 1.8c2 2 2 10.4 0 12.4M8 1.8c-2 2-2 10.4 0 12.4"/>',
+  cal:'<rect x="2" y="3" width="12" height="11" rx="1.5"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3"/>',check:'<path d="M3.5 8.5l3 3 6-7"/>',
+  prev:'<path d="M10 3L5 8l5 5"/>',next:'<path d="M6 3l5 5-5 5"/>'};
+function cvBkIc(k){return `<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${CV_BK_IC[k]}</svg>`;}
+function cvBkType(){const [k,l,dur]=CV_LINKS.find(x=>x[0]===cvBk.type)||CV_LINKS[0];return {k,l,dur};}
+function cvBkDev(){const name=String(cvBk.devFromLink||'La Lex').split(',')[0].trim();return (typeof DEVS!=='undefined'&&DEVS.find(d=>d.name===name))||{name,loc:'Malta'};}
+function cvBkPlace(){const t=cvBkType(),d=cvBkDev();return t.k==='video'?cvBkPlat()[1]:t.k==='call'?'Phone call':`${d.name} sales suite, ${d.loc}`;}
+function cvBkTz(iso){
+  try{const p=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Malta',timeZoneName:'short'}).formatToParts(new Date(iso+'T12:00:00'));return 'Malta time ('+p.find(x=>x.type==='timeZoneName').value+')';}
+  catch(e){return 'Malta time';}
+}
+function cvBkLong(iso,year){return new Date(iso+'T00:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',...(year?{year:'numeric'}:{})});}
+function cvBkLast(){const ahead=typeof CVS!=='undefined'?parseInt(CVS.rules.window)||30:30;const d=cvToday();d.setDate(d.getDate()+ahead);return d;}
+function cvBkFree(iso){return cvFreeSlots(iso,cvBkType().dur,'client');}
+function cvBookOpen(type,opts={}){
   if(cvGcal!=='connected'){showToast('The booking link is paused until Google Calendar syncs again');return;}
-  qaDrawerClose(); cvBk={type,step:'pick',day:null,slot:null,name:'',phone:'',email:'',consent:true}; cvBookRender();
+  qaDrawerClose();
+  cvBk={type,step:'pick',day:null,slot:null,month:null,size:'desktop',tried:false,devFromLink:opts.dev||'La Lex',
+    name:'',cc:'+356',phone:'',email:'',dev:[opts.dev||'La Lex',opts.unit].filter(Boolean).join(', '),budget:'',msg:'',consent:false};
+  for(let i=0;i<=62&&!cvBk.day;i++){const iso=cvISO(cvOffsetDate(i));if(new Date(iso+'T00:00:00')>cvBkLast())break;if(cvBkFree(iso).length)cvBk.day=iso;}
+  cvBk.month=(cvBk.day||cvISO(cvToday())).slice(0,7);
+  cvBookRender();
+  document.getElementById('cvPub')?.querySelector('.bp-title')?.focus();
+}
+function cvBookClose(){document.getElementById('cvPub')?.remove();document.removeEventListener('keydown',cvBkKey);}
+function cvBkKey(e){if(e.key==='Escape')cvBookClose();}
+function cvBkMonth(dir){
+  const [y,m]=cvBk.month.split('-').map(Number), d=new Date(y,m-1+dir,1);
+  cvBk.month=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; cvBookRender();
+}
+function cvBkCalHtml(){
+  const [y,m]=cvBk.month.split('-').map(Number), first=new Date(y,m-1,1), days=new Date(y,m,0).getDate();
+  const today=cvToday(), last=cvBkLast(), lead=(first.getDay()+6)%7;
+  const canPrev=first>new Date(today.getFullYear(),today.getMonth(),1), canNext=new Date(y,m,1)<=last;
+  const cells=[...Array(lead)].map(()=>'<span class="bp-blank"></span>');
+  for(let n=1;n<=days;n++){
+    const iso=`${y}-${String(m).padStart(2,'0')}-${String(n).padStart(2,'0')}`, dt=new Date(iso+'T00:00:00');
+    const free=dt>=today&&dt<=last?cvBkFree(iso).length:0, sel=iso===cvBk.day, isToday=iso===cvISO(today);
+    const label=`${cvBkLong(iso)}, ${free?free+(free===1?' time':' times')+' free':'no free times'}`;
+    cells.push(free?`<button type="button" class="bp-day free ${sel?'sel':''} ${isToday?'today':''}" aria-pressed="${sel}" aria-label="${label}" data-day="${iso}" onclick="cvBk.day='${iso}';cvBk.slot=null;cvBookRender()">${n}</button>`
+      :`<button type="button" class="bp-day ${isToday?'today':''}" disabled aria-label="${label}" data-day="${iso}">${n}</button>`);
+  }
+  return `<section class="bp-cal" aria-label="Choose a day">
+    <div class="bp-cal-h"><button type="button" class="bp-nav" aria-label="Previous month" ${canPrev?'':'disabled'} onclick="cvBkMonth(-1)">${cvBkIc('prev')}</button>
+      <b aria-live="polite">${first.toLocaleDateString('en-GB',{month:'long',year:'numeric'})}</b>
+      <button type="button" class="bp-nav" aria-label="Next month" ${canNext?'':'disabled'} onclick="cvBkMonth(1)">${cvBkIc('next')}</button></div>
+    <div class="bp-grid">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d=>`<span class="bp-dow">${d}</span>`).join('')}${cells.join('')}</div>
+    <div class="bp-legend"><span><i class="bp-k free"></i>Times free</span><span><i class="bp-k"></i>Fully booked or closed</span></div>
+  </section>`;
+}
+function cvBkTimesHtml(){
+  if(!cvBk.day) return `<section class="bp-times"><div class="bp-empty">Pick a day to see free times.</div></section>`;
+  const t=cvBkType(), slots=cvBkFree(cvBk.day);
+  return `<section class="bp-times" aria-label="Choose a time">
+    <h2 class="bp-h2">${cvBkLong(cvBk.day)}</h2>
+    <div class="bp-tz">${cvBkIc('globe')}Times are in ${cvBkTz(cvBk.day)}</div>
+    <div class="bp-slots">${slots.map(s=>`<button type="button" class="bp-slot ${s===cvBk.slot?'on':''}" aria-pressed="${s===cvBk.slot}" onclick="cvBk.slot='${s}';cvBookRender()">${s}</button>`).join('')||'<div class="bp-empty">No free times left on this day.</div>'}</div>
+    <button type="button" class="btn-primary bp-next" ${cvBk.slot?'':'disabled'} onclick="cvBk.step='form';cvBookRender()">${cvBk.slot?`Next: ${cvBk.slot} to ${cvHm(cvMins(cvBk.slot)+t.dur)}`:'Pick a time'}</button>
+  </section>`;
+}
+function cvBkSumHtml(){
+  const t=cvBkType(), end=cvHm(cvMins(cvBk.slot)+t.dur);
+  return `<aside class="bp-sum">
+    <div class="bp-sum-t">${t.l}, ${t.dur} min</div>
+    <div class="bp-sum-r">${cvBkIc('cal')}<span>${cvBkLong(cvBk.day,true)}</span></div>
+    <div class="bp-sum-r">${cvBkIc('clock')}<span>${cvBk.slot} to ${end}<br><span class="bp-mu">${cvBkTz(cvBk.day)}</span></span></div>
+    <div class="bp-sum-r">${cvBkIc(t.k==='video'?'video':t.k==='call'?'phone':'pin')}<span>${xesc(cvBkPlace())}</span></div>
+    <button type="button" class="bp-link" onclick="cvBk.step='pick';cvBookRender()">Change day or time</button>
+  </aside>`;
+}
+const CV_BK_REQ={name:'cv-bk-name',phone:'cv-bk-phone',email:'cv-bk-email',consent:'cv-bk-consent'};
+function cvBkErrors(){
+  const e={};
+  if(cvBk.name.trim().length<2) e.name='Enter your full name';
+  const digits=cvBk.phone.replace(/\D/g,'');
+  if(!digits) e.phone='Enter your WhatsApp number'; else if(digits.length<6) e.phone='This number looks too short';
+  if(!cvBk.email.trim()) e.email='Enter your email'; else if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cvBk.email.trim())) e.email='Enter an email like name@example.com';
+  if(!cvBk.consent) e.consent='Tick the box so we can contact you about this booking';
+  return e;
+}
+function cvBkSet(k,v){
+  cvBk[k]=v; if(!cvBk.tried||!CV_BK_REQ[k]) return;
+  const err=cvBkErrors()[k], el=document.getElementById(CV_BK_REQ[k]), msg=document.getElementById(CV_BK_REQ[k]+'-err');
+  el?.setAttribute('aria-invalid',err?'true':'false'); el?.closest('.bp-f')?.classList.toggle('bad',!!err); if(msg) msg.textContent=err||'';
+}
+function cvBkFormHtml(){
+  const e=cvBk.tried?cvBkErrors():{}, devs=typeof DEVS!=='undefined'?DEVS.map(d=>d.name):[];
+  const req='<span class="bp-req" aria-hidden="true">*</span>';
+  const field=(k,label,input)=>`<div class="bp-f ${e[k]?'bad':''}"><label for="${CV_BK_REQ[k]}">${label} ${req}</label>${input}<div class="bp-err" id="${CV_BK_REQ[k]}-err">${e[k]||''}</div></div>`;
+  const inv=k=>`aria-invalid="${!!e[k]}" aria-describedby="${CV_BK_REQ[k]}-err" required`;
+  return `<div class="bp-two">${cvBkSumHtml()}
+    <form class="bp-form" novalidate onsubmit="event.preventDefault();cvBookConfirm()">
+      <h2 class="bp-h2">Your details</h2>
+      ${field('name','Full name',`<input id="cv-bk-name" autocomplete="name" value="${xesc(cvBk.name)}" oninput="cvBkSet('name',this.value)" ${inv('name')}>`)}
+      ${field('phone','WhatsApp number',`<div class="bp-tel"><select id="cv-bk-cc" aria-label="Country code" onchange="cvBk.cc=this.value">${CV_BK_CC.map(([c,n])=>`<option value="${c}" ${c===cvBk.cc?'selected':''}>${n} ${c}</option>`).join('')}</select><input id="cv-bk-phone" type="tel" autocomplete="tel-national" inputmode="tel" placeholder="7912 3456" value="${xesc(cvBk.phone)}" oninput="cvBkSet('phone',this.value)" ${inv('phone')}></div>`)}
+      ${field('email','Email',`<input id="cv-bk-email" type="email" autocomplete="email" value="${xesc(cvBk.email)}" oninput="cvBkSet('email',this.value)" ${inv('email')}>`)}
+      <div class="bp-f"><label for="cv-bk-dev">Development or unit</label><input id="cv-bk-dev" list="cv-bk-devs" value="${xesc(cvBk.dev)}" oninput="cvBk.dev=this.value" aria-describedby="cv-bk-dev-hint"><datalist id="cv-bk-devs">${devs.map(d=>`<option value="${xesc(d)}">`).join('')}</datalist><div class="bp-hint" id="cv-bk-dev-hint">Filled in from your link. You can change it.</div></div>
+      <div class="bp-f"><label for="cv-bk-budget">Budget range <span class="bp-opt">(optional)</span></label><select id="cv-bk-budget" onchange="cvBk.budget=this.value"><option value="">Choose a range</option>${CV_BK_BUDGET.map(b=>`<option ${b===cvBk.budget?'selected':''}>${b}</option>`).join('')}</select></div>
+      <div class="bp-f"><label for="cv-bk-msg">Message <span class="bp-opt">(optional)</span></label><textarea id="cv-bk-msg" rows="3" placeholder="Anything we should know before we meet?" oninput="cvBk.msg=this.value">${xesc(cvBk.msg)}</textarea></div>
+      <div class="bp-f bp-consent-f ${e.consent?'bad':''}"><label class="bp-consent"><input type="checkbox" id="cv-bk-consent" ${cvBk.consent?'checked':''} onchange="cvBkSet('consent',this.checked)" ${inv('consent')}>
+        <span>I agree that ${xesc(cvBkTeam()?`the ${cvBkDev().name} team`:`${cvBkDev().name} and ${CV_ME}`)} can contact me about this booking on WhatsApp and email, and I accept the <a href="#" onclick="event.preventDefault()">privacy policy</a>. ${req}</span></label>
+        <div class="bp-err" id="cv-bk-consent-err">${e.consent||''}</div></div>
+      ${Object.keys(e).length?'<div class="bp-err bp-err-sum" role="alert">Check the fields marked in red.</div>':''}
+      <button type="submit" class="btn-primary bp-submit">Confirm booking</button>
+      <div class="bp-mu"><span aria-hidden="true">*</span> Required</div>
+    </form></div>`;
+}
+function cvBkDoneHtml(){
+  const t=cvBkType(), end=cvHm(cvMins(cvBk.slot)+t.dur), d=cvBkDev();
+  const plat=cvBkPlat(), own=plat[2]?(CVS.ownLink||'').trim():'', who=cvBkWho(), Who=who.charAt(0).toUpperCase()+who.slice(1);
+  const where=t.k==='video'?[plat[1],plat[2]?(own?`<a href="#" onclick="event.preventDefault()">${xesc(own.replace(/^https?:\/\//,''))}</a>`:`${xesc(Who)} will send the ${plat[1]} link before the call`):`<a href="#" onclick="event.preventDefault()">${CV_BK_MEET}</a>`]
+    :t.k==='call'?['Phone call',`${xesc(Who)} will call you on ${xesc(cvBk.cc+' '+cvBk.phone)}`]
+    :['Place',`${xesc(d.name)} sales suite, ${xesc(d.loc)} <a href="#" onclick="event.preventDefault()">Get directions</a>`];
+  return `<div class="bp-done cv-booked" role="status">
+    <span class="bp-done-ic">${cvBkIc('check')}</span>
+    <h2 class="bp-h2">You’re booked</h2>
+    <p class="bp-mu">We sent the details to your WhatsApp and to ${xesc(cvBk.email)}.</p>
+    <dl class="bp-dl">
+      <div><dt>What</dt><dd>${t.l} with ${xesc(who)}, ${t.dur} min</dd></div>
+      <div><dt>Date</dt><dd>${cvBkLong(cvBk.day,true)}</dd></div>
+      <div><dt>Time</dt><dd>${cvBk.slot} to ${end}, ${cvBkTz(cvBk.day)}</dd></div>
+      <div><dt>${where[0]}</dt><dd>${where[1]}</dd></div>
+    </dl>
+    <div class="bp-acts"><button type="button" class="btn-ghost" onclick="showToast('Opens Google Calendar')">Add to Google Calendar</button><button type="button" class="btn-ghost" onclick="showToast('Calendar file downloaded')">Download .ics</button></div>
+    <p class="bp-mu">Need to change it? Reply to the WhatsApp message and ${cvBkTeam()?'we':xesc(CV_ME)} will move it.</p>
+  </div>`;
 }
 function cvBookRender(){
-  const [k,l,dur]=CV_LINKS.find(x=>x[0]===cvBk.type);
-  const days=[...Array(10)].map((_,i)=>cvISO(cvOffsetDate(i))).filter(d=>cvFreeSlots(d,dur,'client').length);
-  if(!cvBk.day) cvBk.day=days[0];
-  let body;
-  if(cvBk.step==='pick') body=`<div class="cv-mu">Sam · ${l} · ${dur} min · La Lex sales suite</div>
-    <div class="cv-days" style="margin:12px 0">${days.map(d=>`<button type="button" class="${d===cvBk.day?'on':''}" onclick="cvBk.day='${d}';cvBk.slot=null;cvBookRender()">${cvDayLabel(d)}</button>`).join('')}</div>
-    <div class="cv-slots">${cvFreeSlots(cvBk.day,dur,'client').map(t=>`<button type="button" onclick="cvBk.slot='${t}';cvBk.step='form';cvBookRender()">${t}</button>`).join('')}</div>`;
-  else if(cvBk.step==='form') body=`<div class="cv-mu" style="margin-bottom:10px">${l} · ${cvDayLabel(cvBk.day)} at ${cvBk.slot} · <button class="cv-linkbtn" onclick="cvBk.step='pick';cvBookRender()">Change</button></div>
-    <div class="od-field"><label for="cv-bk-name">Name</label><input id="cv-bk-name" value="${xesc(cvBk.name)}" oninput="cvBk.name=this.value"></div>
-    <div class="od-field"><label for="cv-bk-phone">WhatsApp number</label><input id="cv-bk-phone" type="tel" value="${xesc(cvBk.phone)}" oninput="cvBk.phone=this.value"></div>
-    <div class="od-field"><label for="cv-bk-email">Email</label><input id="cv-bk-email" type="email" value="${xesc(cvBk.email)}" oninput="cvBk.email=this.value"></div>
-    <label class="cv-toggle"><input type="checkbox" ${cvBk.consent?'checked':''} onchange="cvBk.consent=this.checked"> Send me the confirmation and a reminder on WhatsApp</label>`;
-  else body=`<div class="cv-booked"><b>You’re booked</b><div>${l} with Sam · ${cvDayLabel(cvBk.day)} at ${cvBk.slot}</div><div class="cv-mu">La Lex sales suite · confirmation sent on WhatsApp</div></div>`;
-  const foot=cvBk.step==='form'?`<button class="btn-ghost" onclick="cvBk.step='pick';cvBookRender()">Back</button><button class="btn-primary" onclick="cvBookConfirm()">Book</button>`:cvBk.step==='done'?`<button class="btn-primary" onclick="qaDrawerClose();cvState.cursor=new Date(cvBk.day+'T00:00:00');cvState.view='week';cvRender()">See it in Sam’s calendar</button>`:`<button class="btn-ghost" onclick="qaDrawerClose()">Close</button>`;
-  qaDrawerOpen('Client view · book a '+l.toLowerCase(),body,foot);
+  if(!cvBk) return;
+  const t=cvBkType(), d=cvBkDev(), photo=d.photo&&typeof awAsset==='function'?awAsset(d.photo):'';
+  const who=cvBkWho(), how=t.k==='video'?['video',`Video call on ${cvBkPlat()[1]}`]:t.k==='call'?['phone',`${who.charAt(0).toUpperCase()+who.slice(1)} calls you`]:['pin',`In person at the ${d.name} sales suite`];
+  const body=cvBk.step==='pick'?`<div class="bp-pick">${cvBkCalHtml()}${cvBkTimesHtml()}</div>`:cvBk.step==='form'?cvBkFormHtml():cvBkDoneHtml();
+  let el=document.getElementById('cvPub');
+  if(!el){el=document.createElement('div');el.id='cvPub';el.className='bp-wrap';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');el.setAttribute('aria-label','Booking page as clients see it');document.body.appendChild(el);document.addEventListener('keydown',cvBkKey);}
+  const scroll=el.querySelector('.bp-stage')?.scrollTop||0;
+  el.innerHTML=`<div class="bp-bar">
+      <span class="bp-bar-l"><b>Client view</b><span class="bp-url">${typeof cvsLink==='function'?cvsLink(CVS_BT.find(b=>b[0]===t.k)?.[4]||t.k):'bricly.link/sam/'+t.k}</span></span>
+      <span class="bp-seg" role="group" aria-label="Preview size">${[['desktop','Desktop'],['mobile','Mobile']].map(([k,l])=>`<button type="button" class="${cvBk.size===k?'on':''}" aria-pressed="${cvBk.size===k}" onclick="cvBk.size='${k}';cvBookRender()">${l}</button>`).join('')}</span>
+      ${cvBk.step==='done'?`<button type="button" class="btn-ghost bp-bar-btn" onclick="cvBookClose();go('calendar');cvState.cursor=new Date(cvBk.day+'T00:00:00');cvState.view='week';cvRender()">See it in ${CV_ME}’s calendar</button>`:''}
+      <button type="button" class="btn-ghost bp-bar-btn" onclick="cvBookClose()">Close preview</button></div>
+    <div class="bp-stage"><div class="bp-frame ${cvBk.size}"><div class="bp-page">
+      <header class="bp-head">
+        ${photo?`<img class="bp-hero" src="${xesc(photo)}" alt="" onerror="this.remove()">`:''}
+        <div class="bp-brand"><span class="bp-logo" aria-hidden="true">${xesc(d.name.split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase())}</span><span><b>${xesc(d.name)}</b><span class="bp-mu">${xesc(d.loc)}, Malta</span></span></div>
+        <h1 class="bp-title" tabindex="-1">Book a ${t.l.toLowerCase()}</h1>
+        <div class="bp-meta"><span>${cvBkIc('clock')}${t.dur} min</span><span>${cvBkIc(how[0])}${xesc(how[1])}</span><span class="bp-with">${cvBkIc('user')}With ${xesc(who)}</span></div>
+      </header>
+      <main class="bp-body bp-step-${cvBk.step}">${body}</main>
+      <footer class="bp-foot">Booking by Bricly</footer>
+    </div></div></div>`;
+  el.querySelector('.bp-stage').scrollTop=scroll;
 }
 function cvBookConfirm(){
-  if(!cvBk.name.trim()||cvBk.phone.replace(/\D/g,'').length<7){showToast('Add a name and a WhatsApp number');return;}
-  const [k,l,dur]=CV_LINKS.find(x=>x[0]===cvBk.type);
-  const o={id:'OPP-'+(1041+OPPS.length+60),lead:cvBk.name.trim(),devs:['La Lex'],units:[],stage:'Appointment Booked',source:'Booking link',budget:null,value:null,tags:[],rep:CV_ME,next:{d:'—',t:'Prepare for the '+l.toLowerCase()},ago:'Today',buyer:{phone:cvBk.phone,email:cvBk.email}};
-  OPPS.push(o); getExt(o).buyer={phone:cvBk.phone,email:cvBk.email,type:'Buyer'};
-  getExt(o).comms.unshift({ch:'sys',t:'Just now',text:`${l} booked through Sam’s booking link · ${cvDayLabel(cvBk.day)} ${cvBk.slot}`});
-  cvExtra.push({id:Date.now(),title:`${l} · ${o.lead}`,type:k,dateISO:cvBk.day,start:cvBk.slot,end:cvHm(cvMins(cvBk.slot)+dur),contact:o.lead,location:k==='viewing'?'La Lex sales suite':k==='video'?'Google Meet':'Phone',oppId:o.id,src:'Booking link',rem:[`${o.lead.split(' ')[0]} · confirmation sent`,'You · 1 hour before']});
+  cvBk.tried=true;
+  const errs=cvBkErrors();
+  if(Object.keys(errs).length){cvBookRender();document.getElementById(CV_BK_REQ[Object.keys(errs)[0]])?.focus();return;}
+  const t=cvBkType(), dev=(cvBk.dev.split(',')[0]||'').trim()||cvBkDev().name, unit=(cvBk.dev.match(/#\w+/)||[])[0];
+  const budget={'Under €250,000':250,'€250,000 to €400,000':400,'€400,000 to €600,000':600,'€600,000 to €1M':1000,'Over €1M':1500}[cvBk.budget]||null;
+  const phone=`${cvBk.cc} ${cvBk.phone.trim()}`, email=cvBk.email.trim();
+  const o={id:'OPP-'+(1041+OPPS.length+60),lead:cvBk.name.trim(),devs:[dev],units:unit?[unit]:[],stage:'Appointment Booked',source:'Booking link',budget,value:null,tags:[],rep:CV_ME,next:{d:'—',t:'Prepare for the '+t.l.toLowerCase()},ago:'Today',buyer:{phone,email}};
+  OPPS.push(o); const x=getExt(o); x.buyer={phone,email,type:'Buyer',consent:true};
+  x.comms.unshift({ch:'sys',t:'Just now',text:`${t.l} booked through ${CV_ME}’s booking link · ${cvDayLabel(cvBk.day)} ${cvBk.slot}`});
+  if(cvBk.msg.trim()) x.comms.unshift({ch:'note',dir:'in',who:o.lead,t:'Just now',text:xesc(cvBk.msg.trim())});
+  cvExtra.push({id:Date.now(),title:`${t.l} · ${o.lead}`,type:t.k,dateISO:cvBk.day,start:cvBk.slot,end:cvHm(cvMins(cvBk.slot)+t.dur),contact:o.lead,location:t.k==='viewing'?`${dev} sales suite`:t.k==='video'?(cvBkPlat()[2]?`${cvBkPlat()[1]}${CVS.ownLink?' · '+CVS.ownLink:''}`:'Google Meet · '+CV_BK_MEET):'Phone',oppId:o.id,src:'Booking link',rem:[`${o.lead.split(' ')[0]} · confirmation sent`,'You · 1 hour before']});
   cvBk.step='done'; cvBookRender(); if(typeof pipeRenderAll==='function')pipeRenderAll();
 }
 // ---------- Flow 1d · team day (managers) and Flow 6 sync banner ----------

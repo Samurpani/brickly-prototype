@@ -108,6 +108,7 @@ function deMustFix(d){
   if(dr.about.length>600) out.push({t:`About is ${dr.about.length} characters · limit 600`,sec:'details'});
   if(!(dr.lat>=-90&&dr.lat<=90)||!(dr.lng>=-180&&dr.lng<=180)) out.push({t:'Latitude or longitude is out of range',sec:'details'});
   dr.assets.filter(a=>a.img&&!a.alt.trim()).forEach(a=>out.push({t:`Alt text is missing on “${a.n}”`,sec:'media',asset:a.id}));
+  dr.assets.filter(a=>a.cat==='Render'&&a.interior&&!a.room).forEach(a=>out.push({t:`Choose a room for the interior render “${a.n}”`,sec:'media',asset:a.id}));
   Object.entries(dr.links).forEach(([k,v])=>{if(v&&!/^https:\/\//i.test(v)) out.push({t:`${{web:'Website',ig:'Instagram',fb:'Facebook'}[k]} link must use HTTPS`,sec:'presentation'});});
   const total=dr.pay.dep+dr.pay.stg+dr.pay.bal; if(total!==100) out.push({t:`Payment milestones add up to ${total}% · must be 100%`,sec:'payment'});
   dr.timeline.filter(r=>r.needsReason&&!r.reason).forEach(r=>out.push({t:`Give a reason for revising “${r.n}”`,sec:'timeline'}));
@@ -321,7 +322,7 @@ function deUnitsHtml(d,st){
       <button type="button" class="de-link-btn" onclick="DE.drawer={k:'unit',id:'${u.id}',tab:'details'};deRender()"><b>${deEsc(u.id)}</b>${pend.length?`<span class="de-mu"> Proposed: ${pend.map(b=>deEsc(b.newTxt)).join(', ')}</span>`:''}${unplaced.has(u.id)?' <span class="de-chip warn">Not on level plan</span>':''}</button>
       <span>${deEsc(u.type)}</span><span>${u.beds===0?'Studio':u.beds+' bed'} · ${u.baths||1} bath</span><span>${u.floor===0?'G':u.floor}</span><span>${u.sqm} m²${u.ext?' + '+u.ext:''}</span><span>${fmtEur(u.price)}</span><span>€${Math.round(u.price/u.sqm).toLocaleString('en-US')}</span><span class="de-st ${u.status}">${UN_STATUS[u.status]?.l||u.status}</span></div>`;}).join('')||'<div class="de-mu" style="padding:12px">No units match these filters.</div>'}
   </div>
-  <p class="de-mu">Prices in EUR. Reserved, held and sold units change only through their deal.</p>`;
+  <p class="de-mu">Prices are in euro (€). Reserved, held and sold units change only through their deal.</p>`;
 }
 function units_all(on){deUnits(deDev()).forEach(u=>DE.sel[u.id]=on);deRender();}
 function deBatchAdd(unit,field,oldV,newV,oldTxt,newTxt){
@@ -639,7 +640,7 @@ function dePaymentHtml(d,st){
   const p=st.draft.pay, total=p.dep+p.stg+p.bal, amt=pc=>fmtEur(Math.round(p.sample*pc/100));
   const row=(label,key,trigger)=>`<div class="de-tr de-pay"><b>${label}</b><label class="de-mini"><input type="number" min="0" max="100" value="${p[key]}" aria-label="${label} percent" onchange="deSet('pay.${key}',Number(this.value)||0,true)">%</label><span class="de-mu">${trigger}</span><b>${amt(p[key])}</b></div>`;
   return deHead('ED08','Payment terms','Listing prices live in Units. Changing a default here doesn’t amend signed agreements.')+`
-  <div class="de-card"><div class="row-between"><b>Standard plan · EUR · default for all units</b><span class="de-mu">Effective 1 Sep 2026 · no expiry</span></div>
+  <div class="de-card"><div class="row-between"><b>Standard plan · default for all units</b><span class="de-mu">Effective 1 Sep 2026 · no expiry</span></div>
     <div class="de-tr de-pay de-th"><span>Milestone</span><span>% of price</span><span>Trigger</span><span>On ${fmtEur(p.sample)}</span></div>
     ${row('Deposit','dep','On promise of sale')}${row('Stage payment','stg','30 days after promise')}${row('Balance','bal','On final deed')}
     <div class="de-tr de-pay"><b>Total</b><b class="${total===100?'':'de-bad'}">${total}%</b><span class="de-mu">deposit counted once</span><b>${amt(total)}</b></div>
@@ -803,7 +804,7 @@ function deUnitDrawer(d,st){
       ${deField('Type',`<select id="du-type">${['Studio','Apartment','Maisonette','Penthouse'].map(x=>`<option ${x===u.type?'selected':''}>${x}</option>`).join('')}</select>`)}${deField('Floor',`<input id="du-floor" type="number" min="0" value="${u.floor}">`)}
       ${deField('Bedrooms',`<input id="du-beds" type="number" min="0" value="${u.beds}">`)}${deField('Bathrooms',`<input id="du-baths" type="number" min="1" value="${u.baths||1}">`)}
       ${deField('Internal area · m²',`<input id="du-sqm" type="number" min="1" value="${u.sqm}">`)}${deField('Outdoor area · m²',`<input id="du-ext" type="number" min="0" value="${u.ext||0}">`)}</div>
-    ${deField('Listing price · EUR',`<input id="du-price" inputmode="decimal" value="${u.price}">`,'Listing price, not an agreed contract amount.')}
+    ${deField('Listing price',`<input id="du-price" inputmode="decimal" value="${u.price}">`,'Listing price, not an agreed contract amount.')}
     ${deField('Description',`<textarea id="du-desc" rows="2">${deEsc(u.desc||'')}</textarea>`)}${deField('Features · comma separated',`<input id="du-feat" value="${deEsc((u.views||[]).join(', '))}">`)}
     ${prot?`<div class="de-note">${UN_STATUS[u.status]?.l} ${deal?`through ${deal.d?deal.d.id:deal.o.id} · ${deEsc(deal.o.lead)}`:'through a deal'}. This status can only change inside the deal, for example by recording a cancellation. ${deal?`<button type="button" class="df-link" onclick="${deal.d?`openDeal('${deal.d.id}')`:`openOpp('${deal.o.id}')`}">Open ${deal.d?'deal':'opportunity'}</button>`:''}</div>`
       :deField('Availability',`<select id="du-status"><option value="available" ${u.status==='available'?'selected':''}>Available</option><option value="off_market" ${u.status==='off_market'?'selected':''}>Off market</option></select>`,'Holds, reservations and sales are made from a deal.')}
@@ -867,7 +868,7 @@ function deTagStart(input,cat,room){
     const rid=room||g.room||(cat==='View'?'living':'');
     return {n:cat==='Render'&&rid?UM.roomName(dr,rid):f.name.replace(/\.\w+$/,'').replace(/[-_]+/g,' '),url:URL.createObjectURL(f),room:rid,
       layouts:tag('layout'),packs:tag('pack'),styles:tag('style'),orient:g.orient,fmin:null,fmax:null,guessed:!!(g.room||g.packs.length||g.styles.length||g.layouts.length||g.orient)};});
-  DE.tag={cat,unit:u.id,scope:'type',items}; DE.drawer={k:'tag',back:{...DE.drawer}}; deRender();
+  DE.tag={cat,unit:u.id,type:deTypeKey(u),unitSel:'',items}; DE.drawer={k:'tag',back:{...DE.drawer}}; deRender();
 }
 function deTagSet(i,k,v){const it=DE.tag.items[i];it[k]=['layouts','packs','styles'].includes(k)?(v?[v]:[]):['fmin','fmax'].includes(k)?(v===''?null:Number(v)):v;if(k!=='n')deRender();}
 function deTagDrawer(d,st){
@@ -875,9 +876,10 @@ function deTagDrawer(d,st){
   const nType=deUnits(d).filter(x=>deTypeKey(x)===t).length, missing=T.items.filter(i=>!i.room).length;
   const opts=(list,v,any)=>`${any!==null?`<option value="">${any}</option>`:''}${list.map(x=>`<option value="${x.id}" ${x.id===v?'selected':''}>${deEsc(x.n)}</option>`).join('')}`;
   const sel=(i,k,label,list,v,any)=>deField(label,`<select onchange="deTagSet(${i},'${k}',this.value)" ${k==='room'&&!v?'class="de-invalid"':''}>${opts(list,v,any)}</select>`);
-  const scopes=[['unit',`This unit only · ${u.id}`],['type',`All ${t} units · ${nType}`],['dev',`Whole development · ${deUnits(d).length} units`]];
+  const types=[...new Set(deUnits(d).map(deTypeKey))], ty=T.type??t, inType=deUnits(d).filter(x=>!ty||deTypeKey(x)===ty);
   return {title:`Tag ${n} ${word}${n===1?'':'s'}`,sub:`${deEsc(u.id)} · ${deEsc(t)} type`,body:`
-    <div class="de-field"><span>Applies to</span>${scopes.map(([k,l])=>`<label class="df-task"><input type="radio" name="tag-scope" ${T.scope===k?'checked':''} onchange="DE.tag.scope='${k}'"><span>${deEsc(l)}</span></label>`).join('')}</div>
+    <div class="de-g2">${deField('Unit type',`<select id="de-tag-type" onchange="DE.tag.type=this.value;DE.tag.unitSel='';deRender()"><option value="" ${ty?'':'selected'}>All unit types</option>${types.map(x=>`<option ${x===ty?'selected':''}>${deEsc(x)}</option>`).join('')}</select>`,`Shows on every ${ty?deEsc(ty)+' ':''}unit · ${inType.length}`)}
+      ${deField('Specific unit (optional)',`<select id="de-tag-unit" onchange="DE.tag.unitSel=this.value;deRender()"><option value="">Any ${ty?deEsc(ty)+' ':''}unit</option>${inType.map(x=>`<option ${x.id===T.unitSel?'selected':''}>${deEsc(x.id)}</option>`).join('')}</select>`,'Only when this unit differs from its type')}</div>
     ${T.items.map((it,i)=>`<div class="de-tag"><img src="${deEsc(it.url)}" alt=""><div>
       ${deField('Title',`<input value="${deEsc(it.n)}" oninput="deTagSet(${i},'n',this.value)">`)}
       <div class="de-g2">${sel(i,'room',view?'Seen from':'Room · required',dr.interiors.rooms,it.room,view?'—':'Choose a room')}
@@ -890,8 +892,9 @@ function deTagSave(){
   const T=DE.tag, dr=deDraft(), u=UNITS.find(x=>x.id===T.unit);
   if(T.cat==='Render'&&T.items.some(i=>!i.room)) return;
   T.items.forEach(it=>{
-    const a=UM.asset(T.cat,it.room,it.n,it.url,{units:T.scope==='unit'?[u.id]:[],types:T.scope==='type'?[deTypeKey(u)]:[],packs:it.packs,layouts:it.layouts,styles:it.styles,orient:it.orient,fmin:it.fmin,fmax:it.fmax});
-    a.src='Uploaded today by '+deMe(); a.alt=UM.autoAlt(dr,a); dr.assets.push(a);
+    const ty=T.type??deTypeKey(u);
+    const a=UM.asset(T.cat,it.room,it.n,it.url,{units:T.unitSel?[T.unitSel]:[],types:T.unitSel||!ty?[]:[ty],packs:it.packs,layouts:it.layouts,styles:it.styles,orient:it.orient,fmin:it.fmin,fmax:it.fmax});
+    if(T.cat==='Render')a.interior=true; a.src='Uploaded today by '+deMe(); a.alt=UM.autoAlt(dr,a); dr.assets.push(a);
   });
   const n=T.items.length, word=T.cat==='View'?'view':'render'; DE.tag=null; DE.drawer=DE.drawer.back; deMark(); deRender();
   deToast(`${n} ${word}${n===1?'':'s'} added to the draft · in Present Mode once published`);
@@ -899,7 +902,7 @@ function deTagSave(){
 function deBulkDrawer(d,st){
   const ids=Object.keys(DE.sel).filter(k=>DE.sel[k]);
   return {title:`Bulk edit ${ids.length} units`,sub:'Only ticked fields change',body:`
-    <label class="df-task"><input type="checkbox" id="bk-price-on"><span>Listing price · EUR</span></label><label class="de-mini">Change by <input id="bk-price" type="number" step="0.5" value="2">%</label>
+    <label class="df-task"><input type="checkbox" id="bk-price-on"><span>Listing price</span></label><label class="de-mini">Change by <input id="bk-price" type="number" step="0.5" value="2">%</label>
     <label class="df-task"><input type="checkbox" id="bk-avail-on"><span>Availability</span></label><select id="bk-avail"><option value="available">Available</option><option value="off_market">Off market</option></select>
     <label class="df-task"><input type="checkbox" id="bk-ready-on"><span>Delivery exception</span></label><input id="bk-ready" placeholder="e.g. Q1 2027">
     <div class="de-table"><div class="de-tr de-th"><span>Unit</span><span>Current price</span><span>Status</span></div>${ids.map(id=>{const u=UNITS.find(x=>x.id===id);return `<div class="de-tr"><b>${deEsc(id)}</b><span>${fmtEur(u.price)}</span><span class="de-st ${u.status}">${UN_STATUS[u.status]?.l}${DE_PROTECTED.includes(u.status)?' · protected':''}</span></div>`;}).join('')}</div>`,
@@ -910,9 +913,11 @@ function deAssetDrawer(d,st){
   const i=dr.assets.indexOf(a), units=deUnits(d), types=[...new Set(units.map(deTypeKey))], sel=(key,opts)=>`<select onchange="deSet('assets.${i}.${key}',this.value,true)">${opts.map(o=>`<option ${o===a[key]?'selected':''}>${o}</option>`).join('')}</select>`;
   const selV=(key,pairs,num)=>`<select onchange="deSet('assets.${i}.${key}',${num?'this.value===\'\'?null:Number(this.value)':'this.value'},true)">${pairs.map(([v,l])=>`<option value="${v}" ${String(v)===String(a[key]??'')?'selected':''}>${deEsc(l)}</option>`).join('')}</select>`;
   const chk=(key,list)=>list.map(v=>{const [id,n]=Array.isArray(v)?v:[v,v];return `<label class="df-task"><input type="checkbox" ${a[key].includes(id)?'checked':''} onchange="deAssetLink('${a.id}','${key}','${id}',this.checked)"><span>${deEsc(n)}</span></label>`;}).join('');
+  const int=a.cat==='Render'&&(a.interior||!!a.room), noRoom=int&&!a.room;
   const rooms=dr.interiors.rooms.map(r=>[r.id,r.n]), floor=k=>`<input type="number" min="0" placeholder="Any" value="${a[k]??''}" onchange="deSet('assets.${i}.${k}',this.value===''?null:Number(this.value),true)">`;
   const tags=a.cat==='Render'?`
-    ${deField('Room',selV('room',[['','Not a room · exterior or development-wide'],...rooms]),a.room?'':'Only renders with a room show on unit pages in Present Mode.')}
+    ${deField('Render of',`<select id="de-rkind" onchange="deAssetKind(${i},this.value==='int')"><option value="ext" ${int?'':'selected'}>Exterior or development-wide</option><option value="int" ${int?'selected':''}>Interior</option></select>`)}
+    ${int?deField('Room · required',`<select id="de-room" class="${a.room?'':'de-invalid'}" onchange="deSet('assets.${i}.room',this.value,true)"><option value="">Choose a room</option>${rooms.map(([v,l])=>`<option value="${v}" ${v===a.room?'selected':''}>${deEsc(l)}</option>`).join('')}</select>`,a.room?'':'An interior render can’t be saved without a room.'):''}
     ${a.room?`<b>Shows when the buyer picks</b> <span class="de-mu">Leave a group unticked when the render suits any option</span>
     <div class="de-tagset"><span class="de-mu">Layout</span><div class="de-checks">${chk('layouts',dr.interiors.layouts.map(l=>[l.id,l.n]))}</div>
       <span class="de-mu">Finish</span><div class="de-checks">${chk('packs',dr.packs.filter(p=>!p.retired).map(p=>[p.id,p.n]))}</div>
@@ -925,14 +930,21 @@ function deAssetDrawer(d,st){
     <div class="de-g2">${deField('Category',sel('cat',['Render','Photo','View']))}${deField('Buyer label',sel('label',['Render','Photo','Actual','Representative','Illustrative']))}</div>
     ${tags}
     ${deField('Source & date',`<input value="${deEsc(a.src)}" oninput="deSet('assets.${i}.src',this.value)">`)}
-    ${a.cat==='Photo'?'<p class="de-mu">Photography is development-wide. Change the category to View to link it to units.</p>':`<b>Applies to</b> <span class="de-mu">Leave units and types empty to show on every unit</span><b class="de-sub">Unit types · every unit of the type</b><div class="de-checks">${chk('types',types)}</div><b class="de-sub">Individual units</b><div class="de-checks">${chk('units',units.map(u=>u.id))}</div>`}`,
-    foot:`<button type="button" class="btn-ghost" ${a.cover||!a.img?'disabled':''} onclick="deDraft().assets.forEach(x=>x.cover=x.id==='${a.id}');deMark();deRender();deToast('Set as cover')">Set as cover</button><button type="button" class="btn-ghost" onclick="deDraft().assets.splice(${i},1);deMark();deDrawerClose()">Remove</button><button type="button" class="btn-primary" onclick="deDrawerClose()">Done</button>`};
+    ${a.cat==='Photo'?'<p class="de-mu">Photography is development-wide. Change the category to View to link it to units.</p>':`<b>Applies to</b> <span class="de-mu">Leave units and types empty to show on every unit</span><b class="de-sub">Unit types · every unit of the type</b><div class="de-checks">${chk('types',types)}</div><b class="de-sub">Specific units (optional)</b><div class="de-checks">${chk('units',units.map(u=>u.id))}</div>`}`,
+    foot:`<button type="button" class="btn-ghost" ${a.cover||!a.img?'disabled':''} onclick="deDraft().assets.forEach(x=>x.cover=x.id==='${a.id}');deMark();deRender();deToast('Set as cover')">Set as cover</button><button type="button" class="btn-ghost" onclick="deDraft().assets.splice(${i},1);deMark();deDrawerClose()">Remove</button>${noRoom?'<span class="de-mu">Choose a room first</span>':''}<button type="button" class="btn-primary" ${noRoom?'disabled':''} onclick="deDrawerClose()">Done</button>`};
+}
+// Interior renders need a room; the unit type is the default scope, so switching to interior preselects the most common type.
+function deAssetKind(i,int){
+  const a=deDraft().assets[i];a.interior=int;
+  if(!int)a.room='';
+  else if(!a.types.length&&!a.units.length){const c={};deUnits(deDev()).forEach(u=>{const k=deTypeKey(u);c[k]=(c[k]||0)+1;});const top=Object.entries(c).sort((x,y)=>y[1]-x[1])[0];if(top)a.types=[top[0]];}
+  deMark();deRender();
 }
 function dePackDrawer(d,st){
   const i=DE.drawer.i, p=st.draft.packs[i], base=deUnits(d)[0]?.price||0;
   return {title:`${deEsc(p.n)} pack`,sub:p.def?'Default':'',body:`
     ${deField('Pack name',`<input value="${deEsc(p.n)}" oninput="deSet('packs.${i}.n',this.value)">`)}${deField('Description',`<textarea rows="2" oninput="deSet('packs.${i}.d',this.value)">${deEsc(p.d)}</textarea>`)}
-    <div class="de-g2">${deField('Pricing against base specification',`<select onchange="deSet('packs.${i}.mode',this.value,true)">${['Included','Addition'].map(m=>`<option ${m===p.mode?'selected':''}>${m}</option>`).join('')}</select>`)}${deField('Price · EUR',`<input type="number" min="0" step="100" value="${p.price}" onchange="deSet('packs.${i}.price',Number(this.value)||0,true)">`)}</div>
+    <div class="de-g2">${deField('Pricing against base specification',`<select onchange="deSet('packs.${i}.mode',this.value,true)">${['Included','Addition'].map(m=>`<option ${m===p.mode?'selected':''}>${m}</option>`).join('')}</select>`)}${deField('Price',`<input type="number" min="0" step="100" value="${p.price}" onchange="deSet('packs.${i}.price',Number(this.value)||0,true)">`)}</div>
     ${deField('Selection deadline',`<input value="${deEsc(p.dl)}" oninput="deSet('packs.${i}.dl',this.value)">`)}
     <div class="de-card"><b>Preview on ${deEsc(deUnits(d)[0]?.id||'a unit')}</b><div class="de-tr"><span class="de-grow">Listing price</span><span>${fmtEur(base)}</span></div><div class="de-tr"><span class="de-grow">${deEsc(p.n)}</span><span>${p.price?'+'+fmtEur(p.price):'Included'}</span></div><div class="de-tr"><b class="de-grow">Total</b><b>${fmtEur(base+(p.mode==='Addition'?p.price:0))}</b></div></div>
     <div class="row-between"><b>Materials</b><button type="button" class="btn-ghost df-sm" onclick="deDraft().packs[${i}].mats.push({room:'Floors',name:'',finish:'',sw:'#cccccc'});deMark();deRender()">+ Add material</button></div>
@@ -971,7 +983,7 @@ function deImpDrawer(d,st){
     <div class="de-table"><div class="de-tr de-th"><span>Row</span><span>Unit ID</span><span>Price</span><span>Status</span></div>${rows.map(r=>`<div class="de-tr"><span>${r.r}</span><span>${deEsc(r.unit.replace('#',''))}</span><span>${deEsc(r.nw.replace('€','').replace(/,/g,'.'))}</span><span>${deEsc(r.field==='Availability'?r.nw:'Available')}</span></div>`).join('')}</div>
     <label class="df-task"><input type="checkbox" ${I.fmtOk?'checked':''} onchange="DE.imp.fmtOk=this.checked;deRender()"><span>Numbers use a dot for thousands. “${deEsc(rows[0]?.nw.replace('€','').replace(/,/g,'.')||'199.000')}” means ${deEsc(rows[0]?.nw||'€199,000')}, not ${deEsc((rows[0]?.nw||'€199').split(',')[0])}.</span></label>`;
     foot=`<button type="button" class="btn-ghost" onclick="deImpStep(2)">Back</button><button type="button" class="btn-primary" ${I.fmtOk?'':'disabled'} onclick="deImpStep(4)">Continue</button>`;}
-  if(I.step===4){body=`<b>Match columns</b>${[['Unit ID','Unit reference (stable ID)','Used to match'],['Price','Listing price · EUR','Suggested'],['Status','Availability','Protected changes are routed'],['Notes','Don’t import','']].map(([a,b,c])=>`<div class="de-tr"><b>${a}</b><span>→ ${b}</span><span class="de-mu">${c}</span></div>`).join('')}
+  if(I.step===4){body=`<b>Match columns</b>${[['Unit ID','Unit reference (stable ID)','Used to match'],['Price','Listing price (€)','Suggested'],['Status','Availability','Protected changes are routed'],['Notes','Don’t import','']].map(([a,b,c])=>`<div class="de-tr"><b>${a}</b><span>→ ${b}</span><span class="de-mu">${c}</span></div>`).join('')}
     <p class="de-mu">Blank cells leave values unchanged. Units missing from the file are left as they are, never removed or taken off market.</p>
     <label class="df-task"><input type="checkbox" ${I.mapOk?'checked':''} onchange="DE.imp.mapOk=this.checked;deRender()"><span>These mappings are correct</span></label>`;
     foot=`<button type="button" class="btn-ghost" onclick="deImpStep(3)">Back</button><button type="button" class="btn-primary" ${I.mapOk?'':'disabled'} onclick="deImpStep(5)">Review differences</button>`;}

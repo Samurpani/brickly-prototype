@@ -9,18 +9,44 @@
   // Account standard from Settings › Proposal page. ?std=draft previews an unpublished draft.
   const STDL=window.PROPOSAL_STD?window.PROPOSAL_STD.load():null;
   const STD=STDL?(qs.get('std')==='draft'&&STDL.draft?STDL.draft:STDL.pub):null;
-  const on=k=>!STD||STD.sections[k]!=='off';
+  // ?a=<id> opens one sent proposal (the buyer's link); without ?preview it records opens and time on homes.
+  const AID=qs.get('a'), TRACK=!!AID&&!qs.has('preview');
+  let noCompare=false;
+  const on=k=>!(k==='compare'&&noCompare)&&(!STD||STD.sections[k]!=='off');
   const showPrice=!STD||STD.access.prices;
   const canPos=!STD||STD.reserve.mode==='request-pos';
   const toMgr=!!STD&&STD.reserve.to==='manager';
   const invOK=t=>!STD||STD.investFor.includes(t);
-  // An issue sent from the CRM: this buyer, these homes and this message.
+  // An issue sent from the CRM (send-buyer.js): this buyer, these homes, their layout and finish, this message.
   (function(){
     if(!qs.has('issue')) return;
-    let i=null; try{i=JSON.parse(localStorage.getItem('bricly.proposal.issue')||'null');}catch(e){}
+    let i=null;
+    try{i=AID?(JSON.parse(localStorage.getItem('bricly.proposal.issues')||'{}')[AID]||null):JSON.parse(localStorage.getItem('bricly.proposal.issue')||'null');}catch(e){}
     if(!i) return;
     if(i.first&&i.first!==P.buyer.first){P.buyer.first=i.first;P.buyer.last=i.last||'';P.profile=null;P.requirements=[];}
-    const keep=P.units.filter(u=>(i.units||[]).includes(u.id));
+    if(i.v){P.version=i.v;P.issued=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});}
+    if(i.compare===false) noCompare=true;
+    // Homes this demo data doesn't hold borrow media from a home in the same development (or the nearest
+    // one); the facts, price, layout and finish come from the CRM record.
+    (i.homes||[]).forEach((h,n)=>{
+      if(!P.developments.some(d=>d.id===h.dev)){
+        const b=P.developments[P.developments.length-1];
+        P.developments.push({...b,id:h.dev,name:h.devName,place:h.place||b.place,numeral:['I','II','III','IV','V'][P.developments.length]||'',
+          brand:{...b.brand,logo:{text:h.devName,sub:h.place||''}},tagline:`${h.devName}${h.place?', '+h.place:''}.`,
+          ...(h.photo?{hero:'../assets/present/'+h.photo,open:'../assets/present/'+h.photo}:{})});
+      }
+      let u=P.units.find(x=>x.id===h.id);
+      if(!u){
+        const b=P.units.find(x=>x.dev===h.dev)||P.units[n%P.units.length];
+        u={...b,id:h.id,name:'Residence '+h.id.replace(/\D/g,''),dev:h.dev,beds:h.beds,baths:h.baths,sqm:h.sqm,ext:h.ext,floor:h.floor,
+          status:h.status==='hold'?'held':'available',hold:h.status==='hold'?'Friday':'',plate:n+1,note:'',...(h.handover?{handover:h.handover}:{})};
+        P.units.push(u);
+      }
+      if(h.price) u.price=h.price;
+      if(h.layout) u.layout=h.layout;
+      if(h.finish) u.finish=/finish$/i.test(h.finish)?h.finish:h.finish+' finish';
+    });
+    const keep=(i.units||[]).map(id=>P.units.find(u=>u.id===id)).filter(Boolean);
     if(keep.length){P.units=keep;P.developments=P.developments.filter(d=>keep.some(u=>u.dev===d.id));}
     if(i.msg){P.letter=[i.msg];P.letterOwn=true;}
     if(i.rep&&i.rep!==P.rep.name.split(' ')[0]){P.rep.name=i.rep;P.rep.initials=i.rep.slice(0,2).toUpperCase();}
@@ -32,6 +58,17 @@
     PSX.loadFonts(STD.brand); P.developer.brand=PSX.tokens(STD.brand);
     P.developments.forEach(d=>{const b=(STD.devBrands||{})[d.id]; if(!b) return;
       if(b.own){PSX.loadFonts(b);d.brand=PSX.tokens(b);} else d.brand={...P.developer.brand,logo:{text:d.name,sub:d.place}};});
+  }
+  // Developer section from Settings › Proposal page (published standard, or the draft in preview).
+  // Empty fields keep the proposal data. Uploaded photos are data URLs; seeded ones are paths under prototypes/v3.
+  if(STD&&STD.trust){
+    const T=STD.trust,D=P.developer,num=v=>{const n=parseFloat(String(v??'').replace(/[^\d.]/g,''));return isNaN(n)?null:n;};
+    [['years',/years/i],['projects',/developments|projects/i],['units',/homes|units/i]].forEach(([k,re])=>{const n=num(T[k]),s=D.stats.find(x=>re.test(x.l));if(n!=null&&s)s.v=n;});
+    const g=String(T.guarantees||'').trim(); if(g){const i=D.promises.findIndex(([t])=>/warranty|guarantee/i.test(t));const item=['Guarantees',g];if(i>=0)D.promises[i]=item;else D.promises.push(item);}
+    const aw=String(T.awards||'').split(/\n+/).map(x=>x.trim()).filter(Boolean); if(aw.length) D.awards=aw;
+    const src=i=>/^(data:|https?:|\.{0,2}\/)/.test(i)?i:'../'+i;
+    const dp=(T.delivered||[]).filter(p=>p.img&&String(p.name||'').trim());
+    if(dp.length) D.delivered=dp.map(p=>({name:p.name.trim(),place:String(p.place||'').trim(),year:String(p.year||'').trim(),img:src(p.img)}));
   }
   if(STD){
     const d=new Date(P.issued); if(!isNaN(d)){d.setDate(d.getDate()+STD.access.expiry);P.validUntil=d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});}
@@ -165,8 +202,9 @@
       return `<section class="developer" id="developer" data-track="About the developer"><div class="wrap">
         ${head('Built on trust',`Why buy from ${esc(D.name.split(' ')[0])}.`,null)}
         <div class="stats">${D.stats.map(s=>`<div class="stat rv"><b>${count(s.v,{suf:s.s||''})}</b><span>${esc(s.l)}</span></div>`).join('')}</div>
-        <div class="delivered">${D.delivered.map(p=>`<figure class="rv"><div class="media"><img src="${esc(p.img)}" alt="${esc(p.name)}" loading="lazy"></div><figcaption><b>${esc(p.name)}</b><span>${esc(p.place)} · Delivered ${p.year}</span></figcaption></figure>`).join('')}</div>
+        <div class="delivered">${D.delivered.map(p=>`<figure class="rv"><div class="media"><img src="${esc(p.img)}" alt="${esc(p.name)}" loading="lazy"></div><figcaption><b>${esc(p.name)}</b><span>${[p.place,p.year?`Delivered ${p.year}`:''].filter(Boolean).map(esc).join(' · ')}</span></figcaption></figure>`).join('')}</div>
         <ul class="promises">${D.promises.map(([t,x])=>`<li class="rv"><b>${esc(t)}</b><span>${esc(x)}</span></li>`).join('')}</ul>
+        ${(D.awards||[]).length?`<div class="awards rv" style="display:grid;gap:6px;padding:26px 0;border-bottom:1px solid var(--line)"><b style="font-family:var(--display);font-weight:400;font-size:22px">Awards</b>${D.awards.map(a=>`<span style="color:var(--muted)">${esc(a)}</span>`).join('')}</div>`:''}
       </div></section>`;
     },
     next(){
@@ -331,8 +369,21 @@
     dlg.querySelector('.pn-sw [aria-current]')?.scrollIntoView({block:'nearest',inline:'center'});
     if(sub){const t=body.querySelector('#p-'+sub);if(t) requestAnimationFrame(()=>{body.scrollTop=t.offsetTop-body.offsetTop;});}
     track('Opened · '+name);
+    if(isU) dwStart(u.id); else dwStop();
   }
-  function closePanel(){const dlg=panel();if(dlg.open)dlg.close();}
+  function closePanel(){const dlg=panel();if(dlg.open)dlg.close();dwStop();}
+
+  // ---------- buyer engagement, read back by the rep's Shared with client card ----------
+  function engWrite(fn){
+    if(!TRACK) return;
+    try{const all=JSON.parse(localStorage.getItem('bricly.proposal.eng')||'{}'),e=all[AID]||(all[AID]={opens:[],homes:{}});fn(e);localStorage.setItem('bricly.proposal.eng',JSON.stringify(all));}catch(err){/* storage blocked */}
+  }
+  let dw=null;
+  function dwStart(id){dwStop();dw={id,t:Date.now()};}
+  function dwStop(){if(!dw)return;const {id,t}=dw;dw=null;engWrite(e=>{e.homes[id]=(e.homes[id]||0)+(Date.now()-t);});}
+  engWrite(e=>e.opens.push(Date.now()));
+  addEventListener('pagehide',dwStop);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')dwStop();});
 
   // ---------- render ----------
   const TEMPLATES={
@@ -508,7 +559,7 @@
     box.querySelector('#demo-intro').onclick=()=>{localStorage.removeItem('bricly.proposal.seen.'+P.token);closePanel();scrollTo(0,0);intro();};
   }
 
-  document.getElementById('panel').addEventListener('close',()=>{S.cur=null;pio&&pio.disconnect();spy&&spy.disconnect();panel().innerHTML='';document.body.classList.remove('panel-open');});
+  document.getElementById('panel').addEventListener('close',()=>{dwStop();S.cur=null;pio&&pio.disconnect();spy&&spy.disconnect();panel().innerHTML='';document.body.classList.remove('panel-open');});
   document.getElementById('panel').addEventListener('click',e=>{if(e.target===e.currentTarget)closePanel();});
 
   window.PROPOSAL_APP={render,state:S,track,openPanel};

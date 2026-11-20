@@ -39,7 +39,7 @@ const MI_FACTS={'OPP-1008':[['Budget','€350,000','Web enquiry · Mon 14 Sep'],
 // Maria's August no-show was rebooked for Thu 1 Oct, which has just ended.
 (function miSeedOpps(){
   const o=typeof OPPS!=='undefined'&&OPPS.find(v=>v.id==='OPP-1008'); if(!o) return;
-  o.stage='Appointment Booked'; o.next={d:'Today',t:'Log the viewing outcome'}; o.appt={kind:'viewing',at:'Oct 1 09:30'};
+  o.stage='Appointment Booked'; o.rep='Sam'; o.next={d:'Today',t:'Log the viewing outcome'}; o.appt={kind:'viewing',at:'Oct 1 09:30'};
 })();
 
 function miFirst(o){return o.lead.split(' ')[0];}
@@ -650,7 +650,7 @@ function miCommit(o,a,d){
     const p=d.props.find(v=>v.id==='A2'), t2=d.turns.find(t=>/September/i.test(t[2]))?.[0]||p.ts;
     if(x.miFacts){const set=(k,v,s,ts)=>{const r=x.miFacts.find(r=>r[0]===k);const row=[k,v,s,[a.id,ts]];if(r)Object.assign(r,row);else x.miFacts.push(row);};set('Budget',bt,srcOf('A2'),p.ts);set('Move in by','Sep 2027',`${note?'Reported by '+MI_ME:miSrcLabel(a)[0].toUpperCase()+miSrcLabel(a).slice(1)} · ${a.date}, ${t2}`,t2);}
     wr.push([`Budget ${fmtEur(d.was)} → ${bt}`,`Source: ${srcOf('A2').toLowerCase()}`,'', '',p.ts],['Move in by Sep 2027',`Source: ${note?'reported by '+MI_ME:miSrcLabel(a)} · ${t2}`,'','',t2]);}
-  x.objections=x.objections||[];
+  x.objections=x.objections||(typeof IN_SEED_OBJ!=='undefined'&&IN_SEED_OBJ[o.lead]||[]).map(v=>({...v}));
   [['A3','Payment plan','“Thirty percent on signing is too much for us right now.”',d.u2.id,'30% on signing is too high'],['A4','Size and layout','“The bedrooms feel a bit tight though.”',d.u1.id,'bedrooms feel tight']].forEach(([id,cat,q,u,short])=>{
     if(!ok(id))return; const p=d.props.find(v=>v.id===id), qq=note?p.q.replace(/^Reported by Sam · /,'Reported by Sam: '):q;
     x.objections.unshift({cat,q:qq,src:`${a.label||'Meeting'} · ${a.date}, ${p.ts} · ${u}`,open:true,oppId:o.id,apptId:a.id,ts:p.ts});

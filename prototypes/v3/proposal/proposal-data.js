@@ -28,6 +28,7 @@
     rep:{name:'Sam Borg',role:'Senior sales adviser',initials:'SB',phone:'+356 7900 1122',whatsapp:'35679001122',email:'sam@seashore.mt'},
     developer:{
       name:'Seashore Developments',brand:SEASHORE,hero:A+'cine-pool.jpg',cover:A+'cover-lounge.jpg',intro:A+'cliffs.jpg',
+      // Fallbacks. The live page takes years, projects, units, guarantees, awards and delivered projects from Settings › Proposal page › Developer section.
       stats:[{v:28,l:'Years building'},{v:14,l:'Developments delivered'},{v:1260,l:'Homes handed over'},{v:96,l:'Handed over on schedule',s:'%'}],
       delivered:[{name:'Marina Point',place:'Kalkara',year:2019,img:A+'harbour.jpg'},{name:'The Ramparts',place:'Valletta',year:2021,img:A+'dev-lalex.jpg'},{name:'Laguna Terraces',place:'St Paul’s Bay',year:2024,img:A+'dev-verdala.jpg'}],
       promises:[

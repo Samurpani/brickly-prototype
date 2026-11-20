@@ -220,33 +220,7 @@ function otPackSend(){
   otFinish(`Follow-up pack sent to ${first}`);
 }
 
-// Offers: every round is recorded; an accepted offer commits the buyer and requests the hold.
-(function(){
-  const base=window.oppOfferSave;
-  window.oppOfferSave=function(){
-    const o=oppCur, x=getExt(o), amt=+document.getElementById('ofAmt')?.value, out=document.querySelector('#ofOut .on')?.textContent||'Pending';
-    if(!amt){base.apply(this,arguments);return;}
-    base.apply(this,arguments);
-    const u=o.units[0], un=u&&UN(u);
-    x.bids=x.bids||[]; x.bids.push({d:'Today',by:o.lead,amt:fmtEur(amt),type:x.bids.length?'Revised offer':'Initial offer',res:out});
-    let crossed=false, msg='Offer logged';
-    if(out==='Accepted'){
-      const hadHold=oppHoldState(o,x);
-      crossed=otMove(o,'hold',{tl:2,next:{label:'Chase hold approval',due:'Today'}});
-      if(u&&!hadHold&&typeof apFile==='function'){const r=apFile(o,u,'hold');x.hold={unit:u,state:'requested'};x.blocker=`Hold on ${u} — ${r.id} waiting in Approvals`;otLog(x,`Hold requested on ${u} · ${r.id}`);}
-      if(un&&amt<un.price&&typeof apFile==='function'){const p=apFile(o,u,'price');Object.assign(p,{offer:amt,floor:Math.round(un.price*0.97/1000)*1000,note:`Accepted at ${fmtEur(amt)} on ${fmtEur(un.price)} list`});otLog(x,`Price exception sent to Approvals · ${p.id}`);}
-      msg='Offer accepted · hold requested'+(un&&amt<un.price?' and price exception sent':'');
-      if(o.stage!=='Negotiating'&&!EXIT_STAGES.includes(o.stage)) o.stage='Negotiating';
-    }else{
-      otMove(o,'negotiating',{tl:1});
-      x.next={label:out==='Countered'?`Wait for ${otFirst(o)}’s reply to the counter`:out==='Rejected'?`Discuss alternatives with ${otFirst(o)}`:'Chase a decision on the offer',due:'In 2 days',overdue:false};
-      msg=`Offer ${out.toLowerCase()} · round ${x.bids.length} logged`;
-    }
-    renderOpp(); if(typeof pipeRenderAll==='function') pipeRenderAll(); if(typeof apBadge==='function') apBadge();
-    if(crossed&&typeof ojConfetti==='function') ojConfetti();
-    showToast(msg);
-  };
-})();
+// Offers (log, approval, accept, POS) live in opp-offer.js: one Offer object per opportunity.
 
 // ---------- Hold · chase the approval ----------
 function otHoldReq(o){return typeof APPROVALS==='undefined'?null:APPROVALS.find(r=>!r.decided&&r.opp===o.id&&r.type==='hold');}
@@ -342,3 +316,4 @@ function otKycSend(){
   x.next={label:`KYC from ${otFirst(o)} · ${docs.length} document${docs.length===1?'':'s'}`,due:'In 3 days',overdue:false};
   otFinish(`Requested ${docs.length} document${docs.length===1?'':'s'} from ${otFirst(o)}`);
 }
+

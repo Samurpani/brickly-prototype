@@ -1,9 +1,13 @@
 // Approvals queue — holds, reservations and price exceptions in arrival order.
 // Design: Bricly Approvals (apr1) + Approval Queue Flows 1–8.
-const AP_TYPES={hold:{l:'Hold',tone:'hold'},reservation:{l:'Reservation',tone:'res'},price:{l:'Price exception',tone:'price'},returning:{l:'Returning lead',tone:'lead'},takeover:{l:'Takeover',tone:'lead'},commission:{l:'Commission split',tone:'price'},deal:{l:'Deal from POS',tone:'res'}};
+const AP_TYPES={hold:{l:'Hold',tone:'hold'},reservation:{l:'Reservation',tone:'res'},price:{l:'Price exception',tone:'price'},offer:{l:'Offer approval',tone:'price'},returning:{l:'Returning lead',tone:'lead'},takeover:{l:'Takeover',tone:'lead'},commission:{l:'Commission split',tone:'price'},deal:{l:'Deal from POS',tone:'res'}};
 // Lead ownership requests (Cold Lead Returns flows) have no unit line; holds and reservations queue per unit.
 const AP_LEAD_TYPES=new Set(['returning','takeover']);
 function apUnitLine(r){return r.type==='hold'||r.type==='reservation';}
+// Offer approvals (an offer below asking by more than the limit) are decided on price, not queued per unit.
+function apPriceLike(r){return r.type==='price'||r.type==='offer';}
+function apApprover(){return 'Rachel Mifsud';}
+function apBelowPct(r){const u=apUnit(r.unit),ask=r.ask||(u?u.price:0);return ask?Math.round((ask-r.offer)/ask*1000)/10:0;}
 const AP_REASONS=['Unit already committed','Terms outside policy','Buyer not qualified yet','Needs more information','Other'];
 const AP_REPS={'Sam':{ini:'SU',av:'var(--primary)'},'Karl Zammit':{ini:'KZ',av:'#9b5a3c'}};
 let apTab='open', apType='all', apSel=null, apSeq=1050;
@@ -22,7 +26,7 @@ const AP_LOG=[];
 function apUnit(id){return typeof UN==='function'?UN(id):null;}
 function apOpen(){return APPROVALS.filter(r=>!r.decided);}
 function apAge(m){return m>=60?`${Math.floor(m/60)}h ${m%60}m`:`${m}m`;}
-function apLine(r){if(AP_LEAD_TYPES.has(r.type)||r.type==='commission'||r.type==='deal')return {pos:1,n:1};const same=apOpen().filter(q=>q.unit===r.unit&&!AP_LEAD_TYPES.has(q.type));return {pos:same.indexOf(r)+1,n:same.length};}
+function apLine(r){if(AP_LEAD_TYPES.has(r.type)||r.type==='commission'||r.type==='deal'||r.type==='offer')return {pos:1,n:1};const same=apOpen().filter(q=>q.unit===r.unit&&!AP_LEAD_TYPES.has(q.type)&&q.type!=='offer');return {pos:same.indexOf(r)+1,n:same.length};}
 function apHeldBy(r){return apUnitLine(r)?APPROVALS.find(q=>q.decided==='approved'&&!q.released&&q.unit===r.unit&&apUnitLine(q)&&q.id!==r.id)||null:null;}
 function apCanDecide(){return typeof curPersona==='undefined'||curPersona!=='rep';}
 function apTerms(r){
@@ -33,6 +37,7 @@ function apTerms(r){
   if(r.type==='takeover') return `Take over from ${r.orig} · quiet ${r.lastAct.split('· ').pop().replace(' ago','')}`;
   if(r.type==='hold') return `Hold until ${r.until.split(',')[0]} · ${r.days} days`;
   if(r.type==='reservation') return `${fmtEur(r.deposit)} deposit · promise of sale by ${r.posBy}`;
+  if(r.type==='offer') return `€${Math.round(r.offer/1000)}k offer on €${Math.round((r.ask||(u?u.price:r.offer))/1000)}k asking`;
   return `€${Math.round(r.offer/1000)}k offer on €${Math.round((u?u.price:r.offer)/1000)}k list`;
 }
 function apBadge(){
@@ -63,7 +68,7 @@ function apRender(){
     </div>
     <div class="row-between crm-page-controls">
       <div class="tabs"><button class="tab ${apTab==='open'?'on':''}" onclick="apSetTab('open')">Open · ${apOpen().length}</button><button class="tab ${apTab==='decided'?'on':''}" onclick="apSetTab('decided')">Decided · ${decided}</button></div>
-      <div class="apq-types">${[['all','All types'],['hold','Holds'],['reservation','Reservations'],['price','Price exceptions'],['commission','Commission splits'],['deal','Deals from POS'],['lead','Leads']].map(([k,l])=>`<button type="button" class="apq-type ${apType===k?'on':''}" onclick="apSetType('${k}')">${l}</button>`).join('')}</div>
+      <div class="apq-types">${[['all','All types'],['hold','Holds'],['reservation','Reservations'],['price','Price exceptions'],['offer','Offers'],['commission','Commission splits'],['deal','Deals from POS'],['lead','Leads']].map(([k,l])=>`<button type="button" class="apq-type ${apType===k?'on':''}" onclick="apSetType('${k}')">${l}</button>`).join('')}</div>
     </div>
     ${apCanDecide()?'':'<div class="apq-note">Approvals are decided by managers. You can see where your requests are in line.</div>'}
     <div class="apq-grid">
@@ -77,6 +82,7 @@ function apCard(r,i){
     :AP_LEAD_TYPES.has(r.type)?'<span class="apq-chip warn">Decide within 2h</span>'
     :r.type==='commission'?'<span class="apq-chip">Differs from default</span>'
     :r.type==='deal'?'<span class="apq-chip warn">Unit not reserved</span>'
+    :r.type==='offer'?`<span class="apq-chip warn">${apBelowPct(r)}% below asking</span>`
     :apUnitLine(r)&&apHeldBy(r)?`<span class="apq-chip warn">Unit held · ${typeof uhPlace==='function'&&uhPlace(r)?uhOrd(uhPlace(r))+' in line':'waiting'}</span>`
     :line.n<2?'<span class="apq-chip">Only one on unit</span>':line.pos===1?`<span class="apq-chip">1st of ${line.n} on unit</span>`:`<span class="apq-chip warn">${line.pos===2?'2nd':line.pos+'th'} · waiting</span>`;
   return `<div class="apq-card ${r.id===apSel?'on':''}" role="listitem" tabindex="0" onclick="apPick('${r.id}')" onkeydown="if(event.key==='Enter')apPick('${r.id}')">
@@ -93,14 +99,16 @@ function apDetail(r){
   if(r.type==='commission'&&typeof dfApDetail==='function') return dfApDetail(r);
   if(r.type==='deal'&&typeof dcApDetail==='function') return dcApDetail(r);
   const t=AP_TYPES[r.type], u=apUnit(r.unit), line=apLine(r), others=apOpen().filter(q=>q.unit===r.unit&&q.id!==r.id);
-  const title=r.type==='hold'?`Hold ${r.unit} for ${r.buyer}`:r.type==='reservation'?`Reserve ${r.unit} for ${r.buyer}`:`Price exception on ${r.unit} for ${r.buyer}`;
-  const heldBy=r.type!=='price'&&!r.decided?apHeldBy(r):null;
-  const blockedBy=r.type!=='price'&&!r.decided&&(line.pos>1||!!heldBy);
+  const title=r.type==='hold'?`Hold ${r.unit} for ${r.buyer}`:r.type==='reservation'?`Reserve ${r.unit} for ${r.buyer}`:r.type==='offer'?`Offer on ${r.unit} from ${r.buyer}`:`Price exception on ${r.unit} for ${r.buyer}`;
+  const heldBy=!apPriceLike(r)&&!r.decided?apHeldBy(r):null;
+  const blockedBy=!apPriceLike(r)&&!r.decided&&(line.pos>1||!!heldBy);
   const devAvail=u?UNITS.filter(x=>x.dev===u.dev&&x.status==='available').length:0;
   const bedAvail=u?UNITS.filter(x=>x.dev===u.dev&&x.beds===u.beds&&x.status==='available').length:0;
-  const after=r.type==='hold'?'On hold':r.type==='reservation'?'Reserved':'Price agreed';
+  const after=r.type==='hold'?'On hold':r.type==='reservation'?'Reserved':r.type==='offer'?'Offer accepted':'Price agreed';
   const effect=r.decided==='rejected'
     ?`<div class="apq-ctx-v">No inventory change</div><div class="apq-ctx-s">The request was rejected.</div>`
+    :r.type==='offer'
+    ?`<div class="apq-ctx-v">Offer of ${fmtEur(r.offer)} accepted for ${xesc(r.buyer)}</div><div class="apq-ctx-s">${fmtEur((r.ask||(u?u.price:r.offer))-r.offer)} below asking. A hold on ${r.unit} is requested next. The unit’s asking price doesn’t change.</div>`
     :r.type==='price'
     ?`<div class="apq-ctx-v">${fmtEur(r.offer)} agreed for ${xesc(r.buyer)}</div><div class="apq-ctx-s">€${Math.round(((u?u.price:r.offer)-r.offer)/1000)}k below list${r.floor&&r.offer<r.floor?` and €${Math.round((r.floor-r.offer)/1000)}k below the floor price`:''}. The unit’s list price doesn’t change.</div>`
     :`<div class="apq-ctx-s">${r.unit}</div><div class="apq-ctx-v">${u?STATUS_LABEL_AP(u.status):'Available'} → <b>${after}</b></div>
@@ -110,7 +118,7 @@ function apDetail(r){
     <div class="apq-d-head">
       <div><div class="apq-d-meta"><span class="apq-tag ${t.tone}">${t.l}</span>${r.id} · Filed ${r.filed} by ${xesc(r.rep)} via ${r.via}</div>
         <h2 class="apq-d-title">${xesc(title)}</h2>
-        <div class="apq-d-sub">${r.decided?apDecisionLine(r):apUnitLine(r)&&apHeldBy(r)&&typeof uhPlace==='function'&&uhPlace(r)?`${uhOrd(uhPlace(r))} in line on ${r.unit} · ${xesc(apHeldBy(r).buyer)} holds it · first come, first served`:line.n>1?`${line.pos===1?'1st':line.pos===2?'2nd':line.pos+'th'} of ${line.n} requests on ${r.unit} · first come, first served`:'Only request on this unit'}</div></div>
+        <div class="apq-d-sub">${r.decided?apDecisionLine(r):r.type==='offer'?`${apBelowPct(r)}% below asking, over the limit`:apUnitLine(r)&&apHeldBy(r)&&typeof uhPlace==='function'&&uhPlace(r)?`${uhOrd(uhPlace(r))} in line on ${r.unit} · ${xesc(apHeldBy(r).buyer)} holds it · first come, first served`:line.n>1?`${line.pos===1?'1st':line.pos===2?'2nd':line.pos+'th'} of ${line.n} requests on ${r.unit} · first come, first served`:'Only request on this unit'}</div></div>
       ${r.decided?`<div class="apq-d-acts"><button class="btn-ghost" onclick="apEditDecision('${r.id}')" ${apCanDecide()?'':'disabled'}>Edit decision</button></div>`:`<div class="apq-d-acts"><button class="btn-ghost" onclick="apRejectOpen('${r.id}')" ${apCanDecide()?'':'disabled'}>Reject</button><button class="btn-primary" onclick="apApprove('${r.id}')" ${apCanDecide()&&!blockedBy?'':'disabled'} ${blockedBy?`title="Waiting for ${heldBy?heldBy.id:others[0].id} on this unit"`:''}>Approve</button></div>`}
     </div>
     ${blockedBy?`<div class="apq-wait">${heldBy?`Can’t be approved while ${r.unit} is held for ${xesc(heldBy.buyer)} (${heldBy.id}).`:`Can’t be approved while ${others[0].id} is first in line on ${r.unit}.`} It moves up if that hold is released or expires.</div>`:''}
@@ -119,8 +127,11 @@ function apDetail(r){
       <div><div class="k">Buyer</div><div class="v">${r.opp?`<a onclick="openOpp('${r.opp}')">${xesc(r.buyer)} · ${r.opp}</a>`:xesc(r.buyer)}</div></div>
       ${r.type==='hold'?`<div><div class="k">Hold until</div><div class="v">${r.until} · ${r.days} days</div></div>`:''}
       ${r.type==='reservation'?`<div><div class="k">Deposit</div><div class="v">${fmtEur(r.deposit)} · promise of sale by ${r.posBy}</div></div>`:''}
-      ${r.type==='price'?`<div><div class="k">Offer</div><div class="v">${fmtEur(r.offer)}</div></div>`:''}
-      <div><div class="k">Price</div><div class="v">${u?'€'+Math.round(u.price/1000)+'k list':'—'}</div></div>
+      ${apPriceLike(r)?`<div><div class="k">Offer</div><div class="v">${fmtEur(r.offer)}</div></div>`:''}
+      ${r.type==='offer'?`<div><div class="k">Deposit</div><div class="v">${r.deposit?fmtEur(r.deposit):'Not set'}${r.plan?` with a ${xesc(r.plan)} plan`:''}</div></div>
+      <div><div class="k">Offer expires</div><div class="v">${r.expiry?xesc(r.expiry):'No expiry set'}</div></div>
+      ${r.conditions?`<div><div class="k">Conditions</div><div class="v">${xesc(r.conditions)}</div></div>`:''}`:''}
+      <div><div class="k">Price</div><div class="v">${r.type==='offer'?fmtEur(r.ask||(u?u.price:0))+' asking':u?'€'+Math.round(u.price/1000)+'k list':'—'}</div></div>
     </div>
     ${r.note?`<div class="apq-kv-note"><div class="k">${r.via==='WhatsApp'?'Original message':'Note from '+xesc(r.rep.split(' ')[0])}</div><div class="v">${xesc(r.note)}</div></div>`:''}</div>
     <div class="apq-sec"><div class="row-between"><h3>Context</h3><span class="apq-src">From records · updated live</span></div>
@@ -216,6 +227,11 @@ function apRestoreEffects(r,state){
     EXT[state.opportunity.ref.id]=state.ext.ref;
   }else if(state.opportunity) delete EXT[state.opportunity.ref.id];
   if(state.unit) state.unit.status=state.unitStatus;
+  // An approved offer files a hold and may book a pending POS signing; restoring the baseline takes those back out.
+  if(r.type==='offer'){
+    for(let i=APPROVALS.length-1;i>=0;i--) if(APPROVALS[i].fromOffer===r.id) APPROVALS.splice(i,1);
+    if(typeof cvExtra!=='undefined'&&Array.isArray(cvExtra)) for(let i=cvExtra.length-1;i>=0;i--) if(cvExtra[i].fromOffer===r.id) cvExtra.splice(i,1);
+  }
 }
 function apCaptureState(r){
   return {
@@ -270,7 +286,7 @@ function apCommitDecision(r,decision,reason='',note='',edited=false){
   else if(r.type==='deal'){if(typeof dcApplyDecision==='function') dcApplyDecision(r);}
   else if(!AP_LEAD_TYPES.has(r.type)){
     const u=apUnit(r.unit);
-    if(decision==='approved'&&u&&r.type!=='price') u.status=r.type==='hold'?'hold':'reserved';
+    if(decision==='approved'&&u&&!apPriceLike(r)) u.status=r.type==='hold'?'hold':'reserved';
     apSyncOpp(r);
   }
   const act=edited?`Decision edited · ${r.decided==='approved'?'Approved':'Rejected'}${r.reason?' · '+r.reason:''}`
@@ -335,6 +351,7 @@ function apApprove(id){
     ?r.type==='returning'?`${r.buyer} assigned to ${r.assignedTo}${r.newOpp?' · '+r.newOpp+' created':''}`:r.decided==='rejected'?`${r.buyer} stays with ${r.orig}`:`${r.buyer} moved to ${r.assignedTo}`
     :r.type==='commission'?`${r.id} approved · commission split agreed`
     :r.type==='deal'?`${r.id} approved · ${r.deal} live · ${r.unit} reserved`
+    :r.type==='offer'?`${r.id} approved · offer accepted for ${r.buyer}`
     :`${r.id} approved · ${r.unit} ${r.type==='price'?'price agreed':r.type==='hold'?'on hold':'reserved'}${next?` · ${next.id} stays in line`:''}`;
   apFinishDecision(r,state,message);
 }
@@ -384,9 +401,12 @@ function apSyncOpp(r){
   if(!r.opp||typeof OPPS==='undefined') return;
   const o=OPPS.find(q=>q.id===r.opp); if(!o) return;
   const x=getExt(o);
-  if(r.decided==='approved'){
+  if(r.type==='offer'){if(typeof ofApDecision==='function') ofApDecision(r,o);}
+  else if(r.decided==='approved'){
     if(r.type==='hold') x.hold={unit:r.unit,state:'held'};
     x.blocker=null; if(tlIdx(o,x)<2) x.tl=2;
+    // D-36: a hold on its own doesn't commit the buyer; the timeline waits for an accepted offer.
+    if(r.type==='hold'&&typeof ofAccepted==='function'&&!ofAccepted(o)) x.next={label:`Log ${o.lead.split(' ')[0]}’s offer`,due:'Today',overdue:false};
     x.comms.unshift(r.type==='hold'
       ?{ch:'sys',tone:'ok',t:'Just now',text:`${r.unit} put on hold until ${String(r.until||'').split(',')[0]} · approved by ${r.by}`}
       :{ch:'sys',t:'Just now',text:`${AP_TYPES[r.type].l} on ${r.unit} approved by ${r.by} · moved to Committed`});

@@ -1,6 +1,8 @@
 /* Present Mode v3 · Checkout: compare selected units, buyer-safe thank-you
- * gate, link to an opportunity (existing, via contact, or new buyer), the
- * automatically created share link, and the buyer's view of that link.
+ * gate, link to an opportunity (existing, via contact, or new buyer), then
+ * Send proposal (the shared drawer in send-buyer.js). The older selection
+ * link (#present=<id>) and its buyer view below still open, but checkout no
+ * longer offers them.
  */
 (() => {
   'use strict';
@@ -219,30 +221,31 @@
         <div style="padding:4px 6px 6px"><button class="pv-cta sm" data-a="linkNew" ${L.name.trim() ? '' : 'disabled'}>Create buyer &amp; opportunity</button></div>`
       : `<div class="pv-search"><div class="in">${I('search')}<input data-f="lq" value="${esc(L.q)}" placeholder="Search ${L.type === 'opportunity' ? 'opportunities' : 'contacts'}" aria-label="Search"></div></div><div class="pv-list2" data-keep="linklist">${list.join('') || '<div class="pv-sel-empty">No matches. Try New buyer.</div>'}</div>`}</section>`;
   }
+  // Sending goes through the same Send proposal drawer as the opportunity (send-buyer.js), pre-filled
+  // with the residences, finishes and layouts picked here. The output is the Buyer proposal on bricly.mt/p/.
   function shareBox() {
     const s = S(), out = ensureOutput(), c = CONTACTS.find(x => x.id === s.contactId);
-    if (!out) return `<section class="pv-box" aria-disabled="true"><h3><span class="n">2</span>Share the selection</h3><p>${s.sel.length ? 'Link an opportunity and the buyer’s link is created automatically.' : 'Add residences to the selection first.'}</p></section>`;
-    const url = P.outputURL(out.id);
-    return `<section class="pv-box"><h3><span class="n ok">${I('check')}</span>Share the selection</h3><p>Their personal link was created automatically. It stays in sync until you change the selection.</p>
-      <div class="pv-link">${I('link')}<code>${esc(url)}</code><button class="pv-cta sm" data-a="share" data-v="copy">${I('content_copy')}Copy</button></div>
-      ${out.dropped?.length ? `<div class="pv-warn">${I('error')}<span>${out.dropped.map(esc).join(', ')} ${out.dropped.length === 1 ? 'is' : 'are'} no longer available and ${out.dropped.length === 1 ? 'was' : 'were'} left out of the link.</span></div>` : ''}
-      <div class="pv-share"><button data-a="share" data-v="wa" ${c?.phone && c?.consent?.wa ? '' : 'disabled'} title="${!c?.phone ? 'No phone number on the record' : !c?.consent?.wa ? 'No WhatsApp consent recorded' : ''}">${I('chat')}WhatsApp</button><button data-a="share" data-v="email" ${c?.email && c?.consent?.em ? '' : 'disabled'} title="${!c?.email ? 'No email on the record' : !c?.consent?.em ? 'No email consent recorded' : ''}">${I('mail')}Email</button>
-        <button data-a="share" data-v="pdf">${I('picture_as_pdf')}PDF</button><button data-a="buyerPreview">${I('visibility')}Preview</button></div>
+    if (!out) return `<section class="pv-box" aria-disabled="true"><h3><span class="n">2</span>Send the proposal</h3><p>${s.sel.length ? 'Link an opportunity first, then send the proposal.' : 'Add residences to the selection first.'}</p></section>`;
+    const o = OPPS.find(x => x.id === s.oppId), first = o.lead.split(' ')[0], n = out.items.length, cmp = out.compare && out.items.filter(i => i.cmp).length > 1;
+    const sent = typeof swAssets === 'function' ? swAssets(o).filter(a => a.type === 'proposal' && a.attempts.length) : [];
+    return `<section class="pv-box"><h3><span class="n ${sent.length ? 'ok' : ''}">${sent.length ? I('check') : '2'}</span>Send the proposal</h3>
+      <p>${esc(first)} gets one link to the proposal: the ${n} residence${n === 1 ? '' : 's'} picked today with their finishes and layouts${cmp ? ', and the comparison' : ''}. Website and PDF.</p>
+      ${out.dropped?.length ? `<div class="pv-warn">${I('error')}<span>${out.dropped.map(esc).join(', ')} ${out.dropped.length === 1 ? 'is' : 'are'} no longer available and ${out.dropped.length === 1 ? 'was' : 'were'} left out.</span></div>` : ''}
       ${c && ((c.phone && !c.consent?.wa) || (c.email && !c.consent?.em)) ? `<div class="pv-consent">${c.phone && !c.consent?.wa ? `<button class="pv-ghost" data-a="consent" data-v="wa">${I('verified')}Record WhatsApp consent</button>` : ''}${c.email && !c.consent?.em ? `<button class="pv-ghost" data-a="consent" data-v="em">${I('verified')}Record email consent</button>` : ''}<small class="pv-muted">Only once ${esc(c.name.split(' ')[0])} has agreed. It is logged on the contact.</small></div>` : ''}
-      <div class="pv-optrow"><span>Link expires</span><div class="pv-seg" style="margin:0">${[7,14,30].map(n => `<button data-a="linkExpiry" data-v="${n}" aria-pressed="${(out.days || 14) === n}" aria-label="${n} days">${n}d</button>`).join('')}</div></div>
-      <div class="pv-optrow"><span>Prices valid until</span><b style="font-weight:500">${new Date(out.validUntil).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</b></div>
-      <button class="pv-optrow" data-a="optPrices" aria-pressed="${s.prices}">Show prices<span class="pv-toggle ${s.prices ? 'on' : ''}"></span></button>
-      <button class="pv-optrow" data-a="optCompare" aria-pressed="${s.includeCompare}">Include the comparison<span class="pv-toggle ${s.includeCompare ? 'on' : ''}"></span></button>
-      ${P.engagementHtml ? P.engagementHtml(out) : ''}
-      ${s.shares.length ? `<div class="pv-log">${s.shares.map(x => `<div>${I(x.icon)}${esc(x.text)}<span style="margin-left:auto">${esc(x.at)}</span></div>`).join('')}</div>` : ''}
-      <p class="pv-muted" style="padding:2px 10px 8px;font-size:11px">Prototype: WhatsApp and email are simulated; nothing is sent. The link opens in this browser.</p></section>`;
+      ${sent.map(a => { const t = a.attempts[a.attempts.length-1]; return `<div class="pv-optrow pv-sent"><span>${I('send')}Proposal v${a.pub} · ${esc(t.ch === 'Link' ? 'link copied' : t.ch)} · ${esc(t.when)}</span><small class="pv-muted">${esc(typeof sbEngLine === 'function' ? sbEngLine(o,a) : '')}</small></div>`; }).join('')}
+      <div style="padding:6px 6px 4px"><button class="pv-cta sm" data-a="sendProposal">${I('send')}${sent.length ? 'Send new version' : 'Send proposal'}</button></div>
+      <p class="pv-muted" style="padding:2px 10px 8px;font-size:11px">Prototype: WhatsApp and email are simulated; nothing is sent.</p></section>`;
   }
+  A.sendProposal = () => {
+    const s = S(), out = ensureOutput(); if (!out || typeof sbOpen !== 'function') return;
+    sbOpen(s.oppId,{kind:'present',items:out.items,dropped:out.dropped || [],compare:out.compare && out.items.filter(i => i.cmp).length > 1});
+  };
   P.screens.checkout = () => {
     const s = S(), o = OPPS.find(x => x.id === s.oppId);
     const ccys = new Set(s.sel.map(i => P.ccyOf(D.unit(i.uid)))), TC = P.prefs.ccy !== 'local' ? P.prefs.ccy : ccys.size === 1 ? [...ccys][0] : 'EUR';
     const total = s.sel.reduce((a,i) => a+P.toCcy(P.unitPrice(i.uid,i.finish),D.unit(i.uid),TC),0), mixed = [...ccys].some(c => c !== TC);
     return `<div class="pv-dark" data-keep="co"><div class="pv-top"><div class="r"><button class="pv-chip" data-a="cmpBack">${I('arrow_back')}Back to presentation</button></div><div class="r">${P.closeBtn()}</div></div>
-      <div class="wrap"><div class="pv-hd"><div><div class="pv-eyebrow">${I('lock')}Rep only · not for screen sharing</div><h1 tabindex="-1">Keep the conversation going.</h1><p>Link the presentation to the buyer, then send them their selection.</p></div></div>
+      <div class="wrap"><div class="pv-hd"><div><div class="pv-eyebrow">${I('lock')}Rep only · not for screen sharing</div><h1 tabindex="-1">Keep the conversation going.</h1><p>Link the presentation to the buyer, then send the proposal.</p></div></div>
       <div class="pv-co"><div style="display:flex;flex-direction:column;gap:16px">${linkBox()}${shareBox()}</div>
       <aside class="pv-box"><h3>Selection<small class="pv-muted" style="margin-left:auto;font-weight:400">${s.sel.length} residence${s.sel.length === 1 ? '' : 's'}</small></h3>
         ${s.sel.map(i => { const u = D.unit(i.uid), f = P.finish(i.uid,i.finish); return `<div class="pv-sum"><img src="${esc(P.unitImg(i.uid))}" alt=""><div class="t"><b style="font-weight:500">${esc(i.uid)}</b><small>${esc(DEV(u.dev).name)} · ${u.beds ? u.beds+' bed' : 'Studio'} · ${P.ar(D.area(u),u)}</small><small>${esc(f?.name || '—')} finish${D.styleName(i.dev,i.style) ? ' · '+esc(D.styleName(i.dev,i.style))+' style' : ''}</small></div><span>${P.fmt(P.unitPrice(i.uid,i.finish),u,{force:true})}</span><button class="pv-ib" data-a="heart" data-v="${esc(i.uid)}" aria-label="Remove ${esc(i.uid)}">${I('close')}</button></div>`; }).join('') || '<div class="pv-sel-empty">No residences selected.</div>'}

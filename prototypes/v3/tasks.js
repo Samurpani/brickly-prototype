@@ -158,7 +158,7 @@ function tqFind(id){return TQ.find(t=>t.id===id);}
 function tqComplete(t){
   if(t.status==='done'){t.status='open';t.doneOn=null;tqRender();return;}
   t.status='done';t.doneOn=tqToday();tqRender();
-  const o=tqOpp(t.rec);if(o)getExt(o).comms.unshift({ch:'sys',t:'Just now',text:'Task done · '+t.title});
+  const o=tqOpp(t.rec)||OPPS.find(x=>x.id===t.rec);if(o)getExt(o).comms.unshift({ch:'sys',t:'Just now',text:'Task done: '+t.title,task:t.id});
   showToast('Done · '+t.title+' · tick it again to undo');
 }
 function tqReschedule(t,k){
@@ -200,34 +200,54 @@ function tqAction(btn){
   if(k==='m:chat'){tqMenu=null;chatNavClick();return;}
 }
 document.addEventListener('click',e=>{const b=e.target.closest('#tq-root [data-tq]');if(b&&!b.disabled){e.stopPropagation();tqAction(b);}},true);
-// ---------- Add / edit task (Flows 1–2): from the Tasks page or a record ----------
+// ---------- Add / edit task (Flows 1–2): one dialog for the Tasks page, the opportunity and its Activity ----------
+const TQ_REMIND=[['none','None'],['due','At due time'],['15','15 min before'],['60','1 hour before'],['1d','1 day before'],['custom','Custom date and time']];
+function tqRemindLabel(key,at){
+  if(key==='custom'){if(!at)return '';const d=new Date(at);return `${tqDay(at.slice(0,10))}, ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
+  return key&&key!=='none'?(TQ_REMIND.find(r=>r[0]===key)||[,''])[1]:'';
+}
+function tqRemindPick(v){const c=document.getElementById('tqRemindCustom');if(c)c.hidden=v!=='custom';if(v==='custom')document.getElementById('tqRemindAt')?.focus();}
 function tqAddOpen(o={}){
   tqInit(); const m=document.getElementById('tq-actions-menu'); if(m) m.style.display='none';
   const t=o.edit, rec=t?t.rec:o.rec||'';
   const opts=OPPS.filter(x=>!EXIT_STAGES.includes(x.stage)).sort((a,b)=>a.lead.localeCompare(b.lead));
+  // Older tasks only have a reminder label ("11:45", "1 hour before"); read them into the same options.
+  const legacy=t&&!t.remindKey&&t.remind?(/15 min/.test(t.remind)?'15':/1 hour/.test(t.remind)?'60':'custom'):'';
+  const rKey=t?(t.remindKey||legacy||'none'):'none', owner=t?t.owner:tqMe();
+  const rAt=t?(t.remindAt||(legacy==='custom'&&t.due&&/^\d\d:\d\d/.test(t.remind)?`${t.due}T${t.remind.slice(0,5)}`:'')):'';
   qaDrawerOpen(t?'Edit task':'Add task',`
-    <div class="od-field"><label for="tqTitle">Task</label><input id="tqTitle" value="${xesc(t?t.title:o.title||'')}" placeholder="e.g. Send Daniel the parking options"></div>
+    <div class="od-field"><label for="tqTitle">Title <span class="tq-mu">(required)</span></label><input id="tqTitle" value="${xesc(t?t.title:o.title||'')}" placeholder="e.g. Send Daniel the parking options"></div>
+    <div class="od-field"><label for="tqDesc">Description <span class="tq-mu">(optional)</span></label><textarea id="tqDesc" rows="3" placeholder="Anything that helps when you pick it up">${xesc(t?t.desc||'':'')}</textarea></div>
     <div class="od-field"><label for="tqRec">Record</label>${t&&TQ_REC[t.rec]?`<input value="${xesc(tqRecLabel(t.rec))}" readonly>`:`<select id="tqRec" ${o.recLocked?'disabled':''}><option value="">Choose an opportunity</option>${opts.map(x=>`<option value="${x.id}" ${x.id===rec?'selected':''}>${xesc(x.lead)} · ${x.id}</option>`).join('')}</select>`}<span class="tq-mu">Every task belongs to a record.</span></div>
-    <div class="od-field" style="display:flex;gap:10px"><div style="flex:1"><label for="tqDue">Due</label><input id="tqDue" type="date" value="${t?t.due||'':cvISO(cvAddDays(cvToday(),1))}"></div><div style="flex:1"><label for="tqTime">Time (optional)</label><input id="tqTime" type="time" value="${t?t.time||'':''}"></div></div>
-    <div class="od-field"><label for="tqRemind">Reminder</label><select id="tqRemind">${['None','15 minutes before','1 hour before','09:00 on the day'].map(r=>`<option ${t&&t.remind===r?'selected':''}>${r}</option>`).join('')}</select></div>
-    <div class="tq-mu">Assigned to you. You can reassign it from the task’s ⋯ menu.</div>`,
+    <div class="od-field" style="display:flex;gap:10px"><div style="flex:1"><label for="tqDue">Due date</label><input id="tqDue" type="date" value="${t?t.due||'':cvISO(cvAddDays(cvToday(),1))}"></div><div style="flex:1"><label for="tqTime">Time</label><input id="tqTime" type="time" value="${t?t.time||'':''}"></div></div>
+    <div class="od-field"><label for="tqRemind">Reminder</label><select id="tqRemind" onchange="tqRemindPick(this.value)">${TQ_REMIND.map(([k,l])=>`<option value="${k}" ${k===rKey?'selected':''}>${l}</option>`).join('')}</select>
+      <div id="tqRemindCustom" ${rKey==='custom'?'':'hidden'} style="margin-top:8px"><label for="tqRemindAt" class="tq-mu">Remind me on</label><input id="tqRemindAt" type="datetime-local" value="${xesc(rAt)}"></div></div>
+    <div class="od-field"><label for="tqOwner">Assigned to</label><select id="tqOwner">${Object.entries(TQ_USERS).map(([k,u])=>`<option value="${k}" ${k===owner?'selected':''}>${xesc(u.name)}${k===tqMe()?' (me)':''}</option>`).join('')}</select></div>`,
     `<button class="btn-ghost" onclick="qaDrawerClose()">Cancel</button><button class="btn-primary" onclick="tqAddSave(${t?`'${t.id}'`:'null'})">${t?'Save':'Add task'}</button>`);
   document.getElementById('tqTitle').focus();
 }
 function tqAddSave(id){
-  const title=document.getElementById('tqTitle').value.trim(); if(!title){showToast('Give the task a title');return;}
-  const recEl=document.getElementById('tqRec'), due=document.getElementById('tqDue').value||null, time=document.getElementById('tqTime').value||null, remind=document.getElementById('tqRemind').value;
-  if(id){const t=tqFind(id);Object.assign(t,{title,due,time,remind:remind==='None'?'':remind});}
+  const title=document.getElementById('tqTitle').value.trim(); if(!title){showToast('Give the task a title');document.getElementById('tqTitle').focus();return;}
+  const recEl=document.getElementById('tqRec'), due=document.getElementById('tqDue').value||null, time=document.getElementById('tqTime').value||null;
+  const desc=(document.getElementById('tqDesc')?.value||'').trim(), owner=document.getElementById('tqOwner')?.value||tqMe();
+  const remindKey=document.getElementById('tqRemind').value, remindAt=remindKey==='custom'?document.getElementById('tqRemindAt').value:'';
+  if(remindKey==='custom'&&!remindAt){showToast('Pick the date and time for the reminder');document.getElementById('tqRemindAt').focus();return;}
+  if(!['none','custom'].includes(remindKey)&&!due){showToast('Add a due date for the reminder');document.getElementById('tqDue').focus();return;}
+  const remind=tqRemindLabel(remindKey,remindAt), me=tqMe();
+  let t;
+  if(id){t=tqFind(id);Object.assign(t,{title,desc,due,time,remind,remindKey,remindAt,owner});}
   else{
     if(recEl&&!recEl.value){showToast('Link the task to an opportunity');return;}
     const rec=recEl?recEl.value:'';
-    TQ.unshift({id:'n'+Date.now(),title,rec,due,time,owner:tqMe(),agent:false,source:'manual',status:'open',createdBy:tqMe(),remind:remind==='None'?'':remind,fresh:true});
+    t={id:'n'+Date.now(),title,desc,rec,due,time,owner,agent:false,source:'manual',status:'open',createdBy:me,remind,remindKey,remindAt,fresh:true};
+    TQ.unshift(t);
     const o=OPPS.find(x=>x.id===rec); if(o) getExt(o).comms.unshift({ch:'sys',t:'Just now',text:`Task added · ${title}${due?' · due '+tqDay(due):''}`});
   }
   qaDrawerClose(); tqBadge();
   if(document.getElementById('p-tasks')?.classList.contains('on')) tqRender();
   else if(document.getElementById('p-opp')?.classList.contains('on')) renderOpp();
-  showToast(id?'Task saved':`Task added${due?' · due '+tqDay(due):''}`);
+  if(typeof oppPeekRender==='function') oppPeekRender();
+  showToast(id?'Task saved':`Task added${due?' · due '+tqDay(due):''}${owner!==me?` · assigned to ${TQ_USERS[owner].name}`:''}`);
 }
 function oppAddTask(){tqAddOpen({rec:oppCur.id,recLocked:true});}
 // ---------- Bell (Flow 12) ----------

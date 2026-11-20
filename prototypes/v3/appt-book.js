@@ -79,7 +79,7 @@ function abRender(){
   if(AB.type==='appointment'){
     det+=`<div class="od-field"><label>Format</label><div class="ab-chips" role="radiogroup" aria-label="Appointment format">${[['person','In person'],['online','Online']].map(([k,l])=>`<button type="button" role="radio" aria-checked="${AB.fmt===k}" class="ab-chip ${AB.fmt===k?'on':''}" onclick="abSet('fmt','${k}')">${l}</button>`).join('')}</div></div>`;
     det+=AB.fmt==='online'
-      ?`<div class="od-field"><label>Platform</label><div class="ab-chips">${AB_VIDEO.map(([k,l])=>abChip(AB.video===k,l,`abSet('video','${k}')`)).join('')}</div><div class="ab-mu">A private link is created when you save and goes in the confirmation and every invite.</div></div>`
+      ?`<div class="od-field"><label>Platform</label>${cvPlatformHtml(AB.video,"abSet('video',v)",AB.vlinkOwn,'AB.vlinkOwn=this.value','ab')}</div>`
       :meetAt([o&&o.devs[0]?`${o.devs[0]} sales suite`:'Sales suite','Office',...(o&&o.devs[0]?[`On site · ${o.devs[0]}`]:[])]);
   }
   if(AB.type==='signing'){
@@ -112,9 +112,9 @@ function abSignRows(o){
     const u=UN(id); if(!u) return null;
     const st=typeof uhOppUnitState==='function'?uhOppUnitState(o,x,id,o.units.indexOf(id)):null;
     const mine=!!st&&(st.s==='held'||st.s==='requested');
-    const other=u.status!=='available'&&!mine;
-    const note=st&&st.s==='held'?`On hold for ${first}`:st&&st.s==='requested'?'Hold requested · waiting in Approvals':u.status==='hold'?'Held for another buyer':u.status==='available'?'Available':u.status==='reserved'?'Reserved':'Sold';
-    return {id,u,mine,held:!!st&&st.s==='held',ok:!other,note};
+    const pick=typeof uhPickStatus==='function'?uhPickStatus(o,u):{ok:u.status==='available',l:u.status==='hold'?'Held for another buyer':UN_STATUS[u.status]?.l||u.status};
+    const note=st&&st.s==='held'?`On hold for ${first}`:st&&st.s==='requested'?'Hold requested · waiting in Approvals':pick.l;
+    return {id,u,mine,held:!!st&&st.s==='held',ok:mine||pick.ok,note};
   }).filter(Boolean);
 }
 function abSignInit(){
@@ -127,9 +127,10 @@ function abSignInit(){
 }
 function abSignOthers(o){
   const q=(AB.uq||'').trim().toLowerCase();
-  const list=UNITS.filter(u=>u.status==='available'&&!o.units.includes(u.id)&&(!q||[u.id,u.dev,u.type,(DEV(u.dev)||{}).loc].join(' ').toLowerCase().includes(q)));
+  const rank={available:0,hold:1,reserved:2,sold:3};
+  const list=UNITS.filter(u=>u.status in rank&&!o.units.includes(u.id)&&(!q||[u.id,u.dev,u.type,(DEV(u.dev)||{}).loc].join(' ').toLowerCase().includes(q)));
   const near=list.filter(u=>o.devs.includes(u.dev)), rest=list.filter(u=>!o.devs.includes(u.dev));
-  return [...near,...rest].slice(0,q?8:5);
+  return [...near.sort((a,b)=>rank[a.status]-rank[b.status]),...rest.sort((a,b)=>rank[a.status]-rank[b.status])].slice(0,q?8:5);
 }
 const abUnitLine=u=>`${u.beds?u.beds+' bed':'Studio'} · floor ${u.floor} · ${fmtEur(u.price)}`;
 function abSignRowHtml(id,u,note,ok,sel){
@@ -137,7 +138,7 @@ function abSignRowHtml(id,u,note,ok,sel){
 }
 function abSignOthersHtml(o){
   const list=abSignOthers(o);
-  return list.length?list.map(u=>abSignRowHtml(u.id,u,'Available · not linked yet',true,AB.signUnit===u.id)).join(''):'<div class="ab-mu ab-pad">No available units match. Try a development name, type or unit number.</div>';
+  return list.length?list.map(u=>{const st=typeof uhPickStatus==='function'?uhPickStatus(o,u):{ok:true,l:'Available'};return abSignRowHtml(u.id,u,st.l+(st.ok?' · not linked yet':''),st.ok,AB.signUnit===u.id);}).join(''):'<div class="ab-mu ab-pad">No units match. Try a development name, type or unit number.</div>';
 }
 function abSignFind(v){AB.uq=v;const el=document.getElementById('ab-ures');if(el)el.innerHTML=abSignOthersHtml(abOpp());}
 function abSignHtml(o){
@@ -148,10 +149,10 @@ function abSignHtml(o){
     ?`<div class="ab-ufind"><input id="ab-uq" type="search" placeholder="Find a unit · number, development or type" value="${abE(AB.uq)}" oninput="abSignFind(this.value)" aria-label="Find a unit"><div class="ab-list" id="ab-ures" role="radiogroup" aria-label="Available units">${abSignOthersHtml(o)}</div></div>`
     :`<button type="button" class="ab-linkbtn" onclick="AB.uFind=true;abRender()">Find another unit</button>`;
   let hold='';
-  const canHold=sel&&sel.u&&sel.u.status==='available'&&!sel.mine&&['pos','other'].includes(AB.sign);
+  const canHold=sel&&sel.u&&['available','hold'].includes(sel.u.status)&&!sel.mine&&['pos','other'].includes(AB.sign);
   if(sel&&sel.held) hold=`<div class="ab-mu">${abE(sel.id)} is already on hold for ${abE(first)}, so this signing is linked to it. Nothing more to request.</div>`;
   else if(sel&&sel.mine) hold=`<div class="ab-mu">A hold on ${abE(sel.id)} is already waiting in Approvals. This signing is linked to it.</div>`;
-  else if(canHold) hold=`<label class="ab-switch"><input type="checkbox" role="switch" ${AB.holdIt?'checked':''} onchange="abSet('holdIt',this.checked)"><span><b>Put ${abE(sel.id)} on hold for ${abE(first)}</b><span class="ab-mu">${AB.holdIt?`Sent to Approvals when you save. ${abE(sel.id)} stays available until a manager approves, then it’s held for ${UH_DAYS} days.`:`${abE(sel.id)} won’t be held. Anyone else can still take it.`}</span></span></label>`;
+  else if(canHold) hold=`<label class="ab-switch"><input type="checkbox" role="switch" ${AB.holdIt?'checked':''} onchange="abSet('holdIt',this.checked)"><span><b>Put ${abE(sel.id)} on hold for ${abE(first)}</b><span class="ab-mu">${AB.holdIt?(sel.u.status==='hold'?`${abE(sel.id)} is on hold for another buyer. ${abE(first)} joins the line when you save.`:`Sent to Approvals when you save. ${abE(sel.id)} stays available until a manager approves, then it’s held for ${UH_DAYS} days.`):`${abE(sel.id)} won’t be held. Anyone else can still take it.`}</span></span></label>`;
   return `<div class="od-field" id="ab-sign"><label>Unit being signed <span class="ab-mu">· required</span></label>
     ${rows.length?'':`<div class="ab-mu">No unit is linked to ${abE(first)} yet. Find the one being signed. It’s linked to the opportunity when you save.</div>`}
     ${rows.length>1&&!AB.signUnit?`<div class="ab-mu">${rows.length} units are linked. Choose which one this signing is for.</div>`:''}
@@ -203,7 +204,8 @@ function abSave(){
   if(AB.type==='internal'&&!AB.title.trim()){showToast('Give the event a title');document.getElementById('ab-title')?.focus();return;}
   if(AB.type==='signing'&&!AB.signUnit){showToast('Select the unit being signed');document.getElementById('ab-sign')?.scrollIntoView({block:'center'});return;}
   const label=abLabel(), place=abPlace(), online=AB.type==='appointment'&&AB.fmt==='online';
-  const vlink=online?`${{meet:'meet.google.com',zoom:'zoom.us/j',teams:'teams.microsoft.com/l'}[AB.video]}/${Math.random().toString(36).slice(2,5)}-${Math.random().toString(36).slice(2,6)}`:'';
+  if(online&&AB.video!=='meet'&&!(AB.vlinkOwn||'').trim()){showToast(`Paste your ${cvPlatform(AB.video)[1]} link, or pick Google Meet`);document.getElementById('ab-link')?.focus();return;}
+  const vlink=!online?'':AB.video==='meet'?`meet.google.com/${Math.random().toString(36).slice(2,5)}-${Math.random().toString(36).slice(2,6)}`:AB.vlinkOwn.trim().replace(/^https?:\/\//,'');
   const guests=AB.guests.map(g=>({...g,status:'invited'}));
   const title=AB.type==='internal'?AB.title.trim():`${label} · ${o.lead}`, end=abEnd(), dstr=cvDayLabel(AB.date);
   const ev={id:Date.now(),title,type:AB.type,mode:AB.type==='appointment'?AB.fmt:undefined,dateISO:AB.date,start:AB.start,end,contact:o?o.lead:'',location:vlink?`${place} · ${vlink}`:place,oppId:o?o.id:null,owner:CV_ME,
@@ -232,7 +234,7 @@ function abSave(){
 function abSignApply(o,unitId){
   const u=UN(unitId); if(!u) return null;
   const st=typeof uhOppUnitState==='function'?uhOppUnitState(o,getExt(o),unitId,o.units.indexOf(unitId)):null;
-  const wantHold=AB.holdIt&&['pos','other'].includes(AB.sign)&&u.status==='available'&&!(st&&(st.s==='held'||st.s==='requested'));
+  const wantHold=AB.holdIt&&['pos','other'].includes(AB.sign)&&['available','hold'].includes(u.status)&&!(st&&(st.s==='held'||st.s==='requested'));
   if(wantHold&&typeof uhFile==='function'){uhFile(o,unitId);return {hold:true};}
   if(typeof uhLinkUnit==='function'&&uhLinkUnit(o,u)) getExt(o).comms.unshift({ch:'sys',t:'Just now',text:`${u.id} (${u.dev}) linked to the opportunity for the signing`});
   return {hold:false};
@@ -333,13 +335,15 @@ window.cvCloseNew=function(){if(AB)qaDrawerClose();const d=document.getElementBy
 const CVS={
   avail:{mon:['09:00','18:00'],tue:['09:00','18:00'],wed:['09:00','18:00'],thu:['09:00','18:00'],fri:['09:00','18:00'],sat:['10:00','13:00'],sun:null},
   rules:{buf:'15 min',notice:'4 hours',window:'30 days',max:'6'},
+  platform:'meet',ownLink:'',cal:'me',
   btOn:{viewing:1,video:1,call:1},
   remOn:{me:1,buyer:1,confirm:1,brief:1,outcome:1,noshow:1},
   gc:{work:1,personal:1,hol:0},priv:'Busy only',show:{viewing:1,appointment:1,call:1,video:1,signing:1,internal:1,busy:1,other:1},
 };
 const CVS_DAYS=[['mon','Monday'],['tue','Tuesday'],['wed','Wednesday'],['thu','Thursday'],['fri','Friday'],['sat','Saturday'],['sun','Sunday']];
 const CVS_BT=[['viewing','Viewing','In person at the development’s sales suite',45,'viewing'],['video','Video call','Google Meet link sent with the confirmation',30,'video-call'],['call','Phone call','You call the number they give',15,'phone-call'],['signing','Signing','Internal only. You book it from a deal.',60,null]];
-const cvsLink=k=>`bricly.app/b/${CV_ME.toLowerCase()}${k?'/'+k:''}`;
+const cvsLink=k=>`bricly.app/b/${CVS.cal==='account'?'lalex':CV_ME.toLowerCase()}${k?'/'+k:''}`;
+const CVS_CAL=[['me','My calendar',`Clients see free times in ${CV_ME}’s calendar. Bookings go to you.`],['account','Account calendar (shared)','Clients see free times in the La Lex team calendar. The page says “With the La Lex team”.']];
 function cvsSet(path,v){const [a,b]=path.split('.');if(b===undefined)CVS[a]=v;else CVS[a][b]=v;if(typeof stRender==='function'&&document.getElementById('p-settings')?.classList.contains('on'))stRender();if(document.getElementById('p-calendar')?.classList.contains('on'))cvRender();}
 function cvsToggle(path){const [a,b]=path.split('.');cvsSet(path,CVS[a][b]?0:1);}
 
@@ -380,9 +384,10 @@ function cvsToggle(path){const [a,b]=path.split('.');cvsSet(path,CVS[a][b]?0:1);
     {k:'custom',span:12,title:'Rules',render:()=>`<div class="cvs-rows">${[['buf','Gap between appointments','Time to reset the show apartment or travel',['None','15 min','30 min']],['notice','Minimum notice','How soon a client can book',['2 hours','4 hours','1 day']],['window','How far ahead','Clients can book up to',['14 days','30 days','60 days']],['max','Most appointments a day','Client bookings stop after this',['4','6','8']]].map(([k,l,s,o])=>`<div class="cvs-row"><div><b>${l}</b><div class="ab-mu">${s}</div></div>${chips('rules.'+k,o)}</div>`).join('')}</div><div class="cvs-note">Bricly offers a time only when it’s free in Bricly and in your connected Google Calendar.</div>`},
   ]};
   window.BST.pages['calendar/booking']={...base,b:[
-    {k:'custom',span:12,title:'Your booking page',render:()=>`<div class="cvs-row"><div><b>All types · ${cvsLink('')}</b><div class="ab-mu">Lets the client choose. To send them straight to one type, share its own link below.</div></div><button type="button" class="btn-ghost" onclick="showToast('Link copied')">Copy</button></div>`},
-    {k:'custom',span:12,title:'What clients can book',desc:'Each type has its own length, place and link. Signings are booked by you, never by clients.',render:()=>`<div class="cvs-rows">${CVS_BT.map(([k,l,s,d,slug])=>`<div class="cvs-row"><span class="ab-sw" style="background:${abMeta(k).color}"></span><div class="ab-grow"><b>${l}</b> <span class="ab-mu">· ${d} min</span><div class="ab-mu">${s}</div></div>${slug?`<span class="cvs-link ${CVS.btOn[k]?'':'off'}">${cvsLink(slug)}</span><button type="button" class="btn-ghost" ${CVS.btOn[k]?'':'disabled'} onclick="showToast('Link copied')">Copy</button>${sw(CVS.btOn[k],`cvsToggle('btOn.${k}')`,l+' bookable by clients')}`:'<span class="ab-mu">No public link</span>'}</div>`).join('')}</div>`},
-    {k:'custom',span:12,title:'What we ask the client',render:()=>`<div class="ab-chips">${['Full name','WhatsApp number','Email','Development','What they’re looking for (optional)'].map(q=>`<span class="ab-pp">${q}</span>`).join('')}</div><div class="cvs-note">A new booking creates a lead in Opportunities and assigns it to you. If the WhatsApp number matches a contact, the booking goes on their record.</div><button type="button" class="btn-ghost" style="margin-top:10px" onclick="go('calendar');setTimeout(()=>cvBookOpen('viewing'),50)">Preview what clients see</button>`},
+    {k:'custom',span:12,title:'Your booking page',render:()=>`<div class="cvs-row"><div><b>All types · ${cvsLink('')}</b><div class="ab-mu">Lets the client choose. To send them straight to one type, share its own link below.</div></div><button type="button" class="btn-ghost" onclick="showToast('Link copied')">Copy</button></div>
+      <div class="cvs-row top"><div><b>Which calendar</b><div class="ab-mu">Free times and new bookings use this calendar.</div></div><div class="ab-plat" role="radiogroup" aria-label="Which calendar">${CVS_CAL.map(([k,l,d])=>`<label class="ab-plat-o ${CVS.cal===k?'on':''}"><input type="radio" name="cvs-cal" value="${k}" ${CVS.cal===k?'checked':''} onchange="cvsSet('cal','${k}')"><span><b>${l}</b><span class="ab-mu">${d}</span></span></label>`).join('')}</div></div>`},
+    {k:'custom',span:12,title:'What clients can book',desc:'Each type has its own length, place and link. Signings are booked by you, never by clients.',render:()=>`<div class="cvs-rows">${CVS_BT.map(([k,l,s,d,slug])=>`<div class="cvs-row"><span class="ab-sw" style="background:${abMeta(k).color}"></span><div class="ab-grow"><b>${l}</b> <span class="ab-mu">· ${d} min</span><div class="ab-mu">${k==='video'?(CVS.platform==='meet'?s:`Your ${cvPlatform(CVS.platform)[1]} link sent with the confirmation`):s}</div>${k==='video'?`<div class="cvs-plat">${cvPlatformHtml(CVS.platform,"cvsSet('platform',v)",CVS.ownLink,'CVS.ownLink=this.value','cvs')}</div>`:''}</div>${slug?`<span class="cvs-link ${CVS.btOn[k]?'':'off'}">${cvsLink(slug)}</span><button type="button" class="btn-ghost" ${CVS.btOn[k]?'':'disabled'} onclick="showToast('Link copied')">Copy</button>${sw(CVS.btOn[k],`cvsToggle('btOn.${k}')`,l+' bookable by clients')}`:'<span class="ab-mu">No public link</span>'}</div>`).join('')}</div>`},
+    {k:'custom',span:12,title:'What we ask the client',render:()=>`<div class="ab-chips">${[['Full name',1],['WhatsApp number, with country code',1],['Email',1],['Development or unit, filled in from the link'],['Budget range (optional)'],['Message (optional)'],['Consent to be contacted',1]].map(([q,r])=>`<span class="ab-pp">${q}${r?' <b class="ab-req" aria-label="required">*</b>':''}</span>`).join('')}</div><div class="ab-mu ab-req-note">* Required. Clients can’t book until these are filled in.</div><div class="cvs-note">A new booking creates a lead in Opportunities and assigns it to you. If the WhatsApp number matches a contact, the booking goes on their record.</div><button type="button" class="btn-ghost" style="margin-top:10px" onclick="go('calendar');setTimeout(()=>cvBookOpen('viewing'),50)">Preview what clients see</button>`},
   ]};
   window.BST.pages['calendar/rem']={...base,b:[
     {k:'custom',span:12,title:'Reminders and follow-ups',desc:'These run on every appointment linked to a record. Messages to a buyer go from your WhatsApp Business number.',render:()=>`<div class="cvs-rows">${[['me','Remind me','In the app and on WhatsApp. Includes the record, unit and last note.','1 hour before'],['buyer','Remind the buyer','On WhatsApp, with Confirm and Reschedule buttons. You approve it when you book; clients who book through your link get it automatically.','24 hours before','Hi Anna, this is a reminder of your viewing with Sam tomorrow, Wed 30 Sep at 17:30, at the Onyx Rise sales suite.'],['confirm','Confirm new bookings','Sent to the buyer on WhatsApp and email as soon as a time is booked or moved. Invited guests get an email invite.','Right away'],['brief','Morning brief','Today’s appointments in your WhatsApp brief and on Today.','07:30'],['outcome','Ask for the outcome','After an appointment or call ends, Bricly asks how it went, in the app and on WhatsApp.','15 min after'],['noshow','If the buyer doesn’t show','Bricly drafts a message offering two free times. Nothing is sent until you approve it.','When you log it']].map(([k,l,s,w,prev])=>`<div class="cvs-row top"><div class="ab-grow"><b>${l}</b><div class="ab-mu">${s}</div>${prev&&CVS.remOn[k]?`<div class="ab-bubble">${prev}<div class="cvs-btns"><span>Confirm</span><span>Reschedule</span></div></div>`:''}</div><span class="ab-mu">${w}</span>${sw(CVS.remOn[k],`cvsToggle('remOn.${k}')`,l)}</div>`).join('')}</div>`},

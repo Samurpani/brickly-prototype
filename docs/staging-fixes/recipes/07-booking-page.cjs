@@ -1,0 +1,52 @@
+const open=t=>`go('calendar'); cvBookOpen('${t}');`;
+const toForm="document.querySelector('#cvPub .bp-slot').click(); document.querySelector('#cvPub .bp-next').click();";
+const fill="Object.assign(cvBk,{name:'Anna Spiteri',phone:'7912 3456',email:'anna@example.com',budget:'€400,000 to €600,000',consent:true}); cvBookConfirm();";
+module.exports={
+  id:'07', title:'Public booking page and form',
+  source:'Calendar report · S-01, S-02', devItems:'—',
+  changes:[
+    'The client booking page is a full page, not a side drawer. The header shows the development’s branding, the meeting type, its length and where it happens.',
+    'Left: a month calendar. Days with free times are bold with a dot. Other days are greyed out and can’t be picked. Arrows move between months inside the booking window.',
+    'Right: the free times for the picked day, with the time zone shown.',
+    'Details form: **Full name**, **WhatsApp number** with a country code picker, **Email**, **Development or unit** (filled in from the link, editable), **Budget range** (optional), **Message** (optional) and a **consent** checkbox. Starred fields are required.',
+    'Required fields are checked on submit. Each problem shows under its field and the first one gets focus.',
+    'The confirmation shows the date, the time with time zone, and the place. Video calls show a Google Meet link. Phone calls say who will call which number.',
+    'Works on mobile: the calendar, times and form stack into one column. The preview bar has a Desktop / Mobile switch.',
+    'Booking settings › What we ask the client now lists the same fields, with the required ones marked.',
+    '**Meeting platforms:** Google Meet, Zoom and Microsoft Teams are offered wherever a platform is picked (Book appointment, booking settings). Google Meet creates the link automatically. Zoom and Teams show “Coming soon · Date to be confirmed” and ask you to paste your own link instead.',
+    'The public confirmation shows the platform in use: the Meet link, the pasted Zoom or Teams link, or a note that the link will follow.',
+    '**Which calendar:** booking settings now let you pick **My calendar** (default) or **Account calendar (shared)**. With the shared calendar the booking page says “With the La Lex team” and the link uses the account name.',
+  ],
+  notes:[
+    'Free days come from the same rules as before (booking hours, gap, notice, how far ahead, daily cap, Google Calendar busy times).',
+    'Only Google Meet links are created automatically, and only for video calls. Zoom and Teams are not generated.',
+    'Time zone is the business time zone (Europe/Malta). Show the abbreviation for the picked date so summer time is right.',
+    'Consent must be stored with the booking (time, text shown, link version). The booking creates a lead with source “Booking link”; budget maps to the lead budget and the message is saved as a note.',
+    'The development / unit field takes its value from the link (for example a unit page link adds the unit). The client can change it.',
+    'Zoom and Teams auto-links: the launch date is still to come from the dev team. Replace “Date to be confirmed” in `CV_PLATFORMS` (calendar.js) when known. Until then a pasted link is required to save an online appointment on Zoom or Teams.',
+    'Which calendar: “Account calendar” reads free times from the account’s shared calendar and assigns the booking to whoever is free. The prototype only changes the wording and link.',
+  ],
+  tryIt:'Open Calendar › Your booking links › Preview what clients see. Pick a day, a time, then press Confirm booking with empty fields.',
+  viewport:{width:1440,height:1400},
+  before:[
+    {label:'Pick a time', run:open('viewing')},
+    {label:'Details form', run:open('viewing')+"document.querySelector('#qaDrawer .cv-slots button').click(); "},
+    {label:'Confirmation', run:open('viewing')+"document.querySelector('#qaDrawer .cv-slots button').click(); Object.assign(cvBk,{name:'Anna Spiteri',phone:'7912 3456',email:'anna@example.com'}); cvBookConfirm();"},
+    {label:'Booking settings, what we ask the client', run:"go('settings'); stGo('p:calendar/booking');", selector:'.st-card:has-text("What we ask the client")'},
+    {label:'Book appointment, online platform', run:"go('calendar'); cvOpenNew(); abSet('type','appointment'); abSet('fmt','online');", selector:'#qaDrawer'},
+    {label:'Booking settings, what clients can book', run:"go('settings'); stGo('p:calendar/booking');", selector:'.st-card:has-text("What clients can book")'},
+    {label:'Booking settings, your booking page', run:"go('settings'); stGo('p:calendar/booking');", selector:'.st-card:has-text("Your booking page")'},
+  ],
+  after:[
+    {label:'Month calendar and times', run:open('viewing')+"document.querySelectorAll('#cvPub .bp-slot')[1]?.click();", selector:'#cvPub .bp-page'},
+    {label:'Details form, required fields checked', run:open('viewing')+toForm+"cvBk.name='Anna Spiteri'; cvBookConfirm(); document.activeElement?.blur();", selector:'#cvPub .bp-page'},
+    {label:'Confirmation, viewing', run:open('viewing')+toForm+fill, selector:'#cvPub .bp-page'},
+    {label:'Booking settings, what we ask the client', run:"go('settings'); stGo('p:calendar/booking');", selector:'.st-card:has-text("What we ask the client")'},
+    {label:'Book appointment, Zoom picked: coming soon, paste your own link', run:"go('calendar'); cvOpenNew(); abSet('type','appointment'); abSet('fmt','online'); abSet('video','zoom');", selector:'#qaDrawer'},
+    {label:'Booking settings, video call platform', run:"go('settings'); stGo('p:calendar/booking'); cvsSet('platform','teams');", selector:'.st-card:has-text("What clients can book")'},
+    {label:'Booking settings, which calendar', run:"go('settings'); stGo('p:calendar/booking'); cvsSet('cal','account');", selector:'.st-card:has-text("Your booking page")'},
+    {label:'Mobile', run:open('viewing')+"cvBk.size='mobile'; cvBookRender(); document.querySelectorAll('#cvPub .bp-slot')[1]?.click();", selector:'#cvPub .bp-frame'},
+    {label:'Confirmation, video call with Google Meet', run:open('video')+"cvBk.size='mobile'; "+toForm+fill, selector:'#cvPub .bp-frame'},
+    {label:'Shared account calendar and Zoom: “With the La Lex team”, pasted Zoom link', run:"CVS.cal='account'; CVS.platform='zoom'; CVS.ownLink='https://zoom.us/j/8123456789'; "+open('video')+toForm+fill, selector:'#cvPub .bp-page'},
+  ],
+};

@@ -166,7 +166,7 @@ const AP_ROWS = sam => [
   apRow('Matthew Vella', 'Custom', [sam ? C('Needs approval · over €400k', 'warn') : STT, NA, NA, NA, NA, K('Use default')]),
   { c: [B('Paul Grech’s team', 'Team default'), NA, NA, NA, NA, STT, M('')], hl: true },
   apRow('Sarah Azzopardi', 'Custom', [STT, NA, NA, NA, STT, K('Use default')])];
-const apTbl = sam => ({ k: 'table', cap: 'settings.approvals.update', cols: ['Rep', 'Hold', 'Reservation', 'Price exception', 'Unit status change', 'Contract association', ''], gc: '1.5fr repeat(5,minmax(0,1fr)) 80px', ra: [6], rows: AP_ROWS(sam) });
+const apTbl = sam => ({ k: 'table', cap: 'settings.approvals.update', cols: ['Rep', 'Hold', 'Reservation', 'Offer below asking price', 'Unit status change', 'Contract association', ''], gc: '1.5fr repeat(5,minmax(0,1fr)) 80px', ra: [6], rows: AP_ROWS(sam) });
 const AP_BAN = { tone: 'neu', text: 'Requests already waiting keep their original route. Turning approval off never removes audit records or queue position.' };
 P.approvals = { nav: 'approvals', t: 'Approvals', tag: 'v1', d: 'Which of the five actions need a manager’s approval, per rep. Reps inherit their team default unless overridden.', acts: [['Write a rule in words', 'p:approvals/rule']], menu: [['Apply New rep preset'], ['Apply Trusted rep preset'], hist('Approvals')], ban: [AP_BAN], b: [apTbl(false)] };
 P['approvals-rule-saved'] = { ...P.approvals, b: [apTbl(true)] };

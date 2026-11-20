@@ -58,7 +58,7 @@ function stGo(link){
   if(!link)return;
   const k=link.slice(0,1),v=link.slice(2);
   if(k==='p'){
-    const navigate=()=>{stDirty=false;stClearEdits();stPage=window.BST.pages[v]?v:'company';stDlg=null;stMenuOpen=false;stRender();document.getElementById('content').scrollTop=0;};
+    const navigate=()=>{stDirty=false;stClearEdits();window.BST.focus=null;stPage=window.BST.pages[v]?v:'company';stDlg=null;stMenuOpen=false;stRender();document.getElementById('content').scrollTop=0;};
     if(stDirty&&v!==stPage){stAskLeave(navigate);return;}
     navigate();
   }

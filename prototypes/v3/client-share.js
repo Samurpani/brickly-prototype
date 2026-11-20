@@ -1,11 +1,12 @@
 /* ═══════════════ SHARED WITH CLIENT (S01–S17) ═══════════════
    The module lists what was actually sent. Editing is private until published; publishing never
    sends; a resend is a new attempt, not a new version; sharing never changes stage, units, prices
-   or holds. Custom packs (custom-pack.js) are assets of type 'pack' in the same list. */
+   or holds. The Buyer proposal (send-buyer.js) is the asset of type 'proposal': one per opportunity,
+   one link bricly.mt/p/<hash>, a new version each time it is sent. Older custom packs are type 'pack'. */
 
 const SW_SEEDED=new Set(OPPS.map(o=>o.id));
-const SW_NOUN={brochure:'brochure',microsite:'property selection',pack:'personalised pack',floorplan:'floor plan',pricelist:'price list',spec:'spec sheet',other:'link'};
-const SW_FMT={brochure:'pdf',microsite:'link',pack:'both',floorplan:'pdf',pricelist:'pdf',spec:'pdf',other:'link'};
+const SW_NOUN={proposal:'proposal',brochure:'brochure',microsite:'property selection',pack:'personalised pack',floorplan:'floor plan',pricelist:'price list',spec:'spec sheet',other:'link'};
+const SW_FMT={proposal:'both',brochure:'pdf',microsite:'link',pack:'both',floorplan:'pdf',pricelist:'pdf',spec:'pdf',other:'link'};
 const SW_SECTIONS={
   brochure:[['cover','Cover and welcome','p1'],['plans','Floor plans','p2–3'],['kitchen','Kitchen options','p4'],['finishes','Finishes','p5'],['payment','Payment plan','p6'],['location','Location','p7']],
   microsite:[['welcome','Welcome',''],['gallery','Gallery',''],['plans','Floor plans',''],['downloads','Downloads',''],['contact','Contact your rep','']],
@@ -21,7 +22,7 @@ const swFirst=o=>o.lead.split(' ')[0];
 function swNow(){const d=new Date();return d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+', '+d.toTimeString().slice(0,5);}
 function swDay(w){return String(w||'').split(',')[0];}
 function swHash(s){let h=7;for(const c of String(s))h=(h*31+c.charCodeAt(0))>>>0;return h;}
-function swLink(o,a){return (a.type==='pack'?'bricly.mt/p/':'bricly.mt/s/')+swHash(o.id+a.id).toString(36).slice(0,5);}
+function swLink(o,a){return (a.type==='pack'||a.type==='proposal'?'bricly.mt/p/':'bricly.mt/s/')+swHash(o.id+a.id).toString(36).slice(0,5);}
 function swContact(o){return typeof CONTACTS==='undefined'?null:(CONTACTS.find(c=>(c.oppIds||[]).includes(o.id))||CONTACTS.find(c=>c.name===o.lead)||null);}
 function swEmail(o){const c=swContact(o);return SW_SIM.noEmail?'':(c&&c.email)||'';}
 function swPhone(o){const c=swContact(o);return (c&&c.phone)||'';}
@@ -31,19 +32,12 @@ function swDev(o,a){return (a.units&&a.units[0]&&UN(a.units[0])?UN(a.units[0]).d
 // ---------- model ----------
 function swSeed(o){
   const first=swFirst(o), dev=o.devs[0]||'Development', u0=o.units[0]||'';
-  const u1=(UNITS.find(u=>u.dev===dev&&u.id!==u0&&u.status==='available')||{}).id;
-  const ms=[u0,u1].filter(Boolean);
   const A=[
     {id:'br',type:'brochure',title:'Personalised brochure',icon:'PDF',units:[u0].filter(Boolean),pub:2,draft:null,
       cur:{intro:`${first}, here is ${u0||dev} with the options we talked about after your viewing.`,units:[u0].filter(Boolean),secs:{cover:1,plans:1,kitchen:1,finishes:1,payment:1,location:1},seg:'show',tmpl:'Personal',lang:'English'},
       versions:[{v:1,when:'Wed 16 Sep',by:o.rep,note:'first issue'},{v:2,when:'Mon 21 Sep',by:o.rep,note:'payment plan updated'}],
       attempts:[{when:'Tue 22 Sep, 17:40',ch:'WhatsApp',ver:2,fmt:'both',status:'Delivered',msg:`Hi ${first}, here is your personalised brochure for ${dev}, covering ${u0}. I’ve attached the brochure PDF.`}],
       access:{state:'active',exp:'Thu 22 Oct'},eng:'Opened 3× · 12 min on floor plans'},
-    {id:'ms',type:'microsite',title:'Buyer microsite',icon:'WEB',units:ms,pub:2,draft:null,
-      cur:{intro:`Welcome back, ${first}. I’ve added ${u1||'a second home'} you asked about next to ${u0}.`,units:ms,secs:{welcome:1,gallery:1,plans:1,downloads:1,contact:1},seg:'desktop'},
-      versions:[{v:1,when:'Wed 23 Sep',by:o.rep,note:'first issue'},{v:2,when:'Sat 26 Sep',by:o.rep,note:`added ${u1||'a unit'} and new welcome text`}],
-      attempts:[{when:'Wed 23 Sep, 09:15',ch:'Email',ver:1,fmt:'link',status:'Sent',msg:`Hi ${first}, here is your property selection for ${dev}: LINK.`}],
-      access:{state:'active',exp:'Thu 22 Oct'},eng:'Visited yesterday · saved 2 units',util:[{what:'Link copied',by:o.rep,when:'Fri 25 Sep'}]},
     {id:'fp',type:'floorplan',title:`Floor plan · ${u0||dev}`,icon:'PDF',units:[u0].filter(Boolean),pub:1,draft:null,cur:{caption:'As drawn. Dimensions are approximate.'},
       versions:[{v:1,when:'Thu 24 Sep',by:o.rep,note:'project asset'}],
       attempts:[{when:'Thu 24 Sep, 14:02',ch:'Email',ver:1,fmt:'pdf',status:'Delivered',msg:`Hi ${first}, here is the floor plan for ${u0}. I’ve attached the PDF.`},
@@ -55,7 +49,17 @@ function swSeed(o){
       versions:[{v:1,when:'Sat 26 Sep',by:o.rep,note:'project asset'}],
       attempts:[{when:'Sat 26 Sep, 10:12',ch:'WhatsApp',ver:1,fmt:'pdf',status:'Unknown',msg:`Hi ${first}, here is the spec sheet for ${u0||dev}.`}],access:null,eng:''},
   ];
-  if(typeof cpSeedIssue==='function'){const p=cpSeedIssue(o);if(p)A.splice(2,0,p);}
+  // One Buyer proposal, sent after the first appointment, where the opportunity has reached it.
+  const ix=STAGES.indexOf(o.stage), pu=o.units.filter(id=>UN(id)).slice(0,2);
+  if(pu.length&&UN(pu[0])&&!EXIT_STAGES.includes(o.stage)&&ix>=STAGES.indexOf('Appointment Booked')){
+    const cfg={}; pu.forEach(id=>{const u=UN(id);cfg[id]={layout:'',finish:'',layName:'',finName:'',price:u.price,chosen:false,opts:false};});
+    const msg=`${first}, thank you for coming to see ${dev}. I’ve put together ${pu.length>1?'the '+pu.length+' homes that fit':'the home that fits'} what you asked for, with plans, prices and the payment plan for each. Have a look and tell me what you think.`;
+    A.splice(1,0,{id:'pp'+swHash(o.id+':proposal').toString(36).slice(0,5),type:'proposal',pp:1,title:'Buyer proposal',icon:'WEB',units:pu,pub:1,draft:null,src:'opp',
+      cur:{msg,units:pu,cfg,compare:pu.length>1,pdf:true,expiry:30,template:'signature',std:1},
+      versions:[{v:1,when:'Fri 25 Sep, 12:40',by:o.rep,ch:'WhatsApp',from:'opp',note:'first issue · '+pu.join(', ')}],
+      attempts:[{when:'Fri 25 Sep, 12:40',ch:'WhatsApp',ver:1,fmt:'both',status:'Delivered',msg}],
+      access:{state:'active',exp:'Sun 25 Oct'},eng:{opens:3,last:'yesterday 21:40',homes:{[pu[0]]:372000,...(pu[1]?{[pu[1]]:128000}:{})}}});
+  }
   return A;
 }
 function swAssets(o,x){
@@ -78,7 +82,7 @@ function swIsShared(a){return !!swLastOk(a);}
 function swLegacy(o,a){
   const ok=swLastOk(a), c=swChips(o,a);
   return {n:a.title,k:a.icon,d:a.legacy?a.legacy.d:`${swDev(o,a)}${a.units.length?' · '+swUnits(a):''}`,via:ok&&!a.legacy?`${o.lead} · ${ok.ch} · ${ok.when} · v${ok.ver}`:'',
-    chips:c.map(([t,tone])=>[t,tone]),eng:a.legacy?a.legacy.eng:(typeof cpEngLine==='function'&&a.type==='pack'?cpEngLine(o,a):a.eng),fail:swFailText(a)};
+    chips:c.map(([t,tone])=>[t,tone]),eng:a.legacy?a.legacy.eng:a.type==='proposal'&&typeof sbEngLine==='function'?sbEngLine(o,a):(typeof cpEngLine==='function'&&a.type==='pack'?cpEngLine(o,a):a.eng),fail:swFailText(a)};
 }
 window.ensureShared=function(o,x){
   x=x||getExt(o); if(!x.shared) x.shared=[];
@@ -116,7 +120,7 @@ function swPrepRows(o,x){
   swAssets(o,x).forEach(a=>{
     const ok=swLastOk(a), t=swLastTry(a), noun=SW_NOUN[a.type];
     if(a.legacy){if(!ok) rows.push({id:a.id,title:a.title,sub:a.legacy.d||'',status:'Generated · not sent',tone:'',act:'Share'});return;}
-    if(a.type==='pack') return;
+    if(a.type==='pack'||a.type==='proposal') return;
     if(!ok&&t&&t.status==='Unknown') rows.push({id:a.id,title:a.title,sub:`First send · ${t.ch} · ${t.when} · provider didn’t confirm`,status:'Outcome unknown',tone:'warn',act:'Reconcile'});
     else if(!ok&&t&&t.status==='Failed') rows.push({id:a.id,title:a.title,sub:`First send · ${t.ch} · ${t.when} · ${t.why||'not delivered'}`,status:'Not delivered',tone:'err',act:'Retry'});
     else if(!ok) rows.push({id:a.id,title:a.title,sub:`Issued ${a.versions[a.versions.length-1].when}${a.type==='pricelist'?' · valid 14 days':''}`,status:'Published · not shared',tone:'ok',act:'Share'});
@@ -128,6 +132,7 @@ function swPrepRows(o,x){
 
 // ---------- the card ----------
 function swAssetCard(o,a){
+  if(a.type==='proposal'&&typeof sbCardHtml==='function') return sbCardHtml(o,a);
   if(a.type==='pack'&&typeof cpCardHtml==='function') return cpCardHtml(o,a);
   const ok=swLastOk(a), chips=swChips(o,a), fail=swFailText(a), menu=SW.menu===a.id;
   if(a.legacy) return `<div class="cr-lc sh-item"><span class="sh-thumb">${swE(a.icon)}</span><div class="sh-body"><div class="sh-top"><span class="sh-n">${swE(a.title)}</span></div><div class="cr-lc-meta">${swE(a.legacy.d||'')}</div>${a.legacy.eng?`<div class="cr-lc-meta">${swE(a.legacy.eng)}</div>`:''}</div></div>`;
@@ -145,7 +150,7 @@ function swAssetCard(o,a){
     </div></div>`;
 }
 window.crPackPanelHtml=function(o,x){
-  const all=swAssets(o,x), shared=all.filter(a=>a.type==='pack'?(typeof cpIsListed==='function'&&cpIsListed(a)):swIsShared(a));
+  const all=swAssets(o,x), shared=all.filter(a=>a.type==='proposal'?a.attempts.length>0:a.type==='pack'?(typeof cpIsListed==='function'&&cpIsListed(a)):swIsShared(a));
   const prep=swPrepRows(o,x), cpPrep=typeof cpPrepHtml==='function'?cpPrepHtml(o,x):[];
   const nS=shared.length, nP=prep.length+cpPrep.length, f=oppShareF, first=swFirst(o);
   const prepHtml=cpPrep.join('')+prep.map(p=>`<div class="sh-prep"><div class="sh-prep-t"><div class="sh-n">${swE(p.title)}</div><div class="cr-lc-meta">${swE(p.sub)}</div></div><span class="sh-chip ${p.tone}">${swE(p.status)}</span>${p.act?`<button class="sh-btn" onclick="swPrepAct('${p.id}','${p.act}')">${p.act}</button>`:''}</div>`).join('');
@@ -154,7 +159,7 @@ window.crPackPanelHtml=function(o,x){
     <div class="row-between rail-h"><div class="side-h">Shared with client</div>
       <div class="sw-head-r">${empty?'':`<div class="seg sh-seg">${[['all','All'],['shared',`Shared ${nS}`],['prep',`In preparation ${nP}`]].map(([k,l])=>`<button type="button" class="${f===k?'on':''}" onclick="oppShareFilter('${k}')">${l}</button>`).join('')}</div>`}
       <span class="sw-more"><button class="sw-dots" aria-label="Prototype scenarios" aria-haspopup="menu" onclick="swMenu(event,'__demo')">⋯</button>${SW.menu==='__demo'?swDemoMenu(o):''}</span></div></div>
-    ${empty?`<div class="sw-empty"><div class="sh-n">Nothing shared with ${swE(first)} yet</div><div class="cr-lc-meta">Brochures, links and packs you send appear here with delivery, access and what ${swE(first)} opened. Present sessions start from Actions.</div><div class="sw-row"><button class="sh-btn" onclick="qaBrochure()">Send unit details</button><button class="sh-btn primary" onclick="crOpen('${o.id}')">Build custom pack</button></div></div>`:''}
+    ${empty?`<div class="sw-empty"><div class="sh-n">Nothing shared with ${swE(first)} yet</div><div class="cr-lc-meta">Proposals, brochures and links you send appear here with delivery, access and what ${swE(first)} opened. Present sessions start from Actions.</div><div class="sw-row"><button class="sh-btn" onclick="qaBrochure()">Send unit details</button><button class="sh-btn primary" onclick="${typeof sbOpen==='function'?'sbOpen':'crOpen'}('${o.id}')">Send proposal</button></div></div>`:''}
     ${!empty&&f!=='prep'?`<div class="sh-sec">Shared · ${nS}</div><div class="sh-list">${shared.map(a=>swAssetCard(o,a)).join('')||`<div class="cr-lc-meta sw-pad">Nothing has been sent yet. Items waiting to go are under In preparation.</div>`}</div>`:''}
     ${!empty&&f!=='shared'?`<div class="sh-sec">In preparation · not shared yet · ${nP}</div><div class="sh-list">${prepHtml||`<div class="cr-lc-meta sw-pad">Nothing in preparation.</div>`}</div>`:''}
   </div>`;

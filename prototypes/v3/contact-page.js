@@ -243,7 +243,7 @@ function ctOppRow(o){
     <div class="ct-card-h"><button type="button" class="ct-title-btn" onclick="openOpp('${o.id}')">${o.id} · ${ctEsc(o.units.join(', ')||o.devs[0])}</button><span class="pill ${STAGE_PILL[o.stage]||''}">${ctEsc(o.stage)}</span></div>
     <div class="ct-card-g">
       <div><div class="k">Timeline</div><div class="v">${ctTlDots(o)} ${TL4[tlIdx(o,x)]?.label||''}</div></div>
-      <div><div class="k">Next action</div><div class="v ${x.next?.overdue?'bad':''}">${ctEsc(x.next?.label||'—')}</div><div class="df-mu">${ctEsc(x.next?.due||'')}</div></div>
+      ${(()=>{const st=typeof oppStrip==='function'?oppStrip(o):null;return st?`<div><div class="k">Next step</div><div class="v ${st.nextStep.overdue?'bad':''}">${ctEsc(st.nextStep.text)}</div><div class="df-mu">${ctEsc(st.nextBooked.text)}</div></div>`:`<div><div class="k">Next action</div><div class="v">${ctEsc(x.next?.label||'—')}</div></div>`;})()}
       <div><div class="k">Value</div><div class="v">${moneyText(o)}</div><div class="df-mu">${ctEsc(o.devs.join(', '))} · ${ctEsc(o.rep)}</div></div>
       <div><div class="k">Offer</div><div class="v">${x.offer?fmtEur(x.offer.amt):'None'}</div><div class="df-mu">${x.offer?ctEsc(x.offer.status):''}${x.bids?.length?` · ${x.bids.length} round${x.bids.length>1?'s':''}`:''}</div></div>
     </div>

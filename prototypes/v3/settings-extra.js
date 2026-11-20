@@ -136,8 +136,8 @@ D.addadaccount={t:'Give the Perform team access to an ad account',ok:'Add accoun
 D.revoke={t:'Revoke ad account access?',ok:'Revoke access',danger:true,b:[{k:'note',tone:'warn',text:'The Perform team loses access straight away. Running campaigns keep spending until you pause them in the ad platform.'}],done:'Access revoked. The change is in the audit log.'};
 D.contactbilling={t:'Contact billing',ok:'Send message',b:[{k:'fields',rows:[f('Topic','radio',['Invoice question','Change plan','Something else']),f('Message','area','')]}],
   run:v=>{if(!v.Message){showToast('Write a short message');return false;}},done:'Sent to billing@bricly.app. Replies go to Mark Galea.'};
-D['preset-new']={t:'Apply the New rep preset?',ok:'Apply preset',d:'Every action needs a manager’s approval for the reps you mark as new.',b:[{k:'note',tone:'neu',items:['Hold, reservation, price exception, unit status change and contract association all need approval','Requests already waiting keep their route']}],done:'New rep preset applied.'};
-D['preset-trusted']={t:'Apply the Trusted rep preset?',ok:'Apply preset',d:'Holds and reservations go straight through. Price exceptions, unit status changes and contracts still need approval.',b:[{k:'note',tone:'neu',items:['Requests already waiting keep their route']}],done:'Trusted rep preset applied.'};
+D['preset-new']={t:'Apply the New rep preset?',ok:'Apply preset',d:'Every action needs a manager’s approval for the reps you mark as new.',b:[{k:'note',tone:'neu',items:['Hold, reservation, offer below asking price, unit status change and contract association all need approval','Requests already waiting keep their route']}],done:'New rep preset applied.'};
+D['preset-trusted']={t:'Apply the Trusted rep preset?',ok:'Apply preset',d:'Holds and reservations go straight through. Offers below asking price, unit status changes and contracts still need approval.',b:[{k:'note',tone:'neu',items:['Requests already waiting keep their route']}],done:'Trusted rep preset applied.'};
 D.resetnotif={t:'Reset notifications to defaults?',ok:'Reset to defaults',danger:true,b:[{k:'note',tone:'warn',text:'Every event goes back to Bricly’s default channels for each role. Locked channels stay locked.'}],done:'Notifications reset to defaults.'};
 D.caldisc={t:'Disconnect Google Calendar?',ok:'Disconnect',danger:true,b:[{k:'note',tone:'neu',text:'Bricly stops writing appointments to sam@lalex.mt. Events already in your calendar stay.'}],done:'Google Calendar disconnected.'};
 })();
@@ -177,4 +177,90 @@ X.tabDesc={
   'sales/plans':'Payment plan templates a deal starts from.',
   'sales/tags':'Tags reps can add to opportunities and contacts.',
 };
+})();
+
+// Company profile › Brand. The single source for the company brand: Settings › Proposal page reads it (window.BST.company).
+// The track record and delivered projects live in Settings › Proposal page › Developer section.
+(function(){
+const X=window.BST; if(!X||!X.pages.company) return;
+if(!document.getElementById('st-fixes-css')){const l=document.createElement('link');l.id='st-fixes-css';l.rel='stylesheet';l.href='settings-fixes.css';document.head.appendChild(l);}
+const esc=v=>typeof xesc==='function'?xesc(String(v??'')):String(v??'');
+const KEY='bricly.company.brand';
+const DEFAULT={logoLight:'',logoDark:'',accent:'#8C6A3F',tradingName:'Lalex Developments',legalName:'Lalex Developments Ltd',website:'lalex.mt',
+  about:'Family-run Maltese developer building homes in Sliema, Rabat and around the Grand Harbour.',
+  logoSub:'',bg:'#F4F1EA',surface:'#FFFFFF',ink:'#1A1916',muted:'#5E5A52',tint:'#E9DFCF',line:'#DDD5C7',
+  fontDisplay:'Cormorant Garamond',fontDisplayData:'',fontText:'Hanken Grotesk',fontTextData:''};
+// The other proposal colours, next to the brand colour (accent).
+const COLORS=[['bg','Background'],['surface','Cards'],['ink','Text'],['muted','Secondary text'],['tint','Soft accent'],['line','Lines']];
+let saved={...DEFAULT};
+try{Object.assign(saved,JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){}
+const listeners=[];
+const val=k=>{const id='co:'+k;return typeof stEdits!=='undefined'&&id in stEdits?stEdits[id]:saved[k];};
+X.company={get:()=>({...saved}),onChange:fn=>listeners.push(fn)};
+(X.afterSaveHooks=X.afterSaveHooks||[]).push(changes=>{
+  const mine=changes.filter(c=>c.id.startsWith('co:'));if(!mine.length)return;
+  mine.forEach(c=>{saved[c.id.slice(3)]=c.value;delete stSaved[c.id];});
+  try{localStorage.setItem(KEY,JSON.stringify(saved));}catch(e){}
+  listeners.forEach(fn=>fn({...saved}));
+});
+const isHex=v=>/^#[0-9a-f]{6}$/i.test(v);
+window.coSet=(k,v)=>{stRecord('co:'+k,v);if(k==='tradingName')document.querySelectorAll('#st-root .co-logo-t').forEach(el=>{el.textContent=v;});if(k==='accent')document.querySelectorAll('#st-root .co-logo-box').forEach(el=>el.style.setProperty('--co-accent',v));};
+window.coHex=(inp)=>{let v=inp.value.trim();if(v&&v[0]!=='#')v='#'+v;const err=document.getElementById('co-accent-err');
+  if(!isHex(v)){if(err)err.textContent='Use a 6-digit hex value, like #8C6A3F';return;}
+  if(err)err.textContent='';inp.value=v.toUpperCase();document.getElementById('co-accent').value=v;coSet('accent',v.toUpperCase());coChecks();};
+window.coColor=(inp)=>{const v=inp.value.toUpperCase();document.getElementById('co-accent-hex').value=v;const err=document.getElementById('co-accent-err');if(err)err.textContent='';coSet('accent',v);coChecks();};
+window.coFile=(k,inp)=>{
+  const f=inp.files&&inp.files[0];if(!f)return;
+  if(f.size>300e3){showToast(`That file is ${Math.round(f.size/1e3)} KB. Use one under 300 KB.`);inp.value='';return;}
+  const r=new FileReader();r.onload=()=>{coSet(k,r.result);coRerender();};r.readAsDataURL(f);
+};
+// Same as the brand colour, for the other proposal colours.
+window.coColorK=(k,inp)=>{const v=inp.value.toUpperCase();document.getElementById(`co-${k}-hex`).value=v;coSet(k,v);coChecks();};
+window.coHexK=(k,inp)=>{let v=inp.value.trim();if(v&&v[0]!=='#')v='#'+v;if(!isHex(v)){showToast('Use a 6-digit hex value, like #8C6A3F');inp.value=val(k);return;}
+  inp.value=v.toUpperCase();document.getElementById(`co-${k}`).value=v;coSet(k,v.toUpperCase());coChecks();};
+window.coFont=(role,name)=>{coSet(role,name);coSet(role+'Data','');coRerender();};
+window.coFontFile=(role,inp)=>{
+  const f=inp.files&&inp.files[0];if(!f)return;
+  if(f.size>500e3){showToast(`That file is ${Math.round(f.size/1e3)} KB. Use one under 500 KB.`);inp.value='';return;}
+  const r=new FileReader();r.onload=()=>{coSet(role,f.name.replace(/\.[^.]+$/,'').replace(/[-_]+/g,' '));coSet(role+'Data',r.result);coRerender();showToast('Font uploaded');};r.readAsDataURL(f);
+};
+const kitNow=()=>({colors:{...Object.fromEntries(COLORS.map(([k])=>[k,val(k)])),accent:val('accent')},fonts:{display:{name:val('fontDisplay'),data:val('fontDisplayData')},text:{name:val('fontText'),data:val('fontTextData')}}});
+function checksHtml(){
+  const PS=window.PROPOSAL_STD;if(!PS)return '';
+  return PS.checks(kitNow().colors).map(x=>`<span class="st-chip t-${x.ok?'ok':'warn'}" title="${x.ok?'Meets WCAG AA (4.5:1)':'Below 4.5:1, hard to read'}">${esc(x.l)} ${x.r}:1 ${x.ok?'✓':'· too low'}</span>`).join('');
+}
+function coChecks(){const el=document.getElementById('co-checks');if(el)el.innerHTML=checksHtml();}
+window.coClear=k=>{coSet(k,'');coRerender();};
+function coRerender(){const c=document.getElementById('content'),y=c&&c.scrollTop;stRender();if(c)c.scrollTop=y;}
+const row=(id,label,ctl,sub,hint)=>`<div class="st-frow"><div class="st-lbl"><label for="${id}">${label}</label>${sub?`<span class="st-sub">${sub}</span>`:''}</div><div class="st-ctl">${ctl}${hint?`<span class="st-hint">${hint}</span>`:''}</div></div>`;
+const input=(k,ro,x={})=>`<input class="st-in" id="co-${k}" ${x.type?`type="${x.type}"`:''} ${x.mode?`inputmode="${x.mode}"`:''} value="${esc(val(k))}" ${x.ph?`placeholder="${esc(x.ph)}"`:''} ${ro?'disabled':''} oninput="coSet('${k}',this.value)">`;
+const area=(k,ro)=>`<textarea class="st-in st-area" id="co-${k}" ${ro?'disabled':''} oninput="coSet('${k}',this.value)">${esc(val(k))}</textarea>`;
+function logoTile(k,dark,ro){
+  const img=val(k);
+  return `<div class="co-logo"><span class="st-sub">${dark?'On dark backgrounds':'On light backgrounds'}</span><span class="co-logo-box${dark?' dark':''}" style="--co-accent:${esc(val('accent'))}">${img?`<img src="${esc(img)}" alt="${dark?'Logo for dark backgrounds':'Logo for light backgrounds'}">`:`<b class="co-logo-t">${esc(val('tradingName'))}</b>`}</span>
+    <span class="co-logo-a">${ro?'':`<label class="co-upl">${img?'Replace':'Upload'}<input type="file" accept="image/svg+xml,image/png,image/webp" aria-label="Upload logo for ${dark?'dark':'light'} backgrounds" onchange="coFile('${k}',this)"></label>${img?`<button type="button" class="st-link" onclick="coClear('${k}')">Remove</button>`:''}`}</span></div>`;
+}
+function brandHtml(ro){
+  const a=val('accent');
+  return row('co-logo','Logo',`<div class="co-logos">${logoTile('logoLight',false,ro)}${logoTile('logoDark',true,ro)}</div>`,'SVG or PNG, under 300 KB','Without a logo, the trading name is used.')
+    +row('co-accent','Brand colour',`<span class="co-color"><input type="color" id="co-accent" value="${esc(a)}" ${ro?'disabled':''} aria-label="Brand colour" oninput="coColor(this)"><input class="st-in co-hex" id="co-accent-hex" value="${esc(a)}" ${ro?'disabled':''} aria-label="Brand colour hex value" onchange="coHex(this)"></span><span class="st-hint co-err" id="co-accent-err" role="alert"></span>`,'Buttons and accents on proposals')
+    +row('co-bg','Proposal colours',`<div class="co-colors">${COLORS.map(([k,l])=>`<label class="co-color"><input type="color" id="co-${k}" value="${esc(val(k))}" ${ro?'disabled':''} aria-label="${l} colour" oninput="coColorK('${k}',this)"><span>${l}</span><input class="st-in co-hex" id="co-${k}-hex" value="${esc(val(k))}" ${ro?'disabled':''} aria-label="${l} hex value" onchange="coHexK('${k}',this)"></label>`).join('')}</div><div class="co-checks" id="co-checks">${checksHtml()}</div>`,'Backgrounds, text and lines on proposals')
+    +row('co-fontDisplay','Fonts',fontsHtml(ro),'Headlines and body text on proposals')
+    +row('co-tradingName','Trading name',input('tradingName',ro),'Shown to buyers')
+    +row('co-logoSub','Line under the name',input('logoSub',ro,{ph:'Optional, e.g. Developments'}),'Shown under the name when there is no logo')
+    +row('co-legalName','Legal name',input('legalName',ro),'Shown on invoices and contracts')
+    +row('co-website','Website',input('website',ro,{type:'url',ph:'company.com'}))
+    +row('co-about','Short description',area('about',ro),'One or two sentences about the company');
+}
+function fontsHtml(ro){
+  const PS=window.PROPOSAL_STD;if(PS)PS.loadFonts(kitNow());
+  const pickFont=(role,label,demo,serif)=>{const cur=val(role),opts=(PS?PS.FONTS.map(f=>f.n):[]);if(!opts.includes(cur))opts.unshift(cur);
+    return `<div class="co-font"><span class="st-sub">${label}</span><span class="co-font-r"><select class="st-in" id="co-${role}" aria-label="${label} font" ${ro?'disabled':''} onchange="coFont('${role}',this.value)">${opts.map(n=>`<option ${n===cur?'selected':''}>${esc(n)}${n===cur&&val(role+'Data')?' · uploaded':''}</option>`).join('')}</select>${ro?'':`<label class="co-upl">Upload font<input type="file" accept=".woff2,.woff,.ttf,.otf" aria-label="Upload ${label.toLowerCase()} font" onchange="coFontFile('${role}',this)"></label>`}</span><span class="co-font-demo" style="font-family:'${esc(cur)}',${serif?'Georgia,serif':'Arial,sans-serif'}">${demo}</span></div>`;};
+  return `<div class="co-fonts">${pickFont('fontDisplay','Headlines','Residence 9802, Dolphin Court',true)}${pickFont('fontText','Body text','Two bedrooms, a terrace and a harbour view.',false)}</div>`;
+}
+const P=X.pages.company;
+P.b=P.b.filter(b=>b.title!=='Brand');
+const legal=P.b.find(b=>b.title==='Legal and billing');
+if(legal)legal.rows=legal.rows.filter(r=>r[0]!=='Legal entity name');
+P.b.unshift({k:'custom',title:'Brand',desc:'What buyers see on proposals, packs, the availability page and email footers.',cls:'co-brand',render:ro=>brandHtml(ro)});
 })();

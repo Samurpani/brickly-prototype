@@ -5,7 +5,52 @@
 (function(){
   if(!window.PROPOSAL_STD) return;
   const PS=window.PROPOSAL_STD;
-  const PA={st:PS.load(),bsel:'company'};
+  // Accounts often have many developments with their own brand; these seeds make the list long enough to need search.
+  const SEED_DEVS=[
+    ['tasliema','Ta’ Sliema Point','own',{bg:'#F3F1EE',surface:'#FFFFFF',ink:'#1B1C20',muted:'#55575E',accent:'#2C3E66',tint:'#DCE2EE',line:'#DDDCD8'},'Fraunces','28 Oct'],
+    ['gzira','Gżira Quay','company',null,null,'21 Oct'],
+    ['mellieha','Mellieħa Heights','own',{bg:'#F5F2EC',surface:'#FFFFFF',ink:'#22201B',muted:'#5D5850',accent:'#7A4E2D',tint:'#EBDDCB',line:'#E1D9CC'},'Playfair Display','15 Oct'],
+    ['xemxija','Xemxija Bay','own',{bg:'#EFF3F3',surface:'#FFFFFF',ink:'#15262A',muted:'#4C5E62',accent:'#1F5A64',tint:'#D2E5E7',line:'#D6DFE0'},'EB Garamond','9 Oct'],
+    ['birgu','Birgu Wharf','company',null,null,'30 Sep'],
+    ['naxxar','Naxxar Green','own',{bg:'#F1F3EE',surface:'#FFFFFF',ink:'#1C2219',muted:'#56604F',accent:'#3E5A30',tint:'#DAE5D0',line:'#D8DED2'},'Cormorant Garamond','22 Sep'],
+    ['swieqi','Swieqi Court','company',null,null,'11 Sep'],
+    ['balzan','Balzan Villas','own',{bg:'#F6F2EE',surface:'#FFFFFF',ink:'#26201C',muted:'#625952',accent:'#8B3F2F',tint:'#F0DAD3',line:'#E5DAD3'},'Libre Caslon Text','27 Aug'],
+    ['marsascala','Marsascala Front','company',null,null,'14 Aug'],
+  ];
+  const EDITED={dolphin:'2 Sep',onyx:'18 Sep',mercury:'4 Aug',lalex:'12 Jul',verdala:'1 Nov'};
+  const co=()=>(window.BST&&window.BST.company&&window.BST.company.get())||null;
+  // Company profile owns the company brand: name, logo and brand colour are copied into the standard.
+  function applyCompany(d,c){
+    if(!d||!c) return;
+    d.brand.logo={text:c.tradingName,sub:c.logoSub||'',img:c.logoLight||''};
+    PS.COLOR_KEYS.forEach(([k])=>{if(c[k])d.brand.colors[k]=c[k];});
+    const font=(n,data)=>data?{name:n,data}:{name:n};
+    if(c.fontDisplay)d.brand.fonts.display=font(c.fontDisplay,c.fontDisplayData);
+    if(c.fontText)d.brand.fonts.text=font(c.fontText,c.fontTextData);
+    d.brand.src='Company profile';
+  }
+  function seed(d){
+    if(!d) return;
+    SEED_DEVS.forEach(([k,name,b,colors,font,ed])=>{
+      if(d.devBrands[k]) return;
+      const base=PS.clone(d.brand);
+      d.devBrands[k]=b==='own'?{own:true,name,edited:ed,src:'New development setup',logo:{text:name,sub:''},colors:{...colors},fonts:{display:{name:font},text:{name:'Hanken Grotesk'}}}
+        :{own:false,name,edited:ed,src:'No project brand · uses the company brand',logo:{text:name,sub:''},colors:base.colors,fonts:base.fonts};
+    });
+    Object.entries(EDITED).forEach(([k,ed])=>{if(d.devBrands[k]&&!d.devBrands[k].edited)d.devBrands[k].edited=ed;});
+  }
+  // Developer section (“Built on trust” on the buyer page). Image paths are relative to prototypes/v3.
+  const TRUST_DEFAULT={years:'28',projects:'14',units:'1,260',guarantees:'',awards:'',delivered:[
+    {id:'dp1',name:'Marina Point',place:'Kalkara',year:'2019',img:'assets/present/harbour.jpg'},
+    {id:'dp2',name:'The Ramparts',place:'Valletta',year:'2021',img:'assets/present/dev-lalex.jpg'},
+    {id:'dp3',name:'Laguna Terraces',place:'St Paul’s Bay',year:'2024',img:'assets/present/dev-verdala.jpg'}]};
+  function loadSt(){
+    const st=PS.load(),c=co();
+    [st.pub,st.draft].forEach(d=>{seed(d);applyCompany(d,c);if(d&&!d.trust)d.trust=PS.clone(TRUST_DEFAULT);if(d)delete d.track;});
+    PS.save(st); return st;
+  }
+  const PA={st:loadSt(),bsel:null,dq:'',dall:false};
+  if(window.BST&&window.BST.company) window.BST.company.onChange(()=>{PA.st=loadSt();});
   const E=s=>xesc(String(s??''));
   const work=()=>PA.st.draft||PA.st.pub;
   const editable=()=>typeof stAccess!=='function'||stAccess('proposals')==='f';
@@ -34,8 +79,10 @@
     if(a.access.prices!==b.access.prices) out.push(b.access.prices?'Prices shown':'Prices on request');
     if(a.access.tracking!==b.access.tracking) out.push(b.access.tracking?'Viewing activity shared with the rep':'Viewing activity not tracked');
     if(a.legal!==b.legal) out.push('Legal footer edited');
+    if(JSON.stringify(a.trust)!==JSON.stringify(b.trust)) out.push('Developer section updated');
     if(JSON.stringify(a.brand)!==JSON.stringify(b.brand)) out.push('Company brand updated');
-    Object.keys(b.devBrands||{}).forEach(k=>{if(JSON.stringify((a.devBrands||{})[k])!==JSON.stringify(b.devBrands[k])) out.push(`${devName(k)} brand updated`);});
+    const kitJson=x=>JSON.stringify(x?{...x,edited:0}:x);
+    Object.keys(b.devBrands||{}).forEach(k=>{if(kitJson((a.devBrands||{})[k])!==kitJson(b.devBrands[k])) out.push(`${devName(k)} brand updated`);});
     return out;
   }
   function paRender(){if(typeof stRender==='function'&&stPage==='proposals')stRender();}
@@ -128,7 +175,7 @@
       <div class="pa-foot">Shown at the end of every proposal and in the PDF. Reps can’t edit it.</div>`;
   }
   // ---------- brand ----------
-  const devName=k=>((typeof DEVS!=='undefined'&&DEVS.find(d=>d.id===k))||{}).name||(k.charAt(0).toUpperCase()+k.slice(1));
+  const devName=k=>((work().devBrands||{})[k]||{}).name||((typeof DEVS!=='undefined'&&DEVS.find(d=>d.id===k))||{}).name||(k.charAt(0).toUpperCase()+k.slice(1));
   const kitOf=(d,sel)=>sel==='company'?d.brand:d.devBrands[sel];
   const sw=c=>`<span class="pa-sws" aria-hidden="true">${['bg','ink','accent','tint'].map(k=>`<i style="background:${E(c[k])}"></i>`).join('')}</span>`;
   function logoHtml(l,fam){return l.img?`<img src="${E(l.img)}" alt="${E(l.text||'Logo')}">`:`<b style="font-family:${E(fam)}">${E(l.text)}</b><small>${E(l.sub||'')}</small>`;}
@@ -155,7 +202,7 @@
   function brandEditor(d){
     const sel=PA.bsel, ro=!editable(), co=d.brand;
     const isDev=sel!=='company', kit=kitOf(d,sel);
-    const head=`<div class="pa-be-h"><b>${isDev?E(devName(sel)):'Company brand'}</b><span class="st-sub">From ${E(kit.src)}</span></div>`;
+    const head=`<div class="pa-be-h"><b>${isDev?E(devName(sel)):'Company brand'}</b><span class="st-sub">From ${E(kit.src)}</span><button type="button" class="pa-link pa-be-x" onclick="paBrandSel(null)">Close</button></div>`;
     if(isDev&&!kit.own) return `${head}${seg('Brand source',[['company','Use the company brand'],['own','Own brand']],'company',v=>`paBrandOwn('${v}')`,ro)}
       <p class="pa-foot">This development’s section uses the company colours and fonts, with its name as the logo.</p>
       ${previewHtml({...co,logo:{text:devName(sel),sub:''}},co)}`;
@@ -177,27 +224,101 @@
         <div class="pa-be-r"><div class="pa-h">Preview</div>${previewHtml(kit)}<div class="pa-h">Readability</div>${checksHtml(kit.colors)}</div>
       </div>`;
   }
-  function brand(){
-    const d=work();
-    const item=(k,n,kit,sub)=>`<button type="button" class="pa-bl ${PA.bsel===k?'on':''}" aria-pressed="${PA.bsel===k}" onclick="paBrandSel('${k}')">${sw((kit.own===false?d.brand:kit).colors)}<span><b>${E(n)}</b><span class="st-sub">${E(sub)}</span></span>${PS.checks((kit.own===false?d.brand:kit).colors).some(c=>!c.ok)?'<span class="sh-chip warn">Check</span>':''}</button>`;
-    return `<div class="pa-brand"><div class="pa-blist">${item('company','Company brand',d.brand,'Frames every proposal')}
-      <div class="pa-h">Developments</div>${Object.entries(d.devBrands).map(([k,b])=>item(k,devName(k),b,b.own?'Own brand':'Company brand')).join('')}</div>
-      <div class="pa-bedit">${brandEditor(d)}</div></div>
-      <div class="pa-foot">Brands come from Company profile and New development setup. Change them here for proposals. Each development’s section uses its own brand; the cover, letter and next step use the company brand.</div>`;
+  function companyHtml(d){
+    const kit=d.brand, c=co()||{}, t=PS.tokens(kit), canEdit=typeof stAccess!=='function'||stAccess('company')==='f';
+    return `<div class="pa-co" id="pa-co">
+      <div class="pa-co-l">
+        <div class="pa-co-h"><b>Company brand</b><span class="pa-from">From Company profile</span>${canEdit?`<button type="button" class="pa-link" onclick="paEditCompany()">Edit</button>`:''}</div>
+        <p class="st-sub">Frames every proposal: the cover, the letter and the next step.</p>
+        <dl class="pa-co-dl">
+          <dt>Logo</dt><dd><span class="pa-logo-box sm" style="background:${E(kit.colors.bg)};color:${E(kit.colors.ink)}">${logoHtml(kit.logo,t.display)}</span></dd>
+          <dt>Brand colour</dt><dd><span class="pa-co-sw" style="background:${E(kit.colors.accent)}"></span><code>${E(kit.colors.accent)}</code></dd>
+          <dt>Trading name</dt><dd>${E(c.tradingName||kit.logo.text)}</dd>
+          <dt>Colours</dt><dd>${sw(kit.colors)}<span class="st-sub">${PS.COLOR_KEYS.length} colours</span></dd>
+          <dt>Fonts</dt><dd><span style="font-family:${E(t.display)}">${E(kit.fonts.display.name)}</span> and <span style="font-family:${E(t.text)}">${E(kit.fonts.text.name)}</span></dd>
+        </dl>
+        ${PS.checks(kit.colors).some(x=>!x.ok)?`<div class="pa-h">Readability</div>${checksHtml(kit.colors)}`:''}
+      </div>
+      <div class="pa-co-r">${previewHtml(kit)}</div></div>`;
   }
+  const devList=d=>Object.entries(d.devBrands);
+  function devRowsHtml(){
+    const d=work(), all=devList(d), q=PA.dq.trim().toLowerCase();
+    const hits=q?all.filter(([k])=>devName(k).toLowerCase().includes(q)):all;
+    const rows=q||PA.dall?hits:hits.slice(0,5);
+    return `<table class="pa-dt"><thead><tr><th scope="col">Development</th><th scope="col">Brand</th><th scope="col">Last edited</th></tr></thead><tbody>
+      ${rows.map(([k,b])=>{const colors=(b.own?b:d.brand).colors,bad=b.own&&PS.checks(colors).some(c=>!c.ok);return `<tr class="${PA.bsel===k?'on':''}" data-dev="${E(k)}" onclick="paBrandSel('${E(k)}')"><th scope="row"><button type="button" class="pa-dn" aria-pressed="${PA.bsel===k}">${sw(colors)}<b>${E(devName(k))}</b></button>${bad?'<span class="sh-chip warn">Check colours</span>':''}</th><td><span class="sh-chip ${b.own?'own':''}">${b.own?'Own':'Company'}</span></td><td class="pa-dt-m">${E(b.edited||'—')}</td></tr>`;}).join('')}
+      ${rows.length?'':`<tr><td colspan="3" class="pa-dt-m">No developments match “${E(PA.dq)}”</td></tr>`}</tbody></table>
+      ${!q&&all.length>5?`<button type="button" class="pa-link pa-more" onclick="paDevAll()">${PA.dall?'Show fewer':`Show all (${all.length})`}</button>`:''}`;
+  }
+  function brand(){
+    const d=work(), n=devList(d).length;
+    return `${companyHtml(d)}
+      <div class="pa-devs"><div class="pa-devs-h"><div><b>Developments</b><span class="st-sub">${n} developments. Each one’s section uses its own brand, or the company brand if it has none.</span></div>
+        ${n>5?`<input type="search" class="pa-dsearch" placeholder="Search developments" aria-label="Search developments" value="${E(PA.dq)}" oninput="paDevSearch(this.value)">`:''}</div>
+        <div id="pa-devlist">${devRowsHtml()}</div></div>
+      ${PA.bsel&&PA.bsel!=='company'&&d.devBrands[PA.bsel]?`<div class="pa-bedit" id="pa-bedit">${brandEditor(d)}</div>`:''}`;
+  }
+  window.paDevSearch=v=>{PA.dq=v;const el=document.getElementById('pa-devlist');if(el)el.innerHTML=devRowsHtml();};
+  window.paDevAll=()=>{PA.dall=!PA.dall;rerenderKeepScroll();};
+  window.paEditCompany=()=>{if(typeof go==='function')go('settings');stGo('p:company');};
   window.paBrandSel=k=>{PA.bsel=k;rerenderKeepScroll();};
-  window.paBrandSet=(path,val)=>{edit(d=>{const kit=kitOf(d,PA.bsel);const ks=path.split('.');let o=kit;ks.slice(0,-1).forEach(k=>o=o[k]);o[ks[ks.length-1]]=val;});rerenderKeepScroll();};
-  window.paBrandOwn=v=>{edit(d=>{d.devBrands[PA.bsel].own=v==='own';});rerenderKeepScroll();};
+  window.paBrandSet=(path,val)=>{edit(d=>{const kit=kitOf(d,PA.bsel);if(PA.bsel!=='company')kit.edited=today();const ks=path.split('.');let o=kit;ks.slice(0,-1).forEach(k=>o=o[k]);o[ks[ks.length-1]]=val;});rerenderKeepScroll();};
+  window.paBrandOwn=v=>{edit(d=>{d.devBrands[PA.bsel].own=v==='own';d.devBrands[PA.bsel].edited=today();});rerenderKeepScroll();};
   window.paBrandFile=(kind,inp)=>{
     const f=inp.files&&inp.files[0]; if(!f) return;
     const max=kind==='logo'?300e3:500e3;
     if(f.size>max){showToast(`That file is ${Math.round(f.size/1e3)} KB. Use one under ${max/1e3} KB.`);inp.value='';return;}
     const r=new FileReader();
-    r.onload=()=>{edit(d=>{const kit=kitOf(d,PA.bsel);
+    r.onload=()=>{edit(d=>{const kit=kitOf(d,PA.bsel);if(PA.bsel!=='company')kit.edited=today();
       if(kind==='logo') kit.logo.img=r.result;
       else kit.fonts[kind]={name:f.name.replace(/\.[^.]+$/,'').replace(/[-_]+/g,' '),data:r.result};});
       rerenderKeepScroll();showToast(kind==='logo'?'Logo uploaded · see the preview':'Font uploaded · see the preview');};
     r.readAsDataURL(f);
+  };
+
+  // ---------- developer section ----------
+  function trustHtml(){
+    const T=work().trust, ro=!editable(), dis=ro?'disabled':'';
+    const inp=(k,l)=>`<label>${l}<input id="pa-t-${k}" inputmode="numeric" value="${E(T[k])}" ${dis} onchange="paTrust('${k}',this.value)"></label>`;
+    const rows=T.delivered.map((p,i)=>`<div class="pa-dp" data-proj="${E(p.id)}">
+      <span class="pa-dp-img">${p.img?`<img src="${E(p.img)}" alt="${E(p.name||'Project photo')}">`:'<span>No photo</span>'}</span>
+      <div class="pa-dp-f"><label>Project name<input value="${E(p.name)}" ${dis} aria-label="Project name" onchange="paProj('${E(p.id)}','name',this.value)"></label>
+        <label>Place<input value="${E(p.place||'')}" ${dis} aria-label="Place" placeholder="Optional" onchange="paProj('${E(p.id)}','place',this.value)"></label>
+        <label>Year<input value="${E(p.year)}" ${dis} inputmode="numeric" aria-label="Year delivered" onchange="paProj('${E(p.id)}','year',this.value)"></label></div>
+      ${ro?'':`<div class="pa-dp-a"><label class="pa-upl">${p.img?'Replace photo':'Upload photo'}<input type="file" accept="image/jpeg,image/png,image/webp" aria-label="Photo for ${E(p.name||'project')}" onchange="paProjPhoto('${E(p.id)}',this)"></label>
+        <span class="pa-dp-mv"><button type="button" class="pa-x" ${i===0?'disabled':''} aria-label="Move ${E(p.name)} up" onclick="paProjMove('${E(p.id)}',-1)">↑</button><button type="button" class="pa-x" ${i===T.delivered.length-1?'disabled':''} aria-label="Move ${E(p.name)} down" onclick="paProjMove('${E(p.id)}',1)">↓</button><button type="button" class="pa-x" aria-label="Remove ${E(p.name)}" onclick="paProjRemove('${E(p.id)}')">×</button></span></div>`}
+    </div>`).join('');
+    return `<div class="pa-trust"><div class="pa-trust-l">
+      <div class="pa-h">Track record</div>
+      <div class="pa-3">${inp('years','Years in business')}${inp('projects','Projects delivered')}${inp('units','Units delivered')}</div>
+      <div class="pa-2"><label>Guarantees<textarea id="pa-t-guarantees" rows="3" ${dis} placeholder="For example a 10-year structural guarantee" onchange="paTrust('guarantees',this.value)">${E(T.guarantees)}</textarea></label>
+        <label>Awards<textarea id="pa-t-awards" rows="3" ${dis} placeholder="One per line" onchange="paTrust('awards',this.value)">${E(T.awards)}</textarea></label></div>
+      <div class="pa-h">Delivered projects</div>
+      <div class="pa-dps">${rows||'<p class="st-sub">No projects yet. The section shows the track record only.</p>'}</div>
+      ${ro||T.delivered.length>=6?'':`<button type="button" class="pa-link pa-more" onclick="paProjAdd()">Add project</button>`}
+      <div class="pa-foot">Up to 6 projects. JPG, PNG or WebP under 400 KB. A project needs a photo and a name to show.</div>
+    </div><div class="pa-trust-r"><div class="pa-h">Preview</div>${trustPreview(T)}</div></div>`;
+  }
+  function trustPreview(T){
+    const kit=work().brand, c=kit.colors, t=PS.tokens(kit);
+    const stats=[[T.years,'Years building'],[T.projects,'Developments delivered'],[T.units,'Homes handed over']].filter(([v])=>String(v||'').trim());
+    return `<div class="pa-prev pa-tp" style="background:${E(c.bg)};color:${E(c.ink)};font-family:${E(t.text)}">
+      <p class="pa-prev-k" style="color:${E(c.muted)}">Built on trust</p>
+      <div class="pa-tp-s">${stats.map(([v,l])=>`<span style="border-color:${E(c.line)}"><b style="font-family:${E(t.display)}">${E(v)}</b><small style="color:${E(c.muted)}">${E(l)}</small></span>`).join('')}</div>
+      <div class="pa-tp-p">${T.delivered.slice(0,3).map(p=>`<figure>${p.img?`<img src="${E(p.img)}" alt="">`:'<i></i>'}<figcaption style="font-family:${E(t.display)}">${E(p.name)}<small style="color:${E(c.muted)};font-family:${E(t.text)}">${p.place?E(p.place)+' · ':''}${E(p.year)}</small></figcaption></figure>`).join('')}</div></div>`;
+  }
+  const trustEdit=fn=>{edit(d=>fn(d.trust));rerenderKeepScroll();};
+  window.paTrust=(k,v)=>trustEdit(T=>{T[k]=v.trim();});
+  window.paProj=(id,k,v)=>trustEdit(T=>{const p=T.delivered.find(x=>x.id===id);if(p)p[k]=v.trim();});
+  window.paProjAdd=()=>{trustEdit(T=>{T.delivered.push({id:'dp'+Date.now().toString(36),name:'',place:'',year:'',img:''});});
+    const last=[...document.querySelectorAll('.pa-dp')].pop();last?.querySelector('input')?.focus();};
+  window.paProjRemove=id=>trustEdit(T=>{T.delivered=T.delivered.filter(x=>x.id!==id);});
+  window.paProjMove=(id,dir)=>trustEdit(T=>{const i=T.delivered.findIndex(x=>x.id===id),j=i+dir;if(i<0||j<0||j>=T.delivered.length)return;[T.delivered[i],T.delivered[j]]=[T.delivered[j],T.delivered[i]];});
+  window.paProjPhoto=(id,inp)=>{
+    const f=inp.files&&inp.files[0]; if(!f) return;
+    if(f.size>400e3){showToast(`That photo is ${Math.round(f.size/1e3)} KB. Use one under 400 KB.`);inp.value='';return;}
+    const r=new FileReader();r.onload=()=>{trustEdit(T=>{const p=T.delivered.find(x=>x.id===id);if(p)p.img=r.result;});showToast('Photo uploaded · see the preview');};r.readAsDataURL(f);
   };
 
   function readiness(){
@@ -234,6 +355,7 @@
       {k:'custom',span:12,title:'Template',desc:'One template for the whole account',render:()=>`<div class="pa-body">${templates()}</div>`},
       {k:'custom',span:12,title:'Brand',desc:'Logo, colours and fonts used in proposals',render:()=>`<div class="pa-body">${brand()}</div>`},
       {k:'custom',span:12,title:'Sections',desc:'What every proposal shows, and where its content comes from',render:()=>`<div class="pa-body">${sections()}</div>`},
+      {k:'custom',span:12,title:'Developer section',desc:'“Built on trust” on the buyer page: your track record and delivered projects',render:()=>`<div class="pa-body">${trustHtml()}</div>`},
       {k:'custom',span:6,title:'Investment figures',desc:'By buyer type',render:()=>`<div class="pa-body">${investRule()}</div>`},
       {k:'custom',span:6,title:'Reservations',desc:'The buyer’s main button on each home',render:()=>`<div class="pa-body">${reserve()}</div>`},
       {k:'custom',span:6,title:'Sending',desc:'What happens after an appointment or enquiry',render:()=>`<div class="pa-body">${sending()}</div>`},
@@ -243,9 +365,10 @@
       {k:'custom',span:12,title:'Versions',render:()=>`<div class="pa-body">${versions()}</div>`},
     ]};
   }
-  window.paOpenSettings=()=>{PA.st=PS.load();if(typeof go==='function')go('settings');if(typeof stGo==='function')stGo('p:proposals');};
+  window.paOpenSettings=()=>{PA.st=loadSt();if(typeof go==='function')go('settings');if(typeof stGo==='function')stGo('p:proposals');};
 
-  // ---------- rep: send proposal (homes + message only) ----------
+  // ---------- rep: send proposal ----------
+  // Replaced by the shared Send proposal drawer in send-buyer.js, which overrides paSend. Kept for reference.
   const SEND={};
   const uOk=u=>u&&['available','hold'].includes(u.status);
   function msgFor(o,ids){
@@ -258,7 +381,7 @@
     return UNITS.filter(u=>uOk(u)&&!sel.includes(u.id)&&(o.devs.includes(u.dev)||sel.some(s=>(UN(s)||{}).dev===u.dev))).slice(0,8);
   }
   window.paSend=function(oppId){
-    const o=OPPS.find(r=>r.id===oppId)||oppCur; oppCur=o; PA.st=PS.load();
+    const o=OPPS.find(r=>r.id===oppId)||oppCur; oppCur=o; PA.st=loadSt();
     let ids=o.units.filter(id=>uOk(UN(id)));
     if(!ids.length) ids=UNITS.filter(u=>uOk(u)&&o.devs.includes(u.dev)).slice(0,2).map(u=>u.id);
     Object.assign(SEND,{oid:o.id,ids,msg:msgFor(o,ids),edited:false});
@@ -318,7 +441,7 @@
   const baseHero=window.heroHtml;
   if(baseHero) window.heroHtml=function(o,x,ji){
     const h=baseHero.apply(this,arguments);
-    if(x.ppSent||x.ppDismiss||!o.units.length||/Closed/.test(o.stage)) return h;
+    if(x.ppSent||x.ppDismiss||!o.units.length||/Closed/.test(o.stage)||swAssets(o).some(a=>a.type==='proposal'&&a.attempts.length)) return h;
     const auto=PA.st.pub.sending==='auto';
     return `<div class="mi-ban t-ok pa-ban"><span><b>Proposal ready for ${E(o.lead.split(' ')[0])}.</b> ${o.units.length} home${o.units.length>1?'s':''} and a drafted message${auto?'. It will send automatically at 18:00.':'. Check and send.'}</span><button type="button" class="mi-ban-a" onclick="paSend('${o.id}')">${auto?'Review now':'Review and send'}</button><button type="button" class="mi-ban-x" aria-label="Dismiss" onclick="getExt(oppCur).ppDismiss=true;renderOpp()">×</button></div>`+h;
   };

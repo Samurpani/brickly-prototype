@@ -95,7 +95,7 @@ P['team-deact'] = { ...P.team, b: [teamTbl([...TEAM_ROWS.filter(r => r.c[0].t !=
 const FULL = C('Full', 'pri'), OWN = C('Own only', 'info'), VIEW = C('View', 'neu'), NONE = M('—');
 P['team/roles'] = { nav: 'team', t: 'Team', tag: 'v1', d: 'Unlimited users on your plan.', cr: 'Team / Roles and permissions', tabs: TEAM_TABS, menu: [hist('Roles')], b: [
   { k: 'table', title: 'Permission matrix', desc: 'Roles are fixed in v1. Flexibility comes from per-rep approval rules and per-development team membership. The Owner is an Admin with billing authority.', cap: 'team.roles.read', cols: ['Capability', 'Owner', 'Admin', 'Sales Manager', 'Sales Rep'], gc: '2.2fr 1fr 1fr 1fr 1fr', rows: [
-    ['See opportunities and deals', FULL, FULL, FULL, OWN], ['Approve holds, reservations, price exceptions', FULL, FULL, FULL, NONE], ['Change unit prices', FULL, FULL, FULL, NONE],
+    ['See opportunities and deals', FULL, FULL, FULL, OWN], ['Approve holds, reservations, offers below asking price', FULL, FULL, FULL, NONE], ['Change unit prices', FULL, FULL, FULL, NONE],
     ['Import units and deals', FULL, FULL, FULL, NONE], ['Invite, change role, deactivate users', FULL, FULL, NONE, NONE], ['Edit approval rules', FULL, FULL, C('Own team', 'info'), NONE],
     [S('Edit sales setup', 'Stages, labels, holds, checklists'), FULL, FULL, VIEW, NONE],
     ['Connect integrations', FULL, FULL, NONE, NONE], ['View plan and invoices', FULL, FULL, NONE, NONE], ['View credits and usage', FULL, FULL, VIEW, C('Own usage', 'info')],
@@ -120,7 +120,7 @@ P['user/access'] = { ...uBase, b: [{ k: 'fields', cap: 'team.users.access', rows
   f('Developments', 'chips', [['Verdala', 'pri'], ['Marina Heights', 'pri'], ['+ Add', 'out']], { h: 'Receives leads from these by rotation' }),
   f('Reports to', 'select', 'Rachel Mifsud', { h: 'Their requests go to this manager’s queue' })] }] };
 P['user/approvals'] = { ...uBase, b: [{ k: 'table', title: 'Sam’s approval rules', desc: 'Set in Approvals. Shown here for reference.', link: ['Edit in Approvals', 'p:approvals'], cols: ['Action', 'Setting', 'Source'], gc: '1.4fr 1fr 1fr', rows: [
-  ['Hold', C('Needs approval', 'warn'), M('Team default')], ['Reservation', C('Needs approval', 'warn'), M('Team default')], ['Price exception', C('Needs approval', 'warn'), M('Team default')], ['Unit status change', C('Needs approval', 'warn'), M('Team default')], ['Contract association', C('Needs approval', 'warn'), M('Team default')]] }] };
+  ['Hold', C('Needs approval', 'warn'), M('Team default')], ['Reservation', C('Needs approval', 'warn'), M('Team default')], ['Offer below asking price', C('Needs approval', 'warn'), M('Team default')], ['Unit status change', C('Needs approval', 'warn'), M('Team default')], ['Contract association', C('Needs approval', 'warn'), M('Team default')]] }] };
 P['user/wa'] = { ...uBase, b: [{ k: 'fields', rows: [f('Number', 'static', '+356 7912 4410'), f('Registration', 'static', 'Registered by Rachel Mifsud on 14 Aug 2026', { chip: ['Registered', 'ok'] }), f('Last command', 'static', '“Move Luca to viewing booked” · 12 min ago', { h: 'Open thread in Chats' })] }] };
 P['user/usage'] = { ...uBase, b: [
   { k: 'stats', items: [{ l: 'Credits this month', v: '1,340', s: 'Since 14 Sep · 27% of the account’s used credits' }, { l: 'WhatsApp commands', v: '312' }, { l: 'Briefs', v: '16' }] },

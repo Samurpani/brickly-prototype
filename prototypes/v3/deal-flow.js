@@ -470,7 +470,7 @@ function dfPopHtml(o,s,P){
     <div class="df-eyebrow">Required documents</div>
     ${s.slots.map(id=>dfSlotRow(o,id,true)).join('')}
     <div class="df-eyebrow">Tasks · never block</div>
-    ${dfTasks(o,s.i).map(t=>dfTaskRow(o,t)).join('')}
+    ${dfTaskListHtml(o,s.i)}
   </div>`;
 }
 function dfTasks(o,i){
@@ -478,7 +478,9 @@ function dfTasks(o,i){
   const list=def.tasks(df.funding).map(([title,dflt],j)=>{
     const key=`${def.key}:${j}`; let done=df.tasks[key]??(!!dflt||doneStep);
     if(def.key==='pre_completion'&&j===0) done=df.appt.state!=='target';
-    return {key,title,owner:o.rep,done};
+    const pre=(df.preDone||[]).find(p=>p.key===key);
+    if(pre&&df.tasks[key]===undefined) done=true;
+    return {key,title,owner:o.rep,done,pre:pre&&done?pre.via:null};
   });
   df.extraTasks.filter(t=>t.step===def.key).forEach(t=>{
     const paid=t.payment&&dfPayments(o).find(r=>r.p.id===t.payment&&dfPayState(r.p)==='accepted');
@@ -486,8 +488,19 @@ function dfTasks(o,i){
   });
   return list;
 }
+// Some step tasks have a setting on the deal; the row links straight to it.
+const DF_TASK_GO={'agreement:0':o=>['Funding: '+DF_FUND[dfState(o).funding],'dfFundingOpen()'],'agreement:1':o=>['Payment plan','dfJump(\'payments\')']};
 function dfTaskRow(o,t){
-  return `<label class="df-task ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} onchange="dfTaskToggle('${t.key}',this.checked)"><span>${dfEsc(t.title)}</span><span class="df-mu">${dfEsc(t.owner)}</span></label>`;
+  const go=DF_TASK_GO[t.key]?.(o);
+  return `<label class="df-task ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} onchange="dfTaskToggle('${t.key}',this.checked)"><span>${dfEsc(t.title)}${t.pre?`<span class="df-mu df-task-via">${dfEsc(t.pre)}</span>`:''}</span>${go?`<button type="button" class="df-link df-task-go" onclick="event.preventDefault();${go[1]}">${dfEsc(go[0])}</button>`:''}<span class="df-mu">${dfEsc(t.owner)}</span></label>`;
+}
+// Tasks finished before the deal existed (in the Create deal wizard or on the opportunity) sit in one collapsed group.
+function dfTaskListHtml(o,i){
+  const df=dfState(o), all=dfTasks(o,i), pre=all.filter(t=>t.pre), rest=all.filter(t=>!t.pre);
+  const opp=i===0?(df.preDone||[]).filter(p=>!p.key):[], n=pre.length+opp.length;
+  const group=n?`<details class="df-pre" ${DF_UI.preOpen?'open':''} ontoggle="DF_UI.preOpen=this.open"><summary><span class="df-pre-ic">${DF_CHECK}</span>${n} done before the deal</summary>
+    ${pre.map(t=>dfTaskRow(o,t)).join('')}${opp.map(p=>`<div class="df-task done df-task-opp"><input type="checkbox" checked disabled aria-label="Done"><span>${dfEsc(p.title)}<span class="df-mu df-task-via">${dfEsc(p.via)}</span></span></div>`).join('')}</details>`:'';
+  return rest.map(t=>dfTaskRow(o,t)).join('')+group;
 }
 function dfTaskToggle(key,on){
   const o=dfO(), df=dfState(o);
@@ -596,7 +609,7 @@ function dfNextHtml(o){
     <div class="row-between"><div><div class="df-eyebrow">Next step · Step ${s.i+1} of 4</div><h3 class="df-next-t">${dfEsc(s.label)}</h3></div><span class="df-mu">${s.acc} of ${s.req} documents</span></div>
     ${body}
     <div class="df-eyebrow">Tasks · help the team, never block the step</div>
-    ${dfTasks(o,s.i).map(t=>dfTaskRow(o,t)).join('')}
+    ${dfTaskListHtml(o,s.i)}
   </div>`;
 }
 function dfPaymentsHtml(o){
@@ -693,17 +706,169 @@ function dfDownloadDealFile(){
   showToast(`Preparing deal file · ${n} documents, 1 ZIP`);
 }
 // The deal shares the opportunity's conversation (same EXT record), so chats, emails and notes sent here show on both.
+// Activity is grouped by day and filtered by type. Field changes always say who changed what, from and to;
+// runs of 3+ updates by the same person collapse into one expandable row.
+const DF_ACT_FILTERS=[['all','All'],['pay','Payments'],['doc','Documents'],['msg','Messages'],['change','Changes']];
+const DF_ACT_WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const DF_ACT_IC={change:'<path d="M9.5 2.5l2 2L5 11H3V9z"/>',sys:'<circle cx="7" cy="7" r="4.5"/><path d="M7 4.8V7l1.5 1"/>'};
+// Demo history for the seeded deals. Generic "Opportunity updated" events carry the fields that changed.
+const DF_ACT_SEED={
+  'OPP-1002':[
+    {t:'Today 11:42',text:'Opportunity updated',who:'Sam',changes:[
+      {f:'shell complete due date',from:'9 Aug',to:'15 Aug'},{f:'deed target',from:'28 Nov',to:'21 Nov'},
+      {f:'next step',from:'Chase overdue stage payment',to:'Confirm transfer on Friday'},{f:'buyer phone',from:'+356 7921 8800',to:'+356 7921 8844'}]},
+    {t:'Today 08:15',kind:'doc',text:'Luca viewed the deed draft',who:'Luca Camilleri',doc:'Deed draft'},
+    {t:'Yesterday 14:05',text:'Opportunity updated',who:'Matthew',changes:[{f:'price',from:'€355,000',to:'€350,000'}],note:'Matched to the signed POS'},
+    {t:'Yesterday 10:20',kind:'pay',text:'Payment reminder sent for Shell complete (€70,000)',who:'Bricly',pay:'shell complete'},
+    {t:'Mon 10 Aug 16:05',kind:'doc',text:'Deed draft uploaded and sent to Luca',who:'Matthew',doc:'Deed draft'},
+    {t:'12 Jul 12:10',kind:'pay',text:'POS instalment of €70,000 received',who:'Matthew',pay:'pos instalment'},
+    {t:'12 Jul 11:30',text:'Opportunity updated',who:'Matthew',changes:[{f:'stage',from:'POS booked',to:'Closed Won'},{f:'payment plan',from:'10/20/70',to:'20/20/60'},{f:'expected deed',from:'',to:'28 Nov'}]},
+    {t:'12 Jul 11:25',kind:'sys',text:'Deal created from the opportunity',who:'Matthew'},
+    {t:'14 Jun 16:20',kind:'pay',text:'Deposit receipt filed for €70,000',who:'Matthew',pay:'deposit'},
+  ],
+  'OPP-1013':[
+    {t:'Today 10:05',text:'Opportunity updated',who:'Sam',changes:[{f:'bank',from:'HSBC',to:'BOV'},{f:'loan amount',from:'€400,000',to:'€416,000'},{f:'financing deadline',from:'5 Sep',to:'12 Sep'}]},
+    {t:'Yesterday 12:15',kind:'doc',text:'Bank sanction letter requested from BOV',who:'Sam',doc:'sanction'},
+    {t:'Mon 10 Aug 09:40',text:'Opportunity updated',who:'Rachel Mifsud',changes:[{f:'price',from:'€530,000',to:'€520,000'}],note:'Developer discount approved'},
+    {t:'14 Jul 15:00',kind:'pay',text:'Deposit of €52,000 reported by Andrew',who:'Andrew Micallef',pay:'deposit'},
+    {t:'14 Jul 11:00',kind:'doc',text:'Promise of sale signed',who:'Sam',doc:'pos'},
+  ],
+};
+function dfActWhen(t){
+  const s=String(t||''), time=(s.match(/\b(\d{1,2}:\d{2})\b/)||[])[1]||'';
+  if(/just now/i.test(s)) return {d:new Date(DF_TODAY),time:'Just now',key:Infinity};
+  let d=null, ago=s.match(/^(\d+)\s*(day|hour|min)/i);
+  if(/^today/i.test(s)||(ago&&!/day/i.test(ago[2]))) d=new Date(DF_TODAY);
+  else if(/^yesterday/i.test(s)) d=new Date(DF_TODAY.getTime()-864e5);
+  else if(ago) d=new Date(DF_TODAY.getTime()-ago[1]*864e5);
+  else{d=dfParseDate(s.replace(/^(mon|tue|wed|thu|fri|sat|sun)[a-z]*\s+/i,'')); if(d&&!/\d{4}/.test(s)&&d>DF_TODAY) d.setFullYear(d.getFullYear()-1);}
+  const [h,m]=time?time.split(':').map(Number):[0,0];
+  return {d,time,key:d?d.getTime()+(h*60+m)*6e4:-Infinity};
+}
+function dfActDay(d){
+  if(!d) return 'Earlier';
+  const n=Math.round((DF_TODAY-d)/864e5);
+  if(n===0) return 'Today'; if(n===1) return 'Yesterday';
+  return `${DF_ACT_WD[d.getDay()]} ${d.getDate()} ${DF_MON[d.getMonth()]}${d.getFullYear()!==DF_TODAY.getFullYear()?' '+d.getFullYear():''}`;
+}
+function dfActKind(c){
+  if(c.changes) return 'change';
+  if(c.kind) return c.kind;
+  if(c.ch&&c.ch!=='sys') return 'msg';
+  const t=c.text||'';
+  if(/payment|receipt|deposit|instalment|balance settled|transfer/i.test(t)) return 'pay';
+  if(/offer|split|commission|step completed/i.test(t)) return 'sys';
+  if(/\b(uploaded|signed|filed|viewed|downloaded|shared)\b|\b(document|deed|certificate|letter|report|statement|proof of funds|pos)\b.*\baccepted\b/i.test(t)) return 'doc';
+  return 'sys';
+}
+// The person behind a system row: explicit `who`, else the first part of the logged "by" line.
+function dfActWho(c){
+  if(c.who) return c.who;
+  const b=String(c.by||'').split(' · ')[0].trim();
+  if(!b||/^(rule|completed by)/i.test(b)) return '';
+  return b.replace(/^approved by /i,'');
+}
+function dfActPayRef(o,c){
+  const t=String(c.pay||c.text||'').toLowerCase(), rows=dfPayments(o);
+  const r=rows.find(r=>t.includes(r.label.toLowerCase().replace(/ receipt$/,'')))||rows.find(r=>{const w=r.p.label.split(/[\s(—-]+/)[0].toLowerCase();return w.length>3&&t.includes(w);});
+  return r?r.p.id:null;
+}
+function dfActDocRef(o,c){
+  const raw=String(c.doc||c.text||''), t=raw.replace(/\bPOS\b/,'promise of sale').toLowerCase();
+  if(DF_SLOTS[raw]){const s=dfSlotInfo(o,raw);return s.file||s.doc?.file?raw:null;}
+  for(const id of Object.keys(DF_SLOTS)){
+    const def=DF_SLOTS[id];
+    if((def.match&&def.match.test(t))||t.includes(def.label.toLowerCase())){const s=dfSlotInfo(o,id);if(s.file||s.doc?.file) return id;}
+  }
+  const doc=ensureDocs(o,getExt(o)).find(d=>d.file&&t.includes(d.label.toLowerCase()));
+  return doc?'doc:'+doc.id:null;
+}
+function dfActRows(o){
+  const x=getExt(o), all=[...x.comms,...(DF_ACT_SEED[o.id]||[]).map(c=>({ch:'sys',seed:true,...c}))], rows=[];
+  all.forEach((c,i)=>{
+    const w=dfActWhen(c.t), who=dfActWho(c), base={c,w,who,i};
+    if(c.changes) c.changes.forEach((ch,j)=>rows.push({...base,kind:'change',ch,first:j===0}));
+    else if(/^opportunity updated$/i.test(c.text||'')) rows.push({...base,kind:'change',ch:null,first:true});
+    else rows.push({...base,kind:dfActKind(c),first:true});
+  });
+  return rows.map((r,n)=>({...r,n})).sort((a,b)=>b.w.key-a.w.key||a.n-b.n);
+}
+function dfActIcon(kind){
+  const svg=DF_ACT_IC[kind]?`<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">${DF_ACT_IC[kind]}</svg>`:sbIcon(kind);
+  return `<span class="df-ar-ic df-ar-ic-${kind}" aria-hidden="true">${svg}</span>`;
+}
+function dfActChangeText(r){
+  const who=dfEsc(r.who||'Someone'), ch=r.ch;
+  if(!ch) return `<b>${who}</b> updated the deal. No field details were recorded.`;
+  const f=dfEsc(ch.f);
+  if(!ch.from) return `<b>${who}</b> set the ${f} to <b>${dfEsc(ch.to)}</b>`;
+  if(!ch.to) return `<b>${who}</b> cleared the ${f} (was ${dfEsc(ch.from)})`;
+  return `<b>${who}</b> changed the ${f} from <span class="df-ar-from">${dfEsc(ch.from)}</span> to <b>${dfEsc(ch.to)}</b>`;
+}
+function dfActRowHtml(o,r){
+  const c=r.c;
+  if(r.kind==='msg') return feedItem({...c,t:r.w.time});
+  let text, detail='', link='';
+  if(r.kind==='change'){
+    text=dfActChangeText(r);
+    const why=c.note||String(c.by||'').split(' · ').slice(1).join(' · ');
+    if(why&&r.first) detail=`Reason: ${dfEsc(why)}`;
+  }else{
+    text=dfEsc(c.text);
+    detail=c.by?dfEsc(c.by):r.who&&r.who!=='Bricly'&&!String(c.text).includes(r.who.split(' ')[0])?dfEsc(r.who):'';
+    if(r.kind==='pay'){const id=dfActPayRef(o,c);if(id) link=`<button type="button" class="df-link df-ar-go" onclick="dfActPay('${id}')">View payment</button>`;}
+    if(r.kind==='doc'){const ref=dfActDocRef(o,c);if(ref) link=`<button type="button" class="df-link df-ar-go" onclick="dfViewerOpen('${dfEsc(ref)}')">View document</button>`;}
+  }
+  const undo=r.first&&c.undoId&&dfCanUndo(o,c.undoId)?` <button type="button" class="df-link" onclick="dfUndo('${o.id}')">Undo</button>`:'';
+  return `<div class="fi df-ar df-ar-${r.kind} ${c.strong?'strong':''}" data-kind="${r.kind}">${dfActIcon(r.kind)}
+    <span class="df-ar-b"><span class="df-ar-t">${text}</span>${detail?`<span class="df-ar-d">${detail}</span>`:''}</span>
+    ${link}<span class="t">${dfEsc(r.w.time)}${undo}</span></div>`;
+}
+function dfActSummary(run){
+  const fields=[...new Set(run.filter(r=>r.ch).map(r=>r.ch.f))], other=run.filter(r=>!r.ch).length;
+  const n=fields.length+other<=4?4:3, parts=fields.slice(0,n).concat(fields.length>n||other?[`${Math.max(0,fields.length-n)+other} more`]:[]);
+  const s=parts.length>1?parts.slice(0,-1).join(', ')+' and '+parts.at(-1):parts[0]||'';
+  return s.charAt(0).toUpperCase()+s.slice(1);
+}
+function dfActDayHtml(o,rows){
+  const out=[];
+  for(let i=0;i<rows.length;){
+    const r=rows[i];
+    let j=i;
+    if(r.who&&['change','sys'].includes(r.kind)) while(j+1<rows.length&&['change','sys'].includes(rows[j+1].kind)&&rows[j+1].who===r.who) j++;
+    if(j-i>=2){
+      const run=rows.slice(i,j+1);
+      out.push(`<div class="df-ar-grp">
+        <button type="button" class="fi df-ar df-ar-sum" aria-expanded="false" onclick="dfActToggle(this)">${dfActIcon('change')}
+          <span class="df-ar-b"><span class="df-ar-t"><b>${run.length} updates by ${dfEsc(r.who)}</b></span><span class="df-ar-d">${dfEsc(dfActSummary(run))}</span></span>
+          <span class="df-ar-more">Show</span><span class="t">${dfEsc(r.w.time)}</span></button>
+        <div class="df-ar-sub" hidden>${run.map(x=>dfActRowHtml(o,x)).join('')}</div></div>`);
+    }else out.push(...rows.slice(i,j+1).map(x=>dfActRowHtml(o,x)));
+    i=j+1;
+  }
+  return out.join('');
+}
+function dfActToggle(btn){
+  const open=btn.getAttribute('aria-expanded')!=='true', sub=btn.nextElementSibling;
+  btn.setAttribute('aria-expanded',open); sub.hidden=!open;
+  btn.querySelector('.df-ar-more').textContent=open?'Hide':'Show';
+}
+function dfActPay(id){
+  const el=document.querySelector(`.deal-payment[data-payment-id="${id}"]`)||document.getElementById('df-sec-payments'); if(!el) return;
+  el.scrollIntoView({behavior:'smooth',block:'center'});
+  el.classList.remove('df-flash'); void el.offsetWidth; el.classList.add('df-flash');
+  setTimeout(()=>el.classList.remove('df-flash'),1800);
+}
 function dfActivityHtml(o){
-  const x=getExt(o), f=DF_UI.feed||'all', ch=DF_UI.ch||'wa', first=o.lead.split(' ')[0];
-  const chips=[['all','All'],['wa','WhatsApp'],['sms','SMS'],['em','Email'],['note','Notes'],['sys','System']];
-  const list=x.comms.filter(c=>f==='all'||c.ch===f), shown=DF_UI.feedAll?list:list.slice(0,20);
-  const items=shown.map(c=>{
-    if(!c.df) return feedItem(c);
-    return `<div class="fi sys df-fi ${c.strong?'strong':''}"><span>${dfEsc(c.text)}${c.by?`<span class="df-mu df-by">${dfEsc(c.by)}</span>`:''}</span><span class="t">${dfEsc(c.t)}${c.undoId&&dfCanUndo(o,c.undoId)?` · <button type="button" class="df-link" onclick="dfUndo('${o.id}')">Undo</button>`:''}</span></div>`;
-  }).join('');
+  const f=DF_ACT_FILTERS.some(([k])=>k===DF_UI.feed)?DF_UI.feed:'all', ch=DF_UI.ch||'wa', first=o.lead.split(' ')[0];
+  const all=dfActRows(o), list=all.filter(r=>f==='all'||r.kind===f||(f==='change'&&r.kind==='sys'));
+  const shown=DF_UI.feedAll?list:list.slice(0,20), days=[];
+  shown.forEach(r=>{const k=dfActDay(r.w.d);(days.at(-1)?.k===k?days.at(-1).rows:(days.push({k,rows:[]}),days.at(-1).rows)).push(r);});
+  const count=k=>all.filter(r=>k==='all'||r.kind===k||(k==='change'&&r.kind==='sys')).length;
+  const empty={all:'No activity yet',pay:'No payment activity yet',doc:'No document activity yet',msg:'No messages yet',change:'No changes yet'}[f];
   return `<div class="dcard" id="df-sec-activity">
     <div class="row-between" style="margin-bottom:4px"><h3 style="margin:0">Activity</h3>
-      <div class="ff-chips" role="group" aria-label="Filter activity">${chips.map(([k,l])=>`<button type="button" class="ff-chip ${f===k?'on':''}" aria-pressed="${f===k}" onclick="dfFeed('${k}')">${l}</button>`).join('')}</div></div>
+      <div class="ff-chips" role="group" aria-label="Filter activity">${DF_ACT_FILTERS.map(([k,l])=>`<button type="button" class="ff-chip ${f===k?'on':''}" aria-pressed="${f===k}" onclick="dfFeed('${k}')">${l}${k==='all'?'':` <span class="df-ar-n">${count(k)}</span>`}</button>`).join('')}</div></div>
     <div class="df-mu" style="margin-bottom:12px">One conversation with ${dfEsc(first)}, shared with ${o.id}${o.origin==='external'?'':` · <button type="button" class="df-link" onclick="openOpp('${o.id}')">Open opportunity</button>`}</div>
     <div class="opp-comp">
       <div class="oc-ch" role="group" aria-label="Send as">${[['wa','WhatsApp'],['sms','SMS'],['em','Email'],['note','Note']].map(([k,l])=>`<button type="button" class="ff-chip ${ch===k?'on':''}" aria-pressed="${ch===k}" onclick="dfCh('${k}')">${l}</button>`).join('')}</div>
@@ -711,7 +876,7 @@ function dfActivityHtml(o){
       <textarea id="df-comp" rows="2" aria-label="${ch==='note'?'Internal note':'Message '+dfEsc(first)}" placeholder="${ch==='note'?'Add an internal note…':`Message ${dfEsc(first)} on ${CH_META[ch].label}…`}" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();dfSend()}"></textarea>
       <div class="oc-foot"><button type="button" class="ai-chip" style="margin-right:auto" onclick="dfDraft()">✦ AI draft</button><button type="button" class="btn-primary" style="padding:5px 12px;font-size:12px" onclick="dfSend()">${ch==='note'?'Add note':'Send'}</button></div>
     </div>
-    <div class="feed">${items||'<div class="col-empty">No activity in this channel yet</div>'}</div>
+    <div class="feed df-act">${days.map(d=>`<div class="df-act-day" role="heading" aria-level="4">${dfEsc(d.k)}</div>${dfActDayHtml(o,d.rows)}`).join('')||`<div class="col-empty">${empty}</div>`}</div>
     ${list.length>20?`<button type="button" class="btn-ghost df-sm" style="margin-top:10px" onclick="DF_UI.feedAll=!DF_UI.feedAll;renderDeal();dfJump('activity')">${DF_UI.feedAll?'Show less':`Show all ${list.length}`}</button>`:''}
   </div>`;
 }
@@ -727,7 +892,7 @@ function dfSend(){
   const o=dfO(), ta=document.getElementById('df-comp'), v=ta&&ta.value.trim(); if(!o||!v) return;
   const ch=DF_UI.ch||'wa', sub=document.getElementById('df-comp-sub')?.value.trim();
   getExt(o).comms.unshift({ch,dir:'out',who:'You',t:'Just now',text:xesc(v),...(ch==='em'?{sub:xesc(sub||`${o.devs[0]} ${o.units[0]} — update`)}:{})});
-  if(DF_UI.feed&&DF_UI.feed!=='all'&&DF_UI.feed!==ch) DF_UI.feed='all';
+  if(DF_UI.feed&&!['all','msg'].includes(DF_UI.feed)) DF_UI.feed='all';
   renderDeal(); dfJump('activity');
   showToast(ch==='note'?'Note added · visible on the opportunity too':`Sent to ${o.lead.split(' ')[0]} via ${CH_META[ch].label}`);
 }
@@ -1166,7 +1331,7 @@ function dfFundingSave(){
   if(!reason){dfModalErr('Add a reason for the change.');return;}
   const snap=dfSnap(o), from=DF_FUND[df.funding]; df.funding=pick;
   const undoId=dfArmUndo(o,snap,'funding change');
-  dfLog(o,`Funding changed · ${from} → ${DF_FUND[pick]}`,`You · ${reason}`,{undoId});
+  dfLog(o,`Funding changed · ${from} → ${DF_FUND[pick]}`,`You · ${reason}`,{undoId,changes:[{f:'funding type',from,to:DF_FUND[pick]}]});
   dfAfter(o,'Funding type change'); dfModalClose(); dfRefresh(); dfToast(`Funding set to ${DF_FUND[pick]} · step 2 is now ${DF_TPL.steps[1].label(pick)}`,o.id);
 }
 
@@ -1317,13 +1482,13 @@ function dfEditSave(){
   const o=dfO(), df=dfState(o), comm=df.comm, why=dfVal('dfEdWhy'), price=Number(dfVal('dfEdPrice').replace(/[^\d.]/g,'')), owner=dfVal('dfEdOwner'), deed=dfVal('dfEdDeed');
   if(!why){dfModalErr('Add a reason for the change.');return;}
   if(!(price>0)){dfModalErr('Enter a valid sale price.');return;}
-  const changes=[];
-  if(price!==o.value*1000){changes.push(`price ${fmtEur(o.value*1000)} → ${fmtEur(price)}`);o.value=price/1000;comm.total=Math.round(price*comm.rate)/100;}
-  if(deed&&deed!==df.appt.target){changes.push(`target deed ${df.appt.target||'—'} → ${deed}`);df.appt.target=deed;}
+  const changes=[], fields=[];
+  if(price!==o.value*1000){changes.push(`price ${fmtEur(o.value*1000)} → ${fmtEur(price)}`);fields.push({f:'price',from:fmtEur(o.value*1000),to:fmtEur(price)});o.value=price/1000;comm.total=Math.round(price*comm.rate)/100;}
+  if(deed&&deed!==df.appt.target){changes.push(`target deed ${df.appt.target||'—'} → ${deed}`);fields.push({f:'target deed',from:df.appt.target||'',to:deed});df.appt.target=deed;}
   const cur=dfCommOwner(comm);
-  if(cur&&owner&&owner!==cur.name){changes.push(`deal owner ${cur.name} → ${owner}`);const dup=comm.shares.find(s=>s.name===owner&&s!==cur);if(dup){cur.pct=+cur.pct+ +dup.pct;comm.shares=comm.shares.filter(s=>s!==dup);}cur.name=owner;o.rep=owner;}
+  if(cur&&owner&&owner!==cur.name){changes.push(`deal owner ${cur.name} → ${owner}`);fields.push({f:'deal owner',from:cur.name,to:owner});const dup=comm.shares.find(s=>s.name===owner&&s!==cur);if(dup){cur.pct=+cur.pct+ +dup.pct;comm.shares=comm.shares.filter(s=>s!==dup);}cur.name=owner;o.rep=owner;}
   if(!changes.length){dfModalClose();return;}
-  dfLog(o,`Deal details edited · ${changes.join(' · ')}`,`You · ${why}`);
+  dfLog(o,`Deal details edited · ${changes.join(' · ')}`,`You · ${why}`,{changes:fields});
   dfAfter(o,'Deal edit'); dfModalClose(); dfRefresh(); showToast('Deal updated');
 }
 
@@ -1342,31 +1507,8 @@ function dfSplitCollect(){
   const p=document.getElementById('dfc-price'); if(p) DFS.price=Number(p.value.replace(/[^\d.]/g,''))||DFS.price;
   document.querySelectorAll('.dfs-row').forEach(row=>{
     const s=DFS.shares[+row.dataset.i]; if(!s) return;
-    const nm=row.querySelector('.dfs-name'); if(nm) s.name=nm.value==='__new'?'':nm.value;
-    const nn=row.querySelector('.dfs-nn'); if(nn) s.draft=nn.value;
-    s.role=row.querySelector('.dfs-role').value; s.pct=+row.querySelector('.dfs-pct').value;
+    s.name=row.querySelector('.dfs-name').value; s.role=row.querySelector('.dfs-role').value; s.pct=+row.querySelector('.dfs-pct').value;
   });
-}
-// External people: agents and agencies first, then any other contact who referred the buyer.
-function dfSplitExtOpts(val){
-  const o=OPPS.find(r=>r.id===DFS.oppId), all=typeof CONTACTS!=='undefined'?CONTACTS:[];
-  const agents=all.filter(c=>c.type==='partner'), others=all.filter(c=>!['partner','supplier'].includes(c.type)&&c.name!==o?.lead);
-  const op=(c,l)=>`<option value="${dfEsc(c.name)}" ${c.name===val?'selected':''}>${dfEsc(l)}</option>`;
-  const known=all.some(c=>c.name===val);
-  return `<option value="">Choose…</option>${val&&!known?`<option selected>${dfEsc(val)}</option>`:''}
-    <optgroup label="Agents & partners">${agents.map(c=>op(c,`${c.name}${c.company?' · '+c.company:''}`)).join('')}</optgroup>
-    <optgroup label="Contacts">${others.map(c=>op(c,c.name)).join('')}</optgroup>
-    <option value="__new">+ New contact…</option>`;
-}
-function dfSplitNew(i){dfSplitCollect();DFS.shares[i].creating=true;dfSplitRerender(false);document.querySelector(`.dfs-row[data-i="${i}"] .dfs-nn`)?.focus();}
-function dfSplitNewSave(i){
-  const row=document.querySelector(`.dfs-row[data-i="${i}"]`), name=row.querySelector('.dfs-nn').value.trim(), phone=row.querySelector('.dfs-np').value.trim();
-  if(!name){showToast('Enter a name for the new contact');return;}
-  dfSplitCollect();
-  const s=DFS.shares[i], existing=dfContact(name);
-  const c=existing||(typeof dcNewContact==='function'?dcNewContact({name,phone,kind:s.role==='External agency'?'agent':'contact'}):null);
-  s.name=c?c.name:name; s.creating=false; delete s.draft;
-  dfSplitRerender(false); showToast(existing?`${name} is already a contact · linked`:`${name} added to Contacts`);
 }
 function dfSplitIssues(){
   const sum=Math.round(DFS.shares.reduce((a,s)=>a+(+s.pct||0),0)*100)/100, issues=[];
@@ -1391,15 +1533,14 @@ function dfSplitTeamHtml(){
     <div class="df-split-rows" role="list" aria-label="Sales team">
       ${DFS.shares.map((s,i)=>`<div class="dfs-row" role="listitem" data-i="${i}">
         <span class="df-av ${s.kind}" aria-hidden="true">${s.name?initials(s.name):'?'}</span>
-        ${s.creating?`<span class="dfs-new"><input class="dfs-nn" placeholder="New contact name" aria-label="New contact name" value="${dfEsc(s.draft||'')}"><input class="dfs-np" type="tel" placeholder="Phone · optional" aria-label="Phone"><button type="button" class="btn-primary df-sm" onclick="dfSplitNewSave(${i})">Add</button></span>`
-          :`<select class="dfs-name" aria-label="Person" onchange="this.value==='__new'?dfSplitNew(${i}):dfSplitRerender()">${s.kind==='internal'?opt(dfReps().map(r=>[r,r]),s.name):dfSplitExtOpts(s.name)}</select>`}
+        <select class="dfs-name" aria-label="Person" onchange="dfSplitRerender()">${s.kind==='internal'?opt(dfReps().map(r=>[r,r]),s.name):opt(dfAgents().map(c=>[c.name,`${c.name} · ${c.company}`]),s.name)}</select>
         <select class="dfs-role" aria-label="Role" onchange="dfSplitRerender()">${DF_ROLES[s.kind].map(r=>`<option ${r===s.role?'selected':''}>${r}</option>`).join('')}</select>
         <span class="dfs-pctw"><input class="dfs-pct" type="number" min="0" max="100" step="1" value="${s.pct}" aria-label="Share percent" oninput="dfSplitRecalc()">%</span>
         <b class="dfs-amt">${fmtEur(Math.round(total*(+s.pct||0))/100)}</b>
         ${DFS.shares.length>1?`<button type="button" class="tool" aria-label="Remove ${dfEsc(s.name||'row')}" onclick="dfSplitRemove(${i})">${sbIcon('x')}</button>`:'<span></span>'}
       </div>`).join('')}
     </div>
-    <div class="df-acts"><button type="button" class="btn-ghost df-sm" onclick="dfSplitAdd('internal')">+ Add rep</button><button type="button" class="btn-ghost df-sm" onclick="dfSplitAdd('external')">+ Add external agent</button><button type="button" class="btn-ghost df-sm" onclick="dfSplitAdd('external','Referrer')">+ Add referral</button></div>
+    <div class="df-acts"><button type="button" class="btn-ghost df-sm" onclick="dfSplitAdd('internal')">+ Add rep</button><button type="button" class="btn-ghost df-sm" onclick="dfSplitAdd('external')">+ Add external agent</button></div>
     <div id="dfs-check" class="df-split-check ${issues.length?'bad':'ok'}">${issues.length?dfEsc(issues[0]):`Shares total ${sum}% ✓`}</div>
     <div id="dfs-rule" class="df-split-rule ${devs.length?'warn':''}">${devs.length
       ?`<b>Differs from the default:</b> ${dfEsc(devs.join(' · '))}. ${mgr?'You’re a manager, so it’s agreed on save and logged.':`Goes to ${DF_COMM_RULE.approver} for approval. Commission shows Awaiting approval until then; the deal itself isn’t held up.`}`
@@ -1417,11 +1558,11 @@ function dfSplitRecalc(){
   r.innerHTML=devs.length?`<b>Differs from the default:</b> ${dfEsc(devs.join(' · '))}. ${dfIsManager()?'You’re a manager, so it’s agreed on save and logged.':`Goes to ${DF_COMM_RULE.approver} for approval. Commission shows Awaiting approval until then; the deal itself isn’t held up.`}`:`Matches the default rule (${DF_COMM_RULE.rate}%, 100% to the deal owner, earned at final deed). Agreed on save.`;
 }
 function dfSplitRerender(collect=true){if(collect)dfSplitCollect();const el=document.getElementById('dfs-team');if(el)el.innerHTML=dfSplitTeamHtml();}
-function dfSplitAdd(kind,role){
+function dfSplitAdd(kind){
   dfSplitCollect();
-  const owner=DFS.shares.find(s=>s.role==='Deal owner'), give=role==='Referrer'?10:kind==='external'?50:30;
+  const owner=DFS.shares.find(s=>s.role==='Deal owner'), give=kind==='external'?50:30;
   if(owner&&owner.pct>give) owner.pct=+owner.pct-give;
-  DFS.shares.push({kind,name:'',role:role||(kind==='external'?'External agency':'Co-rep'),pct:owner?give:0,paid:0});
+  DFS.shares.push({kind,name:'',role:kind==='external'?'External agency':'Co-rep',pct:owner?give:0,paid:0});
   dfSplitRerender(false);
 }
 function dfSplitRemove(i){

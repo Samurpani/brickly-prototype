@@ -117,5 +117,16 @@ ND.BRIEF=[
  ['Open questions','Legal or visa partner for overseas buyers. Expected completion month.']];
 ND.REQ=['Brand identity','Renders shot list','Brochure','Website','Sales presentation','Ad designs'];
 ND.CAPUNITS=['A-101','A-102','A-201','B-101','B-102','C-101','C-102','C-201','C-301','C-401'];
+// After "Submit for review": files Bricly is still reading (ready count starts at `start`) and the draft units from the availability list.
+// Interior renders in setup: each needs a room; the unit type is the default scope, a specific unit is optional.
+ND.ROOMS=['Living room','Kitchen','Dining','Master bedroom','Second bedroom','Bathroom','Terrace'];
+ND.INT_SAMPLE=[['Living-01.jpg','Living room','2 bed'],['Kitchen-01.jpg','Kitchen','2 bed'],['IMG_2041.jpg','','3 bed']];
+ND.INT_MORE=['Bedroom-wip.jpg','IMG_2077.jpg','Terrace-dusk.jpg','IMG_2090.jpg'];
+// Who is emailed when floor plans finish processing: the account owner and the person managing the development.
+ND.TEAM=[['Joseph Vella','owner'],['Karl Zammit','manager'],['Maria Spiteri','manager'],['Nina Caruana','rep']];
+ND.REVIEW_FILES=[{k:'plans',n:'Floor plans',total:24,start:9},{k:'arch',n:'Architectural drawings',total:18,start:18},{k:'elev',n:'Elevations',total:4,start:2},{k:'ext',n:'Exterior renders',total:6,start:6},{k:'int',n:'Interior renders',total:8,start:3},{k:'spec',n:'Specification',total:1,start:1}];
+ND.DRAFT_UNITS=(()=>{const T=[['2 bed',96,365000],['3 bed',128,465000],['1 bed',68,285000]],U=[];
+  ['A','B','C'].forEach(b=>{for(let f=1;f<=5;f++)for(let n=1;n<=3;n++){if(U.length>=42)return;const [t,m2,p]=f===5&&n===1?['Penthouse',165,690000]:T[n-1];U.push({id:`${b}-${f}0${n}`,type:t,m2,price:p+f*6000});}});
+  U.find(u=>u.id==='A-102').price=null;return U;})();
 window.ND2=ND;
 })();

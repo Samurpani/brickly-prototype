@@ -19,7 +19,7 @@ function oppTaskRow(t,ctx){
   const done=t.status==='done',cancelled=t.status==='cancelled',over=tqOver(t),owner=TQ_USERS[t.owner]||TQ_USERS.sam;
   return `<div class="opk-task ${done||cancelled?'is-done':''} ${over?'is-over':''}">
     <button type="button" class="opk-cb ${done?'on':''}" role="checkbox" aria-checked="${done}" aria-label="${done?'Reopen':'Complete'} ${xesc(t.title)}" ${cancelled?'disabled':''} onclick="oppTaskToggle('${t.id}')">${done?CHECK_SVG:''}</button>
-    <div class="opk-task-main"><span class="opk-task-title">${xesc(t.title)}</span><span class="opk-task-due">${cancelled?'Cancelled':done?'Done':xesc(tqDue(t))}${t.remind&&!done&&!cancelled?` · Reminder ${xesc(t.remind)}`:''}</span></div>
+    <div class="opk-task-main"><span class="opk-task-title">${xesc(t.title)}</span>${t.desc&&ctx!=='peek'?`<span class="opk-task-desc">${xesc(t.desc)}</span>`:''}<span class="opk-task-due">${cancelled?'Cancelled':done?'Done':xesc(tqDue(t))}${t.remind&&!done&&!cancelled?` · Reminder ${xesc(t.remind)}`:''}</span></div>
     <span class="opk-av" title="${xesc(owner.name)}">${owner.ini}</span>
     ${ctx==='tab'&&!done&&!cancelled?`<button type="button" class="opk-icon-btn" aria-label="Edit ${xesc(t.title)}" title="Edit" onclick="tqAddOpen({edit:tqFind('${t.id}')})"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M3 11.5l1.5-.3 6-6-1.2-1.2-6 6zM8.5 3.8l1.2 1.2"/></svg></button><button type="button" class="opk-icon-btn" aria-label="Cancel ${xesc(t.title)}" title="Cancel task" onclick="oppTaskCancel('${t.id}')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3.5 3.5l7 7M10.5 3.5l-7 7"/></svg></button>`:''}
   </div>`;
@@ -37,10 +37,9 @@ function oppTasksTabHtml(o,rail){
   return `<div class="opp-grid"><div>
     <div class="dcard opk-tasks-card" id="opp-tasks-card">
       <div class="row-between" style="margin-bottom:12px"><div><h3 style="margin:0">Tasks</h3><div class="opk-sub">Follow-ups for ${xesc(o.lead)}. They also show on the Tasks page${over?` · <b class="opk-bad">${over} overdue</b>`:''}.</div></div>
-        <button type="button" class="btn-ghost" onclick="oppAddTask()">More options</button></div>
-      ${oppTaskAddHtml(o,'opp-task')}
+        <button type="button" class="btn-primary" id="opp-task-add" onclick="oppAddTask()">Add task</button></div>
       <div class="opk-sec">Open · ${open.length}</div>
-      ${open.map(t=>oppTaskRow(t,'tab')).join('')||'<div class="opk-empty">Nothing open. Add the next follow-up above.</div>'}
+      ${open.map(t=>oppTaskRow(t,'tab')).join('')||'<div class="opk-empty">Nothing open. Add the next follow-up.</div>'}
       ${past.length?`<details class="opk-past"><summary>Completed · ${past.length}</summary>${past.map(t=>oppTaskRow(t,'tab')).join('')}</details>`:''}
     </div>
   </div><div>${rail}</div></div>`;
@@ -62,7 +61,7 @@ function oppTaskToggle(id){
   const t=tqFind(id);if(!t)return;
   const o=tqOpp(t.rec)||OPPS.find(item=>item.id===t.rec);
   if(t.status==='done'){t.status='open';t.doneOn=null;showToast('Reopened · '+t.title);}
-  else{t.status='done';t.doneOn=tqToday();if(o)getExt(o).comms.unshift({ch:'sys',t:'Just now',text:'Task done · '+t.title});showToast('Done · '+t.title);}
+  else{t.status='done';t.doneOn=tqToday();if(o)getExt(o).comms.unshift({ch:'sys',t:'Just now',text:'Task done: '+t.title,task:t.id});showToast('Done · '+t.title);}
   tqBadge();if(o)oppQuickRefresh(o);
 }
 function oppTaskCancel(id){
@@ -87,7 +86,7 @@ function oppGoTo(id,key){
   if(key==='contact'){qaMessage();return;}
   if(key==='task'){
     oppSetTab('tasks');
-    setTimeout(()=>{const input=document.getElementById('opp-task-title');oppPulse(document.getElementById('opp-task-add'));input?.scrollIntoView({behavior:'smooth',block:'center'});input?.focus();},40);
+    setTimeout(()=>oppAddTask(),40);
     return;
   }
   if(key==='note'){
@@ -150,7 +149,7 @@ function oppPeekRender(fresh=false){
       <button type="button" onclick="oppPeekFocus('opk-note')">${OPK_IC.note}Add note</button>
       <button type="button" onclick="qaViewing()">${OPK_IC.appt}Add appointment</button>
     </div>
-    <div class="opk-next"><span>Next action</span><b>${xesc(oppNextAction(o))}</b></div>
+    <div class="opk-next"><span>Next step</span><b>${xesc(oppNextAction(o))}</b></div>
     ${sec('Details','<span class="opk-hint">Saves as you change it</span>',`
       ${oppDtPicker(o,'stage','Pipeline stage',STAGES,o.stage)}
       ${oppDtPicker(o,'rep','Assigned rep',repOptions,o.rep)}
@@ -184,6 +183,31 @@ function oppPeekNote(){
   setTimeout(()=>document.getElementById('opk-note')?.focus());
   showToast('Note added');
 }
+
+// ---------- Activity: open tasks pinned in an "Upcoming" strip; done tasks land in the feed as "Task done: …" ----------
+function oppUpcomingHtml(o){
+  const open=oppTasksFor(o).filter(t=>t.status==='open').sort(oppTaskSort), shown=open.slice(0,3);
+  return `<div class="opk-up" id="opp-upcoming" aria-label="Upcoming tasks">
+    <div class="opk-up-h"><b>Upcoming</b><span class="opk-sub">${open.length?`${open.length} open task${open.length===1?'':'s'}`:'No open tasks'}</span><button type="button" class="opk-link" onclick="oppAddTask()">+ Add task</button></div>
+    ${shown.map(t=>oppTaskRow(t,'up')).join('')}
+    ${open.length>shown.length?`<button type="button" class="opk-link opk-up-more" onclick="oppSetTab('tasks')">See all ${open.length} tasks</button>`:''}
+  </div>`;
+}
+(function(){
+  const base=window.feedCard;
+  window.feedCard=function(o,x,conv){
+    const h=base.apply(this,arguments);
+    if(conv||oppFeedF!=='all'||typeof tqInit!=='function') return h;
+    return h.replace('<div class="feed">',oppUpcomingHtml(o)+'<div class="feed">');
+  };
+  if(document.getElementById('opk-up-css')) return;
+  const c=document.createElement('style'); c.id='opk-up-css';
+  c.textContent=`.opk-up{border:1px solid var(--outline);border-radius:10px;padding:8px 12px;margin:12px 0 4px;background:var(--surface)}
+.opk-up-h{display:flex;align-items:center;gap:8px;padding:2px 0 4px}.opk-up-h b{font-size:13.5px}.opk-up-h .opk-sub{margin:0}.opk-up-h .opk-link{margin-left:auto}
+.opk-up .opk-task{padding:6px 0}.opk-up .opk-link{padding:0;border:0;background:none;color:var(--primary);font:inherit;font-size:12.5px;cursor:pointer}.opk-up .opk-link:hover{text-decoration:underline}.opk-up-more{margin:4px 0 2px}
+.opk-task-desc{display:block;font-size:12.5px;color:var(--on-variant);white-space:pre-line}`;
+  document.head.appendChild(c);
+})();
 
 // Edits made through shared opportunity code (details pickers, booking, tasks drawer) refresh the drawer too.
 (function(){
