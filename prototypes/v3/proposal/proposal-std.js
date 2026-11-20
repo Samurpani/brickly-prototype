@@ -83,6 +83,7 @@
       template:'signature',
       brand:clone(BRAND_DEFAULT),
       devBrands:clone(DEV_BRANDS),
+      singleDev:'company',                          // company | development: theme of a proposal whose homes are all in one development
       sections:Object.fromEntries(SECTIONS.map(s=>[s.k,s.st])),
       investFor:['investment','growth'],
       reserve:{mode:'request-pos',to:'rep'},          // mode: request | request-pos · to: rep | manager

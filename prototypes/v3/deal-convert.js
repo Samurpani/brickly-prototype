@@ -37,7 +37,7 @@ function dcUnitState(o,id){
   return {ok:true,reserved,why:reserved?'Reserved for this buyer':mine?'On hold for this buyer, not reserved yet':'Not reserved for this buyer'};
 }
 
-// Finish packs and layouts come from the development's catalog (custom-pack.js); prices are € deltas on the list price.
+// Finish packs and layouts come from the development's catalog (cpCat in unit-media.js); prices are € deltas on the list price.
 function dcCat(uid){
   if(!uid||typeof cpCat!=='function') return {layouts:[],packs:[]};
   const c=cpCat(uid); return {layouts:c.layouts.filter(Boolean),packs:c.packs.filter(Boolean)};
@@ -174,7 +174,7 @@ function dcOptionsHtml(o){
   if(cat.packs.length<2&&cat.layouts.length<2) return '';
   const group=(key,label,items,cur)=>items.length<2?'':`<div class="df-field"><span>${label}</span><div class="dc-opts" role="radiogroup" aria-label="${label}">${items.map(it=>`<button type="button" role="radio" aria-checked="${it.id===cur}" class="dc-opt ${it.id===cur?'on':''}" onclick="dcPick('${key}','${it.id}')">
       ${it.render?`<span class="dc-opt-sw" style="background:${it.render}"></span>`:''}<span class="dc-opt-n">${dfEsc(it.name)}</span><span class="dc-opt-p">${dcDelta((it.delta||0)*1000)}</span>${it.approval?'<span class="dc-opt-a">Developer sign-off</span>':''}</button>`).join('')}</div></div>`;
-  return `<div class="df-eyebrow">Finishes &amp; layout${v.fromPack?` <span class="df-mu">· pre-selected from ${dfEsc(o.lead.split(' ')[0])}’s custom pack</span>`:''}</div>
+  return `<div class="df-eyebrow">Finishes &amp; layout${v.fromPack?` <span class="df-mu">· pre-selected from ${dfEsc(o.lead.split(' ')[0])}’s proposal</span>`:''}</div>
     ${group('pack','Finish pack',cat.packs,v.pack)}${group('layout','Layout',cat.layouts,v.layout)}`;
 }
 function dcPriceHtml(){

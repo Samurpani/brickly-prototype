@@ -80,6 +80,7 @@
     if(a.access.tracking!==b.access.tracking) out.push(b.access.tracking?'Viewing activity shared with the rep':'Viewing activity not tracked');
     if(a.legal!==b.legal) out.push('Legal footer edited');
     if(JSON.stringify(a.trust)!==JSON.stringify(b.trust)) out.push('Developer section updated');
+    if((a.singleDev||'company')!==(b.singleDev||'company')) out.push(b.singleDev==='development'?'One-development proposals use the development brand':'One-development proposals use the company brand');
     if(JSON.stringify(a.brand)!==JSON.stringify(b.brand)) out.push('Company brand updated');
     const kitJson=x=>JSON.stringify(x?{...x,edited:0}:x);
     Object.keys(b.devBrands||{}).forEach(k=>{if(kitJson((a.devBrands||{})[k])!==kitJson(b.devBrands[k])) out.push(`${devName(k)} brand updated`);});
@@ -94,9 +95,10 @@
   window.paLegal=v=>{if(!PA.st.draft)PA.st.draft=PS.clone(PA.st.pub);PA.st.draft.legal=v;PS.save(PA.st);
     const bar=document.getElementById('pa-bar');if(bar)bar.outerHTML=barHtml();};
   window.paDiscard=()=>{PA.st.draft=null;PS.save(PA.st);paRender();showToast('Draft discarded · the published standard is unchanged');};
-  window.paPreview=(which,type)=>{
-    paIssue(null);
-    window.open(`proposal/index.html?intro=1${which==='draft'&&PA.st.draft?'&std=draft':''}${type?'&type='+type:''}`,'_blank','noopener');
+  window.paPreview=(which,type,dev)=>{
+    // Settings previews show the sample buyer, not the last proposal a rep previewed.
+    localStorage.removeItem('bricly.proposal.issue');
+    window.open(`proposal/index.html?intro=1${which==='draft'&&PA.st.draft?'&std=draft':''}${type?'&type='+type:''}${dev?'&dev='+dev:''}`,'_blank','noopener');
   };
   window.paPublishAsk=()=>{
     const ch=changes(), v=PA.st.pub.v+1;
@@ -229,7 +231,7 @@
     return `<div class="pa-co" id="pa-co">
       <div class="pa-co-l">
         <div class="pa-co-h"><b>Company brand</b><span class="pa-from">From Company profile</span>${canEdit?`<button type="button" class="pa-link" onclick="paEditCompany()">Edit</button>`:''}</div>
-        <p class="st-sub">Frames every proposal: the cover, the letter and the next step.</p>
+        <p class="st-sub">Frames ${(d.singleDev||'company')==='development'?'proposals with homes in more than one development':'every proposal'}: the cover, the letter and the next step.</p>
         <dl class="pa-co-dl">
           <dt>Logo</dt><dd><span class="pa-logo-box sm" style="background:${E(kit.colors.bg)};color:${E(kit.colors.ink)}">${logoHtml(kit.logo,t.display)}</span></dd>
           <dt>Brand colour</dt><dd><span class="pa-co-sw" style="background:${E(kit.colors.accent)}"></span><code>${E(kit.colors.accent)}</code></dd>
@@ -251,9 +253,16 @@
       ${rows.length?'':`<tr><td colspan="3" class="pa-dt-m">No developments match “${E(PA.dq)}”</td></tr>`}</tbody></table>
       ${!q&&all.length>5?`<button type="button" class="pa-link pa-more" onclick="paDevAll()">${PA.dall?'Show fewer':`Show all (${all.length})`}</button>`:''}`;
   }
+  function singleDevHtml(d){
+    const v=d.singleDev||'company', ro=!editable();
+    return `<div class="pa-single" id="pa-single"><div><b>When a proposal has one development</b>
+        <span class="st-sub">${v==='development'?'If every home in the proposal is in the same development, the whole proposal uses that development’s logo, colours and fonts. The company name, logo and “Built on trust” section don’t show. Proposals with homes in more than one development keep the company brand.':'The company brand frames every proposal, even when all the homes are in one development. Each development’s box and panel use its own brand.'}</span></div>
+      <div class="pa-single-a">${seg('When a proposal has one development',[['company','Company brand'],['development','Development brand']],v,setter('singleDev'),ro)}
+        <button type="button" class="pa-link" onclick="paPreview('${PA.st.draft?'draft':'pub'}',null,'dolphin')">Preview with one development</button></div></div>`;
+  }
   function brand(){
     const d=work(), n=devList(d).length;
-    return `${companyHtml(d)}
+    return `${companyHtml(d)}${singleDevHtml(d)}
       <div class="pa-devs"><div class="pa-devs-h"><div><b>Developments</b><span class="st-sub">${n} developments. Each one’s section uses its own brand, or the company brand if it has none.</span></div>
         ${n>5?`<input type="search" class="pa-dsearch" placeholder="Search developments" aria-label="Search developments" value="${E(PA.dq)}" oninput="paDevSearch(this.value)">`:''}</div>
         <div id="pa-devlist">${devRowsHtml()}</div></div>
@@ -368,74 +377,7 @@
   window.paOpenSettings=()=>{PA.st=loadSt();if(typeof go==='function')go('settings');if(typeof stGo==='function')stGo('p:proposals');};
 
   // ---------- rep: send proposal ----------
-  // Replaced by the shared Send proposal drawer in send-buyer.js, which overrides paSend. Kept for reference.
-  const SEND={};
-  const uOk=u=>u&&['available','hold'].includes(u.status);
-  function msgFor(o,ids){
-    const first=o.lead.split(' ')[0], x=getExt(o), kind=x.jstage==='viewing_held'||(o.appt&&o.appt.kind==='viewing')?'viewing':'enquiry';
-    const homes=ids.length===1?'the home':`the ${ids.length} homes`;
-    const open=kind==='viewing'?`${first}, thank you for coming to see ${o.devs[0]||'us'}.`:`${first}, thanks for getting in touch about ${o.devs[0]||'our homes'}.`;
-    return `${open} I’ve put together ${homes} that fit what you asked for, with plans, views and the payment plan for each. Have a look and tell me what you think.`;
-  }
-  function candidates(o,sel){
-    return UNITS.filter(u=>uOk(u)&&!sel.includes(u.id)&&(o.devs.includes(u.dev)||sel.some(s=>(UN(s)||{}).dev===u.dev))).slice(0,8);
-  }
-  window.paSend=function(oppId){
-    const o=OPPS.find(r=>r.id===oppId)||oppCur; oppCur=o; PA.st=loadSt();
-    let ids=o.units.filter(id=>uOk(UN(id)));
-    if(!ids.length) ids=UNITS.filter(u=>uOk(u)&&o.devs.includes(u.dev)).slice(0,2).map(u=>u.id);
-    Object.assign(SEND,{oid:o.id,ids,msg:msgFor(o,ids),edited:false});
-    paSendRender();
-  };
-  function paSendRender(){
-    const o=OPPS.find(r=>r.id===SEND.oid), std=PA.st.pub, rec=typeof cpRecipient==='function'?cpRecipient(o):{ok:true,ch:'wa',label:o.lead};
-    const words=SEND.msg.trim().split(/\s+/).filter(Boolean).length, cands=candidates(o,SEND.ids);
-    const tpl=PS.TEMPLATES.find(t=>t.k===std.template);
-    const devs=[...new Set(SEND.ids.map(id=>UN(id).dev))];
-    const body=`<div class="pa-send">
-      <div class="pa-to">${rec.ok?`To <b>${E(rec.label)}</b>`:`<span class="sw-err">Can’t send: ${E(rec.why)}</span>`}</div>
-      <div class="pa-step"><span>1</span><div><b>Homes</b><span class="st-sub">From the opportunity. Remove or add one.</span></div></div>
-      <div class="pa-homes">${SEND.ids.map(id=>{const u=UN(id);return `<div class="pa-home"><div><b>${E(id)}</b><span class="st-sub">${E(u.dev)} · ${u.beds?u.beds+' bed':'Studio'} · ${u.sqm} m² · ${E(fmtEur(u.price))}${u.status==='hold'?' · on hold':''}</span></div><button type="button" class="pa-x" aria-label="Remove ${E(id)}" onclick="paSendUnit('${id}',false)">×</button></div>`;}).join('')||'<div class="st-sub">Add at least one home.</div>'}
-        ${cands.length?`<label class="pa-sr" for="pa-add">Add a home</label><select id="pa-add" class="pa-add" onchange="if(this.value)paSendUnit(this.value,true)"><option value="">+ Add a home</option>${cands.map(u=>`<option value="${E(u.id)}">${E(u.id)} · ${E(u.dev)} · ${u.beds?u.beds+' bed':'Studio'} · ${E(fmtEur(u.price))}</option>`).join('')}</select>`:''}</div>
-      <div class="pa-step"><span>2</span><div><b>Message</b><span class="st-sub">Drafted from the opportunity. It opens the proposal as your letter.</span></div></div>
-      <label class="pa-sr" for="pa-msg">Message</label><textarea id="pa-msg" class="pa-ta" rows="5" oninput="paSendMsg(this.value)">${E(SEND.msg)}</textarea>
-      <div class="st-sub ${words>80?'sw-err':''}" id="pa-wc">${words} of 80 words</div>
-      <div class="pa-set">
-        <div class="pa-h">Set by your admin</div>
-        <div><span>Template</span><b>${E(tpl.n)}</b></div>
-        <div><span>Developments</span><b>${devs.map(E).join(', ')||'—'}</b></div>
-        <div><span>Sections</span><b>${PS.SECTIONS.filter(s=>std.sections[s.k]!=='off').length} of ${PS.SECTIONS.length} · standard v${std.v}</b></div>
-        <div><span>Link</span><b>Expires in ${std.access.expiry} days${std.access.passcode?' · passcode':''}${std.access.prices?'':' · prices on request'}</b></div>
-        ${editable()?`<button type="button" class="pa-link" onclick="qaDrawerClose();paOpenSettings()">Change in Settings</button>`:''}
-      </div></div>`;
-    const can=rec.ok&&SEND.ids.length&&words<=80&&words>0;
-    qaDrawerOpen(`Send proposal to ${o.lead.split(' ')[0]}`,body,
-      `<button class="btn-ghost" onclick="qaDrawerClose()">Cancel</button><button class="btn-ghost" ${SEND.ids.length?'':'disabled'} onclick="paSendPreview()">Preview</button><button class="btn-primary" id="pa-send-go" ${can?'':'disabled'} onclick="paSendGo()">Send on ${rec.ch==='em'?'email':'WhatsApp'}</button>`);
-  }
-  window.paSendUnit=(id,add)=>{SEND.ids=add?[...SEND.ids,id]:SEND.ids.filter(x=>x!==id);if(!SEND.edited)SEND.msg=msgFor(OPPS.find(r=>r.id===SEND.oid),SEND.ids);paSendRender();};
-  window.paSendMsg=v=>{SEND.msg=v;SEND.edited=true;const w=v.trim().split(/\s+/).filter(Boolean).length,el=document.getElementById('pa-wc'),b=document.getElementById('pa-send-go');
-    if(el){el.textContent=`${w} of 80 words`;el.classList.toggle('sw-err',w>80);}if(b)b.disabled=!(w>0&&w<=80&&SEND.ids.length);};
-  // The buyer page reads this issue so the preview shows this buyer, these homes and this message.
-  function paIssue(o){
-    if(!o){localStorage.removeItem('bricly.proposal.issue');return;}
-    const [first,...rest]=o.lead.split(' ');
-    localStorage.setItem('bricly.proposal.issue',JSON.stringify({first,last:rest.join(' '),rep:o.rep,units:SEND.ids.map(id=>id.replace('#','')),msg:SEND.msg}));
-  }
-  window.paSendPreview=()=>{const o=OPPS.find(r=>r.id===SEND.oid);paIssue(o);window.open('proposal/index.html?issue=1&intro=1','_blank','noopener');};
-  window.paSendGo=function(){
-    const o=OPPS.find(r=>r.id===SEND.oid), x=getExt(o), std=PA.st.pub, rec=cpRecipient(o), ch=rec.ch==='em'?'Email':'WhatsApp';
-    paIssue(o);
-    const exp=new Date(Date.now()+std.access.expiry*864e5).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
-    const list=swAssets(o), n=list.filter(a=>a.pp).length+1;
-    list.unshift({id:'pp'+n+swHash(o.id+Date.now()).toString(36).slice(0,3),pp:1,type:'microsite',title:'Buyer proposal',icon:'WEB',units:[...SEND.ids],pub:1,draft:null,
-      cur:{intro:SEND.msg,units:[...SEND.ids],secs:{welcome:1,gallery:1,plans:1,downloads:1,contact:1},seg:'desktop'},
-      versions:[{v:1,when:swNow(),by:o.rep,note:`${PS.TEMPLATES.find(t=>t.k===std.template).n} · standard v${std.v}`}],
-      attempts:[{when:swNow(),ch,ver:1,fmt:'link',status:'Delivered',msg:SEND.msg}],
-      access:{state:'active',exp},eng:'Not opened yet'});
-    x.ppReady=false; x.ppSent=true;
-    qaDrawerClose(); if(typeof renderOpp==='function')renderOpp();
-    showToast(`Proposal sent to ${o.lead.split(' ')[0]} on ${ch} · it’s in Shared with client`);
-  };
+  // The rep's Send proposal drawer is sbOpen() in send-buyer.js; paSend() opens it.
 
   // ---------- entry points on the opportunity ----------
   const baseHero=window.heroHtml;

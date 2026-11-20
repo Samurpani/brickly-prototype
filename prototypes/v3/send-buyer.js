@@ -1,10 +1,12 @@
 /* ═══════════════ SEND PROPOSAL: one drawer, one output ═══════════════
-   Every "send to the buyer" entry opens this drawer: the opportunity's Send follow-up pack step and
-   Send proposal action, the Proposal ready banner, Present checkout, and the old custom pack and
-   compare shortlist hand-offs. It sends one thing, the Buyer proposal (proposal/index.html, built from
-   the account standard in Settings › Proposal page), as a website plus an optional PDF copy, on one
-   link bricly.mt/p/<hash>. Sending again publishes the next version on the same link.
-   Load after client-share.js, custom-pack.js, present-v3-checkout.js and proposal-admin.js. */
+   Every "send to the buyer" entry opens this drawer: the opportunity's Send proposal step and action,
+   the Proposal ready banner, Present checkout, the contact page, the compare shortlist hand-off and the
+   old custom pack, unit details and brochure entries. It sends one thing, the Buyer proposal
+   (proposal/index.html, built from the account standard in Settings › Proposal page), as a website plus
+   an optional PDF copy, on one link bricly.mt/p/<hash>. Sending again publishes the next version on the
+   same link. The opportunity needs a linked development or home first.
+   Load after client-share.js, present-v3-checkout.js and proposal-admin.js. */
+
 (function(){
   if(typeof qaDrawerOpen!=='function'||typeof swAssets!=='function') return;
   const PS=window.PROPOSAL_STD;
@@ -84,38 +86,48 @@
     const o=opp(oppId)||oppCur; if(!o) return;
     if(!inPresent()) oppCur=o;
     const x=getExt(o), kind=src.kind||'opp', pre={};
-    let ids;
+    let ids, dropped=src.dropped||[];
     if(kind==='present'){ids=(src.items||[]).map(i=>i.uid);(src.items||[]).forEach(i=>{pre[i.uid]={lay:i.layout,fin:i.finish,chosen:true};});}
     else if(src.ids&&src.ids.length){ids=src.ids.filter(id=>UN(id));ids.forEach(id=>{pre[id]=(src.cfg||{})[id]||cfgFromOpp(x,id);});}
     else{
+      // The proposal is built from what's linked: the opportunity's homes, or the rep picks from its developments.
+      if(!o.units.some(id=>UN(id))&&!o.devs.length){blocked(o);return;}
       ids=o.units.filter(id=>uOk(UN(id)));
-      if(!ids.length) ids=UNITS.filter(u=>uOk(u)&&o.devs.includes(u.dev)).slice(0,2).map(u=>u.id);
+      dropped=o.units.filter(id=>UN(id)&&!uOk(UN(id)));
       ids.forEach(id=>{pre[id]=cfgFromOpp(x,id);});
     }
     ids=[...new Set(ids)];
     const cfg={}; ids.forEach(id=>{cfg[id]=cfgFor(id,pre[id]);});
     const live=liveProposal(o), st=std();
     Object.assign(SB,{oid:o.id,kind,ids,cfg,step:'homes',edited:false,expiry:st.access.expiry,pdf:true,
-      compare:src.compare!=null?!!src.compare:ids.length>1,ch:defaultCh(o),dropped:src.dropped||[],aid:live?live.id:null});
+      compare:src.compare!=null?!!src.compare:ids.length>1,ch:defaultCh(o),dropped,aid:live?live.id:null});
     SB.msg=draft(o);
     render();
   };
+  function blocked(o){
+    const f=firstOf(o);
+    qaDrawerOpen(`Send proposal to ${f}`,`<div class="sb pa-send sb-blocked">
+      <div class="sb-to">To <b>${E(o.lead)}</b></div>
+      <div class="sb-warn">Link a development or a home to ${E(f)}’s opportunity first. The proposal is built from them: plans, prices and the payment plan.</div></div>`,
+      `<button class="btn-ghost" onclick="qaDrawerClose()">Cancel</button><button class="btn-ghost" onclick="qaDrawerClose();oppQuickEditOpen('${o.id}','units')">Link a home</button><button class="btn-primary" onclick="qaDrawerClose();oppQuickEditOpen('${o.id}','devs')">Link a development</button>`);
+  }
 
   function steps(){return [['homes','Homes'],...(SB.ids.some(hasOpts)?[['options','Options']]:[]),['send','Message & send']];}
   function srcLine(){
     const n=SB.ids.length;
     if(SB.kind==='present') return 'Homes, finishes and layouts picked in today’s presentation.';
     if(SB.kind==='shortlist') return 'Homes from the compare shortlist.';
+    if(!n) return `Pick the homes for ${firstOf(opp(SB.oid))} from ${opp(SB.oid).devs.join(', ')}.`;
     return 'Homes from the opportunity.';
   }
 
   // ---------- step 1 · homes ----------
   function candidates(o){
-    return UNITS.filter(u=>uOk(u)&&!SB.ids.includes(u.id)&&(o.devs.includes(u.dev)||SB.ids.some(s=>(UN(s)||{}).dev===u.dev))).slice(0,8);
+    return UNITS.filter(u=>uOk(u)&&!SB.ids.includes(u.id)&&(o.devs.includes(u.dev)||SB.ids.some(s=>(UN(s)||{}).dev===u.dev))).slice(0,12);
   }
   function homesHtml(o){
     const cands=candidates(o);
-    return `<div class="sb-sub">${E(srcLine())} Remove one or add another.</div>
+    return `<div class="sb-sub">${E(srcLine())}${SB.ids.length?' Remove one or add another.':''}</div>
       ${SB.dropped.length?`<div class="sb-warn">${E(SB.dropped.join(', '))} ${SB.dropped.length===1?'is':'are'} no longer available and ${SB.dropped.length===1?'was':'were'} left out.</div>`:''}
       <div class="pa-homes">${SB.ids.map(id=>{const u=UN(id),c=SB.cfg[id],O=opts(id);
         return `<div class="pa-home sb-home"><div><b>${E(id)}</b><span class="st-sub">${E(u.dev)} · ${u.beds?u.beds+' bed':'Studio'} · ${u.sqm} m² · ${E(fmtEur(priceOf(id)))}${u.status==='hold'?' · on hold':''}</span>${hasOpts(id)?`<span class="st-sub">${E(pick(O.lay,c.lay).name)} · ${E(pick(O.fin,c.fin).name)} finish${c.chosen?' · picked in Present':''}</span>`:''}</div><button type="button" class="pa-x" aria-label="Remove ${E(id)}" onclick="sbUnit('${E(id)}',false)">×</button></div>`;}).join('')||'<div class="st-sub">Add at least one home.</div>'}
@@ -246,7 +258,7 @@
     a.pub++; a.units=[...SB.ids]; a.src=SB.kind;
     a.cur={msg:SB.msg.trim(),units:[...SB.ids],cfg:snapCfg(SB.ids,SB.cfg),compare:SB.compare&&SB.ids.length>1,pdf:SB.pdf,expiry:SB.expiry,template:st.template,std:st.v};
     a.access={state:'active',exp:expDate(SB.expiry)};
-    a.versions.push({v:a.pub,when:now,by:o.rep,ch:chL,from:SB.kind,note:prev?diffNote(prev,a.cur):'first issue · '+SB.ids.join(', ')});
+    a.versions.push({v:a.pub,when:now,by:o.rep,ch:chL,from:SB.kind,units:[...SB.ids],note:prev?diffNote(prev,a.cur):'first issue · '+SB.ids.join(', ')});
     a.attempts.push({when:now,ch:chL,ver:a.pub,fmt:SB.pdf?'both':'link',status:SB.ch==='link'?'Copied':'Delivered',msg:a.cur.msg});
     const homes=plural(SB.ids.length,'home'), link=swLink(o,a);
     x.comms=x.comms||[];
@@ -298,8 +310,13 @@
   };
 
   // ---------- the card in Shared with client ----------
+  // Homes in a sent version that can no longer be bought: the buyer page still shows them as sent.
+  const GONE={sold:'sold',reserved:'reserved',contract:'under contract'};
+  const goneOf=ids=>(ids||[]).map(id=>[id,UN(id)]).filter(([,u])=>u&&!uOk(u)).map(([id,u])=>[id,GONE[u.status]||'no longer available']);
+  const goneText=g=>g.map(([id,s])=>`${id} ${s}`).join(' · ');
   window.sbCardHtml=function(o,a){
     const t=swLastTry(a), e=engOf(o,a), menu=SW.menu===a.id, stopped=a.access&&a.access.state==='revoked', copied=t&&t.status==='Copied';
+    const gone=goneOf(a.units), old=a.versions.filter(v=>v.legacy).length;
     const devs=[...new Set(a.units.map(u=>(UN(u)||{}).dev).filter(Boolean))].join(', ');
     const status=stopped?['Link stopped','err']:copied?['Link copied · not sent yet','warn']:e.opens?[e.opens===1?'Opened once':`Opened ${e.opens} times`,'ok']:['Delivered · not opened yet',''];
     const homes=Object.entries(e.homes).filter(([,ms])=>ms>=1000).sort((p,q)=>q[1]-p[1]).slice(0,3).map(([id,ms])=>`${id} ${dur(ms)}`);
@@ -314,11 +331,14 @@
         <div class="sh-via">${E(o.lead)} · ${E(t.ch==='Link'?'link copied':t.ch)} · ${E(t.when)} · v${t.ver}</div>
         <div class="sh-chips"><span class="sh-chip ${status[1]}">${E(status[0])}</span><span class="sh-chip">Website${a.cur.pdf?' and PDF':''}</span>${stopped?'':`<span class="sh-chip">Expires ${E(a.access.exp)}</span>`}</div>
         ${e.opens?`<div class="cr-lc-meta">Last opened ${E(e.last)}${homes.length?` · time on homes: ${E(homes.join(', '))}`:''}</div>`:''}
+        ${gone.length&&!stopped?`<div class="sh-fail sb-gone"><span>${E(goneText(gone))} since v${a.pub}. ${E(firstOf(o))} still sees ${gone.length===1?'it':'them'} in the proposal.</span><button onclick="sbOpen('${o.id}')">Send new version</button></div>`:''}
+        ${old?`<div class="cr-lc-meta">Includes ${plural(old,'earlier pack')} sent before proposals · <button type="button" class="pa-link" onclick="sbHistory('${a.id}')">Versions</button></div>`:''}
         <div class="cr-lc-meta sb-cardlink">${E(swLink(o,a))}</div>
       </div></div>`;
   };
   window.sbCopy=function(id){const o=oppCur,a=swA(o,id),l=swLink(o,a);SW.menu=null;try{navigator.clipboard&&navigator.clipboard.writeText('https://'+l).catch(()=>{});}catch(e){/* blocked */}renderOpp();showToast(`${l} copied`);};
-  window.sbPdf=function(id){const a=swA(oppCur,id);SW.menu=null;renderOpp();showToast(`Proposal v${a.pub} PDF is downloading`);};
+  // Opens the buyer page for this version, which builds the PDF and downloads it.
+  window.sbPdf=function(id){const o=oppCur,a=swA(o,id);SW.menu=null;renderOpp();storeIssue(assetIssue(o,a),true);window.open(`${PAGE}?issue=1&a=${encodeURIComponent(id)}&preview=1&pdf=proposal`,'_blank','noopener');};
   window.sbStop=function(id){
     const o=oppCur,a=swA(o,id);SW.menu=null;
     a.access={...a.access,state:'revoked',when:swDay(swNow()),by:o.rep};
@@ -329,7 +349,9 @@
     const o=oppCur,a=swA(o,id),e=engOf(o,a);SW.menu=null;renderOpp();
     qaDrawerOpen(`Proposal for ${firstOf(o)} · versions`,`<div class="sb-hist">
       <div class="sb-ol">Link</div><div class="sb-link"><code>${E(swLink(o,a))}</code></div>
-      <div class="sb-ol">Versions</div>${[...a.versions].reverse().map(v=>`<div class="sw-li"><b>v${v.v}</b><span>${E(v.note)} · ${E(v.by)}${v.ch?' · '+E(v.ch==='Link'?'link copied':v.ch):''}</span><em>${E(v.when)}</em></div>`).join('')}
+      <div class="sb-ol">Versions</div>${[...a.versions].reverse().map(v=>{const g=goneOf(v.units);
+        return `<div class="sw-li"><b>v${v.v}</b><span>${E(v.note)} · ${E(v.by)}${v.ch?' · '+E(v.ch==='Link'?'link copied':v.ch):''}${g.length?`<span class="sb-hgone">${E(goneText(g))} since</span>`:''}</span><em>${E(v.when)}</em></div>`;}).join('')}
+      ${a.versions.some(v=>v.legacy)?`<div class="st-sub">Packs and brochures sent before proposals are kept here as earlier versions, with the homes and prices as they were sent. Their old links now open the latest version.</div>`:''}
       <div class="sb-ol">${E(firstOf(o))}’s activity</div><div class="st-sub">${E(sbEngLine(o,a))}</div>
       ${Object.entries(e.homes).map(([u,ms])=>`<div class="sw-li"><b>${E(u)}</b><span>${E(dur(ms))} on this home</span></div>`).join('')}
       <div class="st-sub">Every version opens on the same link. ${E(firstOf(o))} always sees the latest one.</div></div>`,
@@ -358,8 +380,11 @@
   // ---------- every entry point opens this drawer ----------
   window.paSend=id=>sbOpen(id||oppCur.id);
   window.otPackOpen=()=>sbOpen(oppCur.id);
+  // Retired entries (custom pack, unit details, brochure) from older links, tasks and saved views.
   window.cpAgentOpen=()=>sbOpen(oppCur.id);
-  window.cpAgentPrepHtml=()=>'';
+  window.cpUnitDetails=id=>sbOpen(id||oppCur.id);
+  window.qaBrochure=()=>sbOpen(oppCur.id);
+  window.crResume=id=>sbOpen(id||oppCur.id);
   window.crOpen=function(oppId,seed){
     const o=opp(oppId)||oppCur;
     if(seed&&seed.unitIds&&seed.unitIds.length){
@@ -369,19 +394,14 @@
   };
   window.cpDemoItems=function(o){
     const a=liveProposal(o); if(!a) return '';
-    return `<div class="sw-menu-h">Proposal v${a.pub}</div><button role="menuitem" onclick="sbAsBuyer('${a.id}')">Open as ${E(firstOf(o))} (counts as a visit)</button><button role="menuitem" onclick="sbSimOpen('${a.id}')">${E(firstOf(o))} opens it</button>`;
+    const u=a.units.find(id=>uOk(UN(id)));
+    return `<div class="sw-menu-h">Proposal v${a.pub}</div><button role="menuitem" onclick="sbAsBuyer('${a.id}')">Open as ${E(firstOf(o))} (counts as a visit)</button><button role="menuitem" onclick="sbSimOpen('${a.id}')">${E(firstOf(o))} opens it</button>${u?`<button role="menuitem" onclick="sbSimSold('${E(u)}')">${E(u)} sells to another buyer</button>`:''}`;
   };
+  window.sbSimSold=function(uid){const u=UN(uid);SW.menu=null;if(u)u.status='sold';renderOpp();showToast(`${uid} marked sold`);};
   window.sbSimOpen=function(id){
     const o=oppCur,a=swA(o,id);SW.menu=null;
     try{const all=JSON.parse(localStorage.getItem(ENG_KEY)||'{}'),r=all[id]||(all[id]={opens:[],homes:{}});r.opens.push(Date.now());const k=a.units[0].replace('#','');r.homes[k]=(r.homes[k]||0)+95000;localStorage.setItem(ENG_KEY,JSON.stringify(all));}catch(e){/* ignore */}
     renderOpp();showToast(`${firstOf(o)} opened the proposal`);
-  };
-  // The Actions menu keeps one way in: Send proposal (added by proposal-admin.js).
-  const baseRender=window.renderOpp;
-  if(baseRender) window.renderOpp=function(){
-    const r=baseRender.apply(this,arguments);
-    document.querySelectorAll('#cr-actions-menu button[onclick="crAct(\'crOpen\')"]').forEach(b=>b.remove());
-    return r;
   };
   window.SB_STATE=SB;
 })();

@@ -60,3 +60,7 @@ body.sb-pv.pv-active > #qaScrim,body.sb-pv.pv-active > #qaDrawer,body.sb-pv.pv-a
 body.sb-pv.pv-active > #briclyToast{pointer-events:none!important;z-index:9200}
 body.sb-pv #qaScrim{z-index:9050;background:rgba(0,0,0,.45)}
 body.sb-pv #qaDrawer{z-index:9100}
+/* Homes in a sent proposal that have since sold or been reserved */
+.sh-card .sb-gone{margin-top:6px}
+.sb-hgone{display:block;color:var(--crm-error,#b3261e);font-size:12px}
+.sb-blocked .sb-warn{margin-top:10px}

@@ -2874,7 +2874,7 @@ const OPPS = [
   {id:'OPP-1013',lead:'Andrew Micallef',devs:['Onyx Rise'],units:['#CM9705'],stage:'Closed Won',source:'Website',budget:500,value:520,tags:['Cash Buyer'],rep:'Sam',next:{d:'—',t:'Deal closed'},ago:'30 days',closed:{step:1,bank:'BOV',deed:'Sep 12',comm:10.4,paid:false}},
   {id:'OPP-1014',lead:'Kim Farrugia',devs:['Mercury'],units:['#CM2710'],stage:'Contract Booked',source:'Meta Lead Form',budget:350,value:340,tags:['Foreign Buyer'],rep:'Lucy',next:{d:'Aug 14',t:'Collect deposit'},ago:'1 day',appt:{kind:'signing',at:'Aug 14 10:00'}},
   {id:'OPP-1015',lead:'Chris Bonnici',devs:['Verdala'],units:['#CM4515'],stage:'New Lead',source:'Referral',budget:400,value:390,tags:[],rep:'Sarah',next:{d:'Aug 13',t:'First contact call'},ago:'Today'},
-  {id:'OPP-1016',lead:'Ivan Grech',devs:['La Lex'],units:['#CM9820'],stage:'Appointment Completed',source:'Portal',budget:300,value:300,tags:['Urgent'],rep:'Maria',next:{d:'Aug 18',t:'Send follow-up pack'},ago:'2 days',appt:{kind:'viewing',at:'Aug 15 12:00',outcome:'held'}},
+  {id:'OPP-1016',lead:'Ivan Grech',devs:['La Lex'],units:['#CM9820'],stage:'Appointment Completed',source:'Portal',budget:300,value:300,tags:['Urgent'],rep:'Maria',next:{d:'Aug 18',t:'Send proposal'},ago:'2 days',appt:{kind:'viewing',at:'Aug 15 12:00',outcome:'held'}},
   {id:'OPP-1017',lead:'Josef Cassar',devs:['Verdala'],units:['#CM4502'],stage:'Closed Won',source:'Referral',budget:400,value:415,tags:[],rep:'Maria',next:{d:'—',t:'Deal closed'},ago:'18 days',closed:{step:2,bank:'APS',deed:'Aug 28',comm:8.3,paid:false}},
   {id:'OPP-1018',lead:'Amy Sciberras',devs:['Mercury'],units:['#CM2708'],stage:'Closed Won',source:'Portal',budget:300,value:295,tags:['Cash Buyer'],rep:'Lucy',next:{d:'—',t:'Deal closed'},ago:'45 days',closed:{step:5,bank:'—',deed:'Jul 30',comm:5.9,paid:true}},
   {id:'OPP-1019',lead:'Paul Debono',devs:['La Lex'],units:['#CM9611'],stage:'Closed Won',source:'Walk-in',budget:450,value:440,tags:[],rep:'Matthew',next:{d:'—',t:'Deal closed'},ago:'52 days',closed:{step:1,bank:'HSBC',deed:'Oct 2',comm:8.8,paid:false,stalled:true}},
@@ -2990,7 +2990,7 @@ const JOURNEY = [
   {key:'lead',label:'New Lead',phase:'A',cta:'Make first contact',req:['Contact details captured','Lead source recorded'],guide:'Speed wins — first response within the hour.'},
   {key:'qualified',label:'Qualified',phase:'A',cta:'Book appointment',req:['Budget confirmed','Timeline confirmed','Finance status known'],guide:'Confirm budget, timeline and finance before booking.'},
   {key:'viewing_booked',label:'Appointment Booked',phase:'A',dateLabel:'Appointment',cta:'Confirm appointment',req:['Appointment set','Units to show selected','Reminder sent'],guide:'Confirm the day before; have 2–3 units ready to show.'},
-  {key:'viewing_held',label:'Appointment Completed',phase:'A',cta:'Send follow-up pack',req:['Feedback captured','Units shortlisted'],guide:'Follow up within 24h while interest is hot.'},
+  {key:'viewing_held',label:'Appointment Completed',phase:'A',cta:'Send proposal',req:['Feedback captured','Units shortlisted'],guide:'Follow up within 24h while interest is hot.'},
   {key:'negotiating',label:'Negotiating',phase:'A',dateLabel:'Offer expiry',cta:'Log offer round',req:['Offer on the table','Counter position agreed'],guide:'Anchor at asking; trade payment terms before price.'},
   {key:'hold',label:'Hold',phase:'B',dateLabel:'Hold expires',cta:'Chase hold approval',req:['Manager approval','Unit taken off market'],guide:'Holds expire in 14 days — push for reservation early.'},
   {key:'reservation',label:'Reservation',phase:'B',dateLabel:'POS target',cta:'Collect deposit',req:['Reservation form signed','Deposit received'],guide:'Deposit secures the unit; book the notary now.'},
@@ -3371,7 +3371,7 @@ function unitRefsHtml(o){
   const states=Object.fromEntries(o.units.map(id=>[id,oppUnitState(o,id)]));
   const count=state=>o.units.filter(id=>states[id]===state).length;
   const label=state=>count(state)?`<span class="unit-state-label is-${state}">${count(state)>1?'Units':'Unit'} ${state}</span>`:'';
-  return `<span class="opp-unit-refs">${o.units.map(id=>{const ref=xesc(id.replace(/^#/,'').trim()),state=states[id];return `<button type="button" class="unit-ref${state?' is-'+state:''}" title="${state?`Unit ${state} · `:''}Preview unit ${ref}" onclick="event.stopPropagation();oppOpenUnit('${xesc(id)}')">${ref}</button>`;}).join('')}${label('sold')}${label('held')}</span>`;
+  return `<span class="opp-unit-refs">${o.units.map(id=>{const ref=xesc(id.replace(/^#/,'').trim()),state=states[id];return `<span class="unit-ref-w"><button type="button" class="unit-ref${state?' is-'+state:''}" title="${state?`Unit ${state} · `:''}Preview unit ${ref}" onclick="event.stopPropagation();oppOpenUnit('${xesc(id)}')">${ref}</button>${state==='sold'?'':`<button type="button" class="unit-ref-x" aria-label="Remove ${ref} from the opportunity" title="Remove from the opportunity" onclick="event.stopPropagation();oppUnitRemove('${o.id}','${xesc(id)}')">×</button>`}</span>`;}).join('')}${label('sold')}${label('held')}</span>`;
 }
 // Closed Won / converted deals mean the unit is sold. Otherwise the opportunity's own hold state wins
 // (a pending request isn't a hold yet) and inventory status is the fallback.
@@ -5424,11 +5424,10 @@ function oppHeadHtml(o,j,comp){
       <div class="cr-actions">
         <button class="btn-primary cr-actions-btn" onclick="crToggleActions(event)">Actions <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 4.5L6 7.5 9 4.5"/></svg></button>
         <div class="cr-actions-menu" id="cr-actions-menu" style="display:none">
-          ${comp?`<button onclick="crAct('newOppFor','${o.lead}')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 3.5v7M3.5 7h7"/></svg>New opportunity</button>`:`<button class="cr-am-primary" onclick="crAct('crOpen')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="2.5" width="10" height="9" rx="1.5"/><path d="M4.5 5.5h5M4.5 8h3"/></svg>${crHasDraft(o)?'Continue custom pack (draft)':'Create custom pack'}</button>
+          ${comp?`<button onclick="crAct('newOppFor','${o.lead}')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 3.5v7M3.5 7h7"/></svg>New opportunity</button>`:`
           <div class="cr-am-div"></div>
           <button onclick="crAct('qaMessage')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 3h10v7H6l-3 2.5V3z"/></svg>Message</button>
           <button onclick="crAct('qaLog')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 3.5v7M3.5 7h7"/></svg>Log activity</button>
-          <button onclick="crAct('qaBrochure')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2.5" y="2" width="9" height="10" rx="1.5"/><path d="M5 5h4M5 7.5h4"/></svg>Send brochure</button>
           <button onclick="crAct('qaPresent')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="3" width="10" height="7" rx="1"/><path d="M7 10v2M5 12h4"/></svg>Present</button>
           <button onclick="crAct('qaViewing')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="2.5" width="10" height="9.5" rx="1.5"/><path d="M2 5.5h10M5 2.5V1M9 2.5V1"/></svg>Book appointment</button>
           <button onclick="crAct('oppHoldRequest')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="3" y="6" width="8" height="6" rx="1"/><path d="M5 6V4.5a2 2 0 014 0V6"/></svg>Put unit on hold</button>
@@ -5674,7 +5673,7 @@ function railHtml(o,x,ji){
     const act=h==='held'?`<button type="button" class="uh-act" onclick="uhReserve('${o.id}','${u}')">Reserve</button>`
       :!h&&(!un||un.status==='available')?`<button type="button" class="uh-act" onclick="oppHoldRequest('${u}')">Put on hold</button>`:'';
     return `<div class="uh-row">
-      <div class="uh-top"><span class="cell-id" ${un?`style="cursor:pointer" onclick="openUnPeek('${u}')"`:''}>${u}</span><span class="uh-meta">${meta}</span></div>
+      <div class="uh-top"><span class="cell-id" ${un?`style="cursor:pointer" onclick="openUnPeek('${u}')"`:''}>${u}</span><span class="uh-meta">${meta}</span>${un&&un.status==='reserved'&&(h==='held'||i===0)?'':`<button type="button" class="uh-x" onclick="oppUnitRemove('${o.id}','${u}')" aria-label="Remove ${u} from the opportunity" title="Remove from the opportunity">×</button>`}</div>
       <div class="uh-foot"><span class="pill ${h==='held'?'p-res':h==='requested'?'p-hold':st?st.p:'p-paused'}">${h?HOLD_LABEL[h]:st?st.l:'Shortlisted'}</span><span class="uh-why">${why}</span>
         ${act}</div>
     </div>`;
@@ -6394,35 +6393,6 @@ function qaViewingSendLink(){
   x.comms.unshift({ch:'sys',t:'Just now',text:`Appointment booking link sent via ${ch} — awaiting buyer to pick a slot`});
   x.next={label:'Awaiting appointment booking',due:'',overdue:false};
   qaDrawerClose(); renderOpp(); showToast('Booking link sent to '+o.lead.split(' ')[0]);
-}
-
-// ---------- Send brochure ----------
-function qaBrochure(){
-  const o=oppCur;
-  const unitRows=o.units.map(uid=>{
-    const u=UN(uid), meta=u?`${u.dev} · ${fmtEur(u.price)}`:o.devs[0];
-    return `<label class="qa-check"><input type="checkbox" class="qaBrUnit" data-u="${uid}" checked> <span><b>${uid}</b><em>${meta}</em></span></label>`;
-  }).join('');
-  const sections=[['Cover page','cover'],['Floor plans','floor'],['Price list','price'],['Development overview','dev']];
-  const body=`
-    <div class="od-field"><label>Units to include</label><div class="qa-checks">${unitRows}</div></div>
-    <div class="od-field"><label>Sections</label><div class="qa-checks">${sections.map(([l,k])=>`<label class="qa-check"><input type="checkbox" class="qaBrSec" data-s="${k}" checked> <span>${l}</span></label>`).join('')}</div></div>
-    <div class="od-field"><label>Send via</label><div class="chk-row" id="qaBrCh">${[['WhatsApp','wa'],['SMS','sms'],['Email','em']].map(([l,k],i)=>`<button type="button" class="fm-opt ${i===0?'on':''}" data-k="${k}" onclick="qaPick(this)">${l}</button>`).join('')}</div></div>
-    <div class="od-field"><label>Personal note (optional)</label><textarea id="qaBrNote" rows="2" placeholder="Thought these would be perfect for you…"></textarea></div>`;
-  const foot=`<button class="btn-ghost" onclick="qaDrawerClose()">Cancel</button><button class="btn-primary" onclick="qaBrochureSend()">Send brochure</button>`;
-  qaDrawerOpen('Send brochure',body,foot);
-}
-function qaBrochureSend(){
-  const o=oppCur,x=getExt(o);
-  const units=[...document.querySelectorAll('.qaBrUnit:checked')].map(b=>b.dataset.u);
-  if(!units.length){showToast('Select at least one unit');return;}
-  const secs=[...document.querySelectorAll('.qaBrSec:checked')].length;
-  const chEl=document.querySelector('#qaBrCh .on'), ch=chEl?chEl.textContent:'WhatsApp';
-  const sh=ensureShared(o,x)[0];
-  sh.d=`${o.devs[0]} · ${units.length>1?units.length+' units':units[0]}`;
-  sh.eng='Sent just now · not yet opened';
-  x.comms.unshift({ch:'sys',t:'Just now',text:`Personalised brochure sent via ${ch} — ${units.join(', ')}, ${secs} section${secs===1?'':'s'}`});
-  qaDrawerClose(); renderOpp(); showToast('Brochure sent to '+o.lead.split(' ')[0]);
 }
 
 // ---------- Present: launch full-screen Present Mode preloaded ----------
@@ -7696,7 +7666,7 @@ function renderUnit(){
         <button onclick="unAct('unLinkDeal','${u.id}')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M6 8a2.5 2.5 0 003.5.3l2-2a2.5 2.5 0 00-3.5-3.5l-1 1M8 6a2.5 2.5 0 00-3.5-.3l-2 2a2.5 2.5 0 003.5 3.5l1-1"/></svg>Link to opportunity</button>`:''}
         <button onclick="unAct('pzOpen','${u.id}')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 12l6.5-6.5M9.5 2.5l2 2L10 6 8 4l1.5-1.5zM2 12l1-3 2 2-3 1z"/></svg>Personalise</button>
         <button onclick="unAct('prOpen','${u.id}')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="3" width="10" height="7" rx="1"/><path d="M7 10v2M5 12h4"/></svg>Present</button>
-        <button onclick="unAct('unShareBrochure')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2.5" y="2" width="9" height="10" rx="1.5"/><path d="M5 5h4M5 7.5h4"/></svg>Share brochure</button>
+        <button onclick="unAct('unShareBrochure')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2.5" y="2" width="9" height="10" rx="1.5"/><path d="M5 5h4M5 7.5h4"/></svg>Floor plan and brochure</button>
       </div>
     </div>
   </div></div>
@@ -14429,7 +14399,6 @@ function crReversion(uid){
 <script src="level-plans.js"></script>
 <script src="dev-editor.js"></script>
 <script src="client-share.js"></script>
-<script src="custom-pack.js"></script>
 <script src="appt-book.js"></script>
 <script src="opp-offer.js"></script>
 <script src="opp-strip.js"></script>
@@ -15208,6 +15177,8 @@ uiImportActions();
 <script src="proposal/proposal-std.js"></script>
 <script src="proposal-admin.js"></script>
 <script src="send-buyer.js"></script>
+<script src="proposal/proposal-pdf.js"></script>
+<script src="files.js"></script>
 <script src="money-format.js"></script>
 </body>
 </html>

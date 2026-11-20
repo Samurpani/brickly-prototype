@@ -159,6 +159,11 @@
 .pa-logo-box.sm{height:48px;min-width:120px}
 .pa-logo-box.sm b{font-size:16px}
 .pa-devs{padding-top:16px}
+.pa-single{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 24px;align-items:start;padding:16px 0 18px;border-bottom:1px solid var(--outline)}
+.pa-single b{display:block;font-size:15px;margin-bottom:2px}
+.pa-single .st-sub{display:block;max-width:560px}
+.pa-single-a{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+@media (max-width:720px){.pa-single{grid-template-columns:1fr}.pa-single-a{align-items:flex-start}}
 .pa-devs-h{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:10px}
 .pa-devs-h b{display:block;font-size:15px}
 .pa-dsearch{width:240px;border:1px solid var(--outline);border-radius:6px;padding:7px 10px;font:inherit;font-size:13px;background:var(--surface);color:var(--on-surface)}

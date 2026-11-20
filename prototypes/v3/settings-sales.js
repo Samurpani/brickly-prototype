@@ -81,7 +81,7 @@ const STAGES=[
   {id:'new',label:'New enquiry',next:'Make first contact',date:'Enquiry date',locked:true,checklist:['Contact details captured','Source recorded'],prob:5},
   {id:'contacted',label:'Contacted',next:'Book appointment',date:'',checklist:['Budget and timeline asked'],prob:10},
   {id:'viewing_booked',label:'Appointment booked',next:'Confirm the day before',date:'Appointment date',checklist:['Appointment time confirmed','Unit shortlist sent'],prob:25},
-  {id:'viewed',label:'Viewed',next:'Send a follow-up pack',date:'',checklist:['Feedback captured'],prob:40},
+  {id:'viewed',label:'Viewed',next:'Send a proposal',date:'',checklist:['Feedback captured'],prob:40},
   {id:'offer',label:'Offer made',next:'Chase decision in 3 days',date:'Offer date',checklist:['Offer logged'],prob:60},
   {id:'reserved',label:'Reserved',next:'Collect reservation documents',date:'Reservation date',locked:true,checklist:['Reservation form signed','Deposit received'],prob:80},
   {id:'promise_of_sale',label:'Promise of sale',next:'Collect deposit',date:'POS date',locked:true,checklist:['POS signed at the notary'],prob:95},

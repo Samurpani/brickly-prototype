@@ -9,6 +9,12 @@
  * Present Mode reads the published (live) snapshot only; the editor previews against the draft.
  * Load before dev-editor.js. Functions read DEVS, UNITS, CR_* and deTypeKey at call time.
  */
+// Layout and finish catalog for developments with no published interiors yet (seeds packs below; cpCat is read by send-buyer.js and deal-convert.js).
+const CP_CATALOG={dolphin:{layouts:['architect','open-kitchen','third-bed'],packs:['signature','urban','riviera']},mercury:{layouts:['architect','open-kitchen'],packs:['signature','riviera']},lalex:{layouts:['architect','open-kitchen'],packs:['signature']},verdala:{layouts:['architect'],packs:['signature']},onyx:{layouts:['architect'],packs:['signature','urban']}};
+window.cpCat=function(uid){
+  const u=UN(uid), d=u&&DEV(u.dev), c=CP_CATALOG[d?d.id:'']||{layouts:['architect'],packs:['signature']};
+  return {layouts:c.layouts.filter(l=>(l!=='third-bed'||(u&&u.beds===2))&&(l!=='open-kitchen'||(u&&u.beds>0))).map(CR_LAYOUT),packs:c.packs.map(CR_PACK)};
+};
 const UM=(()=>{
   const MT='miami-tropic';
   const RULES=[['','Every unit'],['beds1','1+ bedrooms'],['beds2','2+ bedrooms'],['beds3','3+ bedrooms'],['outdoor','Outdoor space']];

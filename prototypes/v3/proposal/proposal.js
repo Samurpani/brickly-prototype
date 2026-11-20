@@ -11,8 +11,8 @@
   const STD=STDL?(qs.get('std')==='draft'&&STDL.draft?STDL.draft:STDL.pub):null;
   // ?a=<id> opens one sent proposal (the buyer's link); without ?preview it records opens and time on homes.
   const AID=qs.get('a'), TRACK=!!AID&&!qs.has('preview');
-  let noCompare=false;
-  const on=k=>!(k==='compare'&&noCompare)&&(!STD||STD.sections[k]!=='off');
+  let noCompare=false, devOnly=false;
+  const on=k=>!(k==='compare'&&noCompare)&&!(k==='developer'&&devOnly)&&(!STD||STD.sections[k]!=='off');
   const showPrice=!STD||STD.access.prices;
   const canPos=!STD||STD.reserve.mode==='request-pos';
   const toMgr=!!STD&&STD.reserve.to==='manager';
@@ -42,6 +42,7 @@
           status:h.status==='hold'?'held':'available',hold:h.status==='hold'?'Friday':'',plate:n+1,note:'',...(h.handover?{handover:h.handover}:{})};
         P.units.push(u);
       }
+      if(['sold','reserved','contract'].includes(h.status)) u.status='gone';
       if(h.price) u.price=h.price;
       if(h.layout) u.layout=h.layout;
       if(h.finish) u.finish=/finish$/i.test(h.finish)?h.finish:h.finish+' finish';
@@ -49,8 +50,14 @@
     const keep=(i.units||[]).map(id=>P.units.find(u=>u.id===id)).filter(Boolean);
     if(keep.length){P.units=keep;P.developments=P.developments.filter(d=>keep.some(u=>u.dev===d.id));}
     if(i.msg){P.letter=[i.msg];P.letterOwn=true;}
+    if(i.pdf===false) P.noPdf=true;
+    if(i.link) P.link=i.link;
     if(i.rep&&i.rep!==P.rep.name.split(' ')[0]){P.rep.name=i.rep;P.rep.initials=i.rep.slice(0,2).toUpperCase();}
   })();
+  // ?dev=<id> previews a proposal with only that development's homes (Settings › Proposal page).
+  if(!qs.has('issue')&&qs.get('dev')&&P.units.some(u=>u.dev===qs.get('dev'))){
+    P.units=P.units.filter(u=>u.dev===qs.get('dev'));P.developments=P.developments.filter(d=>d.id===qs.get('dev'));
+  }
   // Brand kits from Settings › Proposal page: the company brand frames the proposal, and each
   // development uses its own brand or the company brand with its name as the logo.
   if(STD&&STD.brand){
@@ -58,6 +65,13 @@
     PSX.loadFonts(STD.brand); P.developer.brand=PSX.tokens(STD.brand);
     P.developments.forEach(d=>{const b=(STD.devBrands||{})[d.id]; if(!b) return;
       if(b.own){PSX.loadFonts(b);d.brand=PSX.tokens(b);} else d.brand={...P.developer.brand,logo:{text:d.name,sub:d.place}};});
+  }
+  // Settings › Proposal page can theme a one-development proposal as that development: its brand frames
+  // the page and the developer's name, logo and “Built on trust” section don't show.
+  if(STD&&STD.singleDev==='development'&&P.developments.length===1){
+    const d=P.developments[0];devOnly=true;
+    P.developer={...P.developer,brand:d.brand,name:d.name,cover:d.hero||P.developer.cover};
+    document.title=`A private proposal for ${P.buyer.first} · ${d.name}`;
   }
   // Developer section from Settings › Proposal page (published standard, or the draft in preview).
   // Empty fields keep the proposal data. Uploaded photos are data URLs; seeded ones are paths under prototypes/v3.
@@ -106,7 +120,7 @@
   const gross=u=>rentMid(u)*12/u.price*100;
   const net=u=>(rentMid(u)*12*u.invest.occ/100-u.invest.fees)/u.price*100;
   const pm2=u=>u.price/u.sqm;
-  const statusOf=u=>S.reserved===u.id?['Reserved for you','held']:S.requested.has(u.id)?['Reservation requested','held']:u.status==='held'?['On hold for you','held']:['Available',''];
+  const statusOf=u=>S.reserved===u.id?['Reserved for you','held']:S.requested.has(u.id)?['Reservation requested','held']:u.status==='held'?['On hold for you','held']:u.status==='gone'?['No longer available','gone']:['Available',''];
 
   // ---------- drawings ----------
   function plan(u){
@@ -234,7 +248,7 @@
     },
     footer(){
       return `<footer class="foot" data-track="Downloads"><div class="wrap">
-        ${on('downloads')?`<div class="dl"><p class="kick">Downloads</p><ul>${P.downloads.map(([n,s])=>`<li><button type="button" data-dl="${esc(n)}"><span>${esc(n)}</span><small>${esc(s)}</small><i aria-hidden="true">↓</i></button></li>`).join('')}</ul></div>`:''}
+        ${on('downloads')?`<div class="dl"><p class="kick">Downloads</p><ul>${downloads().map(([k,n,s])=>`<li><button type="button" data-dl="${esc(k)}"><span>${esc(n)}</span><small>${esc(s)}</small><i aria-hidden="true">↓</i></button></li>`).join('')}</ul></div>`:''}
         <p class="legal">${esc(P.legal)}</p>
         <div class="foot-meta">${logo(P.developer.brand,'sm')}<span>A private proposal for ${esc(P.buyer.first)} ${esc(P.buyer.last)} · Issue v${P.version} · ${esc(P.issued)} · Valid until ${esc(P.validUntil)}</span><span class="pw">Prepared with Bricly</span></div>
       </div></footer>`;
@@ -307,6 +321,7 @@
         ${u.views&&u.views.length?`<h3 class="pn-h3">Views from this home</h3><div class="views">${u.views.map(v=>`<figure class="rv"><div class="media"><img src="${esc(v.img)}" alt="" loading="lazy"></div><figcaption>${esc(v.l)}</figcaption></figure>`).join('')}</div>`:''}`],
       ['plan','Floor plan',`<h3 class="pn-h3">Floor plan</h3><div class="u-plan"><div class="rv">${plan(u)}</div>
         <div class="rooms rv"><ul>${u.rooms.map((r,i)=>`<li data-room="${i}" tabindex="0"><span>${esc(r[0])}</span><b>${esc(r[1])}</b></li>`).join('')}</ul>
+          <button type="button" class="btn ghost u-dl" data-dl-plan="${u.id}">Download floor plan (PDF)</button>
           <p class="kick">In your ${esc(u.finish.toLowerCase())}</p><ul class="spec">${u.spec.map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div></div>`],
       ['position','In the building',`<h3 class="pn-h3">Level ${u.floor} of ${F} · faces the ${esc(d.plate.face)}</h3>
         <div class="pos rv"><figure>${stack(u,d)}<figcaption>Level in the building</figcaption></figure><figure>${plate(u,d)}<figcaption>Where it sits on level ${u.floor} · ${esc(u.aspect)} aspect</figcaption></figure></div>`],
@@ -325,8 +340,9 @@
   }
   function unitFoot(u){
     const res=S.reserved===u.id, req=S.requested.has(u.id), held=u.status==='held';
-    const line=res?'Reserved for you':req?`Reservation requested · ${repFirst} will confirm`:held?`On hold for you until ${u.hold}`:dev(u.dev).remaining;
+    const line=res?'Reserved for you':req?`Reservation requested · ${repFirst} will confirm`:held?`On hold for you until ${u.hold}`:u.status==='gone'?'This home is no longer available':dev(u.dev).remaining;
     const cta=res?(canPos?`<button type="button" class="btn primary" data-act="pos">Book your promise of sale</button>`:`<button type="button" class="btn primary" data-ask="${u.id}">Contact ${esc(repFirst)}</button>`)
+      :u.status==='gone'?`<button type="button" class="btn primary" data-ask="${u.id}">Ask ${esc(repFirst)} for similar homes</button>`
       :`<button type="button" class="btn primary" data-reserve="${u.id}"${req?' disabled>Reservation requested':'>Reserve this home'}</button>`;
     return `<footer class="pn-f"><div><b>${price(u)}</b><span>${esc(line)}</span></div><div class="pn-f-act"><button type="button" class="btn ghost" data-ask="${u.id}">Ask ${esc(repFirst)}</button>${cta}</div></footer>`;
   }
@@ -450,6 +466,96 @@
     document.querySelectorAll('#main [data-track]').forEach(el=>dwell.observe(el));
   }
 
+  // ---------- downloads: real PDFs built in the browser from this proposal ----------
+  // Same homes, prices, layouts and finishes the buyer sees on the page. The floor plan is the page's drawing.
+  const who=()=>`${P.buyer.first} ${P.buyer.last}`.trim();
+  const fileName=(kind,u)=>`${kind}${u?'-'+u.name:''}-${who()}-v${P.version}.pdf`.replace(/[^\w.-]+/g,'-');
+  function downloads(){
+    const n=P.units.length, fins=[...new Set(P.units.map(u=>u.finish))].join(', ');
+    return [
+      ...(P.noPdf?[]:[['proposal','Proposal PDF',`${n+2+(n>1&&on('compare')?1:0)} pages`]]),
+      ['plans','Floor plans',n===1?P.units[0].name:`${n} homes`],
+      ['spec','Specification',fins],
+      ...(showPrice?[['prices','Price list',`Valid until ${P.validUntil}`]]:[]),
+    ];
+  }
+  const PLAN_CSS='<style>rect{fill:#fff;stroke:#2b2b2b;stroke-width:2}.ext rect{fill:#f2efe8;stroke-dasharray:6 4}text{font:600 11px Helvetica,Arial,sans-serif;fill:#333;text-anchor:middle}.door{fill:none;stroke:#8a8a8a;stroke-width:1.5}.compass{fill:#2b2b2b}.n{font-size:10px}</style>';
+  const planSvg=u=>plan(u).replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" width="840" height="580" ').replace(/(<svg[^>]*>)/,'$1'+PLAN_CSS);
+  let busy=false;
+  async function download(kind,only){
+    if(busy) return; busy=true;
+    const X=window.ProposalPDF, us=only||P.units, label={proposal:'Proposal',plans:only?'Floor plan':'Floor plans',spec:'Specification',prices:'Price list'}[kind]||kind;
+    track('Downloaded · '+label+(only?' · '+us[0].name:''));
+    toast(`Preparing your ${label.toLowerCase()} PDF…`);
+    try{
+      const B=P.developer.brand, acc=B.accent||'#1d1d1b', ink='#1d1d1b', mut='#6b6760', M=48, CW=X.W-M*2;
+      const plans={}, shots={};
+      await Promise.all(us.map(async u=>{
+        plans[u.id]=await X.jpeg(planSvg(u),{svg:true,maxW:1200});
+        if(kind==='proposal') shots[u.id]=await X.jpeg(u.renders[0],{maxW:1100});
+      }));
+      const doc=X.create();
+      const head=(pg,t,sub)=>{pg.rect(0,0,X.W,6,{fill:acc});pg.text(M,30,P.developer.name,{size:9,bold:true,color:mut});pg.text(X.W-M,30,`Private proposal for ${who()}`,{size:9,color:mut,align:'right'});
+        let y=pg.wrap(M,58,CW,t,{size:22,bold:true,color:ink,lh:1.2});if(sub)y=pg.wrap(M,y+2,CW,sub,{size:11,color:mut});return y+14;};
+      const facts=(pg,y,rows,cols=4)=>{const w=CW/cols;rows.forEach(([l,v],i)=>{const x=M+(i%cols)*w,yy=y+Math.floor(i/cols)*38;pg.text(x,yy,l,{size:8,color:mut});pg.text(x,yy+11,v,{size:11,bold:true,color:ink});});return y+Math.ceil(rows.length/cols)*38+6;};
+      const img=(pg,im,y,maxH)=>{if(!im)return y;const k=Math.min(CW/im.w,maxH/im.h),w=im.w*k,h=im.h*k;pg.image(im,M+(CW-w)/2,y,w,h);return y+h+12;};
+      const homeFacts=u=>[['Bedrooms',String(u.beds)],['Bathrooms',String(u.baths)],['Internal',u.sqm+' m²'],['Terrace',u.ext+' m²'],['Level',String(u.floor)],['Aspect',u.aspect||'—'],['View',u.view||'—'],['Handover',u.handover||'—'],['Layout',u.layout||'—'],['Finish',u.finish||'—']];
+      const rooms=(pg,y,u)=>{pg.text(M,y,'Rooms',{size:10,bold:true,color:ink});y+=16;u.rooms.forEach(([n,v])=>{pg.text(M,y,n,{size:10,color:ink});pg.text(M+CW,y,v,{size:10,color:ink,align:'right'});pg.line(M,y+13,M+CW,y+13);y+=18;});return y+6;};
+      const pay=(pg,y,u)=>{pg.text(M,y,'Payment plan',{size:10,bold:true,color:ink});y+=16;u.pay.forEach(p=>{pg.text(M,y,p.pct+'%',{size:10,bold:true,color:acc});pg.text(M+40,y,`${p.label} · ${p.when}`,{size:10,color:ink});if(showPrice)pg.text(M+CW,y,eur(u.price*p.pct/100),{size:10,color:ink,align:'right'});pg.line(M,y+13,M+CW,y+13);y+=18;});return y+6;};
+      const gone=u=>u.status==='gone'?' · no longer available':'';
+      if(kind==='proposal'){
+        let pg=doc.page(), y=head(pg,`A private proposal for ${who()}`,`Prepared by ${P.rep.name} · Issue v${P.version} · ${P.issued} · Valid until ${P.validUntil}`);
+        P.letter.forEach(t=>{y=pg.wrap(M,y,CW,t,{size:11,color:ink,lh:1.5})+6;});
+        y=pg.text(M,y+4,`${P.rep.name}, ${P.rep.role}`,{size:10,color:mut})+16;
+        pg.text(M,y,'Your homes',{size:13,bold:true,color:ink});y+=22;
+        us.forEach(u=>{pg.text(M,y,u.name+gone(u),{size:11,bold:true,color:ink});pg.text(M,y+14,`${dev(u.dev).name} · ${BEDS[u.beds]||u.beds+' bed'} · ${u.sqm} m² · level ${u.floor} · ${u.layout} · ${u.finish}`,{size:9.5,color:mut});pg.text(M+CW,y,price(u),{size:11,bold:true,color:ink,align:'right'});pg.line(M,y+30,M+CW,y+30);y+=40;});
+        if(P.link) pg.text(M,y+10,`Always the latest version: https://${P.link}`,{size:9.5,color:acc});
+        us.forEach(u=>{
+          const d=dev(u.dev);pg=doc.page();
+          let yy=head(pg,`${u.name}${gone(u)}`,`${d.name}${d.place?', '+d.place:''} · ${price(u)}`);
+          yy=img(pg,shots[u.id],yy,230);yy=facts(pg,yy,homeFacts(u),5);
+          yy=img(pg,plans[u.id],yy,210);
+          if(on('payment')) yy=pay(pg,yy,u);
+          if(yy<X.H-120) pg.wrap(M,yy,CW,`In your ${u.finish.toLowerCase()}: ${u.spec.join(', ')}.`,{size:9.5,color:mut});
+        });
+        if(us.length>1&&on('compare')){
+          pg=doc.page();let yy=head(pg,'Side by side','The homes in this proposal compared.');
+          const rows=[...(showPrice?[['Price',u=>eur(u.price)],['Price per m²',u=>eur(u.price/u.sqm)]]:[]),['Development',u=>dev(u.dev).name],['Internal',u=>u.sqm+' m²'],['Terrace',u=>u.ext+' m²'],['Level',u=>String(u.floor)],['View',u=>u.view],['Handover',u=>u.handover]];
+          const cw=(CW-110)/us.length;
+          us.forEach((u,i)=>pg.text(M+110+i*cw,yy,u.name,{size:9.5,bold:true,color:ink}));yy+=20;
+          rows.forEach(([l,fn])=>{pg.text(M,yy,l,{size:9.5,color:mut});us.forEach((u,i)=>pg.text(M+110+i*cw,yy,fn(u),{size:9.5,color:ink}));pg.line(M,yy+13,M+CW,yy+13);yy+=20;});
+        }
+        pg=doc.page();let yy=head(pg,'Your next step',`Talk to ${repFirst} to reserve, or to ask anything about these homes.`);
+        yy=pg.text(M,yy,`${P.rep.name} · ${P.rep.role}`,{size:11,bold:true,color:ink});
+        yy=pg.text(M,yy,`${P.rep.phone} · ${P.rep.email}`,{size:10.5,color:ink})+18;
+        pg.wrap(M,yy,CW,P.legal,{size:8.5,color:mut,lh:1.45});
+      }
+      if(kind==='plans') us.forEach(u=>{
+        const pg=doc.page(), d=dev(u.dev);
+        let y=head(pg,`Floor plan · ${u.name}${gone(u)}`,`${d.name} · ${BEDS[u.beds]||u.beds+' bed'} · ${u.sqm} m² internal · ${u.ext} m² terrace · level ${u.floor} · ${u.layout}`);
+        y=img(pg,plans[u.id],y,360);y=rooms(pg,y,u);
+        pg.wrap(M,y,CW,'Room sizes are approximate. The drawing is indicative and not to scale.',{size:8.5,color:mut});
+      });
+      if(kind==='spec') us.forEach(u=>{
+        const pg=doc.page(); let y=head(pg,`Specification · ${u.name}`,`${dev(u.dev).name} · ${u.finish} · ${u.layout}`);
+        u.spec.forEach(t=>{pg.text(M,y,'•  '+t,{size:11,color:ink});y+=20;});
+        pg.wrap(M,y+10,CW,'Materials may be replaced with equivalents of the same quality.',{size:8.5,color:mut});
+      });
+      if(kind==='prices'){
+        const pg=doc.page(); let y=head(pg,'Price list',`Your homes · valid until ${P.validUntil}`);
+        us.forEach(u=>{pg.text(M,y,u.name+gone(u),{size:11,bold:true,color:ink});pg.text(M,y+14,`${dev(u.dev).name} · ${u.sqm} m² · level ${u.floor} · ${u.finish}`,{size:9.5,color:mut});pg.text(M+CW,y,eur(u.price),{size:11,bold:true,color:ink,align:'right'});y+=30;y=pay(pg,y,u)+8;});
+        pg.wrap(M,y,CW,P.legal,{size:8.5,color:mut,lh:1.45});
+      }
+      const n=doc.pages.length;
+      doc.pages.forEach((pg,i)=>pg.text(X.W-M,X.H-34,`${who()} · issue v${P.version} · page ${i+1} of ${n}`,{size:8,color:mut,align:'right'}));
+      const blob=doc.blob({title:`${label} · ${who()}`,author:P.rep.name});
+      window.__lastPdf={name:fileName(label.replace(/\s/g,'-'),only&&us[0]),size:blob.size,pages:n};
+      X.save(blob,window.__lastPdf.name);
+      toast(`${label} downloaded.`);
+    }catch(e){toast('The PDF couldn’t be made. Try again.');}
+    busy=false;
+  }
+
   // ---------- interaction ----------
   document.addEventListener('click',e=>{
     const t=e.target;
@@ -465,7 +571,8 @@
     if(t.closest('[data-act="pos"]')){track('Promise of sale booking opened');toast(`${repFirst} will send you times for the promise of sale today.`);return;}
     const fab=t.closest('#fab-go'); if(fab){track('Floating action · '+fab.textContent.trim());fabAct(fab.dataset.fab);return;}
     const ask=t.closest('[data-ask]'); if(ask){track('Asked about · '+unit(ask.dataset.ask).name);toast(`${repFirst} has your question about ${unit(ask.dataset.ask).name}. Expect a reply on WhatsApp shortly.`);return;}
-    const dl=t.closest('[data-dl]'); if(dl){track('Downloaded · '+dl.dataset.dl);toast(dl.dataset.dl+' is downloading.');return;}
+    const dl=t.closest('[data-dl]'); if(dl){download(dl.dataset.dl);return;}
+    const dp=t.closest('[data-dl-plan]'); if(dp){download('plans',[unit(dp.dataset.dlPlan)]);return;}
     const ev=t.closest('[data-ev]'); if(ev){track(ev.dataset.ev);e.preventDefault();toast('Opens '+ev.textContent+' with '+repFirst+'.');}
   });
   document.addEventListener('pointerover',e=>{const r=e.target.closest('.rooms li[data-room]');if(r)hl(r);});
@@ -562,6 +669,8 @@
   document.getElementById('panel').addEventListener('close',()=>{dwStop();S.cur=null;pio&&pio.disconnect();spy&&spy.disconnect();panel().innerHTML='';document.body.classList.remove('panel-open');});
   document.getElementById('panel').addEventListener('click',e=>{if(e.target===e.currentTarget)closePanel();});
 
-  window.PROPOSAL_APP={render,state:S,track,openPanel};
+  window.PROPOSAL_APP={render,state:S,track,openPanel,download};
   render(); demo(); gate(intro);
+  // ?pdf=proposal|plans|spec|prices: the CRM's Download PDF opens the page and the file downloads.
+  if(qs.get('pdf')) setTimeout(()=>download(qs.get('pdf')),300);
 })();

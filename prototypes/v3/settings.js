@@ -186,10 +186,19 @@ function stBlock(b,bi,ro,key){
   if(b.k==='empty'||b.k==='error')return `<section class="st-card st-empty ${b.k}" ${span}><div class="st-t b">${stEsc(b.et)}</div><div class="st-sub">${stEsc(b.ex)}</div>${b.act?`<button type="button" class="btn-ghost" data-st-go="${stEsc(b.act[1])}">${stEsc(b.act[0])}</button>`:''}</section>`;
   return '';
 }
+// Account pages are grouped by job in the rail. Pages added by other modules that aren't listed join the first group.
+const ST_NAV_GROUPS=[
+  ['Organisation',['company','team','notifications','integrations']],
+  ['Sales',['sales','targets','approvals','calls']],
+  ['Buyers',['proposals']],
+  ['Billing',['plan','credits']],
+  ['Security and data',['security','data']],
+];
 function stNavHtml(nav){
   const item=([k,l])=>`<button type="button" class="st-rail-i ${nav===k?'on':''}" data-st-go="p:${k}" ${nav===k?'aria-current="page"':''}>${stEsc(l)}</button>`;
-  const acc=ST_NAV_ACC.filter(([k])=>stAccess(k));
-  return `<nav class="st-rail" aria-label="Settings sections">${acc.length?`<div class="st-rail-h">Account</div>${acc.map(item).join('')}`:''}<div class="st-rail-h">Personal</div>${ST_NAV_PER.map(item).join('')}</nav>`;
+  const acc=ST_NAV_ACC.filter(([k])=>stAccess(k)), known=new Set(ST_NAV_GROUPS.flatMap(([,ks])=>ks));
+  const groups=ST_NAV_GROUPS.map(([h,ks],i)=>[h,[...ks.map(k=>acc.find(([x])=>x===k)).filter(Boolean),...(i?[]:acc.filter(([k])=>!known.has(k)))]]).filter(([,items])=>items.length);
+  return `<nav class="st-rail" aria-label="Settings sections">${groups.map(([h,items])=>`<div class="st-rail-h">${stEsc(h)}</div>${items.map(item).join('')}`).join('')}<div class="st-rail-h">Personal</div>${ST_NAV_PER.map(item).join('')}</nav>`;
 }
 function stDialogHtml(){
   const d=window.BST.dialogs[stDlg]; if(!d)return '';

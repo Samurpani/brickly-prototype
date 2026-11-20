@@ -39,7 +39,7 @@ const TQ_SEED=[
   ['b1','Follow-up draft for Daniel Vella','daniel',0,null,{agent:true,waitingOn:'sam',status:'needs_approval',detail:'Drafted at 08:00 after 5 quiet days · waiting for you to approve'}],
   ['b2','Qualify new Meta lead — Karl Buhagiar','karlb',0,null,{agent:true,status:'running',detail:'Lead routing agent · started 07:31 · checking budget and timing from the Meta form'}],
   ['b3','Re-engagement draft for Clara Vella','clara',0,null,{agent:true,status:'running',detail:'Started from Chats at 09:02 · writing a WhatsApp message about new La Lex 2 beds'}],
-  ['b4','Custom pack for Anna Spiteri','anna',-1,null,{agent:true,status:'done',doneOff:-1,detail:'Floor plans, render and payment plan for #CM9710'}],
+  ['b4','Proposal for Anna Spiteri','anna',-1,null,{agent:true,status:'done',doneOff:-1,detail:'Floor plan, renders and payment plan for #CM9710'}],
   ['b5','Sync Anna’s appointment to Google Calendar','anna',0,null,{agent:true,status:'failed',detail:'Google Calendar didn’t respond at 08:14. Nothing was sent to Anna.'}],
   ['b6','Offer summary PDF for Joseph Grech','joseph',0,null,{agent:true,waitingOn:'karl',status:'needs_approval',detail:'Waiting for Karl to approve'}],
 ];

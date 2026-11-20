@@ -39,7 +39,7 @@ function ojCta(o,x){
   if(j==='lead') return ['Make first contact','otContactOpen()'];
   if(j==='qualified') return ['Book appointment','qaViewing()'];
   if(j==='viewing_booked') return ['Confirm appointment','otApptOpen()'];
-  if(j==='viewing_held') return x.packSent?['Log an offer','oppOfferOpen()']:['Send follow-up pack','otPackOpen()'];
+  if(j==='viewing_held') return x.packSent?['Log an offer','oppOfferOpen()']:['Send proposal','otPackOpen()'];
   if(j==='negotiating') return ['Log offer round','oppOfferOpen()'];
   if(j==='hold') return hold==='held'?['Take reservation','otDepositOpen()']:['Chase hold approval','otHoldOpen()'];
   if(j==='reservation') return ['Collect deposit','otDepositOpen()'];
@@ -193,34 +193,12 @@ function otApptSave(){
   x.comms.unshift({ch:'note',dir:'out',who:'You',t:'Just now',text:xesc(`${ap.v} held with ${first} · ${interest}${short.length?' · shortlisted '+short.join(', '):''}${fb?' · '+fb:''}`)});
   x.appts=(x.appts||[]).slice(1);
   if(short.length) o.units=[...short,...o.units.filter(u=>!short.includes(u))];
-  const crossed=otMove(o,'viewing_held',{tl:1,next:{label:'Send follow-up pack',due:'Within 24h'}});
+  const crossed=otMove(o,'viewing_held',{tl:1,next:{label:'Send proposal',due:'Within 24h'}});
   otDone(x,'Feedback captured'); if(short.length) otDone(x,'Units shortlisted');
-  otFinish(`${ap.v} logged · send the follow-up pack within 24h`,crossed);
+  otFinish(`${ap.v} logged · send the proposal within 24h`,crossed);
 }
 
-// ---------- Appointment completed · follow-up pack ----------
-function otPackOpen(){
-  const o=oppCur, first=otFirst(o);
-  const units=o.units.map(u=>`<label class="qa-check"><input type="checkbox" class="otPackU" value="${u}" checked> <span><b>${u}</b><em>${UN(u)?UN(u).dev+' · '+fmtEur(UN(u).price):o.devs[0]}</em></span></label>`).join('');
-  qaDrawerOpen('Send follow-up pack',`
-    <div class="od-field"><label>Units</label><div class="qa-checks">${units||'<span class="ll-mu">No units yet · the development overview is sent</span>'}</div></div>
-    <div class="od-field"><label>Include</label><div class="qa-checks">${['Floor plans','Price list','Payment plan','Specification sheet'].map(s=>`<label class="qa-check"><input type="checkbox" class="otPackS" value="${s}" checked> <span>${s}</span></label>`).join('')}</div></div>
-    <div class="od-field"><label>Send via</label>${otChips('otCh',OT_CH,'wa')}</div>
-    <div class="od-field"><label for="otMsg">Message</label><textarea id="otMsg" rows="4">Hi ${first}, great to see you today. As promised, here are the floor plans, prices and payment plan for ${o.units.length?o.units.join(' and '):o.devs[0]}. Happy to talk numbers whenever you’re ready.</textarea></div>
-    <div class="ll-mu">Tracked as a personalised pack · you’ll see when ${first} opens it.</div>`,
-    `<button class="btn-ghost" onclick="qaDrawerClose()">Cancel</button><button class="btn-primary" onclick="otPackSend()">Send pack</button>`);
-}
-function otPackSend(){
-  const o=oppCur, x=getExt(o), first=otFirst(o), ch=otPicked('otCh','wa'), text=document.getElementById('otMsg').value.trim();
-  const units=[...document.querySelectorAll('.otPackU:checked')].map(i=>i.value), secs=[...document.querySelectorAll('.otPackS:checked')].map(i=>i.value);
-  if(!secs.length){showToast('Include at least one section');return;}
-  x.comms.unshift({ch,dir:'out',who:'You',t:'Just now',sub:xesc(`📎 Follow-up pack · ${units.join(', ')||o.devs[0]} · ${secs.join(', ')}`),text:xesc(text)});
-  x.packSent=true;
-  x.next={label:`Ask ${first} for an offer`,due:'In 3 days',overdue:false};
-  otFinish(`Follow-up pack sent to ${first}`);
-}
-
-// Offers (log, approval, accept, POS) live in opp-offer.js: one Offer object per opportunity.
+// Appointment completed · Send proposal: otPackOpen() is defined in send-buyer.js.
 
 // ---------- Hold · chase the approval ----------
 function otHoldReq(o){return typeof APPROVALS==='undefined'?null:APPROVALS.find(r=>!r.decided&&r.opp===o.id&&r.type==='hold');}

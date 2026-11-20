@@ -30,6 +30,16 @@
 .opp-drawer .au-apsum { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border: 1px solid var(--outline-variant); border-radius: 6px; font-size: 13px; line-height: 20px; }
 .opp-drawer .au-apsum b { font-weight: 500; }
 .opp-drawer .au-apsum .au-hint { margin: 0; }
+.opp-drawer .st-back { display: inline-block; margin: 0 0 12px; padding: 0; border: 0; background: none; font: inherit; font-size: 13px; color: var(--on-variant); cursor: pointer; }
+.opp-drawer .st-back:hover { color: var(--on-surface); text-decoration: underline; }
+
+/* Person approvals › Quick set: real buttons; the one matching the rules below is marked */
+.opp-drawer .ap-presets { gap: 8px; }
+.opp-drawer .ap-preset { padding: 6px 12px; border: 1px solid var(--outline); border-radius: 6px; background: var(--surface); font: inherit; font-size: 13px; line-height: 18px; color: var(--on-surface); cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.06); transition: border-color .12s, background .12s; }
+.opp-drawer .ap-preset:hover:not(:disabled) { border-color: var(--on-surface); background: var(--sc-low); }
+.opp-drawer .ap-preset:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.opp-drawer .ap-preset.on { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 10%, var(--surface)); color: var(--primary); font-weight: 500; }
+.opp-drawer .ap-preset:disabled { cursor: default; opacity: .6; box-shadow: none; }
 
 /* Add user › approval choices */
 .opp-drawer .au-radios { display: flex; flex-direction: column; border: 1px solid var(--outline-variant); border-radius: 8px; overflow: hidden; }

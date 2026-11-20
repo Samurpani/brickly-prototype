@@ -79,6 +79,7 @@
 .ucard-price{font-family:var(--display);font-size:22px;margin-top:8px}
 .pill{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;padding:6px 11px;border:1px solid var(--line);border-radius:var(--r-pill);white-space:nowrap;color:var(--muted)}
 .pill.held{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.pill.gone{text-decoration:line-through;opacity:.7}
 
 /* compare */
 .seg{display:inline-flex;gap:4px;padding:4px;border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--line);margin-bottom:28px}
@@ -217,6 +218,7 @@
 .plan .room.hl text{fill:var(--ink)}
 .compass{fill:var(--muted)}
 .rooms ul{list-style:none;margin:0 0 28px}
+.rooms .u-dl{margin:0 0 24px}
 .rooms li{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid var(--line);transition:color var(--fast),padding var(--base) var(--ease)}
 .rooms li b{font-weight:500}
 .rooms li.hl{color:var(--accent);padding-left:8px}

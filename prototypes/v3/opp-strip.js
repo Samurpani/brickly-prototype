@@ -237,12 +237,71 @@ function ospSkip(key){
 }
 function ospUnitsMore(id){ospOpenUnits[id]=!ospOpenUnits[id];renderOpp();}
 
+// ---------- remove a unit from the opportunity (timeline chips, Linked units, list and board cells) ----------
+function ospRemoveState(o,unit){
+  const x=getExt(o), i=o.units.indexOf(unit), info=ospUnitInfo(o,x,unit,i), of=typeof ofGet==='function'?ofGet(o):null;
+  return {x,info,k:info.chip.k,offer:of&&of.unit===unit&&of.amt?of.amt:null,req:info.chip.k==='requested'?ospHoldReq(o,unit,false):null};
+}
+function ospRerender(o){
+  if(typeof oppCur!=='undefined'&&oppCur?.id===o.id&&typeof renderOpp==='function'&&document.getElementById('opp-root')) renderOpp();
+  if(typeof pipeRenderAll==='function') pipeRenderAll();
+}
+function oppUnitRemove(oppId,unit){
+  const o=OPPS.find(r=>r.id===oppId); if(!o||!o.units.includes(unit)) return;
+  const R=ospRemoveState(o,unit), first=ospFirst(o);
+  if(R.k==='reserved'){showToast(`${unit} is reserved for ${first}. It can’t be removed while the reservation stands.`);return;}
+  if(R.k==='held'){
+    const mgr=typeof uhMgr==='function'&&uhMgr();
+    qaDrawerOpen(`Remove ${unit}`,`<div class="ll-mu">${ospE(unit)} is held for ${ospE(first)}. Release the hold first, then remove the unit.${mgr?'':` Only ${ospE(ospApprover(o,'hold'))} or another manager can release it.`}</div>`,
+      `<button class="btn-ghost" onclick="qaDrawerClose()">Cancel</button>${mgr?`<button class="btn-primary" onclick="qaDrawerClose();uhReleaseOpen('${ospJs(unit)}')">Release hold</button>`:''}`);
+    return;
+  }
+  if(R.k==='requested'||R.offer){
+    const notes=[R.k==='requested'?`The hold request${R.req?` ${R.req.id}`:''} is withdrawn from Approvals.`:'',R.offer?`The ${fmtEur(R.offer)} offer stays in the offer history.`:''].filter(Boolean);
+    qaDrawerOpen(`Remove ${unit} from ${first}’s opportunity?`,`<div class="ll-mu">${notes.map(ospE).join(' ')} It’s logged in Activity.</div>`,
+      `<button class="btn-ghost" onclick="qaDrawerClose()">Cancel</button><button class="btn-danger" onclick="qaDrawerClose();ospUnitRemoveGo('${o.id}','${ospJs(unit)}')">Remove unit</button>`);
+    return;
+  }
+  ospUnitRemoveGo(o.id,unit);
+}
+function ospUnitRemoveGo(oppId,unit){
+  const o=OPPS.find(r=>r.id===oppId); if(!o) return;
+  const R=ospRemoveState(o,unit), x=R.x;
+  if(R.k==='requested'&&typeof APPROVALS!=='undefined'){
+    for(let i=APPROVALS.length-1;i>=0;i--){const r=APPROVALS[i];if(!r.decided&&r.unit===unit&&r.type==='hold'&&r.opp===o.id)APPROVALS.splice(i,1);}
+    if(x.blocker&&x.blocker.includes(unit)) x.blocker='';
+    if(typeof UN==='function'&&UN(unit)&&typeof uhLog==='function') uhLog(UN(unit),{t:'Hold request withdrawn',who:`${ospMe()} · ${o.lead}`});
+  }
+  if(x.hold&&x.hold.unit===unit) x.hold=null;
+  o.units=o.units.filter(u=>u!==unit);
+  x.comms.unshift({ch:'sys',t:'Just now',text:`${unit} removed from the opportunity by ${ospMe()}${R.k==='requested'?' · hold request withdrawn':''}.`});
+  delete ospOpenUnits[o.id];
+  ospRerender(o);
+  showToast(`${unit} removed from ${o.lead}’s opportunity`);
+}
+window.oppUnitRemove=oppUnitRemove;
+window.ospUnitRemoveGo=ospUnitRemoveGo;
+// Timeline chips: show as many as fit on one line (up to 3); the rest go behind +N.
+function ospFitUnits(){
+  const row=document.querySelector('#osp-units .osp-units'); if(!row) return;
+  const w=row.querySelector('.osp-more-w'), pop=w&&w.querySelector('.osp-pop'), more=w&&w.querySelector('.osp-more'); if(!w) return;
+  const sync=()=>{const n=pop.children.length;w.hidden=!n;more.textContent=`+${n}`;more.setAttribute('aria-label',`${n} more unit${n>1?'s':''}`);};
+  sync();
+  let chips=[...row.querySelectorAll(':scope > .osp-unit')];
+  while(chips.length>1&&row.scrollWidth>row.clientWidth+1){pop.prepend(chips.pop());sync();}
+}
+addEventListener('resize',()=>{clearTimeout(ospFitUnits.t);ospFitUnits.t=setTimeout(()=>{if(document.getElementById('osp-units'))renderOpp();},150);});
+
 // ---------- rendering ----------
-function ospUnitCard(u){
-  return `<button type="button" class="osp-unit" onclick="openUnPeek('${ospJs(u.id)}')" title="Open ${ospE(u.id)}">
-    <span class="osp-unit-top"><b>${ospE(u.id)}</b><span class="osp-mu">${ospE([u.type,u.price?fmtEur(u.price):''].filter(Boolean).join(' · '))}</span></span>
-    ${u.offer?`<span class="osp-mu">Offer ${fmtEur(u.offer)}</span>`:''}
-    <span class="osp-chip t-${u.chip.t}">${ospE(u.chip.l)}</span></button>`;
+// One-line unit chip: id and a short status. The full status, type, price and offer are in the tooltip.
+function ospUnitShort(c){
+  if(c.k==='held') return c.until?`Held · ${c.until.toLocaleDateString('en-GB',{weekday:'short'})}`:'Held';
+  return {reserved:'Reserved',elsewhere:'Held elsewhere',gone:`Gone`}[c.k]||c.l;
+}
+function ospUnitCard(u,oppId){
+  const tip=[u.id,u.type,u.price?fmtEur(u.price):'',u.offer?`Offer ${fmtEur(u.offer)}`:'',u.chip.l].filter(Boolean).join(' · ');
+  return `<span class="osp-unit" title="${ospE(tip)}"><button type="button" class="osp-unit-o" onclick="openUnPeek('${ospJs(u.id)}')" aria-label="Open ${ospE(tip)}">
+    <b>${ospE(u.id)}</b><span class="osp-chip t-${u.chip.t}">${ospE(ospUnitShort(u.chip))}</span></button>${u.chip.k==='reserved'?'':`<button type="button" class="osp-unit-x" onclick="event.stopPropagation();oppUnitRemove('${ospJs(oppId)}','${ospJs(u.id)}')" aria-label="Remove ${ospE(u.id)} from the opportunity" title="Remove from the opportunity">×</button>`}</span>`;
 }
 function ospRowsHtml(o,S,P){
   const fix=(where,unit)=>(P.blockers.find(b=>b.shownIn===where&&(!unit||b.unit===unit)));
@@ -261,8 +320,10 @@ function ospRowsHtml(o,S,P){
 function ospHeroHtml(o,x,ji){
   const S=ospState(o), P=oppStrip(o), ns=P.nextStep, nb=P.nextBooked, ti=tlIdx(o,x), first=ospFirst(o);
   const assist=typeof oppAssist==='function'?oppAssist(o,x,ti):[];
-  const units=S.units, open=ospOpenUnits[o.id], shown=open?units:units.slice(0,3);
-  const unitsHtml=units.length?`<div class="osp-units">${shown.map(ospUnitCard).join('')}${units.length>3?`<button type="button" class="osp-more" onclick="ospUnitsMore('${o.id}')" aria-expanded="${!!open}">${open?'Show fewer':`+${units.length-3}`}</button>`:''}</div>`
+  const units=S.units, open=ospOpenUnits[o.id], shown=units.slice(0,3), rest=units.slice(3);
+  const card=u=>ospUnitCard(u,o.id);
+  if(typeof requestAnimationFrame==='function') requestAnimationFrame(ospFitUnits);
+  const unitsHtml=units.length?`<div class="osp-units">${shown.map(card).join('')}<div class="osp-more-w${open?' is-open':''}" ${rest.length?'':'hidden'}><button type="button" class="osp-more" onclick="ospUnitsMore('${o.id}')" aria-expanded="${!!open}" aria-label="${rest.length} more unit${rest.length>1?'s':''}">+${rest.length}</button><div class="osp-pop" role="group" aria-label="More units">${rest.map(card).join('')}</div></div></div>`
     :`<div class="osp-empty">No units yet</div><button type="button" class="osp-link" onclick="oppQuickEditOpen('${o.id}','units')">Add units</button>`;
   const bl=P.shownBlockers;
   const cells=[
@@ -281,7 +342,7 @@ function ospHeroHtml(o,x,ji){
     </div>`;}).join('');
   return `<div class="dcard oj-hero v2 osp-hero" id="oj-hero">
     <div class="oj-head"><h3 class="oj-title">Timeline</h3><span class="oj-note">Everything here comes from the record. Steps tick as things happen.</span></div>
-    <div class="now-strip osp-strip" style="grid-template-columns:minmax(0,1.5fr) minmax(0,1.2fr) minmax(0,1fr)${bl.length?' minmax(0,1.1fr)':''} auto">${cells.join('')}
+    <div class="now-strip osp-strip" style="grid-template-columns:minmax(0,2fr) minmax(0,1.2fr) minmax(0,1fr)${bl.length?' minmax(0,1.1fr)':''} auto">${cells.join('')}
       <button class="btn-primary osp-cta" data-step="${ns.key}" onclick="${ns.action.fn}">${ospE(ns.action.label)}</button></div>
     ${ospRowsHtml(o,S,P)}
     <div class="oj-bar"><div class="oj-stages">${stages}
@@ -345,14 +406,25 @@ function ospConvertTyped(){
 .osp-skip,.osp-link{font:inherit;font-size:12.5px;background:none;border:0;padding:0;margin-top:4px;color:var(--on-variant);text-decoration:underline;cursor:pointer}
 .osp-link{color:var(--primary);margin-right:8px}
 .osp-row-fix{margin:0 4px 0 0;white-space:nowrap}
-.osp-units{display:flex;flex-direction:column;gap:6px}
-.osp-unit{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;font:inherit;border:1px solid var(--outline);background:var(--surface);border-radius:8px;padding:6px 9px;cursor:pointer;width:100%}
+.osp-units{display:flex;flex-wrap:nowrap;align-items:center;gap:6px;min-width:0}
+.osp-unit{display:inline-flex;align-items:center;flex:none;max-width:100%;height:32px;font-size:12.5px;white-space:nowrap;border:1px solid var(--outline);background:var(--surface);border-radius:8px}
+.osp-unit-o{display:inline-flex;align-items:center;gap:8px;min-width:0;height:100%;font:inherit;background:none;border:0;padding:0 8px 0 10px;cursor:pointer;color:inherit}
+.osp-unit b{flex:none;font-weight:600}
+.osp-unit .osp-chip{min-width:0;overflow:hidden;text-overflow:ellipsis;padding:2px 8px;line-height:16px}
 .osp-unit:hover{border-color:var(--on-variant)}
-.osp-unit-top{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;font-size:13px}
+.osp-unit-x{flex:none;width:28px;height:100%;font:inherit;font-size:15px;line-height:1;background:none;border:0;border-left:1px solid var(--outline-variant,#eeeae2);color:var(--muted);cursor:pointer;border-radius:0 8px 8px 0}
+.osp-unit-x:hover,.osp-unit-x:focus-visible{color:var(--crm-error,#b3261e);background:var(--sc-low,#f3f0ea)}
 .osp-mu{font-size:12px;color:var(--muted)}
-.osp-chip{font-size:11.5px;border-radius:999px;padding:1px 8px;background:var(--surface-2,#f1efe9);color:var(--on-variant)}
+.osp-chip{font-size:11.5px;border-radius:999px;padding:1px 8px;background:var(--surface-2,#f1efe9);color:var(--on-variant);white-space:nowrap}
 .osp-chip.t-info{background:#e5eef8;color:#2f5a8a}.osp-chip.t-ok{background:#e3f1e3;color:#2f6b2f}.osp-chip.t-warn{background:#fbefd7;color:#8d6715}.osp-chip.t-bad{background:#fbe4e1;color:#a2342a}
-.osp-more{font:inherit;font-size:12px;border:1px dashed var(--outline);background:none;border-radius:999px;padding:2px 10px;cursor:pointer;align-self:flex-start}
+.osp-more-w{position:relative;flex:none}
+.osp-more{height:32px;font:inherit;font-size:12.5px;font-weight:600;border:1px solid var(--outline);background:var(--surface);border-radius:8px;padding:0 10px;cursor:pointer}
+.osp-more:hover,.osp-more-w.is-open .osp-more{border-color:var(--on-variant)}
+.osp-pop{display:none;position:absolute;z-index:30;top:100%;left:0;flex-direction:column;align-items:stretch;gap:4px;min-width:180px;max-height:260px;overflow-y:auto;margin-top:4px;padding:6px;background:var(--surface);border:1px solid var(--outline);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.12)}
+.osp-pop::before{content:'';position:absolute;left:0;right:0;top:-6px;height:6px}
+.osp-more-w:hover .osp-pop,.osp-more-w:focus-within .osp-pop,.osp-more-w.is-open .osp-pop{display:flex}
+.osp-pop .osp-unit{width:100%}.osp-pop .osp-unit-o{flex:1;justify-content:space-between}
+.app .oj-hero .oj-bar>.oj-stages{flex:1 1 auto;width:100%;min-width:0}
 .osp-empty{font-size:13.5px;color:var(--muted)}
 .osp-bl{display:flex;flex-direction:column;align-items:flex-start;gap:1px;margin-bottom:6px}.osp-bl-c{font-size:13.5px;font-weight:600;color:var(--crm-warning,#8d6715)}
 .osp-rows{border-top:1px solid var(--outline-variant,#eeeae2);margin-top:12px;padding-top:6px}

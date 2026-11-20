@@ -3,6 +3,7 @@ const sam="BST.team.MEMBERS.find(m=>m.first==='Sam').id";
 // Scrolls the drawer body so the element sits at the top.
 const to=sel=>`await new Promise(r=>setTimeout(r,60));{const b=document.getElementById('qaDrawerBody'),el=b.querySelector(${JSON.stringify(sel)});b.scrollTop+=el.getBoundingClientRect().top-b.getBoundingClientRect().top-48;}`;
 module.exports={
+  followUp:'see update 20 (CRM access switches, approvals in the same panel)',
   viewport:{width:1440,height:1700},
   id:'08', title:'Approvals page and its link to Team',
   source:'Account Settings report · S-02', devItems:'D-01',

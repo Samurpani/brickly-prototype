@@ -2131,6 +2131,13 @@ html[data-theme="dark"] {
 .app #p-pipeline .card-tags .tag-chip { display:inline-flex; align-items:center; }
 .app .ref-empty { color:var(--on-variant); font-size:12px; }
 .app .card-row .opp-unit-refs { flex:1 1 auto; }
+/* Remove a unit from the opportunity: the × shows on hover or keyboard focus so lists stay compact. */
+.app .unit-ref-w { display:inline-flex; align-items:center; }
+.app .unit-ref-w .unit-ref-x { width:16px; height:16px; margin-left:1px; font-size:13px; line-height:1; color:var(--muted); opacity:0; }
+.app .unit-ref-w:hover .unit-ref-x, .app .unit-ref-w:focus-within .unit-ref-x { opacity:.75; }
+.app .unit-ref-w .unit-ref-x:hover, .app .unit-ref-w .unit-ref-x:focus-visible { opacity:1; color:var(--crm-error); }
+.app #p-opp .uh-x { margin-left:auto; align-self:center; width:22px; height:22px; padding:0; border:0; border-radius:4px; background:none; font:inherit; font-size:15px; line-height:1; color:var(--muted); cursor:pointer; }
+.app #p-opp .uh-x:hover, .app #p-opp .uh-x:focus-visible { color:var(--crm-error); background:var(--sc-low); }
 .app .unit-ref.is-held { border-color:color-mix(in srgb,var(--crm-warning) 35%,var(--outline-variant)); background:color-mix(in srgb,var(--crm-warning-container) 55%,transparent); color:var(--crm-warning); }
 .app .unit-ref.is-held:hover { border-color:color-mix(in srgb,var(--crm-warning) 55%,var(--outline)); background:var(--crm-warning-container); color:var(--crm-warning); }
 .app .unit-state-label { font-size:11px; line-height:16px; white-space:nowrap; }

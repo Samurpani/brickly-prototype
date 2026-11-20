@@ -229,8 +229,9 @@ window.stApTeamSave=()=>{
 let rDraft=null;
 function repBody(){
   const m=memberBy(rDraft.id),team=teamOf(m),c=team?teamCfg(team):null;
-  return `<div class="au-card"><span class="au-av">${esc((m.first[0]+(m.last[0]||'')).toUpperCase())}</span><div class="au-card-t"><b>${esc(fullName(m))}</b><span>${team?`${esc(team)}’s team · approver ${esc(c.approver)}`:'No team · set “Reports to” in Members'}</span></div></div>
-    <div class="od-field"><label>Quick set</label><div class="rd-seg ap-presets">${['Team default',...Object.keys(PRESETS)].map(p=>`<button type="button" onclick="stApRepPreset(${esc(JSON.stringify(p))})" title="${esc(p)}">${esc(p.split(' · ')[0])}</button>`).join('')}</div><div class="au-hint">Fills the rules below. Nothing changes until you save.</div></div>
+  const same=p=>TYPES.every(t=>rDraft.rules[t.k]===((PRESETS[p]||{})[t.k]||'default'));
+  return `${rDraft.back?`<button type="button" class="st-back" onclick="stApRepBack()">‹ Back to ${esc(rDraft.backLabel)}</button>`:''}<div class="au-card"><span class="au-av">${esc((m.first[0]+(m.last[0]||'')).toUpperCase())}</span><div class="au-card-t"><b>${esc(fullName(m))}</b><span>${team?`${esc(team)}’s team · approver ${esc(c.approver)}`:'No team · set “Reports to” in Members'}</span></div></div>
+    <div class="od-field"><label id="ap-quick-l">Quick set</label><div class="ap-presets" role="group" aria-labelledby="ap-quick-l">${['Team default',...Object.keys(PRESETS)].map(p=>`<button type="button" class="ap-preset${same(p)?' on':''}" aria-pressed="${same(p)}" onclick="stApRepPreset(${esc(JSON.stringify(p))})" title="${esc(p)}">${same(p)?'✓ ':''}${esc(p.split(' · ')[0])}</button>`).join('')}</div><div class="au-hint">Fills the rules below. Nothing changes until you save.</div></div>
     <div class="au-sec">What needs approval</div>
     ${TYPES.map(t=>{const v=rDraft.rules[t.k];return `<div class="rd-row${v!=='default'?' chg':''}"><div class="rd-l">${esc(t.l)}<span>${v==='default'?`Team default · ${esc(label(t.k,teamVal(team,t.k),team))}`:'Set for this person'}</span></div>${seg(t.l,['default',...levelsFor(t)],v,x=>`stApRepRule('${t.k}','${x}')`,x=>x==='default'?'Team':x==='over'?'Over limit':RULE[x].l)}</div>`;}).join('')}
     ${team?`<div class="au-hint">Team rules, the approver and escalation are set on <button type="button" class="au-link" onclick="stApTeamOpen(${esc(JSON.stringify(team))})">${esc(team)}’s team</button>.</div>`:''}`;
@@ -238,11 +239,12 @@ function repBody(){
 function repRender(){
   const body=document.getElementById('qaDrawerBody'),scroll=body.scrollTop;
   body.innerHTML=repBody();body.scrollTop=scroll;
-  const ro=stAccess('approvals')!=='f';
-  document.getElementById('qaDrawerFoot').innerHTML=ro?`<button class="btn-primary" onclick="qaDrawerClose()">Close</button>`:`<button class="btn-ghost" onclick="stApRepPreset('Team default')">Reset to team default</button><span class="au-spacer"></span><button class="btn-ghost" onclick="qaDrawerClose()">Cancel</button><button class="btn-primary" onclick="stApRepSave()">Save rules</button>`;
-  if(ro)body.querySelectorAll('.rd-seg button').forEach(b=>{b.disabled=true;});
+  const ro=stAccess('approvals')!=='f',close=rDraft.back?'stApRepBack()':'qaDrawerClose()';
+  document.getElementById('qaDrawerFoot').innerHTML=ro?`<button class="btn-primary" onclick="${close}">${rDraft.back?'Back':'Close'}</button>`:`<button class="btn-ghost" onclick="stApRepPreset('Team default')">Reset to team default</button><span class="au-spacer"></span><button class="btn-ghost" onclick="${close}">Cancel</button><button class="btn-primary" onclick="stApRepSave()">Save rules</button>`;
+  if(ro)body.querySelectorAll('.rd-seg button,.ap-presets button').forEach(b=>{b.disabled=true;});
 }
-window.stApRepOpen=id=>{rDraft={id,rules:Object.fromEntries(TYPES.map(t=>[t.k,repVal(id,t.k)]))};qaDrawerOpen(`${fullName(memberBy(id))} · approvals`,'','');repRender();};
+window.stApRepOpen=(id,{back,backLabel}={})=>{rDraft={id,back,backLabel,rules:Object.fromEntries(TYPES.map(t=>[t.k,repVal(id,t.k)]))};qaDrawerOpen(`${fullName(memberBy(id))} · approvals`,'','');repRender();};
+window.stApRepBack=()=>{const b=rDraft?.back;rDraft=null;if(b)b();else qaDrawerClose();};
 window.stApRepRule=(t,v)=>{rDraft.rules[t]=v;repRender();};
 window.stApRepPreset=name=>{const p=PRESETS[name]||{};TYPES.forEach(t=>{rDraft.rules[t.k]=p[t.k]||'default';});repRender();};
 window.stApRepSave=()=>{
@@ -250,7 +252,8 @@ window.stApRepSave=()=>{
   TYPES.forEach(t=>commitRep(m.id,t.k,rDraft.rules[t.k]));
   m.approvals=X.apRepSummary(m.id);
   if(!Object.keys(stEdits).length)stDirty=false;
-  qaDrawerClose();stRender();
+  const back=rDraft.back;
+  if(back){stRender();stApRepBack();}else{qaDrawerClose();stRender();}
   showToast(`${fullName(m)}’s approval rules saved. They apply from their next request.`);
 };
 

@@ -425,7 +425,7 @@ function ctDocsTabHtml(c){
 // ---------- Shared with client ----------
 function ctSharedHtml(c){
   const items=ctShared(c), L=ctLinks(c);
-  return `<div class="dcard"><div class="row-between"><h3 style="margin:0">Shared with ${ctEsc(ctFirst(c))}</h3>${L.open.length||L.active.length?`<button type="button" class="btn-ghost df-sm" onclick="ctPickRec('Send brochure','qaBrochure')">+ Send something</button>`:''}</div>
+  return `<div class="dcard"><div class="row-between"><h3 style="margin:0">Shared with ${ctEsc(ctFirst(c))}</h3>${L.open.length||L.active.length?`<span class="ct-shared-acts"><button type="button" class="btn-ghost df-sm" onclick="FL.open('contact','${c.id}')">Floor plans and brochures</button> <button type="button" class="btn-ghost df-sm" onclick="ctPickRec('Send proposal','paSend')">Send proposal</button></span>`:''}</div>
     ${items.map(({s,o})=>`<div class="ct-line"><span class="df-tag">${ctEsc(s.k)}</span><span class="ct-grow"><b>${ctEsc(s.n)}</b><div class="df-mu">${ctEsc(s.d)}${s.via?' · '+ctEsc(s.via):''}</div>${s.eng?`<div class="df-mu">${ctEsc(s.eng)}</div>`:''}${s.fail?`<div class="df-mu bad">${ctEsc(s.fail)}</div>`:''}</span><span class="ct-chips" style="margin:0">${(s.chips||[]).map(([l,t])=>`<span class="df-chip ${t==='ok'?'df-c-acc':t==='warn'?'df-c-warn':'df-c-req'}">${ctEsc(l)}</span>`).join('')}</span><button type="button" class="ct-rec" onclick="ctOpenRec('${o.id}')">${ctEsc(ctRecLabel(o))}</button></div>`).join('')||ctEmpty('Nothing shared yet.')}
   </div>`;
 }

@@ -7,6 +7,7 @@ const BOARD=`curPersona='owner';go('pipeline');setPipeView('board');document.que
 const H='#oj-hero';
 
 module.exports={
+  followUp:'see update 23 (compact unit chips, remove a unit)',
   id:'12', title:'Opportunity strip, derived',
   viewport:{width:1440,height:1000},
   source:'Opportunity Flow report · update 12 (replaces update 02)', devItems:'D-28, D-36',

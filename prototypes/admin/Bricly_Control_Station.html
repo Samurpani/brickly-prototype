@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bricly Control Station</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<!-- Internal Bricly-staff console prototype. Plan: docs/admin-console-plan.md. All data is seeded and in memory; reload to reset. -->
+<div class="cs-app">
+  <aside class="cs-side">
+    <div class="cs-brand"><img src="assets/bricly-logo.svg" alt="Bricly"><span>Control Station</span></div>
+    <nav class="cs-nav" id="csNav" aria-label="Control Station"></nav>
+  </aside>
+  <div class="cs-main">
+    <header class="cs-top">
+      <div class="cs-search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
+        <input id="csSearch" type="search" placeholder="Find an account, development, person, opportunity or unit" aria-label="Search" autocomplete="off">
+        <div class="res" id="csSearchRes" hidden></div></div>
+      <span class="sp"></span>
+      <div class="cs-oncall" id="csOncall"></div>
+      <label class="cs-who"><span class="muted small">Signed in as</span><select id="csWho" aria-label="Signed in as (demo role switcher)"></select></label>
+    </header>
+    <div class="cs-banner" id="csBanner" role="status" hidden></div>
+    <main class="cs-body" id="csBody"></main>
+  </div>
+</div>
+<script src="admin-data.js"></script>
+<script src="admin-core.js"></script>
+<script src="admin-screens.js"></script>
+<script src="admin-screens-ops.js"></script>
+<script src="admin-dev-review.js"></script>
+</body>
+</html>

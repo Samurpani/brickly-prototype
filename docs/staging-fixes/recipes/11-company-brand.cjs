@@ -4,6 +4,7 @@ const buyer="document.getElementById('developer').scrollIntoView();await new Pro
 const trust="localStorage.removeItem('bricly.proposal.std');paOpenSettings();paTrust('years','31');paTrust('units','1,480');paTrust('guarantees','10-year structural guarantee and 2 years on finishes, backed by an insurer.');paTrust('awards','Malta Property Awards 2024, Best residential development\\nMalta Property Awards 2022, Best sea-view project');paProjAdd();{const T=PA_STATE.st.draft.trust,p=T.delivered[T.delivered.length-1];paProj(p.id,'name','Dolphin Court');paProj(p.id,'place','Paola');paProj(p.id,'year','2026');PA_STATE.st.draft.trust.delivered[3].img='assets/present/dev-dolphin.jpg';PROPOSAL_STD.save(PA_STATE.st);paProjMove(p.id,-3);}";
 const seed=`coSet('logoLight',${JSON.stringify(logo('#fff','#2F5D50'))});coSet('logoDark',${JSON.stringify(logo('#000','#ffffff'))});coSet('accent','#2F5D50');`;
 module.exports={
+  followUp:'see update 21 (development brand option)',
   viewport:{width:1440,height:2400},
   id:'11', title:'Company brand, and the proposal developer section',
   source:'Account Settings report · S-05, Opportunity Flow report · Q-03', devItems:'—',

@@ -147,8 +147,8 @@ function auFormBody(){
         :auPicker('devScope','Developments',[['all','All developments'],['selected','Selected developments']],{req:true,placeholder:'Select development access'})}
       ${au.devScope==='selected'&&!isOwner&&au.role!=='Admin'?auPicker('devs','Which developments',devNames(),{multi:true,req:true,placeholder:'Select developments'}):''}
       ${auPicker('see','Records they can see',Object.entries(AU_SEE),{req:true})}
-      ${auPicker('areas','CRM access',AU_AREAS,{multi:true,req:true,placeholder:'Select areas',summary:()=>au.areas.length?`${au.areas.length} of ${AU_AREAS.length} areas · ${AU_AREAS.filter(([k])=>au.areas.includes(k)).map(([,l])=>l).slice(0,3).join(', ')}${au.areas.length>3?'…':''}`:''})}
-      ${au.mode==='add'&&prof?'<div class="au-hint">Pre-filled from the role. Adjust anything before you add them.</div>':''}`:''}
+      ${au.mode==='add'&&prof?'<div class="au-hint">Pre-filled from the role. Adjust anything before you add them.</div>':''}
+      ${auAreasHtml(prof)}`:''}
     ${au.mode!=='add'&&au.role?auPermsHtml():''}
     ${au.role==='Sales Rep'?`<div class="au-sec">Selling</div>${au.mode==='add'?auApprovalChoices():''}`:''}
     </fieldset>
@@ -163,7 +163,16 @@ function auApprovalChoices(){
 function auApprovalSummary(){
   const diff=X.apRepDiff?X.apRepDiff(au.id):[];
   const canEdit=typeof stAccess!=='function'||stAccess('approvals')==='f';
-  return `<div class="od-field"><label>Approvals</label><div class="au-apsum"><span class="au-apsum-t"><b>${esc(AU_APPROVAL_SHORT[au.approvals]||au.approvals||'Team default')}</b>${canEdit?` · <button type="button" class="au-link" onclick="stApFocus('${au.id}')">Edit ›</button>`:''}</span>${diff.length?`<span class="au-hint">${diff.map(esc).join('<br>')}</span>`:'<span class="au-hint">Follows their team’s rules.</span>'}</div></div>`;
+  return `<div class="od-field"><label>Approvals</label><div class="au-apsum"><span class="au-apsum-t"><b>${esc(AU_APPROVAL_SHORT[au.approvals]||au.approvals||'Team default')}</b>${canEdit?` · <button type="button" class="au-link" onclick="stAuApprovals()">Edit ›</button>`:''}</span>${diff.length?`<span class="au-hint">${diff.map(esc).join('<br>')}</span>`:'<span class="au-hint">Follows their team’s rules.</span>'}</div></div>`;
+}
+// CRM access uses the Permissions layout: one row per area, role default unless marked Changed.
+function auAreasHtml(prof){
+  const def=prof?.areas||[],r=roleByName(au.role),ro=auReadOnly();
+  const n=AU_AREAS.filter(([k])=>au.areas.includes(k)!==def.includes(k)).length;
+  return `<div class="au-sec au-sec-row"><span id="au-areas-l">CRM access *</span>${n&&!ro?`<button type="button" class="au-link" onclick="stAuAreasReset()">Reset to role</button>`:''}</div>
+    <div class="au-hint au-perm-h">${n?`${n} changed from the ${esc(r?.name||au.role)} role.`:`All from the ${esc(r?.name||au.role)} role.`} Change one to set it for this person only.</div>
+    <div id="au-areas" tabindex="-1" role="group" aria-labelledby="au-areas-l">${AU_AREAS.map(([k,l])=>{const on=au.areas.includes(k),chg=on!==def.includes(k);
+      return `<div class="rd-row au-perm${chg?' chg':''}" data-area="${k}"><div class="rd-l">${esc(l)}${chg?' <span class="au-chg">Changed</span>':''}<span>${chg?`Role default: ${def.includes(k)?'Access':'No access'}`:''}</span></div><div class="rd-seg" role="radiogroup" aria-label="${esc(l)}">${[[false,'No access'],[true,'Access']].map(([v,t])=>`<button type="button" role="radio" aria-checked="${v===on}" class="${v===on?'on':''}" onclick="stAuArea('${k}',${v})">${t}</button>`).join('')}</div></div>`;}).join('')}</div>`;
 }
 // Permissions start from the role; anything set here differs for this person only and is marked Changed.
 function auPermsHtml(){
@@ -207,6 +216,15 @@ function auOpen(state,title){
   if(au.mode==='add')document.getElementById('au-first')?.focus();
 }
 window.stAuState=()=>au;
+// Approvals open in the same drawer; Back restores this person's edit screen as it was.
+window.stAuApprovals=()=>{
+  const st=au,title=document.getElementById('qaDrawerTitle').textContent,scroll=document.getElementById('qaDrawerBody').scrollTop;
+  stApRepOpen(st.id,{backLabel:title,back:()=>{
+    au=st;if(X.apRepSummary)au.approvals=X.apRepSummary(au.id);
+    qaDrawerOpen(title,'','');auRender();
+    requestAnimationFrame(()=>{document.getElementById('qaDrawerBody').scrollTop=scroll;});
+  }});
+};
 window.stAddUserOpen=()=>auOpen({mode:'add',first:'',last:'',email:'',phone:'',title:'',role:'',reportsTo:'',devScope:'',devs:[],see:'',areas:[],perms:{},approvals:'',rotation:false},'Add user');
 window.stMemberOpen=id=>{
   const m=memberBy(id); if(!m)return;
@@ -216,6 +234,8 @@ window.stMemberOpen=id=>{
 };
 window.stAuPerm=(cap,level)=>{const r=roleByName(au.role);au.perms={...au.perms};if(level===pSaved(r.key,cap))delete au.perms[cap];else au.perms[cap]=level;auRender();};
 window.stAuPermReset=()=>{au.perms={};auRender();};
+window.stAuArea=(k,on)=>{au.areas=on?[...new Set([...au.areas,k])]:au.areas.filter(a=>a!==k);auRender();};
+window.stAuAreasReset=()=>{au.areas=[...(profileFor(au.role)?.areas||[])];auRender();};
 window.stAuMode=mode=>{au.mode=mode;au.handoff='';auOpenPicker=null;auRender();document.getElementById('qaDrawerBody').scrollTop=0;};
 window.stAuSet=(key,value,rerender=false)=>{au[key]=value;if(rerender)auRender();};
 window.stAuChoose=(key,value)=>{

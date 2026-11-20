@@ -6,4 +6,4 @@ header a{color:#555;text-decoration:none;font-size:13px}h1{font-size:24px;margin
 .col img{width:100%;border:1px solid #eee;border-radius:6px;display:block}.tag{font-size:11px;font-weight:700;border-radius:4px;padding:1px 6px;margin-right:8px;text-transform:uppercase}
 .tag.b{background:#fde8e8;color:#9b1c1c}.tag.a{background:#e3f6e8;color:#11632d}.none{padding:40px;text-align:center;color:#888;background:#fafafa;border-radius:6px}
 code{background:#f0f0ec;padding:0 4px;border-radius:3px;font-size:12px}footer{color:#888;font-size:12px;margin-top:32px}
-.idx{border-collapse:collapse;background:#fff;width:100%;border:1px solid #e3e3df}.idx td,.idx th{padding:10px 14px;border-bottom:1px solid #eee;text-align:left;vertical-align:top}.idx a{color:#1b1b1a;font-weight:600}
+.idx{border-collapse:collapse;background:#fff;width:100%;border:1px solid #e3e3df}.idx td,.idx th{padding:10px 14px;border-bottom:1px solid #eee;text-align:left;vertical-align:top}.idx a{color:#1b1b1a;font-weight:600}.new{font-size:11px;font-weight:700;background:#e3f6e8;color:#11632d;border-radius:4px;padding:1px 6px;margin-left:6px;white-space:nowrap}.fu{font-size:12px;color:#6b5b1d;margin-top:4px}

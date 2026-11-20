@@ -2,18 +2,19 @@
    The module lists what was actually sent. Editing is private until published; publishing never
    sends; a resend is a new attempt, not a new version; sharing never changes stage, units, prices
    or holds. The Buyer proposal (send-buyer.js) is the asset of type 'proposal': one per opportunity,
-   one link bricly.mt/p/<hash>, a new version each time it is sent. Older custom packs are type 'pack'. */
+   one link bricly.mt/p/<hash>, a new version each time it is sent. Older packs and brochures fold into it
+   as earlier versions (swFold). Single files (floor plan, price list, spec) are attached in Message. */
 
 const SW_SEEDED=new Set(OPPS.map(o=>o.id));
-const SW_NOUN={proposal:'proposal',brochure:'brochure',microsite:'property selection',pack:'personalised pack',floorplan:'floor plan',pricelist:'price list',spec:'spec sheet',other:'link'};
-const SW_FMT={proposal:'both',brochure:'pdf',microsite:'link',pack:'both',floorplan:'pdf',pricelist:'pdf',spec:'pdf',other:'link'};
+const SW_NOUN={proposal:'proposal',devbrochure:'development brochure',brochure:'brochure',microsite:'property selection',pack:'personalised pack',floorplan:'floor plan',pricelist:'price list',spec:'spec sheet',other:'link'};
+const SW_FMT={proposal:'both',devbrochure:'pdf',brochure:'pdf',microsite:'link',pack:'both',floorplan:'pdf',pricelist:'pdf',spec:'pdf',other:'link'};
 const SW_SECTIONS={
   brochure:[['cover','Cover and welcome','p1'],['plans','Floor plans','p2–3'],['kitchen','Kitchen options','p4'],['finishes','Finishes','p5'],['payment','Payment plan','p6'],['location','Location','p7']],
   microsite:[['welcome','Welcome',''],['gallery','Gallery',''],['plans','Floor plans',''],['downloads','Downloads',''],['contact','Contact your rep','']],
   pack:[['intro','Introduction','p1'],['renders','Renders','p2–4'],['plans','Floor plan','p5'],['payment','Payment plan','p6']],
   floorplan:[['plan','Floor plan','p1']],pricelist:[['prices','Price list','p1'],['terms','Payment terms','p2']],spec:[['spec','Specification','p1–2']],
 };
-const SW_ROUTED=new Set(['floorplan','pricelist','spec']);
+const SW_ROUTED=new Set(['floorplan','pricelist','spec','devbrochure']);
 let SW={sheet:null};
 let SW_SIM={next:null,outside:false,noEmail:false};
 
@@ -49,9 +50,11 @@ function swSeed(o){
       versions:[{v:1,when:'Sat 26 Sep',by:o.rep,note:'project asset'}],
       attempts:[{when:'Sat 26 Sep, 10:12',ch:'WhatsApp',ver:1,fmt:'pdf',status:'Unknown',msg:`Hi ${first}, here is the spec sheet for ${u0||dev}.`}],access:null,eng:''},
   ];
-  // One Buyer proposal, sent after the first appointment, where the opportunity has reached it.
+  // One Buyer proposal, sent after the first appointment, where the opportunity has reached it. Earlier
+  // buyers have nothing yet, so the brochure (sent before proposals existed; it folds into the proposal) goes too.
   const ix=STAGES.indexOf(o.stage), pu=o.units.filter(id=>UN(id)).slice(0,2);
-  if(pu.length&&UN(pu[0])&&!EXIT_STAGES.includes(o.stage)&&ix>=STAGES.indexOf('Appointment Booked')){
+  if(!(pu.length&&!EXIT_STAGES.includes(o.stage)&&ix>=STAGES.indexOf('Appointment Booked'))) A.shift();
+  else{
     const cfg={}; pu.forEach(id=>{const u=UN(id);cfg[id]={layout:'',finish:'',layName:'',finName:'',price:u.price,chosen:false,opts:false};});
     const msg=`${first}, thank you for coming to see ${dev}. I’ve put together ${pu.length>1?'the '+pu.length+' homes that fit':'the home that fits'} what you asked for, with plans, prices and the payment plan for each. Have a look and tell me what you think.`;
     A.splice(1,0,{id:'pp'+swHash(o.id+':proposal').toString(36).slice(0,5),type:'proposal',pp:1,title:'Buyer proposal',icon:'WEB',units:pu,pub:1,draft:null,src:'opp',
@@ -67,7 +70,51 @@ function swAssets(o,x){
   if(!x.swAssets) x.swAssets=SW_SEEDED.has(o.id)&&!x.swEmpty?swSeed(o):[];
   // Entries other modules push through ensureShared() (compare shortlists, Present) join the list.
   (x.shared||[]).forEach(s=>{if(!s._sw&&s.n){s._sw=1;x.swAssets.unshift({id:'lg'+swHash(s.n+x.swAssets.length),type:'other',title:s.n,icon:s.k||'LINK',units:[],pub:1,versions:[{v:1,when:'Just now',by:o.rep,note:'generated'}],attempts:[],access:null,legacy:s,eng:''});}});
+  if(x.swAssets.some(a=>SW_OLD.has(a.type))) swFold(o,x.swAssets);
   return x.swAssets;
+}
+
+// ---------- old packs and brochures become earlier versions of the one Buyer proposal ----------
+// Each sent version keeps the homes, prices and message as they were sent. Unsent drafts are dropped.
+const SW_OLD=new Set(['brochure','microsite','pack']);
+const SW_MON={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+function swWhenTs(w){
+  const m=/(\d{1,2}) ([A-Z][a-z]{2})(?:,? (\d{1,2}):(\d{2}))?/.exec(String(w||''));
+  return m&&m[2] in SW_MON?new Date(2026,SW_MON[m[2]],+m[1],+(m[3]||0),+(m[4]||0)).getTime():Date.now();
+}
+function swFold(o,list){
+  const old=list.filter(a=>SW_OLD.has(a.type));
+  old.forEach(a=>list.splice(list.indexOf(a),1));
+  const vers=[];
+  old.forEach(a=>{
+    const sent=a.attempts.filter(t=>SW_OK.has(t.status)), units=(a.cur&&a.cur.units)||a.units||[];
+    [...new Set(sent.map(t=>t.ver))].forEach(ver=>{
+      const t=sent.filter(s=>s.ver===ver)[0], snap={};
+      units.forEach(id=>{const u=UN(id);if(u)snap[id]={layout:'',finish:'',layName:'',finName:'',price:u.price,chosen:false,opts:false};});
+      vers.push({ts:swWhenTs(t.when),legacy:a.title,old:a,t,units:[...units],cfg:snap,msg:(a.cur&&(a.cur.intro||a.cur.msg))||t.msg||''});
+    });
+  });
+  if(!vers.length) return;
+  let p=list.find(a=>a.type==='proposal');
+  if(!p){p={id:'pp'+swHash(o.id+':proposal').toString(36).slice(0,5),type:'proposal',pp:1,title:'Buyer proposal',icon:'WEB',units:[],pub:0,draft:null,src:'opp',cur:null,versions:[],attempts:[],access:null,eng:{opens:0,homes:{}}};list.unshift(p);}
+  const cur=p.versions.map(v=>({ts:swWhenTs(v.when),v,att:p.attempts.filter(t=>t.ver===v.v)}));
+  const all=[...vers,...cur].sort((a,b)=>a.ts-b.ts), attempts=[];
+  p.versions=all.map((e,i)=>{
+    const v=i+1;
+    if(!e.legacy){e.att.forEach(t=>attempts.push({...t,ver:v}));return {...e.v,v,units:e.v.units||(p.cur&&p.cur.units)||p.units,note:String(e.v.note||'').replace(/^first issue/,'first proposal')};}
+    attempts.push({...e.t,ver:v,legacy:true});
+    return {v,when:e.t.when,by:o.rep,ch:e.t.ch,from:'legacy',legacy:e.legacy,units:e.units,note:`${e.legacy} · sent before proposals · ${e.units.join(', ')||o.devs[0]||''}`};
+  });
+  p.attempts=attempts; p.pub=p.versions.length;
+  const last=all[all.length-1];
+  if(last.legacy){
+    // The newest thing the buyer has is an old pack: the proposal opens with its homes and message.
+    p.units=[...last.units];
+    p.cur={msg:last.msg,units:[...last.units],cfg:last.cfg,compare:last.units.length>1,pdf:true,expiry:30,template:'signature',std:1};
+    p.access=last.old.access||{state:'active',exp:''};
+    const n=/Opened (\d+)/.exec(typeof last.old.eng==='string'?last.old.eng:'');
+    if(!p.eng||!p.eng.opens) p.eng={opens:n?+n[1]:0,homes:{},last:''};
+  }
 }
 const swA=(o,id)=>swAssets(o).find(a=>a.id===id);
 const SW_OK=new Set(['Delivered','Sent','External','Opened']);
@@ -159,7 +206,7 @@ window.crPackPanelHtml=function(o,x){
     <div class="row-between rail-h"><div class="side-h">Shared with client</div>
       <div class="sw-head-r">${empty?'':`<div class="seg sh-seg">${[['all','All'],['shared',`Shared ${nS}`],['prep',`In preparation ${nP}`]].map(([k,l])=>`<button type="button" class="${f===k?'on':''}" onclick="oppShareFilter('${k}')">${l}</button>`).join('')}</div>`}
       <span class="sw-more"><button class="sw-dots" aria-label="Prototype scenarios" aria-haspopup="menu" onclick="swMenu(event,'__demo')">⋯</button>${SW.menu==='__demo'?swDemoMenu(o):''}</span></div></div>
-    ${empty?`<div class="sw-empty"><div class="sh-n">Nothing shared with ${swE(first)} yet</div><div class="cr-lc-meta">Proposals, brochures and links you send appear here with delivery, access and what ${swE(first)} opened. Present sessions start from Actions.</div><div class="sw-row"><button class="sh-btn" onclick="qaBrochure()">Send unit details</button><button class="sh-btn primary" onclick="${typeof sbOpen==='function'?'sbOpen':'crOpen'}('${o.id}')">Send proposal</button></div></div>`:''}
+    ${empty?`<div class="sw-empty"><div class="sh-n">Nothing shared with ${swE(first)} yet</div><div class="cr-lc-meta">The proposal and any files you attach in a message appear here, with delivery and what ${swE(first)} opened.</div><div class="sw-row"><button class="sh-btn primary" onclick="sbOpen('${o.id}')">Send proposal</button></div></div>`:''}
     ${!empty&&f!=='prep'?`<div class="sh-sec">Shared · ${nS}</div><div class="sh-list">${shared.map(a=>swAssetCard(o,a)).join('')||`<div class="cr-lc-meta sw-pad">Nothing has been sent yet. Items waiting to go are under In preparation.</div>`}</div>`:''}
     ${!empty&&f!=='shared'?`<div class="sh-sec">In preparation · not shared yet · ${nP}</div><div class="sh-list">${prepHtml||`<div class="cr-lc-meta sw-pad">Nothing in preparation.</div>`}</div>`:''}
   </div>`;
@@ -228,6 +275,7 @@ const swPick=(name,opts,cur,fn)=>`<div class="seg sw-seg" role="radiogroup" aria
 function swOpen(sheet,id,opt={}){
   const o=oppCur, a=swA(o,id); if(!a) return;
   SW.menu=null;
+  if(SW_ROUTED.has(a.type)&&(sheet==='share'||sheet==='resend')){swAttOpen(a);return;}
   const base={oid:o.id,id,viewVer:'shared',page:0,dtab:a.type==='microsite'?'web':'pdf',device:'desktop',revokeAsk:false,packConfig:false,dupAsk:false,fixAddr:!!opt.fixAddr};
   if(sheet==='edit'){
     if(SW_ROUTED.has(a.type)){SW={...base,sheet:'router',ed:{title:a.title,caption:(a.cur&&a.cur.caption)||''}};}
@@ -534,16 +582,73 @@ function swRecordExt(){
   swClose(); showToast('Recorded as shared externally · agent recorded.');
 }
 
-// "Send unit details" quick send records a real attempt on the brochure.
-window.qaBrochureSend=function(){
-  const o=oppCur,x=getExt(o);
-  const units=[...document.querySelectorAll('.qaBrUnit:checked')].map(b=>b.dataset.u);
-  if(!units.length){showToast('Select at least one unit');return;}
-  const chEl=document.querySelector('#qaBrCh .on'), ch=chEl?chEl.textContent.trim():'WhatsApp';
-  let a=swAssets(o,x).find(r=>r.type==='brochure');
-  if(!a){a={id:'br',type:'brochure',title:'Unit details',icon:'PDF',units,pub:1,draft:null,cur:{intro:'',units,secs:{cover:1,plans:1,payment:1},seg:'show'},versions:[{v:1,when:swNow(),by:o.rep,note:'approved unit details'}],attempts:[],access:null,eng:''};x.swAssets.unshift(a);}
-  a.attempts.push({when:swNow(),ch,ver:a.pub,fmt:'pdf',status:'Delivered',msg:`Unit details for ${units.join(', ')}`});
-  a.eng='Sent just now · not yet opened';
-  x.comms.unshift({ch:'sys',t:'Just now',text:`Unit details sent via ${ch} — ${units.join(', ')}`});
-  qaDrawerClose(); renderOpp(); if(document.getElementById('p-contact')?.classList.contains('on')&&typeof ctCur!=='undefined'&&ctCur) renderContact(); showToast('Unit details sent to '+swFirst(o));
-};
+// ---------- Message: attach a development file ----------
+// Quick answers mid-conversation ("can you send the floor plan?"): pick approved files from the linked homes
+// and developments. Each file sent is logged in Shared with client. Everything else goes in the proposal.
+let SW_ATT={oid:null,picks:[],open:false};
+function swAttFiles(o){
+  const units=o.units.filter(id=>UN(id)), devs=[...new Set([...o.devs,...units.map(id=>UN(id).dev)])];
+  // files.js owns the list (floor plans, brochure, price list, specification); this is the fallback.
+  const gen=window.FL?FL.forOpp(o):[
+    ...units.map(id=>({k:'fp:'+id,type:'floorplan',title:`Floor plan · ${id}`,units:[id],sub:`${UN(id).dev} · ${UN(id).beds?UN(id).beds+' bed':'Studio'} · ${UN(id).sqm} m²`})),
+    ...devs.map(d=>({k:'pl:'+d,type:'pricelist',title:`Price list · ${d}`,units:[],sub:'Available homes and prices'})),
+    ...devs.map(d=>({k:'ss:'+d,type:'spec',title:`Specification · ${d}`,units:[],sub:'Finishes and materials'})),
+  ];
+  const had=swAssets(o).filter(a=>SW_ROUTED.has(a.type)&&!gen.some(f=>f.title===a.title)).map(a=>({k:'a:'+a.id,type:a.type,title:a.title,units:a.units,sub:'On file for this buyer'}));
+  // A file sent from a unit or development page can be for a home this opportunity doesn't link yet.
+  const extra=window.FL?swAttPicks(o).filter(k=>![...gen,...had].some(f=>f.k===k)).map(k=>FL.find(k)).filter(Boolean):[];
+  return [...gen,...had,...extra];
+}
+// Share, Resend and Retry on a file open Message with the file attached: one way to send a file.
+function swAttOpen(a){
+  const o=oppCur, f=swAttFiles(o).find(x=>x.title===a.title), p=swAttPicks(o);
+  if(f&&!p.includes(f.k)) p.push(f.k);
+  if(typeof oppComposeCh!=='undefined'&&oppComposeCh==='note') oppComposeCh='wa';
+  if(typeof qaMessage==='function') qaMessage(); else renderOpp();
+}
+function swAttPicks(o){if(SW_ATT.oid!==o.id)SW_ATT={oid:o.id,picks:[],open:false};return SW_ATT.picks;}
+function swAttHtml(o){
+  const files=swAttFiles(o), picks=swAttPicks(o);
+  const menu=SW_ATT.open?`<div class="sw-menu oc-att-menu" role="menu" aria-label="Attach a file">${files.length?files.map(f=>`<button type="button" role="menuitemcheckbox" aria-checked="${picks.includes(f.k)}" onclick="swAttPick('${swE(f.k)}')"><b>${swE(f.title)}</b><span>${swE(f.sub)} · PDF</span></button>`).join('')
+    :`<div class="sw-menu-h">Link a development or a home to attach its files.</div>`}</div>`:'';
+  return `<span class="sw-more oc-att"><button type="button" class="ai-chip" aria-haspopup="menu" aria-expanded="${SW_ATT.open}" onclick="swAttToggle(event)">📎 Attach</button>${menu}</span>`;
+}
+function swAttChips(o){
+  const files=swAttFiles(o), picks=swAttPicks(o);
+  return picks.length?`<div class="oc-att-chips">${picks.map(k=>{const f=files.find(x=>x.k===k);return f?`<span class="sh-chip">📎 ${swE(f.title)}<button type="button" aria-label="Remove ${swE(f.title)}" onclick="swAttPick('${swE(k)}')">×</button></span>`:'';}).join('')}</div>`:'';
+}
+function swAttMount(){
+  const ta=document.getElementById('opp-comp'), o=oppCur; if(!ta||!o) return;
+  const comp=ta.closest('.opp-comp'), foot=comp&&comp.querySelector('.oc-foot'); if(!foot) return;
+  comp.querySelectorAll('.oc-att,.oc-att-chips').forEach(el=>el.remove());
+  if(oppComposeCh==='note') return;
+  const send=[...foot.querySelectorAll('button')].pop();
+  send.insertAdjacentHTML('beforebegin',swAttHtml(o));
+  foot.insertAdjacentHTML('beforebegin',swAttChips(o));
+}
+window.swAttToggle=function(e){if(e)e.stopPropagation();SW_ATT.open=!SW_ATT.open;swAttMount();};
+window.swAttPick=function(k){const p=swAttPicks(oppCur),i=p.indexOf(k);if(i>=0)p.splice(i,1);else p.push(k);SW_ATT.open=false;swAttMount();document.getElementById('opp-comp')?.focus();};
+document.addEventListener('click',e=>{if(SW_ATT.open&&!e.target.closest('.oc-att')){SW_ATT.open=false;swAttMount();}});
+(function(){
+  const baseRender=window.renderOpp, baseSend=window.oppSend;
+  if(baseRender) window.renderOpp=function(){const r=baseRender.apply(this,arguments);swAttMount();return r;};
+  if(!baseSend) return;
+  window.oppSend=function(){
+    const o=oppCur, ta=document.getElementById('opp-comp'), picks=o?[...swAttPicks(o)]:[];
+    if(!picks.length||oppComposeCh==='note') return baseSend.apply(this,arguments);
+    const files=swAttFiles(o).filter(f=>picks.includes(f.k)), x=getExt(o), ch=CH_META[oppComposeCh].label;
+    if(ta&&!ta.value.trim()) ta.value=`Hi ${swFirst(o)}, here ${files.length===1?'is the':'are the'} ${files.map(f=>f.title.split(' · ')[0].toLowerCase()).filter((t,i,a)=>a.indexOf(t)===i).join(' and ')} you asked for.`;
+    const text=ta?ta.value.trim():'';
+    SW_ATT.picks=[];
+    baseSend.apply(this,arguments);
+    const c=x.comms[0]; if(c&&c.text===text) c.sub=swE('📎 '+files.map(f=>f.title+' (PDF)').join(' · '));
+    const list=swAssets(o,x), now=swNow();
+    files.forEach(f=>{
+      let a=list.find(r=>(f.k==='a:'+r.id)||(r.type===f.type&&r.title===f.title));
+      if(!a){a={id:'f'+swHash(o.id+f.k).toString(36).slice(0,5),type:f.type,title:f.title,icon:'PDF',units:f.units,pub:1,draft:null,cur:{caption:''},versions:[{v:1,when:now,by:o.rep,note:'development file'}],attempts:[],access:null,eng:''};list.push(a);}
+      a.attempts.push({when:now,ch,ver:a.pub,fmt:'pdf',status:'Delivered',msg:text});
+    });
+    if(typeof oppShareF!=='undefined') oppShareF='all';
+    renderOpp();
+  };
+})();

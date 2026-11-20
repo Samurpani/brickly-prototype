@@ -9,6 +9,7 @@ const PREVIEW=`${MARIA}otPackOpen();sbPick('#CM9703','fin','urban');sbPick('#CM9
 let u;window.open=x=>{u=x;};sbPreview();setTimeout(()=>{location.href=u.replace('intro=1&','');},0);`;
 
 module.exports={
+  followUp:'see update 18 (Send proposal is the only send action)',
   id:'17', title:'One way to send a proposal to the buyer',
   viewport:{width:1440,height:1000},
   source:'Sam, staging review notes', devItems:'—',
